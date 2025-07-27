@@ -27,7 +27,6 @@ interface GameInfoProps {
 }
 
 export const GameInfo = ({ gameState }: GameInfoProps) => {
-  console.log("Game Info: teammate card : ", gameState.teammateCard);
   return (
     <div className="bg-secondary/90 backdrop-blur border border-border/50 rounded-lg p-4 shadow-elevated">
       <h2 className="text-lg font-bold text-foreground mb-3">Three of Spades</h2>
@@ -49,7 +48,8 @@ export const GameInfo = ({ gameState }: GameInfoProps) => {
           <div className="flex items-center gap-2">
             <span className="text-muted-foreground">Teammate:</span>
             <Badge variant="outline" className="text-xs">
-              <PlayingCard card={gameState.teammateCard} mini className="shadow-card" />
+              {/* todo fix this! */}
+              <PlayingCard card={gameState.teammateCard} mini />
             </Badge>
           </div>
         )}
