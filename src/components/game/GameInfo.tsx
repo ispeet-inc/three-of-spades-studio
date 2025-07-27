@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-import { Card } from "./PlayingCard";
+import { Card, PlayingCard } from "./PlayingCard";
 import { Suite } from "@/types/game";
 import { suitSymbols, suitColors } from "@/utils/suiteUtils";
 
@@ -19,7 +19,7 @@ interface GameState {
   currentBid: number;
   round: number;
   teamScores: { team1: number; team2: number };
-  teammate?: string;
+  teammateCard?: Card;
 }
 
 interface GameInfoProps {
@@ -27,6 +27,7 @@ interface GameInfoProps {
 }
 
 export const GameInfo = ({ gameState }: GameInfoProps) => {
+  console.log("Game Info: teammate card : ", gameState.teammateCard);
   return (
     <div className="bg-secondary/90 backdrop-blur border border-border/50 rounded-lg p-4 shadow-elevated">
       <h2 className="text-lg font-bold text-foreground mb-3">Three of Spades</h2>
@@ -44,11 +45,11 @@ export const GameInfo = ({ gameState }: GameInfoProps) => {
         </div>
 
         {/* Teammate */}
-        {gameState.teammate && (
+        {gameState.teammateCard && (
           <div className="flex items-center gap-2">
             <span className="text-muted-foreground">Teammate:</span>
             <Badge variant="outline" className="text-xs">
-              {gameState.teammate}
+              <PlayingCard card={gameState.teammateCard} mini className="shadow-card" />
             </Badge>
           </div>
         )}
