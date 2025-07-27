@@ -19,6 +19,7 @@ import { GameOverModal } from "@/components/game/GameOverModal";
 import { GameBoard } from "@/components/game/GameBoard";
 import { Card } from "@/types/game";
 import { Button } from "@/components/ui/button";
+import { getTeammateOptions } from "@/utils/gameUtils";
 
 const GameRedux = () => {
   const dispatch = useDispatch();
@@ -180,6 +181,43 @@ const GameRedux = () => {
     }
   }, [gameState.stage, gameState.biddingState, dispatch, gameState.playerAgents, gameState.players]);
 
+  // Handle bot trump selection
+  useEffect(() => {
+    if (gameState.stage === GameStages.TRUMP_SELECTION && 
+        gameState.biddingState.bidWinner !== 0) {
+      const timer = setTimeout(() => {
+        const botAgent = gameState.playerAgents[gameState.biddingState.bidWinner!];
+        const bidWinner = gameState.players[gameState.biddingState.bidWinner!];
+        
+        if (botAgent && bidWinner) {
+          try {
+            // Generate teammate options for all suits
+            const allTeammateOptions = [0, 1, 2, 3].flatMap(suite => 
+              getTeammateOptions(bidWinner.hand, suite)
+            );
+            
+            const choice = botAgent.chooseTrumpAndTeammate({
+              hand: bidWinner.hand,
+              playerNames: gameState.playerNames,
+              playerIndex: gameState.biddingState.bidWinner!,
+              teammateOptions: allTeammateOptions
+            });
+            
+            console.log(`Bot ${gameState.biddingState.bidWinner} chose trump and teammate:`, choice);
+            handleTrumpSelection(choice.trumpSuite, choice.teammateCard);
+          } catch (error) {
+            console.error(`Bot ${gameState.biddingState.bidWinner} trump selection error:`, error);
+            // Fallback: random trump and teammate
+            const randomTrump = Math.floor(Math.random() * 4);
+            const randomTeammate = { suite: randomTrump, number: 1 }; // Ace
+            handleTrumpSelection(randomTrump, randomTeammate);
+          }
+        }
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [gameState.stage, gameState.biddingState.bidWinner, gameState.playerAgents, gameState.players, gameState.playerNames]);
+
   if (gameState.stage === GameStages.INIT) {
     return (
       <div className="min-h-screen bg-gradient-felt flex items-center justify-center">
@@ -209,7 +247,7 @@ const GameRedux = () => {
         <BiddingModal />
       )}
 
-      {gameState.stage === GameStages.TRUMP_SELECTION && (
+      {gameState.stage === GameStages.TRUMP_SELECTION && gameState.biddingState.bidWinner === 0 && (
         <TrumpSelectionModal />
       )}
 
