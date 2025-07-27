@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { suiteMetadata } from "@/utils/suiteUtils";
 import { getCardId } from "@/utils/cardUtils";
 import { numbers } from "@/utils/constants";
+import { PlayingCard } from "./PlayingCard";
 
 export const TrumpSelectionModal = () => {
   const dispatch = useAppDispatch();
@@ -26,12 +27,44 @@ export const TrumpSelectionModal = () => {
   return (
     <Dialog open={true}>
       <DialogContent className="max-w-2xl bg-gradient-to-br from-felt-green-light to-felt-green-dark border-2 border-gold/40 shadow-elevated backdrop-blur-sm">
+        {/* Player Hand Display */}
+        <div className="mb-6">
+          <div className="flex justify-center items-center min-h-[120px] bg-felt-green-light/20 rounded-xl border border-gold/30 p-4">
+            <div className="flex justify-center items-end relative">
+              {players[0].hand.map((card, index) => {
+                const totalCards = players[0].hand.length;
+                const centerIndex = (totalCards - 1) / 2;
+                const offsetFromCenter = index - centerIndex;
+                const rotation = offsetFromCenter * 8; // Degrees of rotation per card
+                const xOffset = offsetFromCenter * 25; // Horizontal spacing
+                const yOffset = Math.abs(offsetFromCenter) * 8; // Curved effect
+                
+                return (
+                  <div
+                    key={card.id}
+                    className="absolute transition-all duration-200"
+                    style={{
+                      transform: `translateX(${xOffset}px) translateY(${yOffset}px) rotate(${rotation}deg)`,
+                      zIndex: index,
+                    }}
+                  >
+                    <PlayingCard 
+                      card={card} 
+                      size="sm"
+                      className="hover:scale-105 transition-transform cursor-default"
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
         <DialogHeader className="text-center mb-6">
           <DialogTitle className="text-2xl font-casino text-gold mb-2">
-            Choose Trump & Teammate
+            Choose Trump & Teammate Card
           </DialogTitle>
           <div className="w-20 h-1 bg-gradient-gold mx-auto rounded-full"></div>
-          <p className="text-sm text-gold/70 mt-3 font-medium">Select your trump suit and teammate card</p>
         </DialogHeader>
         
         <div className="space-y-6">
