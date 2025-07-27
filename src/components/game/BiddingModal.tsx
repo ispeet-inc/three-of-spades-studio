@@ -44,10 +44,10 @@ export const BiddingModal = () => {
         {/* Premium Hand Preview */}
         <div className="bg-casino-black/20 rounded-xl p-4 border border-gold/20 mb-6">
           <div className="text-center mb-3">
-            <div className="text-sm font-medium text-gold/80 uppercase tracking-wider">Your Hand Preview</div>
+            <div className="text-sm font-medium text-gold/80 uppercase tracking-wider">Your Complete Hand</div>
           </div>
-          <div className="flex gap-1 justify-center">
-            {players[0].hand.slice(0, 6).map((card, idx) => (
+          <div className="flex gap-1 justify-center flex-wrap">
+            {players[0].hand.map((card, idx) => (
               <div key={idx} className="transform hover:scale-105 transition-transform duration-200">
                 <PlayingCard card={card} mini className="shadow-card" />
               </div>
