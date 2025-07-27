@@ -3,6 +3,7 @@ import { Card } from "@/types/game";
 import { getSuiteIcon, getSuiteColor } from "@/utils/cardUtils";
 import { cn } from "@/lib/utils";
 import { useFeedback } from "@/utils/feedbackSystem";
+import { cardDescriptions } from "@/utils/accessibility";
 
 export type { Card };
 
@@ -33,6 +34,8 @@ export const PlayingCard = ({
 }: PlayingCardProps) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const { trigger } = useFeedback();
+  
+  const cardDescription = cardDescriptions.getFullDescription(card.number, card.suite);
   const suitIcon = getSuiteIcon(card.suite);
   const suitColor = getSuiteColor(card.suite);
   const displayNumber = card.number === 1 ? 'A' : 
@@ -149,6 +152,16 @@ export const PlayingCard = ({
       )}
       onClick={handleClick}
       onMouseEnter={handleMouseEnter}
+      role={isPlayable ? "button" : "img"}
+      tabIndex={isPlayable ? 0 : -1}
+      aria-label={isPlayable ? `Play ${cardDescription}` : cardDescription}
+      aria-pressed={isSelected}
+      onKeyDown={(e) => {
+        if (isPlayable && (e.key === 'Enter' || e.key === ' ')) {
+          e.preventDefault();
+          handleClick();
+        }
+      }}
       style={{
         animationDelay: dealAnimation ? `${dealDelay}ms` : undefined
       }}

@@ -92,8 +92,8 @@ export default {
 			},
 			
 			fontFamily: {
-				'casino': ['var(--font-casino)'],
-				'ui': ['var(--font-ui)'],
+				'casino': ['Playfair Display', 'serif'],
+				'ui': ['Inter', 'system-ui', 'sans-serif'],
 				sans: ['Inter', 'system-ui', 'sans-serif'],
 				serif: ['Playfair Display', 'serif']
 			},
