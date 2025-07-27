@@ -23,7 +23,7 @@ interface GameBoardProps {
     currentBid: number;
     round: number;
     teamScores: { team1: number; team2: number };
-    teammate?: string;
+    teammateCard?: Card
   };
   onCardPlay: (card: Card) => void;
   onSettingsClick: () => void;

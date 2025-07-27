@@ -58,7 +58,7 @@ const Game = () => {
       team1: gameState.scores[0], 
       team2: gameState.scores[1] 
     },
-    teammate: gameState.teammateCard ? `Player with ${gameState.teammateCard.number} of ${gameState.teammateCard.suite}` : undefined
+    teammateCard: gameState.teammateCard
   };
 
   const handleCardPlay = (card: Card) => {

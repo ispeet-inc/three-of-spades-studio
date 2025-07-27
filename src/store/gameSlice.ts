@@ -152,7 +152,8 @@ const gameSlice = createSlice({
       state.trumpSuite = trumpSuite;
       state.bidder = bidder;
       state.teammateCard = createCard(teammateCard.suite, teammateCard.number);
-
+      console.log(`Setting trump ${trumpSuite} and teammate: ${state.teammateCard}`)
+      console.log(state.teammateCard);
       // Assign teams based on teammate card
       const { teams, playerTeamMap } = assignTeamsByTeammateCard(
         state.players,
@@ -162,6 +163,15 @@ const gameSlice = createSlice({
       );
       state.teams = teams;
       state.playerTeamMap = playerTeamMap;
+      console.log(state.teams);
+      console.log(state.playerTeamMap);
+      // todo - make this happen through setStage too.
+      console.log(
+        "CHANGING STATE: FROM ",
+        state.stage,
+        " TO ",
+        GameStages.TRUMP_SELECTION_COMPLETE
+      );
       state.stage = GameStages.TRUMP_SELECTION_COMPLETE;
     },
 
@@ -212,7 +222,21 @@ const gameSlice = createSlice({
         state.biddingState.bidWinner = activePlayers[0];
         state.biddingState.biddingActive = false;
         state.bidAmount = state.biddingState.currentBid;
+        console.log(
+          "CHANGING STATE: FROM ",
+          state.stage,
+          " TO ",
+          GameStages.BIDDING_COMPLETE
+        );
+        state.stage = GameStages.BIDDING_COMPLETE;
+        console.log(
+          "CHANGING STATE: FROM ",
+          state.stage,
+          " TO ",
+          GameStages.TRUMP_SELECTION
+        );
         state.stage = GameStages.TRUMP_SELECTION;
+        console.log("Bid winner is ", state.biddingState.bidWinner);
       } else {
         // Advance to next eligible bidder
         let nextBidder = (playerIndex + 1) % 4;
