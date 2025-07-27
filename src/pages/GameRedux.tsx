@@ -93,12 +93,22 @@ const GameRedux = () => {
   // Handle bot actions
   useEffect(() => {
     if (gameState.stage === GameStages.PLAYING && gameState.turn !== 0) {
+      console.log(`Bot ${gameState.turn} should play now. Stage: ${gameState.stage}, Turn: ${gameState.turn}`);
       const timer = setTimeout(() => {
         const currentPlayer = gameState.players[gameState.turn];
         const botAgent = gameState.playerAgents[gameState.turn];
         
+        console.log(`Bot ${gameState.turn} - Hand length: ${currentPlayer?.hand?.length}, Agent exists: ${!!botAgent}`);
+        
         if (currentPlayer.hand.length > 0 && botAgent) {
           try {
+            console.log(`Bot ${gameState.turn} attempting to choose card with:`, {
+              handSize: currentPlayer.hand.length,
+              tableCards: gameState.tableCards.length,
+              trumpSuite: gameState.trumpSuite,
+              runningSuite: gameState.runningSuite
+            });
+            
             const cardIndex = botAgent.chooseCardIndex({
               hand: currentPlayer.hand,
               tableCards: gameState.tableCards,
@@ -106,6 +116,8 @@ const GameRedux = () => {
               runningSuite: gameState.runningSuite,
               playerIndex: gameState.turn
             });
+            
+            console.log(`Bot ${gameState.turn} chose card index: ${cardIndex}`);
             
             const validCardIndex = cardIndex !== null && cardIndex >= 0 && cardIndex < currentPlayer.hand.length 
               ? cardIndex 
@@ -118,6 +130,8 @@ const GameRedux = () => {
             const fallbackIndex = Math.floor(Math.random() * currentPlayer.hand.length);
             dispatch(playCard({ playerIndex: gameState.turn, cardIndex: fallbackIndex }));
           }
+        } else {
+          console.log(`Bot ${gameState.turn} cannot play - no hand or no agent`);
         }
       }, 1000);
       return () => clearTimeout(timer);
