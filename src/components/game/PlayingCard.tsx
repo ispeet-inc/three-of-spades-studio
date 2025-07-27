@@ -1,6 +1,8 @@
+import { useRef } from "react";
 import { Card } from "@/types/game";
 import { getSuiteIcon, getSuiteColor } from "@/utils/cardUtils";
 import { cn } from "@/lib/utils";
+import { useFeedback } from "@/utils/feedbackSystem";
 
 export type { Card };
 
@@ -29,6 +31,8 @@ export const PlayingCard = ({
   dealDelay = 0,
   playerPosition = 'bottom'
 }: PlayingCardProps) => {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const { trigger } = useFeedback();
   const suitIcon = getSuiteIcon(card.suite);
   const suitColor = getSuiteColor(card.suite);
   const displayNumber = card.number === 1 ? 'A' : 
@@ -101,20 +105,29 @@ export const PlayingCard = ({
 
   const textSizes = getTextSize();
 
+  const handleClick = () => {
+    if (onClick) {
+      trigger('cardPlay', { element: cardRef.current || undefined, intensity: 'medium' });
+      onClick();
+    }
+  };
+
   return (
     <div
+      ref={cardRef}
       className={cn(
         "relative bg-white rounded-lg border-2 border-casino-black/20 shadow-card transition-all duration-300",
         getCardSize(),
         "cursor-pointer select-none overflow-hidden",
-        isPlayable && "hover:scale-110 hover:shadow-card-hover hover:-translate-y-2 hover:border-gold/50",
+        isPlayable && "hover:scale-110 hover:shadow-card-hover hover:-translate-y-2 hover:border-gold/50 hover:animate-card-hover-lift",
         isSelected && "scale-105 shadow-card-selected border-gold -translate-y-1",
         !isPlayable && !onClick && "cursor-default",
         dealAnimation && getDealAnimation(),
         "transform-gpu", // Enable hardware acceleration
         className
       )}
-      onClick={onClick}
+      onClick={handleClick}
+      onMouseEnter={() => isPlayable && trigger('cardDeal', { element: cardRef.current || undefined, intensity: 'light' })}
       style={{
         animationDelay: dealAnimation ? `${dealDelay}ms` : undefined
       }}

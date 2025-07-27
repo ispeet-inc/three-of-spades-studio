@@ -20,10 +20,12 @@ import { GameBoard } from "@/components/game/GameBoard";
 import { Card } from "@/types/game";
 import { Button } from "@/components/ui/button";
 import { getTeammateOptions } from "@/utils/gameUtils";
+import { useFeedback } from "@/utils/feedbackSystem";
 
 const GameRedux = () => {
   const dispatch = useDispatch();
   const gameState = useSelector((state: RootState) => state.game);
+  const { trigger } = useFeedback();
 
   // Add dealing animation state
   const [isDealing, setIsDealing] = useState(false);
@@ -74,14 +76,17 @@ const GameRedux = () => {
   };
 
   const handleBid = (amount: number) => {
+    trigger('bid', { intensity: 'medium' });
     dispatch(placeBid({ playerIndex: 0, bidAmount: amount }));
   };
 
   const handlePass = () => {
+    trigger('buttonClick', { intensity: 'light' });
     dispatch(passBid({ playerIndex: 0 }));
   };
 
   const handleTrumpSelection = (trumpSuite: number, teammateCard: { suite: number; number: number }) => {
+    trigger('trump', { intensity: 'strong' });
     dispatch(setBidAndTrump({ 
       trumpSuite, 
       bidder: gameState.biddingState.bidWinner!, 
@@ -91,6 +96,7 @@ const GameRedux = () => {
   };
 
   const handleContinueAfterRound = () => {
+    trigger('success', { intensity: 'medium' });
     dispatch(startNewRound());
   };
 
