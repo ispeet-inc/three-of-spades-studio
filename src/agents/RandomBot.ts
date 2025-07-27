@@ -1,20 +1,23 @@
 import BotAgent, { BidAction, TrumpTeammateChoice, BidParams, TrumpTeammateParams } from "./BotAgent";
-import { Card, TableCard } from "@/types/game";
+import { Card, Suite, TableCard } from "@/types/game";
 import { getRandomCardIndex, getRandomCardIndexBySuite, getRandomSuite } from "@/utils/gameUtils";
 
 export default class RandomBot extends BotAgent {
   static displayName = "RandomBot";
 
-  startRound(hand: Card[], trumpSuite: number): number {
+  // Start a new round by playing a random card
+  startRound(hand: Card[], trumpSuite: Suite): number {
     if (!hand || hand.length === 0) return -1;
     return getRandomCardIndex(hand);
   }
 
-  pickRunningSuite(hand: Card[], runningSuite: number, trumpSuite: number, tableCards: TableCard[]): number {
+  // Pick a random card from the running suite
+  pickRunningSuite(hand: Card[], runningSuite: Suite, trumpSuite: Suite, tableCards: TableCard[]): number {
     return getRandomCardIndexBySuite(hand, runningSuite);
   }
 
-  toCutOrNotToCut(hand: Card[], runningSuite: number, trumpSuite: number, tableCards: TableCard[]): number {
+  // Randomly decide whether to cut or play a random card
+  toCutOrNotToCut(hand: Card[], runningSuite: Suite, trumpSuite: Suite, tableCards: TableCard[]): number {
     const trumpCards = hand.filter((card) => card.suite === trumpSuite);
     
     // 50% chance to cut if we have trump cards

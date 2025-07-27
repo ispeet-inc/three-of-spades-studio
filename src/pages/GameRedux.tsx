@@ -124,7 +124,7 @@ const GameRedux = () => {
             const cardIndex = botAgent.chooseCardIndex({
               hand: currentPlayer.hand,
               tableCards: gameState.tableCards,
-              trumpSuite: gameState.trumpSuite || 0,
+              trumpSuite: gameState.trumpSuite,
               runningSuite: gameState.runningSuite,
               playerIndex: gameState.turn
             });

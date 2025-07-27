@@ -1,4 +1,4 @@
-import { Card, TableCard } from "@/types/game";
+import { Card, Suite, TableCard } from "@/types/game";
 import { hasSuite } from "@/utils/gameUtils";
 
 export interface BidAction {
@@ -7,15 +7,15 @@ export interface BidAction {
 }
 
 export interface TrumpTeammateChoice {
-  trumpSuite: number;
-  teammateCard: { suite: number; number: number };
+  trumpSuite: Suite;
+  teammateCard: { suite: Suite; number: number };
 }
 
 export interface BotChoiceParams {
   hand: Card[];
   tableCards: TableCard[];
-  trumpSuite: number;
-  runningSuite: number | null;
+  trumpSuite: Suite;
+  runningSuite: Suite | null;
   playerIndex: number;
 }
 
@@ -36,19 +36,19 @@ export interface TrumpTeammateParams {
 }
 
 export default abstract class BotAgent {
-  abstract startRound(hand: Card[], trumpSuite: number): number;
+  abstract startRound(hand: Card[], trumpSuite: Suite): number;
   
   abstract pickRunningSuite(
     hand: Card[], 
-    runningSuite: number, 
-    trumpSuite: number, 
+    runningSuite: Suite, 
+    trumpSuite: Suite, 
     tableCards: TableCard[]
   ): number;
   
   abstract toCutOrNotToCut(
     hand: Card[], 
-    runningSuite: number, 
-    trumpSuite: number, 
+    runningSuite: Suite, 
+    trumpSuite: Suite, 
     tableCards: TableCard[]
   ): number;
 

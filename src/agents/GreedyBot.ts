@@ -1,67 +1,68 @@
 import BotAgent, { BidAction, TrumpTeammateChoice, BidParams, TrumpTeammateParams } from "./BotAgent";
-import { Card, TableCard } from "@/types/game";
-import { getRandomCardIndex, getRandomCardIndexBySuite, hasSuite } from "@/utils/gameUtils";
+import { Card, Suite, TableCard } from "@/types/game";
+import { determineRoundWinner, getRandomCardIndex, getRandomCardIndexBySuite, hasSuite } from "@/utils/gameUtils";
+import {
+  getHighestRankedCardIndex,
+  getHighestRankedCardIndexInSuite,
+  getLeastValueCardIndex,
+  getLeastValueCardIndexInSuite,
+} from "@/utils/handUtils";
 
 export default class GreedyBot extends BotAgent {
   static displayName = "GreedyBot";
 
-  startRound(hand: Card[], trumpSuite: number): number {
-    if (!hand || hand.length === 0) return -1;
-    
-    // Try to play highest non-trump card to avoid giving away trump early
-    const nonTrumpCards = hand
-      .map((card, index) => ({ card, index }))
-      .filter(({ card }) => card.suite !== trumpSuite);
-    
-    if (nonTrumpCards.length > 0) {
-      // Play highest non-trump card
-      const highest = nonTrumpCards.reduce((max, current) => 
-        current.card.rank > max.card.rank ? current : max
-      );
-      return highest.index;
-    }
-    
-    // If only trump cards, play lowest trump
-    return this.getLowestCardIndex(hand);
+  // Start a new round by playing the highest card
+  startRound(hand: Card[], trumpSuite: Suite): number {
+    return getHighestRankedCardIndex(hand);
   }
 
-  pickRunningSuite(hand: Card[], runningSuite: number, trumpSuite: number, tableCards: TableCard[]): number {
-    const runningSuiteCards = hand
-      .map((card, index) => ({ card, index }))
-      .filter(({ card }) => card.suite === runningSuite);
-    
-    if (runningSuiteCards.length === 0) return -1;
-    
-    // Try to win with highest card of running suite
-    const highest = runningSuiteCards.reduce((max, current) => 
-      current.card.rank > max.card.rank ? current : max
+  // if P(win) > 0, pick the highest card from the running suite
+  // else pick the least value card
+  pickRunningSuite(hand: Card[], runningSuite: Suite, trumpSuite: Suite, tableCards: TableCard[]): number {
+    const winningCard = determineRoundWinner(
+      tableCards,
+      runningSuite,
+      trumpSuite
     );
-    
-    return highest.index;
+    const isRoundCut =
+      winningCard.suite === trumpSuite && trumpSuite !== runningSuite;
+
+    const highestCardIndex = getHighestRankedCardIndexInSuite(
+      hand,
+      runningSuite
+    );
+    const highestCard = hand[highestCardIndex];
+    if (isRoundCut || winningCard.rank > highestCard.rank) {
+      return getLeastValueCardIndexInSuite(hand, runningSuite);
+    } else {
+      return highestCardIndex;
+    }    
   }
 
-  toCutOrNotToCut(hand: Card[], runningSuite: number, trumpSuite: number, tableCards: TableCard[]): number {
-    const trumpCards = hand.filter((card) => card.suite === trumpSuite);
-    
-    // Check if we can win with trump
-    if (trumpCards.length > 0) {
-      const highestTrumpOnTable = Math.max(
-        ...tableCards
-          .filter(card => card.suite === trumpSuite)
-          .map(card => card.rank),
-        0
-      );
-      
-      const ourHighestTrump = Math.max(...trumpCards.map(card => card.rank));
-      
-      // Cut if we can win with trump
-      if (ourHighestTrump > highestTrumpOnTable) {
-        return getRandomCardIndexBySuite(hand, trumpSuite);
+  // If player has trump, if P(win) > 0 --> play highest trump card
+  // else, play least value card
+  toCutOrNotToCut(hand: Card[], runningSuite: Suite, trumpSuite: Suite, tableCards: TableCard[]): number {
+    const winningCard = determineRoundWinner(
+      tableCards,
+      runningSuite,
+      trumpSuite
+    );
+    const isRoundCut =
+      winningCard.suite === trumpSuite && trumpSuite !== runningSuite;
+
+    const highestTrumpIndex = getHighestRankedCardIndexInSuite(
+      hand,
+      trumpSuite
+    );
+    if (highestTrumpIndex !== null) {
+      const highestTrump = hand[highestTrumpIndex];
+      if (isRoundCut && winningCard.rank > highestTrump.rank) {
+        return getLeastValueCardIndex(hand);
       }
+      return highestTrumpIndex;
+    } else {
+      return getLeastValueCardIndex(hand);
     }
-    
-    // Otherwise play lowest card
-    return this.getLowestCardIndex(hand);
   }
 
   getBidAction(params: BidParams): BidAction {
@@ -119,15 +120,4 @@ export default class GreedyBot extends BotAgent {
     };
   }
 
-  private getLowestCardIndex(hand: Card[]): number {
-    if (hand.length === 0) return -1;
-    
-    let lowestIndex = 0;
-    for (let i = 1; i < hand.length; i++) {
-      if (hand[i].rank < hand[lowestIndex].rank) {
-        lowestIndex = i;
-      }
-    }
-    return lowestIndex;
-  }
 }

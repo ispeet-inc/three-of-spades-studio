@@ -1,10 +1,10 @@
-import { Card, TableCard, Player, TeammateCard } from "@/types/game";
+import { Card, Suite, TableCard, Player, TeammateCard } from "@/types/game";
 import { createCard } from "./cardUtils";
 
 export const determineRoundWinner = (
   tableCards: TableCard[],
-  runningSuite: number,
-  trumpSuite: number
+  runningSuite: Suite,
+  trumpSuite: Suite
 ): TableCard => {
   // First check if any trump cards were played
   const trumpCards = tableCards.filter((card) => card.suite === trumpSuite);
