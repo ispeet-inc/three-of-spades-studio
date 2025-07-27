@@ -10,12 +10,12 @@ const mockGameState = {
       name: "You",
       team: 1 as const,
       cards: [
-        { suit: 'hearts' as const, value: 'A' as const },
-        { suit: 'spades' as const, value: 'K' as const },
-        { suit: 'clubs' as const, value: 'Q' as const },
-        { suit: 'diamonds' as const, value: 'J' as const },
-        { suit: 'hearts' as const, value: '10' as const },
-        { suit: 'spades' as const, value: '9' as const }
+        { id: 'A-hearts', suite: 2, number: 1, rank: 14, points: 10, positionValue: 214 },
+        { id: 'K-spades', suite: 3, number: 13, rank: 13, points: 10, positionValue: 313 },
+        { id: 'Q-clubs', suite: 0, number: 12, rank: 12, points: 10, positionValue: 12 },
+        { id: 'J-diamonds', suite: 1, number: 11, rank: 11, points: 10, positionValue: 111 },
+        { id: '10-hearts', suite: 2, number: 10, rank: 10, points: 10, positionValue: 210 },
+        { id: '9-spades', suite: 3, number: 9, rank: 9, points: 0, positionValue: 309 }
       ],
       isCurrentPlayer: true
     },
@@ -23,25 +23,25 @@ const mockGameState = {
       id: "player2", 
       name: "Nats",
       team: 2 as const,
-      cards: Array(6).fill(null).map(() => ({ suit: 'hearts' as const, value: 'A' as const }))
+      cards: Array(6).fill(null).map((_, i) => ({ id: `card-${i}`, suite: 2, number: 1, rank: 14, points: 10, positionValue: 214 }))
     },
     {
       id: "player3",
       name: "Prateek", 
       team: 1 as const,
-      cards: Array(6).fill(null).map(() => ({ suit: 'hearts' as const, value: 'A' as const })),
+      cards: Array(6).fill(null).map((_, i) => ({ id: `card-p3-${i}`, suite: 2, number: 1, rank: 14, points: 10, positionValue: 214 })),
       isTeammate: true
     },
     {
       id: "player4",
       name: "Abhi",
       team: 2 as const, 
-      cards: Array(6).fill(null).map(() => ({ suit: 'hearts' as const, value: 'A' as const }))
+      cards: Array(6).fill(null).map((_, i) => ({ id: `card-p4-${i}`, suite: 2, number: 1, rank: 14, points: 10, positionValue: 214 }))
     }
   ],
   currentTrick: [
-    { suit: 'hearts' as const, value: '5' as const },
-    { suit: 'spades' as const, value: 'A' as const }
+    { id: '5-hearts', suite: 2, number: 5, rank: 5, points: 5, positionValue: 205, player: 0 },
+    { id: 'A-spades', suite: 3, number: 1, rank: 14, points: 10, positionValue: 314, player: 1 }
   ],
   trumpSuit: 'spades' as const,
   currentBid: 200,

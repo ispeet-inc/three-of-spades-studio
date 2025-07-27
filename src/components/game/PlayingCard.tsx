@@ -1,11 +1,18 @@
 import { Card } from "@/types/game";
 import { getSuiteName, getSuiteIcon, getSuiteColor } from "@/utils/cardUtils";
 
+export type { Card };
+
+type CardSize = "sm" | "md" | "lg";
+
 interface PlayingCardProps {
   card?: Card;
   hidden?: boolean;
   mini?: boolean;
   small?: boolean;
+  size?: CardSize;
+  isBack?: boolean;
+  isPlayable?: boolean;
   className?: string;
   onClick?: () => void;
   disabled?: boolean;
@@ -15,7 +22,10 @@ export const PlayingCard = ({
   card, 
   hidden = false, 
   mini = false, 
-  small = false, 
+  small = false,
+  size = "md",
+  isBack = false,
+  isPlayable = false,
   className = "",
   onClick,
   disabled = false
@@ -24,7 +34,7 @@ export const PlayingCard = ({
     return null;
   }
 
-  if (hidden) {
+  if (hidden || isBack) {
     return (
       <div 
         className={`
@@ -51,12 +61,23 @@ export const PlayingCard = ({
                       card.number === 13 ? 'K' : 
                       card.number.toString();
 
+  const getSizeClasses = () => {
+    if (mini) return "w-8 h-12";
+    if (small) return "w-12 h-18";
+    
+    switch (size) {
+      case "sm": return "w-12 h-18";
+      case "lg": return "w-20 h-30";
+      default: return "w-16 h-24";
+    }
+  };
+
   return (
     <div 
       className={`
-        relative bg-gradient-to-br from-card to-card/90 rounded-lg shadow-card border border-card-border
-        ${mini ? "w-8 h-12" : small ? "w-12 h-18" : "w-16 h-24"}
-        ${onClick && !disabled ? "cursor-pointer hover:shadow-card-hover hover:scale-105 transition-all duration-200" : ""}
+        relative bg-gradient-to-br from-card to-card/90 rounded-lg shadow-card border border-border
+        ${getSizeClasses()}
+        ${onClick && !disabled && isPlayable ? "cursor-pointer hover:shadow-glow hover:scale-105 transition-all duration-200" : ""}
         ${disabled ? "opacity-50 cursor-not-allowed" : ""}
         ${className}
       `}

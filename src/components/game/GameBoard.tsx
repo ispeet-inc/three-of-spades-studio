@@ -130,7 +130,6 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick }: GameBoardP
                   >
                     <PlayingCard 
                       card={card} 
-                      size="md"
                       className="shadow-elevated"
                     />
                   </div>

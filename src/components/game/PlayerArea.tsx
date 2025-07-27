@@ -89,7 +89,7 @@ export const PlayerArea = ({
           
           return (
             <div
-              key={`${card.suit}-${card.value}-${index}`}
+              key={`${card.id}-${index}`}
               className={cn("transition-all duration-300", {
                 "hover:-translate-y-2": isBottomPlayer,
                 "-ml-3": position === 'bottom' && index > 0,
@@ -103,9 +103,8 @@ export const PlayerArea = ({
             >
               <PlayingCard
                 card={shouldShowCard ? card : undefined}
-                isBack={!shouldShowCard}
+                hidden={!shouldShowCard}
                 onClick={() => onCardClick?.(card)}
-                size="md"
                 isPlayable={isBottomPlayer}
               />
             </div>

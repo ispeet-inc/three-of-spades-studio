@@ -26,42 +26,51 @@ const Index = () => {
         <div className="flex gap-4 mb-12 perspective-1000">
           <div className="animate-card-deal" style={{ animationDelay: '0ms' }}>
             <PlayingCard 
-              card={{ suit: 'spades', value: 'A' }} 
+              card={{ id: 'A-spades', suite: 3, number: 1, rank: 14, points: 10, positionValue: 314 }} 
               size="lg"
               className="hover:scale-110 transition-transform duration-300"
             />
           </div>
           <div className="animate-card-deal" style={{ animationDelay: '200ms' }}>
             <PlayingCard 
-              card={{ suit: 'hearts', value: 'K' }} 
+              card={{ id: 'K-hearts', suite: 2, number: 13, rank: 13, points: 10, positionValue: 213 }} 
               size="lg"
               className="hover:scale-110 transition-transform duration-300"
             />
           </div>
           <div className="animate-card-deal" style={{ animationDelay: '400ms' }}>
             <PlayingCard 
-              card={{ suit: 'diamonds', value: 'Q' }} 
+              card={{ id: 'Q-diamonds', suite: 1, number: 12, rank: 12, points: 10, positionValue: 112 }} 
               size="lg"
               className="hover:scale-110 transition-transform duration-300"
             />
           </div>
           <div className="animate-card-deal" style={{ animationDelay: '600ms' }}>
             <PlayingCard 
-              card={{ suit: 'clubs', value: 'J' }} 
+              card={{ id: 'J-clubs', suite: 0, number: 11, rank: 11, points: 10, positionValue: 11 }} 
               size="lg"
               className="hover:scale-110 transition-transform duration-300"
             />
           </div>
         </div>
 
-        {/* CTA Button */}
-        <Button 
-          size="lg"
-          onClick={() => navigate('/game')}
-          className="bg-gradient-gold text-casino-black font-bold text-lg px-8 py-6 rounded-xl shadow-elevated hover:shadow-glow transition-all duration-300 hover:scale-105"
-        >
-          Start Playing
-        </Button>
+        {/* CTA Buttons */}
+        <div className="flex gap-4 mb-8">
+          <Button 
+            size="lg"
+            onClick={() => navigate('/game')}
+            className="bg-gradient-gold text-casino-black font-bold text-lg px-8 py-6 rounded-xl shadow-elevated hover:shadow-glow transition-all duration-300 hover:scale-105"
+          >
+            Mock Game
+          </Button>
+          <Button 
+            size="lg"
+            onClick={() => navigate('/redux-game')}
+            className="bg-gradient-gold text-casino-black font-bold text-lg px-8 py-6 rounded-xl shadow-elevated hover:shadow-glow transition-all duration-300 hover:scale-105"
+          >
+            Full Game
+          </Button>
+        </div>
 
         {/* Features */}
         <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl">
