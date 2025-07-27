@@ -88,15 +88,15 @@ export const distributeDeck = (deck: Card[], numPlayers: number): Card[][] => {
 };
 
 export const getSuiteName = (suite: number): string => {
-  const names = ['spade', 'heart', 'diamond', 'club'];
+  const names = ['spade', 'heart', 'club', 'diamond'];
   return names[suite];
 };
 
 export const getSuiteColor = (suite: number): string => {
-  return suite === 1 || suite === 2 ? 'red' : 'black';
+  return suite === 1 || suite === 3 ? 'red' : 'black';
 };
 
 export const getSuiteIcon = (suite: number): string => {
-  const icons = ['♠', '♥', '♦', '♣'];
+  const icons = ['♠', '♥', '♣', '♦'];
   return icons[suite];
 };

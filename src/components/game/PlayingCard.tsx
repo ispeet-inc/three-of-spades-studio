@@ -38,11 +38,7 @@ export const PlayingCard = ({
   const cardDescription = cardDescriptions.getFullDescription(card.number, card.suite);
   const suitIcon = getSuiteIcon(card.suite);
   const suitColor = getSuiteColor(card.suite);
-  const displayNumber = card.number === 1 ? 'A' : 
-                       card.number === 11 ? 'J' :
-                       card.number === 12 ? 'Q' :
-                       card.number === 13 ? 'K' : 
-                       card.number.toString();
+  const displayNumber = card.id;
 
   // Animation classes based on dealing position
   const getDealAnimation = () => {
