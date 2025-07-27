@@ -62,6 +62,7 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
+				
 				/* Premium Casino Colors */
 				'felt-green': {
 					DEFAULT: 'hsl(var(--felt-green))',
@@ -74,17 +75,62 @@ export default {
 					dark: 'hsl(var(--gold-dark))'
 				},
 				'casino-red': 'hsl(var(--casino-red))',
-				'casino-black': 'hsl(var(--casino-black))'
+				'casino-black': 'hsl(var(--casino-black))',
+				'casino-white': 'hsl(var(--casino-white))',
+				
+				/* Enhanced Card Colors */
+				'card-bg': 'hsl(var(--card-bg))',
+				'card-border': 'hsl(var(--card-border))',
+				'card-shine': 'hsl(var(--card-shine))',
+				'card-red': 'hsl(var(--card-red))',
+				'card-black': 'hsl(var(--card-black))',
+				
+				/* Table Elements */
+				'table-felt': 'hsl(var(--table-felt))',
+				'table-accent': 'hsl(var(--table-accent))',
+				'table-shadow': 'hsl(var(--table-shadow))'
+			},
+			
+			fontFamily: {
+				'casino': ['var(--font-casino)'],
+				'ui': ['var(--font-ui)'],
+				sans: ['Inter', 'system-ui', 'sans-serif'],
+				serif: ['Playfair Display', 'serif']
+			},
+			
+			spacing: {
+				'xs': 'var(--space-xs)',
+				'sm': 'var(--space-sm)', 
+				'md': 'var(--space-md)',
+				'lg': 'var(--space-lg)',
+				'xl': 'var(--space-xl)',
+				'2xl': 'var(--space-2xl)',
+				'3xl': 'var(--space-3xl)'
+			},
+			
+			zIndex: {
+				'base': 'var(--z-base)',
+				'cards': 'var(--z-cards)',
+				'ui': 'var(--z-ui)',
+				'modals': 'var(--z-modals)'
 			},
 			backgroundImage: {
 				'gradient-felt': 'var(--gradient-felt)',
 				'gradient-gold': 'var(--gradient-gold)',
-				'gradient-card': 'var(--gradient-card)'
+				'gradient-card': 'var(--gradient-card)',
+				'gradient-table': 'var(--gradient-table)'
 			},
 			boxShadow: {
 				'card': 'var(--shadow-card)',
 				'elevated': 'var(--shadow-elevated)',
-				'glow': 'var(--shadow-glow)'
+				'glow': 'var(--shadow-glow)',
+				'table': 'var(--shadow-table)'
+			},
+			
+			transitionDuration: {
+				'fast': 'var(--duration-fast)',
+				'normal': 'var(--duration-normal)',
+				'slow': 'var(--duration-slow)'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

@@ -37,7 +37,7 @@ All colors MUST be HSL.
     --input: 140 20% 35%;
     --ring: 45 100% 60%;
 
-    /* Premium Design Tokens */
+    /* Premium Casino Design Tokens */
     --felt-green: 140 35% 18%;
     --felt-green-light: 140 30% 25%;
     --felt-green-dark: 140 40% 12%;
@@ -48,16 +48,55 @@ All colors MUST be HSL.
     
     --casino-red: 0 85% 55%;
     --casino-black: 0 0% 8%;
+    --casino-white: 0 0% 98%;
+    
+    /* Card Colors */
+    --card-bg: 0 0% 98%;
+    --card-border: 0 0% 85%;
+    --card-shine: 0 0% 100%;
+    --card-red: 0 85% 55%;
+    --card-black: 0 0% 15%;
+    
+    /* Table Elements */
+    --table-felt: var(--felt-green);
+    --table-accent: var(--gold);
+    --table-shadow: 140 50% 8%;
+    
+    /* Typography */
+    --font-casino: 'Playfair Display', serif;
+    --font-ui: 'Inter', sans-serif;
+    
+    /* Spacing Scale (8px grid) */
+    --space-xs: 0.25rem;   /* 4px */
+    --space-sm: 0.5rem;    /* 8px */
+    --space-md: 1rem;      /* 16px */
+    --space-lg: 1.5rem;    /* 24px */
+    --space-xl: 2rem;      /* 32px */
+    --space-2xl: 3rem;     /* 48px */
+    --space-3xl: 4rem;     /* 64px */
     
     /* Gradients */
     --gradient-felt: linear-gradient(135deg, hsl(var(--felt-green-light)), hsl(var(--felt-green)), hsl(var(--felt-green-dark)));
     --gradient-gold: linear-gradient(135deg, hsl(var(--gold-light)), hsl(var(--gold)), hsl(var(--gold-dark)));
-    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(0 0% 95%));
+    --gradient-card: linear-gradient(145deg, hsl(var(--card-bg)), hsl(0 0% 95%));
+    --gradient-table: radial-gradient(ellipse at center, hsl(var(--felt-green-light) / 0.8), hsl(var(--felt-green)), hsl(var(--felt-green-dark)));
     
     /* Shadows */
     --shadow-card: 0 4px 20px -2px hsl(var(--felt-green-dark) / 0.5);
     --shadow-elevated: 0 8px 30px -4px hsl(var(--felt-green-dark) / 0.7);
     --shadow-glow: 0 0 20px hsl(var(--gold) / 0.3);
+    --shadow-table: inset 0 0 100px hsl(var(--table-shadow) / 0.3);
+    
+    /* Animation Durations */
+    --duration-fast: 150ms;
+    --duration-normal: 300ms;
+    --duration-slow: 500ms;
+    
+    /* Z-Index Scale */
+    --z-base: 0;
+    --z-cards: 10;
+    --z-ui: 20;
+    --z-modals: 50;
 
     --radius: 0.75rem;
 
