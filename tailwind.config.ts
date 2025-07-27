@@ -61,7 +61,30 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+				/* Premium Casino Colors */
+				'felt-green': {
+					DEFAULT: 'hsl(var(--felt-green))',
+					light: 'hsl(var(--felt-green-light))',
+					dark: 'hsl(var(--felt-green-dark))'
+				},
+				gold: {
+					DEFAULT: 'hsl(var(--gold))',
+					light: 'hsl(var(--gold-light))',
+					dark: 'hsl(var(--gold-dark))'
+				},
+				'casino-red': 'hsl(var(--casino-red))',
+				'casino-black': 'hsl(var(--casino-black))'
+			},
+			backgroundImage: {
+				'gradient-felt': 'var(--gradient-felt)',
+				'gradient-gold': 'var(--gradient-gold)',
+				'gradient-card': 'var(--gradient-card)'
+			},
+			boxShadow: {
+				'card': 'var(--shadow-card)',
+				'elevated': 'var(--shadow-elevated)',
+				'glow': 'var(--shadow-glow)'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -84,11 +107,38 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'card-flip': {
+					'0%': { transform: 'rotateY(0deg)' },
+					'50%': { transform: 'rotateY(90deg)' },
+					'100%': { transform: 'rotateY(0deg)' }
+				},
+				'card-deal': {
+					'0%': { 
+						transform: 'translateX(-100px) translateY(-50px) rotate(-15deg)',
+						opacity: '0'
+					},
+					'100%': {
+						transform: 'translateX(0) translateY(0) rotate(0deg)',
+						opacity: '1'
+					}
+				},
+				'glow-pulse': {
+					'0%, 100%': { opacity: '1' },
+					'50%': { opacity: '0.6' }
+				},
+				'float': {
+					'0%, 100%': { transform: 'translateY(0px)' },
+					'50%': { transform: 'translateY(-6px)' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'card-flip': 'card-flip 0.6s ease-in-out',
+				'card-deal': 'card-deal 0.5s ease-out',
+				'glow-pulse': 'glow-pulse 2s ease-in-out infinite',
+				'float': 'float 3s ease-in-out infinite'
 			}
 		}
 	},
