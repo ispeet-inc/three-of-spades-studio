@@ -9,6 +9,7 @@ interface PlayingCardProps {
   isPlayable?: boolean;
   isSelected?: boolean;
   mini?: boolean;
+  size?: 'sm' | 'md' | 'lg';
   onClick?: () => void;
   className?: string;
   dealAnimation?: boolean;
@@ -21,6 +22,7 @@ export const PlayingCard = ({
   isPlayable = false, 
   isSelected = false, 
   mini = false, 
+  size = 'md',
   onClick, 
   className,
   dealAnimation = false,
@@ -55,12 +57,56 @@ export const PlayingCard = ({
     }
   };
 
+  const getCardSize = () => {
+    if (mini) return "w-8 h-12";
+    
+    switch (size) {
+      case 'sm':
+        return "w-12 h-18";
+      case 'lg':
+        return "w-20 h-30";
+      default: // 'md'
+        return "w-16 h-24";
+    }
+  };
+
+  const getTextSize = () => {
+    if (mini) return {
+      number: "text-[10px]",
+      suit: "text-[8px]",
+      center: "text-sm"
+    };
+    
+    switch (size) {
+      case 'sm':
+        return {
+          number: "text-xs",
+          suit: "text-[10px]", 
+          center: "text-lg"
+        };
+      case 'lg':
+        return {
+          number: "text-base",
+          suit: "text-sm",
+          center: "text-3xl"
+        };
+      default: // 'md'
+        return {
+          number: "text-sm",
+          suit: "text-xs",
+          center: "text-2xl"
+        };
+    }
+  };
+
+  const textSizes = getTextSize();
+
   return (
     <div
       className={cn(
         "relative bg-white rounded-lg border-2 border-casino-black/20 shadow-card transition-all duration-300",
-        mini ? "w-8 h-12" : "w-16 h-24",
-        "cursor-pointer select-none",
+        getCardSize(),
+        "cursor-pointer select-none overflow-hidden",
         isPlayable && "hover:scale-110 hover:shadow-card-hover hover:-translate-y-2 hover:border-gold/50",
         isSelected && "scale-105 shadow-card-selected border-gold -translate-y-1",
         !isPlayable && !onClick && "cursor-default",
@@ -74,22 +120,21 @@ export const PlayingCard = ({
       }}
     >
       {/* Card face */}
-      <div className="absolute inset-1 bg-white rounded-md flex flex-col">
+      <div className="absolute inset-1 bg-white rounded-md flex flex-col justify-between p-1">
         {/* Top left number and suit */}
         <div className={cn(
-          "flex flex-col items-center leading-none",
-          mini ? "text-xs p-0.5" : "text-sm p-1",
+          "flex flex-col items-start leading-none",
           suitColor === 'red' ? "text-red-600" : "text-casino-black"
         )}>
-          <span className="font-bold">{displayNumber}</span>
-          <span className={mini ? "text-[8px]" : "text-xs"}>{suitIcon}</span>
+          <span className={cn("font-bold", textSizes.number)}>{displayNumber}</span>
+          <span className={textSizes.suit}>{suitIcon}</span>
         </div>
 
         {/* Center suit icon */}
         {!mini && (
           <div className="flex-1 flex items-center justify-center">
             <span className={cn(
-              "text-2xl",
+              textSizes.center,
               suitColor === 'red' ? "text-red-600" : "text-casino-black"
             )}>
               {suitIcon}
@@ -99,12 +144,11 @@ export const PlayingCard = ({
 
         {/* Bottom right number and suit (rotated) */}
         <div className={cn(
-          "flex flex-col items-center leading-none rotate-180 self-end",
-          mini ? "text-xs p-0.5" : "text-sm p-1",
+          "flex flex-col items-end leading-none rotate-180 self-end",
           suitColor === 'red' ? "text-red-600" : "text-casino-black"
         )}>
-          <span className="font-bold">{displayNumber}</span>
-          <span className={mini ? "text-[8px]" : "text-xs"}>{suitIcon}</span>
+          <span className={cn("font-bold", textSizes.number)}>{displayNumber}</span>
+          <span className={textSizes.suit}>{suitIcon}</span>
         </div>
       </div>
 
