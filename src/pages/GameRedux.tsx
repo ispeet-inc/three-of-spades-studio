@@ -95,14 +95,34 @@ const GameRedux = () => {
     if (gameState.stage === GameStages.PLAYING && gameState.turn !== 0) {
       const timer = setTimeout(() => {
         const currentPlayer = gameState.players[gameState.turn];
-        if (currentPlayer.hand.length > 0) {
-          const randomCardIndex = Math.floor(Math.random() * currentPlayer.hand.length);
-          dispatch(playCard({ playerIndex: gameState.turn, cardIndex: randomCardIndex }));
+        const botAgent = gameState.playerAgents[gameState.turn];
+        
+        if (currentPlayer.hand.length > 0 && botAgent) {
+          try {
+            const cardIndex = botAgent.chooseCardIndex({
+              hand: currentPlayer.hand,
+              tableCards: gameState.tableCards,
+              trumpSuite: gameState.trumpSuite || 0,
+              runningSuite: gameState.runningSuite,
+              playerIndex: gameState.turn
+            });
+            
+            const validCardIndex = cardIndex !== null && cardIndex >= 0 && cardIndex < currentPlayer.hand.length 
+              ? cardIndex 
+              : Math.floor(Math.random() * currentPlayer.hand.length);
+              
+            console.log(`Bot ${gameState.turn} playing card at index: ${validCardIndex}`);
+            dispatch(playCard({ playerIndex: gameState.turn, cardIndex: validCardIndex }));
+          } catch (error) {
+            console.error(`Bot ${gameState.turn} error:`, error);
+            const fallbackIndex = Math.floor(Math.random() * currentPlayer.hand.length);
+            dispatch(playCard({ playerIndex: gameState.turn, cardIndex: fallbackIndex }));
+          }
         }
       }, 1000);
       return () => clearTimeout(timer);
     }
-  }, [gameState.stage, gameState.turn, dispatch, gameState.players]);
+  }, [gameState.stage, gameState.turn, dispatch, gameState.players, gameState.tableCards, gameState.trumpSuite, gameState.runningSuite, gameState.playerAgents]);
 
   // Handle bot bidding
   useEffect(() => {
@@ -110,19 +130,41 @@ const GameRedux = () => {
         gameState.biddingState.currentBidder !== 0 && 
         gameState.biddingState.biddingActive) {
       const timer = setTimeout(() => {
-        // Simple bot logic: 50% chance to bid higher, 50% to pass
-        if (Math.random() > 0.5 && gameState.biddingState.currentBid < 200) {
-          dispatch(placeBid({ 
-            playerIndex: gameState.biddingState.currentBidder, 
-            bidAmount: gameState.biddingState.currentBid + 5 
-          }));
+        const botAgent = gameState.playerAgents[gameState.biddingState.currentBidder];
+        const currentPlayer = gameState.players[gameState.biddingState.currentBidder];
+        
+        if (botAgent && currentPlayer) {
+          try {
+            const bidAction = botAgent.getBidAction({
+              currentBid: gameState.biddingState.currentBid,
+              minIncrement: 5,
+              maxBid: 200,
+              passedPlayers: gameState.biddingState.passedPlayers,
+              hand: currentPlayer.hand,
+              playerIndex: gameState.biddingState.currentBidder
+            });
+            
+            console.log(`Bot ${gameState.biddingState.currentBidder} bid action:`, bidAction);
+            
+            if (bidAction.action === 'bid' && bidAction.bidAmount) {
+              dispatch(placeBid({ 
+                playerIndex: gameState.biddingState.currentBidder, 
+                bidAmount: bidAction.bidAmount 
+              }));
+            } else {
+              dispatch(passBid({ playerIndex: gameState.biddingState.currentBidder }));
+            }
+          } catch (error) {
+            console.error(`Bot ${gameState.biddingState.currentBidder} bidding error:`, error);
+            dispatch(passBid({ playerIndex: gameState.biddingState.currentBidder }));
+          }
         } else {
           dispatch(passBid({ playerIndex: gameState.biddingState.currentBidder }));
         }
       }, 1500);
       return () => clearTimeout(timer);
     }
-  }, [gameState.stage, gameState.biddingState, dispatch]);
+  }, [gameState.stage, gameState.biddingState, dispatch, gameState.playerAgents, gameState.players]);
 
   if (gameState.stage === GameStages.INIT) {
     return (
