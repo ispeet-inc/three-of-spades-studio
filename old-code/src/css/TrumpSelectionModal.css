@@ -1,0 +1,272 @@
+.bid-trump-modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(20, 20, 20, 0.75);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bid-trump-modal {
+  background: #1a2a23;
+  border-radius: 1.2em;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.25);
+  padding: 2.2em 2.5em 2em 2.5em;
+  min-width: 340px;
+  max-width: 95vw;
+  color: #f5f5dc;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.bid-trump-title {
+  font-size: 1.35em;
+  font-weight: 700;
+  margin-bottom: 1.2em;
+  color: #fbbf24;
+  letter-spacing: 0.01em;
+}
+
+.bid-input-group,
+.suite-select-group {
+  margin-bottom: 1.2em;
+  width: 100%;
+}
+
+.bid-input-group label,
+.suite-select-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.4em;
+  color: #f5f5dc;
+}
+
+.bid-input {
+  width: 100%;
+  padding: 0.5em 0.8em;
+  border-radius: 0.5em;
+  border: 1.5px solid #fbbf24;
+  background: #174c3c;
+  color: #f5f5dc;
+  font-size: 1.1em;
+  outline: none;
+  transition: border 0.2s;
+}
+
+.bid-input:focus {
+  border: 2px solid #60a5fa;
+}
+
+.suite-options {
+  display: flex;
+  gap: 0.7em;
+  margin-top: 0.2em;
+}
+
+.suite-btn {
+  background: #174c3c;
+  color: #f5f5dc;
+  border: 2px solid transparent;
+  border-radius: 0.7em;
+  padding: 0.7em 1.1em;
+  font-size: 1.1em;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  cursor: pointer;
+  transition: border 0.2s, box-shadow 0.2s, color 0.2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+}
+
+.suite-btn.selected {
+  border: 2px solid #fbbf24;
+  color: #fbbf24;
+  box-shadow: 0 0 8px #fbbf24;
+  background: #174c3c;
+}
+
+.suite-btn:focus {
+  border: 2px solid #60a5fa;
+}
+
+.suite-icon {
+  font-size: 1.3em;
+}
+
+.suite-label {
+  font-size: 1em;
+}
+
+.bid-trump-error {
+  color: #ff6b6b;
+  background: #2a1a1a;
+  border-radius: 0.5em;
+  padding: 0.5em 1em;
+  margin-bottom: 1em;
+  font-size: 1em;
+  text-align: center;
+}
+
+.bid-trump-submit {
+  width: 100%;
+  padding: 0.7em 0;
+  border-radius: 0.7em;
+  background: #fbbf24;
+  color: #174c3c;
+  font-weight: 700;
+  font-size: 1.1em;
+  border: none;
+  cursor: pointer;
+  margin-top: 0.5em;
+  transition: background 0.2s, color 0.2s;
+}
+
+.bid-trump-submit:disabled {
+  background: #b8b8b8;
+  color: #666;
+  cursor: not-allowed;
+}
+
+.teammate-card-group {
+  margin-bottom: 1.2em;
+  width: 100%;
+}
+
+.teammate-suite-tabs {
+  display: flex;
+  gap: 0.5em;
+  margin-bottom: 0.7em;
+  justify-content: center;
+}
+
+.teammate-suite-tab {
+  background: #174c3c;
+  color: #f5f5dc;
+  border: 2px solid transparent;
+  border-radius: 0.7em;
+  padding: 0.5em 1em;
+  font-size: 1em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+.teammate-suite-tab.selected {
+  border: 2px solid #fbbf24;
+  color: #fbbf24;
+  box-shadow: 0 0 8px #fbbf24;
+}
+
+.teammate-card-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em;
+  justify-content: center;
+  margin-top: 0.2em;
+}
+
+.teammate-card-btn {
+  background: transparent;
+  border: 2px solid transparent;
+  border-radius: 0.5em;
+  padding: 0.2em;
+  cursor: pointer;
+  transition: border 0.2s, box-shadow 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px !important;
+  height: 120px !important;
+}
+
+.teammate-card-btn .Card {
+  width: 72px !important;
+  height: 108px !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  transform: none !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.teammate-card-btn .Card img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain;
+}
+
+.teammate-card-btn.selected {
+  border: 2px solid #60a5fa;
+  box-shadow: 0 0 8px #60a5fa;
+}
+
+.teammate-card-btn:focus {
+  border: 2px solid #fbbf24;
+}
+
+@media (max-width: 600px) {
+  .bid-trump-modal {
+    min-width: 90vw;
+    padding: 1.2em 0.5em 1.2em 0.5em;
+  }
+  .teammate-card-grid {
+    gap: 0.15em;
+  }
+  .teammate-suite-tab {
+    padding: 0.2em 0.4em;
+    font-size: 0.9em;
+  }
+  .teammate-card-btn {
+    width: 56px !important;
+    height: 84px !important;
+  }
+  .teammate-card-btn .Card {
+    width: 48px !important;
+    height: 72px !important;
+  }
+}
+
+.mini-hand-display-overlap {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: flex-end;
+  height: 130px;
+  position: relative;
+  margin-bottom: 1em;
+  margin-top: 0.2em;
+}
+
+.mini-hand-card-wrapper-overlap .Card {
+  width: 80px !important;
+  height: 120px !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  transform: none !important;
+}
+
+.mini-hand-card-wrapper-overlap .Card img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain;
+}
+
+@media (max-width: 600px) {
+  .mini-hand-display-overlap {
+    height: 80px;
+  }
+  .mini-hand-card-wrapper-overlap .Card {
+    width: 48px !important;
+    height: 72px !important;
+  }
+}
+
+ 

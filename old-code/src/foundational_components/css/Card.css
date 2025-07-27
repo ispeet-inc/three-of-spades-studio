@@ -1,0 +1,54 @@
+@import './colors.css';
+
+.card {
+  display: inline-block;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  box-shadow: none;
+  overflow: visible;
+  cursor: pointer;
+}
+
+.card__img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+}
+
+.card--selected {
+  border: 2px solid var(--color-gold);
+}
+
+.card--glow {
+  border: 2px solid var(--color-emerald-green);
+}
+
+.card--mini {
+  width: 162px;
+  height: 234px;
+}
+
+.card--hoverZoom:hover {
+  transform: scale(1.08);
+  z-index: 3;
+  box-shadow: 0 4px 16px #0003;
+}
+
+.card:active {
+  transform: scale(0.97);
+}
+
+.card[role='img'],
+.card[role='button'] {
+  outline: none;
+}
+
+.card:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 2px;
+} 

@@ -1,0 +1,57 @@
+@import './colors.css';
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  font-weight: 600;
+  padding: 0.2em 0.9em;
+  font-size: 1rem;
+  background: var(--color-light-gray);
+  color: var(--color-jet-black);
+  gap: 0.5em;
+  line-height: 1.2;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.chip--gold {
+  background: var(--color-gold);
+  color: var(--color-jet-black);
+}
+.chip--blue {
+  background: var(--color-royal-blue);
+  color: var(--color-cream);
+}
+.chip--red {
+  background: var(--color-crimson-red);
+  color: var(--color-cream);
+}
+.chip--green {
+  background: var(--color-emerald-green);
+  color: var(--color-cream);
+}
+.chip--gray {
+  background: var(--color-light-gray);
+  color: var(--color-jet-black);
+}
+
+.chip--small {
+  font-size: 0.85rem;
+  padding: 0.1em 0.6em;
+}
+.chip--medium {
+  font-size: 1rem;
+  padding: 0.2em 0.9em;
+}
+
+.chip__icon {
+  display: flex;
+  align-items: center;
+  font-size: 1.1em;
+  margin-right: 0.3em;
+}
+
+.chip__label {
+  display: inline;
+} 

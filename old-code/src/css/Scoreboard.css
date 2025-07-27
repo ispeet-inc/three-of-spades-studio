@@ -1,0 +1,86 @@
+@import './colors.css';
+
+.scoreboard-container {
+  width: 100%;
+  background: var(--color-table-green);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.2rem 2.5rem 1.2rem 2.5rem;
+  box-sizing: border-box;
+  border-radius: 0 0 18px 18px;
+  box-shadow: 0 2px 16px #0002;
+  gap: 1.5rem;
+}
+
+.scoreboard-team {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.scoreboard-score {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--color-cream);
+  min-width: 36px;
+  text-align: center;
+}
+
+.scoreboard-info {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.scoreboard-bid {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.scoreboard-trump {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.scoreboard-round {
+  color: var(--color-gold);
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.scoreboard-teammate {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+@media (max-width: 900px) {
+  .scoreboard-container {
+    padding: 0.7rem 0.5rem;
+    gap: 0.5rem;
+  }
+  .scoreboard-info {
+    gap: 0.5rem;
+  }
+  .scoreboard-score {
+    font-size: 1.1rem;
+    min-width: 24px;
+  }
+}
+
+@media (max-width: 600px) {
+  .scoreboard-container {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0.5rem 0.2rem;
+    gap: 0.2rem;
+    border-radius: 0 0 10px 10px;
+  }
+  .scoreboard-info {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.3rem;
+  }
+} 

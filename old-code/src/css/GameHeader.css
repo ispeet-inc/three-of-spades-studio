@@ -1,0 +1,123 @@
+.game-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+  will-change: transform;
+}
+
+.game-header-left {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.header-title {
+  font-size: 2.2rem;
+  font-weight: bold;
+  color: #f5f5dc;
+  text-shadow: 2px 2px 6px rgba(0,0,0,0.4);
+  margin-bottom: 0;
+  letter-spacing: 0.12em;
+  user-select: none;
+}
+
+.header-badges {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: nowrap;
+  overflow: hidden;
+}
+
+.header-badge,
+.header-badge-minimal {
+  display: inline-block;
+  padding: 0.35em 1.2em;
+  font-size: 1.05rem;
+  font-weight: 600;
+  border-radius: 0.7em;
+  letter-spacing: 0.04em;
+  user-select: none;
+  transition: all 0.2s ease;
+}
+
+.header-badge {
+  background: #1a4d3c;
+  color: #fbbf24;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.header-badge-minimal {
+  background: rgba(255,255,255,0.03);
+  box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+  border: 1px solid rgba(245,245,220,0.07);
+  margin-right: 0.7em;
+}
+
+.header-badge-minimal:last-child {
+  margin-right: 0;
+}
+
+.header-badge-minimal:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(245,245,220,0.15);
+  transform: translateY(-1px);
+}
+
+.header-toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: nowrap;
+}
+
+.header-toggle-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  font-size: 0.95rem;
+  transition: opacity 0.2s ease;
+}
+
+.header-toggle-label:hover {
+  opacity: 0.8;
+}
+
+.header-toggle-checkbox {
+  margin-right: 0.5em;
+  cursor: pointer;
+}
+
+.header-badge-teammate {
+  display: flex;
+  align-items: center;
+  gap: 0.3em;
+}
+
+@media (max-width: 768px) {
+  .game-header {
+    padding: 0 1rem;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .header-badges {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .header-badge-minimal {
+    margin-right: 0.5em;
+    font-size: 0.95rem;
+    padding: 0.25em 0.8em;
+  }
+  
+  .header-title {
+    font-size: 1.8rem;
+    text-align: center;
+  }
+} 

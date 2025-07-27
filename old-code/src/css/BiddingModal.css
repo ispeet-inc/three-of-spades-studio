@@ -1,0 +1,162 @@
+.bidding-modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(20, 20, 20, 0.75);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bidding-modal {
+  background: #1a2a23;
+  border-radius: 1.2em;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.25);
+  padding: 2.2em 2.5em 2em 2.5em;
+  min-width: 340px;
+  max-width: 95vw;
+  color: #f5f5dc;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.mini-hand-display-overlap {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: flex-end;
+  height: 130px;
+  position: relative;
+  margin-bottom: 1em;
+  margin-top: 0.2em;
+}
+
+.mini-hand-card-wrapper-overlap .Card {
+  width: 80px !important;
+  height: 120px !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  transform: none !important;
+}
+
+.mini-hand-card-wrapper-overlap .Card img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain;
+}
+
+.bidding-info {
+  margin-bottom: 1em;
+  font-size: 1.1em;
+  text-align: center;
+}
+
+.bidding-players-status {
+  margin-bottom: 1.2em;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+}
+
+.bidding-player-status {
+  font-size: 1.1em;
+  color: #f5f5dc;
+  padding: 0.3em 0.7em;
+  border-radius: 0.5em;
+  background: rgba(255,255,255,0.04);
+  margin-bottom: 0.2em;
+  transition: background 0.2s, color 0.2s;
+}
+.bidding-player-status.current {
+  background: #fbbf24;
+  color: #1a2a23;
+  font-weight: bold;
+}
+.bidding-player-status.passed {
+  color: #aaa;
+  background: rgba(255,255,255,0.02);
+  text-decoration: line-through;
+}
+
+.bidding-controls {
+  display: flex;
+  gap: 0.7em;
+  margin-bottom: 0.7em;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.bidding-controls button {
+  background: #174c3c;
+  color: #f5f5dc;
+  border: 2px solid transparent;
+  border-radius: 0.7em;
+  padding: 0.7em 1.1em;
+  font-size: 1.1em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border 0.2s, box-shadow 0.2s, color 0.2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+}
+.bidding-controls button:disabled {
+  background: #b8b8b8;
+  color: #666;
+  cursor: not-allowed;
+}
+.bidding-controls button:focus {
+  border: 2px solid #60a5fa;
+}
+
+.custom-bid-input-group {
+  display: flex;
+  gap: 0.5em;
+  margin-top: 0.5em;
+}
+.custom-bid-input-group input {
+  width: 80px;
+  padding: 0.5em 0.8em;
+  border-radius: 0.5em;
+  border: 1.5px solid #fbbf24;
+  background: #174c3c;
+  color: #f5f5dc;
+  font-size: 1.1em;
+  outline: none;
+  transition: border 0.2s;
+}
+.custom-bid-input-group input:focus {
+  border: 2px solid #60a5fa;
+}
+
+.bidding-error {
+  color: #ff6b6b;
+  background: #2a1a1a;
+  border-radius: 0.5em;
+  padding: 0.5em 1em;
+  margin-top: 0.5em;
+  font-size: 1em;
+  text-align: center;
+}
+
+.bidding-wait {
+  color: #fbbf24;
+  font-size: 1.1em;
+  margin-top: 0.7em;
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .bidding-modal {
+    min-width: 90vw;
+    padding: 1.2em 0.5em 1.2em 0.5em;
+  }
+  .mini-hand-display-overlap {
+    height: 80px;
+  }
+  .mini-hand-card-wrapper-overlap .Card {
+    width: 48px !important;
+    height: 72px !important;
+  }
+} 

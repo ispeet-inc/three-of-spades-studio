@@ -1,0 +1,287 @@
+.table-container-v2 {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  background: #228B22; /* green felt */
+  overflow: hidden;
+}
+
+.player-v2 {
+  position: absolute;
+}
+
+.player-bottom-v2 {
+  left: 50%;
+  bottom: 3%;
+  transform: translateX(-50%);
+}
+
+.player-top-v2 {
+  left: 50%;
+  top: 3%;
+  transform: translateX(-50%);
+}
+
+.player-left-v2 {
+  left: 3%;
+  /* Remove top/transform for flex centering */
+  top: unset;
+  transform: none;
+}
+
+.player-right-v2 {
+  right: 3%;
+  /* Remove top/transform for flex centering */
+  top: unset;
+  transform: none;
+}
+
+.player-info-v2 {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2px;
+  margin-top: 2px;
+  gap: 4px;
+}
+
+.player-info-bottom-v2 {
+  flex-direction: row;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+.player-info-top-v2 {
+  flex-direction: row;
+  justify-content: center;
+  margin-top: 8px;
+}
+.player-info-left-v2 {
+  flex-direction: column;
+  align-items: flex-end;
+  margin-right: 8px;
+}
+.player-info-right-v2 {
+  flex-direction: column;
+  align-items: flex-start;
+  margin-left: 8px;
+}
+
+.avatar-v2 {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+}
+
+.score-v2 {
+  display: flex;
+  align-items: center;
+  background: #d32f2f;
+  color: #fff;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  padding: 2px 8px;
+  font-weight: bold;
+  min-width: 28px;
+  justify-content: center;
+}
+.heart-v2 {
+  font-size: 1.1em;
+  margin-right: 2px;
+  color: #ff5252;
+}
+.score-num-v2 {
+  font-size: 1em;
+}
+
+.player-name-v2 {
+  font-size: 0.9em;
+  color: #fff;
+  text-shadow: 0 1px 2px #0008;
+  margin-left: 2px;
+  margin-right: 2px;
+}
+
+.hand-v2 {
+  display: flex;
+}
+
+.hand-horizontal-v2 {
+  flex-direction: row;
+}
+
+.hand-vertical-v2 {
+  flex-direction: column;
+}
+
+.hand-horizontal-v2 .Card {
+  margin-left: -60px;
+}
+.hand-horizontal-v2 .Card:first-child {
+  margin-left: 0;
+}
+
+.hand-vertical-v2 .Card {
+  margin-top: -90px;
+}
+.hand-vertical-v2 .Card:first-child {
+  margin-top: 0;
+}
+
+.player-flex-row-v2 {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+.player-flex-col-v2 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.table-outer-flex-v2 {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
+}
+
+.rotate-card-left {
+  transform: rotate(90deg) scale(0.7);
+  transform-origin: left bottom;
+  margin-bottom: -42px; /* Tighter overlap, matches .Card height * scale */
+  margin-top: 0;
+}
+
+.rotate-card-right {
+  transform: rotate(-90deg) scale(0.7);
+  transform-origin: right bottom;
+  margin-bottom: -42px;
+  margin-top: 0;
+}
+
+/* Override vertical hand margin for rotated cards so only rotation margin applies */
+.hand-vertical-v2 .rotate-card-left,
+.hand-vertical-v2 .rotate-card-right {
+  margin-top: 0 !important;
+  margin-bottom: -52px !important; /* Increase for tighter overlap */
+}
+
+/* Optional: Remove overlap for first card in stack */
+.hand-vertical-v2 .rotate-card-left:first-child,
+.hand-vertical-v2 .rotate-card-right:first-child {
+  margin-bottom: 0 !important;
+} 
+
+/* Remove margin from rotated card wrappers for overlap */
+.rotate-card-left,
+.rotate-card-right {
+  margin-bottom: 0;
+}
+
+/* Apply overlap margin directly to the Card inside rotated wrappers */
+.rotate-card-left .Card,
+.rotate-card-right .Card {
+  margin-bottom: -60px;
+  margin-top: 0;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.rotate-card-left:first-child .Card,
+.rotate-card-right:first-child .Card {
+  margin-bottom: 0;
+}
+
+/* Prevent .hand-vertical-v2 .Card from interfering with rotated cards */
+.hand-vertical-v2 .rotate-card-left .Card,
+.hand-vertical-v2 .rotate-card-right .Card {
+  margin-top: 0 !important;
+} 
+
+.rotate-hand-left {
+  transform: rotate(90deg);
+  transform-origin: left bottom;
+  flex-direction: row !important;
+}
+
+.rotate-hand-right {
+  transform: rotate(-90deg);
+  transform-origin: right bottom;
+  flex-direction: row !important;
+}
+
+/* Remove per-card rotation/overlap for left/right hands */
+.rotate-card-left,
+.rotate-card-right,
+.rotate-card-left .Card,
+.rotate-card-right .Card {
+  transform: none !important;
+  margin: 0 !important;
+} 
+
+/* --- Minimal Player Badge Styles --- */
+.player-badge-v2 {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  background: rgba(255,255,255,0.10);
+  border-radius: 1.2em;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+  padding: 0.25em 1em;
+  font-size: 1.05em;
+  font-weight: 600;
+  margin: 0.3em 0;
+  user-select: none;
+  transition: background 0.2s;
+}
+.player-badge-bottom-v2 {
+  margin-top: 0.7em;
+}
+.player-badge-top-v2 {
+  margin-bottom: 0.7em;
+}
+.player-badge-left-v2 {
+  margin-right: 0.7em;
+}
+.player-badge-right-v2 {
+  margin-left: 0.7em;
+}
+.player-bidder-crown-v2 {
+  color: #FFD700;
+  font-size: 1.15em;
+  margin-left: 0.2em;
+  margin-right: 0.2em;
+  vertical-align: middle;
+  cursor: help;
+  filter: drop-shadow(0 1px 2px #0006);
+}
+.player-team-dot-v2 {
+  width: 0.9em;
+  height: 0.9em;
+  border-radius: 50%;
+  display: inline-block;
+  margin-left: 0.2em;
+  margin-right: 0.1em;
+  box-shadow: 0 0 4px rgba(0,0,0,0.15);
+  border: 2px solid #fff;
+  vertical-align: middle;
+}
+@media (max-width: 600px) {
+  .player-badge-v2 {
+    font-size: 0.92em;
+    padding: 0.18em 0.7em;
+  }
+  .player-team-dot-v2 {
+    width: 0.7em;
+    height: 0.7em;
+  }
+  .player-bidder-crown-v2 {
+    font-size: 1em;
+  }
+} 

@@ -1,0 +1,12 @@
+.user-hand-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  height: 160px;
+  position: relative;
+}
+
+.card-wrapper {
+  display: inline-block;
+  position: relative;
+} 

@@ -1,0 +1,188 @@
+.player-hand-container {
+  /* Layout */
+  display: flex; /* Use flexbox for vertical arrangement of title and hand content */
+  flex-direction: column;
+  align-items: center; /* Center content horizontally */
+
+  /* Box Model */
+  width: 100%;
+  margin-bottom: 0; /* Remove bottom margin, spacing handled by grid gap */
+  transition: opacity 0.2s ease;
+}
+
+
+.player-hand-container.disabled {
+  /* Visual */
+  /* opacity: 0.75; */
+
+  /* Interaction */
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+.player-title {
+  /* Typography */
+  font-size: 1.125rem;
+
+  /* Box Model */
+  margin-bottom: 0.5rem; /* Space below title */
+}
+
+.active-player {
+  /* Visual */
+  color: #fbbf24;
+}
+
+.player-hand-content {
+  /* Layout */
+  display: flex; /* Use flexbox for horizontal arrangement of cards */
+  flex-direction: row; /* Arrange cards horizontally */
+  align-items: center; /* Vertically center cards within the hand content */
+  gap: 0.5rem; /* Space between cards */
+
+  /* Box Model */
+  /* width: 100%; /* This might need adjustment depending on desired card layout */
+  justify-content: center; /* Center the cards horizontally */
+
+  /* Interaction */
+  cursor: pointer;
+  margin-bottom: 0;
+}
+
+.player-cards {
+  /* Box Model */
+  /* width: 100%; /* This might need adjustment depending on desired card layout */
+  
+  /* Layout */
+  display: flex; /* Use flexbox for horizontal card display */
+  flex-wrap: wrap; /* Allow cards to wrap if necessary */
+  justify-content: center; /* Center the cards within the hand */
+  /* flex: 0 0 auto; Prevent growing and shrinking, size based on content */
+
+  /* Interaction */
+  cursor: pointer;
+}
+
+.card-item {
+  margin: 0 0.15rem; /* Reduce margin slightly for better fit */
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.card-item.disabled {
+  /* Visual */
+  /* opacity: 0.5; */
+
+  /* Interaction */
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+/* Responsive styles for player hand cards */
+@media (max-width: 600px) {
+  .player-hand-content {
+    flex-direction: column; /* Stack hand and played card vertically on smaller screens */
+    gap: 0.5rem;
+  }
+  .card-item {
+    margin: 0 0.05rem; /* Further reduce margin on smaller screens */
+  }
+}
+
+/* Minimal card-like container for each player's hand */
+.player-hand-card {
+  background: rgba(255,255,255,0.04);
+  border-radius: 1em;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+  border: 1px solid rgba(245,245,220,0.07);
+  padding: 0.7em 1.2em 1.1em 1.2em;
+  margin: 0;
+  min-width: 0;
+  max-width: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: box-shadow 0.2s, border 0.2s;
+}
+
+.active-player-card {
+  border: 2px solid #fbbf24;
+  box-shadow: 0 0 12px #fbbf24;
+}
+
+.player-hand-header {
+  display: flex;
+  align-items: center;
+  gap: 0.7em;
+  margin-bottom: 0.7em;
+}
+
+.player-title {
+  color: #f5f5dc;
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: 0.01em;
+}
+
+.player-title.active-player {
+  color: #fbbf24;
+}
+
+.player-hand-content {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0;
+}
+
+.player-cards {
+  display: flex;
+  flex-direction: row;
+  gap: 0.4em;
+  width: 100%;
+  justify-content: center;
+}
+
+.card-item {
+  margin: 0 0.08em;
+  transition: box-shadow 0.2s, transform 0.2s;
+  border-radius: 0.5em;
+  /* box-shadow: 0 1px 4px rgba(0,0,0,0.08); */
+  /* background: transparent; */
+}
+
+.card-item:hover:not(.disabled) {
+  /* box-shadow: 0 2px 12px #fbbf24; */
+  transform: scale(1.07);
+  z-index: 2;
+}
+
+.card-item.disabled {
+  /* opacity: 0.5; */
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+/* Responsive styles for player hand cards */
+@media (max-width: 600px) {
+  .player-hand-card {
+    min-width: 0;
+    max-width: 100%;
+    padding: 0.5em 0.5em 0.7em 0.5em;
+  }
+  .player-hand-header {
+    gap: 0.4em;
+    margin-bottom: 0.4em;
+  }
+  .player-title {
+    font-size: 1rem;
+  }
+  .player-cards {
+    gap: 0.15em;
+  }
+  .card-item {
+    margin: 0 0.03em;
+  }
+} 

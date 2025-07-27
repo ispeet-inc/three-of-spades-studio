@@ -1,0 +1,94 @@
+/* BidResultModal styles */
+.bid-trump-modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(20, 20, 20, 0.75);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bid-trump-modal {
+  background: #1a2a23;
+  border-radius: 1.2em;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.25);
+  padding: 2.2em 2.5em 2em 2.5em;
+  min-width: 340px;
+  max-width: 95vw;
+  color: #f5f5dc;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.bid-trump-title {
+  font-size: 1.35em;
+  font-weight: 700;
+  margin-bottom: 1.2em;
+  color: #fbbf24;
+  letter-spacing: 0.01em;
+}
+
+.bid-trump-submit {
+  width: 100%;
+  padding: 0.7em 0;
+  border-radius: 0.7em;
+  background: #fbbf24;
+  color: #174c3c;
+  font-weight: 700;
+  font-size: 1.1em;
+  border: none;
+  cursor: pointer;
+  margin-top: 0.5em;
+  transition: background 0.2s, color 0.2s;
+}
+
+.bid-trump-submit:hover {
+  background: #f59e0b;
+}
+
+.bid-result-modal {
+  max-width: 400px;
+  text-align: center;
+}
+
+.bid-result-section {
+  margin: 1em 0;
+}
+
+.bid-result-winner {
+  font-size: 1.2em;
+  margin-bottom: 0.5em;
+}
+
+.bid-result-row {
+  margin-bottom: 0.5em;
+}
+
+.bid-result-label {
+  font-weight: 600;
+}
+
+.bid-result-trump {
+  font-size: 1.3em;
+}
+
+.bid-result-flex-row {
+  margin-bottom: 0.5em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+}
+
+.bid-result-btn {
+  width: 100%;
+}
+
+@media (max-width: 600px) {
+  .bid-trump-modal {
+    min-width: 90vw;
+    padding: 1.2em 0.5em 1.2em 0.5em;
+  }
+} 

@@ -1,0 +1,82 @@
+@import './colors.css';
+
+.start-game-container {
+  min-height: 100vh;
+  background: var(--color-table-green);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2.5rem;
+}
+
+.game-logo {
+  margin-bottom: 0.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.start-card {
+  width: 144px;
+  height: 210px;
+}
+
+.game-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--color-gold);
+  letter-spacing: 0.04em;
+  margin-bottom: 0.5rem;
+  text-align: center;
+  font-family: 'Segoe UI', 'Arial Rounded MT Bold', Arial, sans-serif;
+}
+
+.start-button {
+  margin-top: 1.5rem;
+  min-width: 220px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  box-shadow: 0 2px 12px #0002;
+  border-radius: 8px;
+  background: var(--color-gold);
+  color: var(--color-jet-black);
+  border: none;
+  padding: 12px 32px;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  outline: none;
+  display: inline-block;
+}
+.start-button:hover, .start-button:focus {
+  background: var(--color-gold-hover);
+  color: var(--color-jet-black);
+  box-shadow: 0 4px 16px #0003;
+}
+
+.game-tagline {
+  margin-top: 1.5rem;
+  color: var(--color-cream);
+  font-size: 1.15rem;
+  text-align: center;
+  font-style: italic;
+  letter-spacing: 0.01em;
+  opacity: 0.92;
+}
+
+@media (max-width: 600px) {
+  .start-game-container {
+    gap: 1.2rem;
+    padding: 1.5rem 0.5rem;
+  }
+  .game-title {
+    font-size: 1.5rem;
+  }
+  .start-button {
+    min-width: 140px;
+    font-size: 1rem;
+    padding: 10px 16px;
+  }
+  .game-tagline {
+    font-size: 1rem;
+  }
+} 

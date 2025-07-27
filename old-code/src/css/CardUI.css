@@ -1,0 +1,40 @@
+.Card {
+    text-align: center;
+    width: 20px;
+    height: 42px;
+    display: inline-block;
+    transform: scale(0.7); /* Reduce visual size by 50% */
+}
+
+
+/* Responsive styles for start card */
+@media (max-width: 600px) {
+  /* .start-card {
+    width: 50px;
+  } */
+}
+
+.mini-card {
+  background: white;
+  border-radius: 0.3em;
+  padding: 2px;
+  width: 32px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.mini-card img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain;
+  display: block;
+}
+
+.small-card {
+    transform: scale(0.5);
+    transform-origin: center center;
+}
+  

@@ -1,0 +1,38 @@
+.center-cards-v2 {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 220px;
+  height: 220px;
+  transform: translate(-50%, -50%);
+}
+
+.played-card-v2 {
+  position: absolute;
+  width: 40px;
+  height: 60px;
+}
+.played-card-top-v2 {
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%) rotate(-8deg);
+  z-index: 2;
+}
+.played-card-bottom-v2 {
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%) rotate(8deg);
+  z-index: 2;
+}
+.played-card-left-v2 {
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%) rotate(-4deg);
+  z-index: 2;
+}
+.played-card-right-v2 {
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%) rotate(4deg);
+  z-index: 2;
+} 

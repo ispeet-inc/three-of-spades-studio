@@ -1,0 +1,203 @@
+.game-content {
+  /* Layout */
+  display: grid;
+  grid-template-columns: 70% 30%; /* Left column for hands, right for played cards/stadium info */
+  grid-template-rows: auto repeat(4, minmax(120px, auto)) auto auto; /* Info, 4 player rows (min-height 120px), winner, score */
+  gap: 1rem; /* Gap between grid items */
+  width: 100%;
+  min-height: calc(100vh - 6rem);
+  padding: 0 1.5rem; /* Add padding to the grid container */
+
+  /* Visual */
+  /* background-color: lightgray; /* Temporary background for visualization */
+}
+
+.game-info {
+  grid-column: 1 / span 2; /* Span across both columns */
+  grid-row: 1; /* Place in the first row */
+  text-align: center;
+  margin-bottom: 1rem; /* Space below info */
+  align-self: center; /* Vertically center within the grid cell */
+}
+
+.player-hands-container {
+  /* Layout */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  grid-column: 1; /* Place in the first column */
+  /* grid-row will be set dynamically in JSX based on player index */
+  align-self: center; /* Vertically center within the grid cell */
+
+  /* Box Model */
+  width: 100%; /* Allow to fill grid column */
+  padding: 0; /* Remove padding here */
+  border-right: 1px solid #444; /* Thin line on the right of the left column */
+  padding-right: 1rem; /* Add padding to the right of the border */
+  border-bottom: 1px solid #444; /* Add a thin line below each player row */
+  padding-bottom: 0.25rem; /* Reduce padding below the content and above the border */
+}
+
+.played-card-container {
+  grid-column: 2; /* Place in the second (right) column */
+  /* grid-row will be set dynamically in JSX based on player index */
+  display: flex;
+  justify-content: center; /* Center the played card horizontally within its grid cell */
+  align-items: start; /* Vertically center the played card within its grid cell */
+  margin-top: 3rem; /* Add top margin to offset player title height */
+}
+
+.stadium-area {
+  /* This container is no longer needed for layout in this grid approach */
+  display: contents; /* Makes children direct grid items of game-content */
+}
+
+/* Adjust other styles */
+.game-title {
+    font-weight: bold;
+    letter-spacing: 0.1em;
+    color: #f5f5dc;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    font-size: 1.875rem; /* Keep smaller size for game content title */
+    margin-bottom: 0.5rem; /* Adjust margin */
+}
+
+.round-title {
+    font-size: 1.125rem;
+    margin-bottom: 0.5rem; /* Adjust margin */
+}
+
+.round-winner {
+    font-size: 1.25rem;
+    color: #fbbf24;
+    margin-top: 1rem; /* Space above round winner */
+    margin-bottom: 0.5rem; /* Space below round winner */
+    animation: fadeIn 0.5s ease;
+    grid-column: 2; /* Place in the second column */
+    grid-row: 6; /* Place in the row after player rows */
+    justify-self: center; /* Center horizontally in the grid area */
+    align-self: center; /* Vertically center within the grid area */
+}
+
+.score-board {
+    font-size: 1.125rem;
+    margin-top: 0.5rem;
+    grid-column: 2;
+    grid-row: 7;
+    justify-self: center;
+    align-self: center;
+}
+
+.individual-scores {
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    color: #fbbf24;
+}
+
+.individual-scores p {
+    margin: 0.25rem 0;
+}
+
+/* Hide the central table cards display */
+.table-cards,
+.table-card {
+  display: none;
+}
+
+.players-grid {
+    display: contents; /* Makes children direct grid items of game-content */
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+
+/* Team Info Styles */
+.team-info {
+  display: flex;
+  gap: 1rem;
+  margin: 1rem 0;
+  justify-content: center;
+}
+
+.team {
+  border: 2px solid;
+  border-radius: 8px;
+  overflow: hidden;
+  min-width: 200px;
+  transition: all 0.3s ease;
+}
+
+.team.current-team {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  transform: scale(1.05);
+}
+
+.team-header {
+  padding: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: white;
+  font-weight: bold;
+}
+
+.team-name {
+  font-size: 1.1rem;
+}
+
+.team-score {
+  font-size: 1.2rem;
+}
+
+.team-players {
+  padding: 0.5rem;
+  background: white;
+}
+
+.team-player {
+  padding: 0.25rem 0;
+  color: #333;
+  transition: all 0.2s ease;
+}
+
+.team-player.current-player {
+  color: #000;
+  font-weight: bold;
+}
+
+.game-info-grid {
+  grid-row: 1;
+  grid-column: 1 / span 2;
+}
+
+.player-hands-grid {
+  grid-column: 1;
+}
+
+.played-card-grid {
+  grid-column: 2;
+}
+
+/* Dynamic player row classes for rows 2-5 */
+.player-row-2 {
+  grid-row: 2;
+}
+.player-row-3 {
+  grid-row: 3;
+}
+.player-row-4 {
+  grid-row: 4;
+}
+.player-row-5 {
+  grid-row: 5;
+} 

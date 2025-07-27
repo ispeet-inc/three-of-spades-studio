@@ -1,0 +1,16 @@
+:root {
+  --color-table-green: #184D47;
+  --color-gold: #FFD700;
+  --color-cream: #F8F5E4;
+  --color-jet-black: #232323;
+  --color-royal-blue: #3A6EA5;
+  --color-crimson-red: #D7263D;
+  --color-emerald-green: #21A179;
+  --color-warm-orange: #FFB347;
+  --color-light-gray: #E0E0E0;
+
+  /* Hover colors */
+  --color-gold-hover: #ffe066;
+  --color-royal-blue-hover: #548edb;
+  --color-crimson-red-hover: #e94a5a;
+} 
