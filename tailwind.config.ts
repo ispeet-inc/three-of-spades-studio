@@ -176,7 +176,89 @@ export default {
 				'float': {
 					'0%, 100%': { transform: 'translateY(0px)' },
 					'50%': { transform: 'translateY(-6px)' }
-				}
+				},
+				// New Phase 5 animations
+				"deal-to-bottom": {
+					"0%": { 
+						transform: "translate(0, -50vh) scale(0.8) rotate(0deg)",
+						opacity: "0"
+					},
+					"50%": { 
+						transform: "translate(0, -25vh) scale(0.9) rotate(180deg)",
+						opacity: "0.7"
+					},
+					"100%": { 
+						transform: "translate(0, 0) scale(1) rotate(0deg)",
+						opacity: "1"
+					},
+				},
+				"deal-to-left": {
+					"0%": { 
+						transform: "translate(50vw, -25vh) scale(0.8) rotate(0deg)",
+						opacity: "0"
+					},
+					"50%": { 
+						transform: "translate(25vw, -12.5vh) scale(0.9) rotate(-90deg)",
+						opacity: "0.7"
+					},
+					"100%": { 
+						transform: "translate(0, 0) scale(1) rotate(0deg)",
+						opacity: "1"
+					},
+				},
+				"deal-to-top": {
+					"0%": { 
+						transform: "translate(0, 50vh) scale(0.8) rotate(0deg)",
+						opacity: "0"
+					},
+					"50%": { 
+						transform: "translate(0, 25vh) scale(0.9) rotate(180deg)",
+						opacity: "0.7"
+					},
+					"100%": { 
+						transform: "translate(0, 0) scale(1) rotate(0deg)",
+						opacity: "1"
+					},
+				},
+				"deal-to-right": {
+					"0%": { 
+						transform: "translate(-50vw, -25vh) scale(0.8) rotate(0deg)",
+						opacity: "0"
+					},
+					"50%": { 
+						transform: "translate(-25vw, -12.5vh) scale(0.9) rotate(90deg)",
+						opacity: "0.7"
+					},
+					"100%": { 
+						transform: "translate(0, 0) scale(1) rotate(0deg)",
+						opacity: "1"
+					},
+				},
+				"collect-to-center": {
+					"0%": { 
+						transform: "translate(0, 0) scale(1) rotate(0deg)",
+						opacity: "1"
+					},
+					"100%": { 
+						transform: "translate(var(--center-x, 0), var(--center-y, 0)) scale(0.3) rotate(360deg)",
+						opacity: "0"
+					},
+				},
+				"turn-indicator": {
+					"0%, 100%": { 
+						borderColor: "rgba(212, 175, 55, 0.3)",
+						boxShadow: "0 0 0 0 rgba(212, 175, 55, 0.7)"
+					},
+					"50%": { 
+						borderColor: "rgba(212, 175, 55, 1)",
+						boxShadow: "0 0 0 4px rgba(212, 175, 55, 0.3)"
+					},
+				},
+				"score-update": {
+					"0%": { transform: "scale(1)", color: "inherit" },
+					"50%": { transform: "scale(1.2)", color: "hsl(var(--gold))" },
+					"100%": { transform: "scale(1)", color: "inherit" },
+				},
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
@@ -184,7 +266,15 @@ export default {
 				'card-flip': 'card-flip 0.6s ease-in-out',
 				'card-deal': 'card-deal 0.5s ease-out',
 				'glow-pulse': 'glow-pulse 2s ease-in-out infinite',
-				'float': 'float 3s ease-in-out infinite'
+				'float': 'float 3s ease-in-out infinite',
+				// New Phase 5 animations
+				"deal-to-bottom": "deal-to-bottom 0.8s ease-out forwards",
+				"deal-to-left": "deal-to-left 0.8s ease-out forwards", 
+				"deal-to-top": "deal-to-top 0.8s ease-out forwards",
+				"deal-to-right": "deal-to-right 0.8s ease-out forwards",
+				"collect-to-center": "collect-to-center 0.6s ease-in forwards",
+				"turn-indicator": "turn-indicator 1.5s ease-in-out infinite",
+				"score-update": "score-update 0.5s ease-out",
 			}
 		}
 	},

@@ -1,112 +1,122 @@
 import { Card } from "@/types/game";
-import { getSuiteName, getSuiteIcon, getSuiteColor } from "@/utils/cardUtils";
+import { getSuiteIcon, getSuiteColor } from "@/utils/cardUtils";
+import { cn } from "@/lib/utils";
 
 export type { Card };
 
-type CardSize = "sm" | "md" | "lg";
-
 interface PlayingCardProps {
-  card?: Card;
-  hidden?: boolean;
-  mini?: boolean;
-  small?: boolean;
-  size?: CardSize;
-  isBack?: boolean;
+  card: Card;
   isPlayable?: boolean;
-  className?: string;
+  isSelected?: boolean;
+  mini?: boolean;
   onClick?: () => void;
-  disabled?: boolean;
+  className?: string;
+  dealAnimation?: boolean;
+  dealDelay?: number;
+  playerPosition?: 'bottom' | 'left' | 'top' | 'right';
 }
 
 export const PlayingCard = ({ 
   card, 
-  hidden = false, 
+  isPlayable = false, 
+  isSelected = false, 
   mini = false, 
-  small = false,
-  size = "md",
-  isBack = false,
-  isPlayable = false,
-  className = "",
-  onClick,
-  disabled = false
+  onClick, 
+  className,
+  dealAnimation = false,
+  dealDelay = 0,
+  playerPosition = 'bottom'
 }: PlayingCardProps) => {
-  if (!card && !hidden) {
-    return null;
-  }
-
-  if (hidden || isBack) {
-    return (
-      <div 
-        className={`
-          relative bg-gradient-to-br from-accent to-accent-dark rounded-lg shadow-card
-          ${mini ? "w-8 h-12" : small ? "w-12 h-18" : "w-16 h-24"}
-          ${className}
-        `}
-      >
-        <div className="absolute inset-1 bg-gradient-to-br from-primary-light to-primary rounded border border-primary-light/20">
-          <div className="w-full h-full bg-gradient-to-br from-accent-subtle to-accent rounded-sm opacity-80" />
-        </div>
-      </div>
-    );
-  }
-
-  if (!card) return null;
-
-  const cardKey = `${card.id}_of_${getSuiteName(card.suite)}`;
   const suitIcon = getSuiteIcon(card.suite);
   const suitColor = getSuiteColor(card.suite);
-  const displayValue = card.number === 1 ? 'A' : 
-                      card.number === 11 ? 'J' : 
-                      card.number === 12 ? 'Q' : 
-                      card.number === 13 ? 'K' : 
-                      card.number.toString();
+  const displayNumber = card.number === 1 ? 'A' : 
+                       card.number === 11 ? 'J' :
+                       card.number === 12 ? 'Q' :
+                       card.number === 13 ? 'K' : 
+                       card.number.toString();
 
-  const getSizeClasses = () => {
-    if (mini) return "w-8 h-12";
-    if (small) return "w-12 h-18";
+  // Animation classes based on dealing position
+  const getDealAnimation = () => {
+    if (!dealAnimation) return '';
     
-    switch (size) {
-      case "sm": return "w-12 h-18";
-      case "lg": return "w-20 h-30";
-      default: return "w-16 h-24";
+    const baseDelay = `animate-delay-[${dealDelay}ms]`;
+    
+    switch (playerPosition) {
+      case 'bottom':
+        return `animate-[deal-to-bottom_0.8s_ease-out_forwards] ${baseDelay}`;
+      case 'left':
+        return `animate-[deal-to-left_0.8s_ease-out_forwards] ${baseDelay}`;
+      case 'top':
+        return `animate-[deal-to-top_0.8s_ease-out_forwards] ${baseDelay}`;
+      case 'right':
+        return `animate-[deal-to-right_0.8s_ease-out_forwards] ${baseDelay}`;
+      default:
+        return '';
     }
   };
 
   return (
-    <div 
-      className={`
-        relative bg-gradient-to-br from-card to-card/90 rounded-lg shadow-card border border-border
-        ${getSizeClasses()}
-        ${onClick && !disabled && isPlayable ? "cursor-pointer hover:shadow-glow hover:scale-105 transition-all duration-200" : ""}
-        ${disabled ? "opacity-50 cursor-not-allowed" : ""}
-        ${className}
-      `}
-      onClick={onClick && !disabled ? onClick : undefined}
+    <div
+      className={cn(
+        "relative bg-white rounded-lg border-2 border-casino-black/20 shadow-card transition-all duration-300",
+        mini ? "w-8 h-12" : "w-16 h-24",
+        "cursor-pointer select-none",
+        isPlayable && "hover:scale-110 hover:shadow-card-hover hover:-translate-y-2 hover:border-gold/50",
+        isSelected && "scale-105 shadow-card-selected border-gold -translate-y-1",
+        !isPlayable && !onClick && "cursor-default",
+        dealAnimation && getDealAnimation(),
+        "transform-gpu", // Enable hardware acceleration
+        className
+      )}
+      onClick={onClick}
+      style={{
+        animationDelay: dealAnimation ? `${dealDelay}ms` : undefined
+      }}
     >
-      {/* Card Content */}
-      <div className="absolute inset-1 flex flex-col justify-between p-1">
-        {/* Top Left */}
-        <div className={`text-xs font-bold ${suitColor === 'red' ? 'text-destructive' : 'text-foreground'}`}>
-          <div className="leading-none">{displayValue}</div>
-          <div className="text-[10px] leading-none">{suitIcon}</div>
+      {/* Card face */}
+      <div className="absolute inset-1 bg-white rounded-md flex flex-col">
+        {/* Top left number and suit */}
+        <div className={cn(
+          "flex flex-col items-center leading-none",
+          mini ? "text-xs p-0.5" : "text-sm p-1",
+          suitColor === 'red' ? "text-red-600" : "text-casino-black"
+        )}>
+          <span className="font-bold">{displayNumber}</span>
+          <span className={mini ? "text-[8px]" : "text-xs"}>{suitIcon}</span>
         </div>
-        
-        {/* Center Suit */}
+
+        {/* Center suit icon */}
         {!mini && (
-          <div className={`text-center ${suitColor === 'red' ? 'text-destructive' : 'text-foreground'}`}>
-            <div className={`${small ? "text-sm" : "text-lg"} leading-none`}>{suitIcon}</div>
+          <div className="flex-1 flex items-center justify-center">
+            <span className={cn(
+              "text-2xl",
+              suitColor === 'red' ? "text-red-600" : "text-casino-black"
+            )}>
+              {suitIcon}
+            </span>
           </div>
         )}
-        
-        {/* Bottom Right (rotated) */}
-        <div className={`self-end transform rotate-180 text-xs font-bold ${suitColor === 'red' ? 'text-destructive' : 'text-foreground'}`}>
-          <div className="leading-none">{displayValue}</div>
-          <div className="text-[10px] leading-none">{suitIcon}</div>
+
+        {/* Bottom right number and suit (rotated) */}
+        <div className={cn(
+          "flex flex-col items-center leading-none rotate-180 self-end",
+          mini ? "text-xs p-0.5" : "text-sm p-1",
+          suitColor === 'red' ? "text-red-600" : "text-casino-black"
+        )}>
+          <span className="font-bold">{displayNumber}</span>
+          <span className={mini ? "text-[8px]" : "text-xs"}>{suitIcon}</span>
         </div>
       </div>
-      
-      {/* Shine effect */}
-      <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-card-shine/10 to-transparent rounded-lg" />
+
+      {/* Glow effect for playable cards */}
+      {isPlayable && (
+        <div className="absolute inset-0 rounded-lg bg-gold/20 opacity-0 hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+      )}
+
+      {/* Selection indicator */}
+      {isSelected && (
+        <div className="absolute inset-0 rounded-lg border-2 border-gold bg-gold/10 pointer-events-none" />
+      )}
     </div>
   );
 };

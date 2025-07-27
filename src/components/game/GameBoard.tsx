@@ -1,123 +1,124 @@
-import { cn } from "@/lib/utils";
-import { PlayingCard, Card } from "./PlayingCard";
+import { useState, useEffect } from "react";
+import { Settings } from "lucide-react";
+import { Card } from "@/types/game";
 import { PlayerArea } from "./PlayerArea";
+import { PlayingCard } from "./PlayingCard";
 import { GameInfo } from "./GameInfo";
 import { Button } from "@/components/ui/button";
-import { Settings } from "lucide-react";
-
-interface Player {
-  id: string;
-  name: string;
-  team: 1 | 2;
-  cards: Card[];
-  isCurrentPlayer?: boolean;
-  isTeammate?: boolean;
-  isTrump?: boolean;
-}
-
-interface GameState {
-  players: Player[];
-  currentTrick: Card[];
-  trumpSuit: 'hearts' | 'diamonds' | 'clubs' | 'spades';
-  currentBid: number;
-  round: number;
-  teamScores: { team1: number; team2: number };
-  teammate?: string;
-}
+import { cn } from "@/lib/utils";
 
 interface GameBoardProps {
-  gameState: GameState;
-  onCardPlay?: (card: Card) => void;
-  onSettingsClick?: () => void;
+  gameState: {
+    players: Array<{
+      id: string;
+      name: string;
+      team: 1 | 2;
+      cards: Card[];
+      isCurrentPlayer?: boolean;
+      isTeammate?: boolean;
+    }>;
+    currentTrick: Card[];
+    trumpSuit: 'spades' | 'hearts' | 'diamonds' | 'clubs';
+    currentBid: number;
+    round: number;
+    teamScores: { team1: number; team2: number };
+    teammate?: string;
+  };
+  onCardPlay: (card: Card) => void;
+  onSettingsClick: () => void;
+  isDealing?: boolean;
 }
 
-export const GameBoard = ({ gameState, onCardPlay, onSettingsClick }: GameBoardProps) => {
+export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = false }: GameBoardProps) => {
+  const [lastScores, setLastScores] = useState(gameState.teamScores);
+  const [animateScore, setAnimateScore] = useState({ team1: false, team2: false });
   
-  // Arrange players by position (assuming 4 players)
-  const playerPositions = {
-    bottom: gameState.players[0], // Current player
-    left: gameState.players[1],
-    top: gameState.players[2], 
-    right: gameState.players[3]
-  };
+  // Score animation effect
+  useEffect(() => {
+    if (lastScores.team1 !== gameState.teamScores.team1) {
+      setAnimateScore(prev => ({ ...prev, team1: true }));
+      setTimeout(() => setAnimateScore(prev => ({ ...prev, team1: false })), 500);
+    }
+    if (lastScores.team2 !== gameState.teamScores.team2) {
+      setAnimateScore(prev => ({ ...prev, team2: true }));
+      setTimeout(() => setAnimateScore(prev => ({ ...prev, team2: false })), 500);
+    }
+    setLastScores(gameState.teamScores);
+  }, [gameState.teamScores, lastScores]);
+
+  const players = [
+    gameState.players[0], // bottom
+    gameState.players[1], // left  
+    gameState.players[2], // top
+    gameState.players[3]  // right
+  ];
 
   return (
-    <div className="min-h-screen bg-gradient-table relative overflow-hidden">
-      {/* Premium Table Surface with Enhanced Texture */}
-      <div className="absolute inset-0 bg-gradient-felt" />
-      <div className="absolute inset-0 shadow-table" />
-      <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.1)_0%,transparent_50%)] bg-[length:200px_200px]" />
+    <div className="min-h-screen bg-gradient-felt relative overflow-hidden">
+      {/* Premium Felt Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-felt-green-dark via-felt-green to-felt-green-light opacity-90" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.1)_100%)]" />
       
-      {/* Elegant Table Border */}
-      <div className="absolute inset-4 border-2 border-gold/30 rounded-3xl shadow-elevated" />
-      <div className="absolute inset-6 border border-gold/20 rounded-3xl" />
+      {/* Table Border */}
+      <div className="absolute inset-8 border-4 border-gold/30 rounded-3xl shadow-glow/10" />
 
-      {/* Premium Game Controls */}
-      <div className="absolute top-6 right-6 z-20">
+      {/* Game Header */}
+      <div className="absolute top-6 left-6 right-6 flex justify-between items-center z-20">
+        {/* Game Info */}
+        <div className="bg-casino-black/40 backdrop-blur-sm border border-gold/30 rounded-lg shadow-elevated p-4">
+          <GameInfo gameState={gameState} />
+        </div>
+
+        {/* Settings */}
         <Button
           variant="secondary"
           size="sm"
           onClick={onSettingsClick}
-          className="bg-felt-green-light/90 hover:bg-felt-green-light text-gold border border-gold/30 backdrop-blur-sm shadow-card transition-all duration-300 hover:shadow-glow/50"
+          className="bg-casino-black/40 hover:bg-casino-black/60 text-gold border border-gold/30 backdrop-blur-sm shadow-elevated"
         >
           <Settings className="w-4 h-4" />
         </Button>
       </div>
 
-      {/* Premium Game Info Header */}
-      <div className="absolute top-6 left-6 z-20">
-        <div className="bg-felt-green-light/90 backdrop-blur-sm border border-gold/30 rounded-lg shadow-card p-3">
-          <GameInfo gameState={gameState} />
+      {/* Team Scores */}
+      <div className="absolute top-6 left-1/2 transform -translate-x-1/2 flex gap-6 z-20">
+        <div className="bg-gradient-gold text-casino-black px-6 py-3 rounded-xl shadow-elevated border border-gold-dark">
+          <div className="text-center">
+            <div className={cn("text-2xl font-bold", animateScore.team1 && "animate-score-update")}>
+              {gameState.teamScores.team1}
+            </div>
+            <div className="text-sm text-muted-foreground">Team 1</div>
+          </div>
+        </div>
+        <div className="bg-blue-500 text-white px-6 py-3 rounded-xl shadow-elevated border border-blue-600">
+          <div className="text-center">
+            <div className={cn("text-2xl font-bold", animateScore.team2 && "animate-score-update")}>
+              {gameState.teamScores.team2}
+            </div>
+            <div className="text-sm text-muted-foreground">Team 2</div>
+          </div>
         </div>
       </div>
 
       {/* Main Game Area */}
-      <div className="relative h-screen flex items-center justify-center p-8">
+      <div className="relative h-screen flex items-center justify-center">
         
-        {/* Top Player */}
-        <div className="absolute top-16 left-1/2 transform -translate-x-1/2">
-          <PlayerArea
-            player={playerPositions.top}
-            position="top"
-            showCards={false}
-          />
-        </div>
-
-        {/* Left Player */}
-        <div className="absolute left-16 top-1/2 transform -translate-y-1/2">
-          <PlayerArea
-            player={playerPositions.left}
-            position="left"
-            showCards={false}
-          />
-        </div>
-
-        {/* Right Player */}
-        <div className="absolute right-16 top-1/2 transform -translate-y-1/2">
-          <PlayerArea
-            player={playerPositions.right}
-            position="right"
-            showCards={false}
-          />
-        </div>
-
-        {/* Premium Center Play Area */}
-        <div className="flex items-center justify-center">
-          <div className="relative">
-            {/* Enhanced Table Center Circle */}
-            <div className="w-64 h-64 rounded-full bg-gradient-to-br from-felt-green-light/20 to-felt-green-dark/40 border-4 border-gold/30 flex items-center justify-center backdrop-blur-sm shadow-elevated relative overflow-hidden">
+        {/* Center Table Area */}
+        <div className="relative">
+          {/* Playing Area Circle */}
+          <div className="w-80 h-80 rounded-full bg-gradient-to-br from-felt-green-light/30 to-felt-green-dark/60 border-4 border-gold/40 flex items-center justify-center shadow-elevated backdrop-blur-sm">
+            
+            {/* Inner Circle */}
+            <div className="w-64 h-64 rounded-full border-2 border-gold/20 flex items-center justify-center">
               
-              {/* Inner glow effect */}
-              <div className="absolute inset-2 rounded-full border border-gold/20 shadow-glow/20" />
-              
-              {/* Current Trick Cards with Enhanced Layout */}
-              <div className="relative z-10">
+              {/* Current Trick Cards */}
+              <div className="relative">
                 {gameState.currentTrick.length > 0 ? (
-                  <div className="grid grid-cols-2 gap-6 place-items-center">
+                  <div className="grid grid-cols-2 gap-4 place-items-center">
                     {gameState.currentTrick.map((card, index) => (
                       <div
                         key={`trick-${index}`}
-                        className="animate-card-deal transition-all duration-300 hover:scale-105"
+                        className="animate-fade-in"
                         style={{ 
                           animationDelay: `${index * 200}ms`,
                           zIndex: gameState.currentTrick.length - index 
@@ -125,66 +126,74 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick }: GameBoardP
                       >
                         <PlayingCard 
                           card={card} 
-                          className="shadow-elevated"
-                          size="md"
+                          className="shadow-elevated transform hover:scale-105 transition-transform duration-200"
                         />
-                      </div>
-                    ))}
-                    
-                    {/* Empty slots for remaining cards */}
-                    {Array.from({ length: 4 - gameState.currentTrick.length }).map((_, index) => (
-                      <div
-                        key={`empty-${index}`}
-                        className="w-16 h-24 rounded-lg border-2 border-dashed border-gold/20 bg-gold/5 flex items-center justify-center transition-all duration-300 hover:border-gold/40"
-                      >
-                        <div className="w-4 h-4 rounded-full border border-gold/20 animate-pulse"></div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  /* Empty State */
                   <div className="text-center text-gold/60">
-                    <div className="w-20 h-20 mx-auto mb-2 rounded-full border-2 border-dashed border-gold/20 flex items-center justify-center">
-                      <div className="w-8 h-8 rounded-full border border-gold/20 animate-pulse"></div>
+                    <div className="w-20 h-20 mx-auto mb-2 rounded-full border-2 border-dashed border-gold/30 flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-full border border-gold/30 animate-pulse"></div>
                     </div>
-                    <div className="text-sm font-medium">Trick Area</div>
+                    <div className="text-sm font-medium">Playing Area</div>
                   </div>
                 )}
               </div>
             </div>
+          </div>
 
-            {/* Premium Table Branding */}
-            <div className="absolute -bottom-20 left-1/2 transform -translate-x-1/2 text-center">
-              <h1 className="font-casino text-3xl font-bold bg-gradient-gold bg-clip-text text-transparent mb-2 drop-shadow-lg tracking-wide">
-                Three of Spades
-              </h1>
-              <div className="text-sm text-gold/80 font-medium tracking-wider">
-                Round {gameState.round} • Premium Table
-              </div>
+          {/* Game Title */}
+          <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 text-center">
+            <h1 className="text-3xl font-bold text-gold mb-2 tracking-wide">
+              Three of Spades
+            </h1>
+            <div className="text-sm text-gold/70 font-medium">
+              Round {gameState.round}
             </div>
           </div>
         </div>
 
-        {/* Bottom Player (Current Player) */}
-        <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2">
-          <PlayerArea
-            player={playerPositions.bottom}
-            position="bottom"
-            onCardClick={onCardPlay}
-            showCards={true}
+        {/* Player Areas */}
+        
+        {/* Left Player */}
+        <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
+          <PlayerArea 
+            player={players[1]} 
+            position="left" 
+            onCardPlay={onCardPlay}
+            isDealing={isDealing}
           />
         </div>
 
-        {/* Premium Team Scores */}
-        <div className="absolute bottom-6 right-6 flex gap-4">
-          <div className="bg-gradient-gold text-casino-black px-6 py-3 rounded-xl font-bold shadow-elevated border border-gold-dark backdrop-blur-sm transition-all duration-300 hover:shadow-glow/50">
-            <div className="text-xs font-medium opacity-80 mb-1">Team 1</div>
-            <div className="text-lg font-bold">{gameState.teamScores.team1}</div>
-          </div>
-          <div className="bg-blue-500/90 text-white px-6 py-3 rounded-xl font-bold shadow-elevated border border-blue-600 backdrop-blur-sm transition-all duration-300 hover:shadow-lg">
-            <div className="text-xs font-medium opacity-80 mb-1">Team 2</div>
-            <div className="text-lg font-bold">{gameState.teamScores.team2}</div>
-          </div>
+        {/* Top Player */}
+        <div className="absolute top-4 left-1/2 transform -translate-x-1/2">
+          <PlayerArea 
+            player={players[2]} 
+            position="top" 
+            onCardPlay={onCardPlay}
+            isDealing={isDealing}
+          />
+        </div>
+
+        {/* Right Player */}
+        <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+          <PlayerArea 
+            player={players[3]} 
+            position="right" 
+            onCardPlay={onCardPlay}
+            isDealing={isDealing}
+          />
+        </div>
+
+        {/* Bottom Player (Human) */}
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
+          <PlayerArea 
+            player={players[0]} 
+            position="bottom" 
+            onCardPlay={onCardPlay}
+            isDealing={isDealing}
+          />
         </div>
       </div>
     </div>

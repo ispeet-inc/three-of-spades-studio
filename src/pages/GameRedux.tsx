@@ -1,5 +1,5 @@
 import { useSelector, useDispatch } from "react-redux";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { RootState } from "@/store";
 import { GameStages } from "@/store/gameStages";
 import { 
@@ -24,6 +24,9 @@ import { getTeammateOptions } from "@/utils/gameUtils";
 const GameRedux = () => {
   const dispatch = useDispatch();
   const gameState = useSelector((state: RootState) => state.game);
+
+  // Add dealing animation state
+  const [isDealing, setIsDealing] = useState(false);
 
   // Transform Redux state to GameBoard props
   const transformedGameState = {
@@ -59,9 +62,15 @@ const GameRedux = () => {
   };
 
   const handleStartGame = () => {
+    setIsDealing(true);
     dispatch(startGame());
     dispatch(setStage(GameStages.BIDDING));
-    dispatch(startBiddingRound());
+    
+    // Stop dealing animation after cards are dealt
+    setTimeout(() => {
+      setIsDealing(false);
+      dispatch(startBiddingRound());
+    }, 2000);
   };
 
   const handleBid = (amount: number) => {
@@ -240,6 +249,7 @@ const GameRedux = () => {
         gameState={transformedGameState}
         onCardPlay={handleCardPlay}
         onSettingsClick={() => console.log("Settings")}
+        isDealing={isDealing}
       />
 
       {/* Modals */}

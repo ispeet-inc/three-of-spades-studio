@@ -1,128 +1,189 @@
 import { cn } from "@/lib/utils";
-import { PlayingCard, Card } from "./PlayingCard";
-import { Badge } from "@/components/ui/badge";
-
-interface Player {
-  id: string;
-  name: string;
-  team: 1 | 2;
-  cards: Card[];
-  isCurrentPlayer?: boolean;
-  isTeammate?: boolean;
-  isTrump?: boolean;
-}
+import { PlayingCard } from "./PlayingCard";
+import { Card } from "@/types/game";
 
 interface PlayerAreaProps {
-  player: Player;
-  position: 'top' | 'left' | 'right' | 'bottom';
-  onCardClick?: (card: Card) => void;
-  showCards?: boolean;
+  player: {
+    id: string;
+    name: string;
+    team: 1 | 2;
+    cards: Card[];
+    isCurrentPlayer?: boolean;
+    isTeammate?: boolean;
+  };
+  position: 'bottom' | 'left' | 'top' | 'right';
+  onCardPlay?: (card: Card) => void;
+  isDealing?: boolean;
 }
 
 export const PlayerArea = ({ 
   player, 
   position, 
-  onCardClick, 
-  showCards = false 
+  onCardPlay,
+  isDealing = false 
 }: PlayerAreaProps) => {
-  const isBottomPlayer = position === 'bottom';
-  const cardCount = player.cards.length;
+  const isHuman = position === 'bottom';
+  const isVertical = position === 'left' || position === 'right';
 
-  const positionClasses = {
-    top: 'justify-center items-start',
-    left: 'justify-start items-center flex-col',
-    right: 'justify-end items-center flex-col',
-    bottom: 'justify-center items-end'
+  // Turn indicator animation
+  const turnIndicatorClass = player.isCurrentPlayer 
+    ? "animate-turn-indicator border-gold/80 bg-gold/10" 
+    : "border-casino-green/30";
+
+  const getPositionClasses = () => {
+    switch (position) {
+      case 'bottom':
+        return 'flex-col items-center';
+      case 'top':
+        return 'flex-col items-center';
+      case 'left':
+        return 'flex-row items-center';
+      case 'right':
+        return 'flex-row-reverse items-center';
+      default:
+        return 'flex-col items-center';
+    }
   };
 
-  const cardContainerClasses = {
-    top: 'flex-row',
-    left: 'flex-col',
-    right: 'flex-col', 
-    bottom: 'flex-row'
+  const getCardContainerClasses = () => {
+    switch (position) {
+      case 'bottom':
+        return 'flex-row justify-center';
+      case 'top':
+        return 'flex-row justify-center';
+      case 'left':
+        return 'flex-col justify-center';
+      case 'right':
+        return 'flex-col justify-center';
+      default:
+        return 'flex-row justify-center';
+    }
   };
 
-  const playerInfoClasses = {
-    top: 'mb-2',
-    left: 'mb-4 rotate-90',
-    right: 'mb-4 -rotate-90',
-    bottom: 'mt-2'
+  const getPlayerInfoOrder = () => {
+    switch (position) {
+      case 'bottom':
+        return 'order-2';
+      case 'top':
+        return 'order-1';
+      case 'left':
+        return 'order-1';
+      case 'right':
+        return 'order-2';
+      default:
+        return 'order-2';
+    }
+  };
+
+  const getCardsOrder = () => {
+    switch (position) {
+      case 'bottom':
+        return 'order-1';
+      case 'top':
+        return 'order-2';
+      case 'left':
+        return 'order-2';
+      case 'right':
+        return 'order-1';
+      default:
+        return 'order-1';
+    }
   };
 
   return (
-    <div className={cn("flex", positionClasses[position])}>
+    <div className={cn("flex gap-4", getPositionClasses())}>
       {/* Player Info */}
-      <div className={cn("flex items-center gap-2 z-10", playerInfoClasses[position])}>
-        <div className={cn(
-          "px-4 py-2 rounded-full text-sm font-semibold border-2 transition-all duration-300 backdrop-blur-sm",
-          {
-            "bg-gradient-gold text-casino-black border-gold shadow-glow animate-glow-pulse": player.isCurrentPlayer,
-            "bg-felt-green-light/80 text-gold border-gold/50": !player.isCurrentPlayer,
-            "ring-2 ring-blue-400/50": player.isTeammate
-          }
-        )}>
-          <span className="font-ui font-medium">{player.name}</span>
-        </div>
-        
-        <Badge 
-          variant={player.team === 1 ? "default" : "secondary"}
-          className={cn(
-            "text-xs font-semibold border",
-            player.team === 1 
-              ? "bg-gradient-gold text-casino-black border-gold-dark" 
-              : "bg-blue-500/90 text-white border-blue-600"
+      <div className={cn(
+        "relative p-4 rounded-xl border-2 transition-all duration-500",
+        "bg-casino-green/20 backdrop-blur-sm",
+        turnIndicatorClass,
+        isVertical ? "min-w-[120px]" : "min-h-[120px]",
+        getPlayerInfoOrder()
+      )}>
+        <div className="text-center">
+          <div className={cn(
+            "text-sm font-bold mb-1",
+            player.isCurrentPlayer ? "text-gold" : "text-casino-white"
+          )}>
+            {player.name}
+          </div>
+          <div className={cn(
+            "text-xs px-2 py-1 rounded-full",
+            player.team === 1 ? "bg-gold/20 text-gold" : "bg-blue-500/20 text-blue-300"
+          )}>
+            Team {player.team}
+          </div>
+          {player.isTeammate && (
+            <div className="text-xs text-green-400 mt-1">★ Teammate</div>
           )}
-        >
-          Team {player.team}
-        </Badge>
-        
-        {player.isTrump && (
-          <Badge className="bg-casino-red/90 text-white text-xs animate-glow-pulse border border-casino-red">
-            👑 Trump
-          </Badge>
-        )}
+          {!isHuman && (
+            <div className="text-xs text-casino-white/60 mt-1">
+              {player.cards.length} cards
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Cards */}
-      <div className={cn("flex gap-1", cardContainerClasses[position])}>
-        {player.cards.map((card, index) => {
-          const shouldShowCard = isBottomPlayer || showCards;
-          const rotation = position === 'left' ? 90 : position === 'right' ? -90 : 0;
-          
-          return (
-            <div
-              key={`${card.id}-${index}`}
-              className={cn("transition-all duration-300", {
-                "hover:-translate-y-2": isBottomPlayer,
-                "-ml-3": position === 'bottom' && index > 0,
-                "-mt-3": (position === 'left' || position === 'right') && index > 0,
-              })}
-              style={{
-                transform: `rotate(${rotation}deg)`,
-                zIndex: index,
-                animationDelay: `${index * 100}ms`
-              }}
-            >
-              <PlayingCard
-                card={shouldShowCard ? card : undefined}
-                hidden={!shouldShowCard}
-                onClick={() => onCardClick?.(card)}
-                isPlayable={isBottomPlayer}
-              />
-            </div>
-          );
-        })}
+      <div className={cn(
+        "flex gap-1",
+        getCardContainerClasses(),
+        getCardsOrder()
+      )}>
+        {isHuman ? (
+          // Human player cards (all visible and playable)
+          <>
+            {player.cards.map((card, index) => {
+              const dealDelay = isDealing ? index * 150 : 0; // Staggered dealing animation
+              
+              return (
+                <PlayingCard
+                  key={`${card.id}-${index}`}
+                  card={card}
+                  mini={!isHuman}
+                  isPlayable={isHuman && player.isCurrentPlayer}
+                  onClick={isHuman && player.isCurrentPlayer ? () => onCardPlay?.(card) : undefined}
+                  dealAnimation={isDealing}
+                  dealDelay={dealDelay}
+                  playerPosition={position}
+                  className={cn(
+                    isHuman && index > 0 && "-ml-4", // Fan out human cards
+                    !isHuman && index > 0 && (isVertical ? "-mt-3" : "-ml-3"), // Overlap bot cards
+                    "transition-all duration-300"
+                  )}
+                />
+              );
+            })}
+          </>
+        ) : (
+          // Bot player cards (hidden/back cards)
+          <>
+            {player.cards.map((card, index) => {
+              const dealDelay = isDealing ? index * 150 : 0;
+              
+              return (
+                <div
+                  key={`bot-card-${index}`}
+                  className={cn(
+                    "relative bg-gradient-to-br from-accent to-accent-dark rounded-lg shadow-card",
+                    "w-8 h-12", // mini size for bots
+                    index > 0 && (isVertical ? "-mt-3" : "-ml-3"),
+                    "transition-all duration-300",
+                    isDealing && "animate-[deal-to-" + position + "_0.8s_ease-out_forwards]"
+                  )}
+                  style={{
+                    animationDelay: isDealing ? `${dealDelay}ms` : undefined
+                  }}
+                >
+                  <div className="absolute inset-1 bg-gradient-to-br from-primary-light to-primary rounded border border-primary-light/20">
+                    <div className="w-full h-full bg-gradient-to-br from-accent-subtle to-accent rounded-sm opacity-80" />
+                  </div>
+                </div>
+              );
+            })}
+          </>
+        )}
       </div>
-
-      {/* Card count for hidden hands */}
-      {!showCards && !isBottomPlayer && (
-        <div className={cn(
-          "text-xs text-muted-foreground mt-1 px-2 py-1 bg-muted/50 rounded",
-          position === 'left' || position === 'right' ? 'rotate-0' : ''
-        )}>
-          {cardCount} cards
-        </div>
-      )}
     </div>
   );
 };
