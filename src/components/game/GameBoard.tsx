@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Settings } from "lucide-react";
-import { Card } from "@/types/game";
+import { Card, Suite } from "@/types/game";
 import { PlayerArea } from "./PlayerArea";
 import { PlayingCard } from "./PlayingCard";
 import { GameInfo } from "./GameInfo";
@@ -19,7 +19,7 @@ interface GameBoardProps {
       isTeammate?: boolean;
     }>;
     currentTrick: Card[];
-    trumpSuit: 'spades' | 'hearts' | 'diamonds' | 'clubs';
+    trumpSuit: Suite;
     currentBid: number;
     round: number;
     teamScores: { team1: number; team2: number };

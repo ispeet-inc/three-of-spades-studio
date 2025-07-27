@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { Card } from "@/types/game";
-import { getSuiteIcon, getSuiteColor } from "@/utils/cardUtils";
+import { getSuiteIcon, getSuiteColor } from "@/utils/suiteUtils";
 import { cn } from "@/lib/utils";
 import { useFeedback } from "@/utils/feedbackSystem";
 import { cardDescriptions } from "@/utils/accessibility";

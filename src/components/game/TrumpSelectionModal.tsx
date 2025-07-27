@@ -3,22 +3,15 @@ import { useAppSelector, useAppDispatch } from "@/hooks";
 import { setBidAndTrump } from "@/store/gameSlice";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { getSuiteIcon } from "@/utils/cardUtils";
+import { suiteMetadata } from "@/utils/suiteUtils";
+import { getCardId } from "@/utils/cardUtils";
+import { numbers } from "@/utils/constants";
 
 export const TrumpSelectionModal = () => {
   const dispatch = useAppDispatch();
   const { players } = useAppSelector(state => state.game);
   const [trumpSuite, setTrumpSuite] = useState<number | null>(null);
   const [teammateCard, setTeammateCard] = useState<{suite: number; number: number} | null>(null);
-
-  const suites = [
-    { value: 0, icon: "♠", name: "Spades" },
-    { value: 1, icon: "♥", name: "Hearts" },
-    { value: 2, icon: "♦", name: "Diamonds" },
-    { value: 3, icon: "♣", name: "Clubs" }
-  ];
-
-  const cardNumbers = [3, 5, 7, 8, 9, 10, 11, 12, 13, 1];
 
   const handleSubmit = () => {
     if (trumpSuite !== null && teammateCard) {
@@ -48,7 +41,7 @@ export const TrumpSelectionModal = () => {
               Select Trump Suite
             </h3>
             <div className="grid grid-cols-2 gap-3">
-              {suites.map(suite => (
+              {suiteMetadata.map(suite => (
                 <Button
                   key={suite.value}
                   variant={trumpSuite === suite.value ? "default" : "outline"}
@@ -80,7 +73,7 @@ export const TrumpSelectionModal = () => {
             </p>
             
             <div className="grid grid-cols-4 gap-4">
-              {suites.map(suite => (
+              {suiteMetadata.map(suite => (
                 <div key={suite.value} className="space-y-2">
                   {/* Suite Header */}
                   <div className="text-center bg-felt-green-light/30 rounded-lg py-2 border border-gold/20">
@@ -91,14 +84,14 @@ export const TrumpSelectionModal = () => {
                   
                   {/* Card Numbers */}
                   <div className="space-y-1">
-                    {cardNumbers.map(num => {
+                    {numbers.map(num => {
                       const hasCard = players[0].hand.some(card => 
                         card.suite === suite.value && card.number === num
                       );
                       if (hasCard) return null;
                       
                       const isSelected = teammateCard?.suite === suite.value && teammateCard?.number === num;
-                      const displayNum = num === 1 ? 'A' : num === 11 ? 'J' : num === 12 ? 'Q' : num === 13 ? 'K' : num.toString();
+                      const displayNum = getCardId(num);
                       
                       return (
                         <Button
@@ -154,23 +147,19 @@ export const TrumpSelectionModal = () => {
                     <div className="flex items-center gap-2">
                       <span className="text-xs opacity-70">Trump:</span>
                       <span className={`text-lg ${trumpSuite === 1 || trumpSuite === 2 ? "text-red-400" : "text-gold"}`}>
-                        {suites[trumpSuite].icon}
+                        {suiteMetadata[trumpSuite].icon}
                       </span>
-                      <span className="font-semibold">{suites[trumpSuite].name}</span>
+                      <span className="font-semibold">{suiteMetadata[trumpSuite].name}</span>
                     </div>
                   )}
                   {teammateCard && (
                     <div className="flex items-center gap-2">
                       <span className="text-xs opacity-70">Teammate:</span>
                       <span className={`text-lg ${teammateCard.suite === 1 || teammateCard.suite === 2 ? "text-red-400" : "text-gold"}`}>
-                        {suites[teammateCard.suite].icon}
+                        {suiteMetadata[teammateCard.suite].icon}
                       </span>
                       <span className="font-semibold">
-                        {teammateCard.number === 1 ? 'A' : 
-                         teammateCard.number === 11 ? 'J' : 
-                         teammateCard.number === 12 ? 'Q' : 
-                         teammateCard.number === 13 ? 'K' : 
-                         teammateCard.number.toString()}
+                        {getCardId(teammateCard.number)}
                       </span>
                     </div>
                   )}

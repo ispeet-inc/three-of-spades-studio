@@ -1,7 +1,8 @@
-import { Card } from "@/types/game";
+import { Card, Suite } from "@/types/game";
+import { suites, numbers} from "@/utils/constants"
 
 // Utility functions for card operations
-const getId = (number: number): string => {
+export const getCardId = (number: number): string => {
   if (number === 1) return "A";
   if (number === 11) return "J";
   if (number === 12) return "Q";
@@ -9,14 +10,14 @@ const getId = (number: number): string => {
   return number.toString();
 };
 
-const getPoints = (number: number, suite: number): number => {
+const getPoints = (number: number, suite: Suite): number => {
   if (number === 1) {
     return 10;
   } else if (number >= 10) {
     return 10;
   } else if (number === 5) {
     return 5;
-  } else if (number === 3 && suite === 0) {
+  } else if (number === 3 && suite === Suite.Spade) {
     return 30;
   } else {
     return 0;
@@ -31,8 +32,8 @@ const getRank = (number: number): number => {
   }
 };
 
-export const createCard = (suite: number, number: number): Card => {
-  const id = getId(number);
+export const createCard = (suite: Suite, number: number): Card => {
+  const id = getCardId(number);
   const rank = getRank(number);
   const points = getPoints(number, suite)
   const positionValue = 100 * suite + rank;
@@ -48,8 +49,6 @@ export const createCard = (suite: number, number: number): Card => {
 
 export const generateDeck = (): Card[] => {
   const deck: Card[] = [];
-  const suites = [0, 1, 2, 3]; // SPADE=0, HEART=1, DIAMOND=2, CLUB=3
-  const numbers = [3, 5, 7, 8, 9, 10, 11, 12, 13, 1]; // 11=J, 12=Q, 13=K, 1=A
 
   suites.forEach((suite) => {
     numbers.forEach((number) => {
@@ -85,18 +84,4 @@ export const distributeDeck = (deck: Card[], numPlayers: number): Card[][] => {
   });
 
   return hands;
-};
-
-export const getSuiteName = (suite: number): string => {
-  const names = ['spade', 'heart', 'club', 'diamond'];
-  return names[suite];
-};
-
-export const getSuiteColor = (suite: number): string => {
-  return suite === 1 || suite === 3 ? 'red' : 'black';
-};
-
-export const getSuiteIcon = (suite: number): string => {
-  const icons = ['♠', '♥', '♣', '♦'];
-  return icons[suite];
 };

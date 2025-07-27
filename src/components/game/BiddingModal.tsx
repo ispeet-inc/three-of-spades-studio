@@ -74,13 +74,13 @@ export const BiddingModal = () => {
           <div className="space-y-4">
             {/* Quick Bid Buttons */}
             <div className="flex gap-3 justify-center">
-              <Button 
+              {minIncrement === 5 && <Button 
                 onClick={() => handleBid(minIncrement)} 
                 disabled={currentBid + minIncrement > maxBid}
                 className="bg-gradient-gold text-casino-black font-bold px-6 py-3 text-lg hover:shadow-glow disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
               >
                 +{minIncrement}
-              </Button>
+              </Button>}
               <Button 
                 onClick={() => handleBid(10)} 
                 disabled={currentBid + 10 > maxBid}

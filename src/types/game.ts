@@ -7,6 +7,13 @@ export interface Card {
   positionValue: number;
 }
 
+export enum Suite {
+  Spade,
+  Heart,
+  Clubs,
+  Diamond
+}
+
 export interface TableCard extends Card {
   player: number;
 }

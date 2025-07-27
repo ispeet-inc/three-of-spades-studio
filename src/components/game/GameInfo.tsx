@@ -1,6 +1,8 @@
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "./PlayingCard";
+import { Suite } from "@/types/game";
+import { suitSymbols, suitColors } from "@/utils/suiteUtils";
 
 interface GameState {
   players: Array<{
@@ -13,7 +15,7 @@ interface GameState {
     isTrump?: boolean;
   }>;
   currentTrick: Card[];
-  trumpSuit: 'hearts' | 'diamonds' | 'clubs' | 'spades';
+  trumpSuit: Suite;
   currentBid: number;
   round: number;
   teamScores: { team1: number; team2: number };
@@ -23,20 +25,6 @@ interface GameState {
 interface GameInfoProps {
   gameState: GameState;
 }
-
-const suitSymbols = {
-  hearts: '♥',
-  diamonds: '♦',
-  clubs: '♣',
-  spades: '♠'
-};
-
-const suitColors = {
-  hearts: 'text-casino-red',
-  diamonds: 'text-casino-red',
-  clubs: 'text-casino-black',
-  spades: 'text-casino-black'
-};
 
 export const GameInfo = ({ gameState }: GameInfoProps) => {
   return (
