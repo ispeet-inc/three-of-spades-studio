@@ -1,38 +1,48 @@
 import { Card } from "@/types/game";
 
-// Card number to rank mapping for Three of Spades
-const RANK_MAP: Record<number, number> = {
-  3: 1,   // 3 is lowest
-  5: 2,   // 5 
-  7: 3,   // 7
-  8: 4,   // 8
-  9: 5,   // 9
-  10: 6,  // 10
-  11: 7,  // Jack
-  12: 8,  // Queen  
-  13: 9,  // King
-  1: 10,  // Ace is highest
+// Utility functions for card operations
+const getId = (number: number): string => {
+  if (number === 1) return "A";
+  if (number === 11) return "J";
+  if (number === 12) return "Q";
+  if (number === 13) return "K";
+  return number.toString();
 };
 
-// Points for each card
-const POINTS_MAP: Record<number, number> = {
-  3: 0, 5: 5, 7: 0, 8: 0, 9: 0, 10: 10, 11: 2, 12: 3, 13: 4, 1: 11
+const getPoints = (number: number, suite: number): number => {
+  if (number === 1) {
+    return 10;
+  } else if (number >= 10) {
+    return 10;
+  } else if (number === 5) {
+    return 5;
+  } else if (number === 3 && suite === 0) {
+    return 30;
+  } else {
+    return 0;
+  }
 };
 
-// Position value for sorting
-const POSITION_MAP: Record<number, number> = {
-  3: 1, 5: 2, 7: 3, 8: 4, 9: 5, 10: 6, 11: 7, 12: 8, 13: 9, 1: 10
+const getRank = (number: number): number => {
+  if (number === 1) {
+    return 14;
+  } else {
+    return number;
+  }
 };
 
 export const createCard = (suite: number, number: number): Card => {
-  const id = number === 1 ? 'A' : number.toString();
+  const id = getId(number);
+  const rank = getRank(number);
+  const points = getPoints(number, suite)
+  const positionValue = 100 * suite + rank;
   return {
     id,
     suite,
     number,
-    rank: RANK_MAP[number],
-    points: POINTS_MAP[number],
-    positionValue: POSITION_MAP[number]
+    rank: rank,
+    points: points,
+    positionValue: positionValue
   };
 };
 
