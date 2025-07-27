@@ -106,9 +106,30 @@ export const PlayingCard = ({
   const textSizes = getTextSize();
 
   const handleClick = () => {
-    if (onClick) {
-      trigger('cardPlay', { element: cardRef.current || undefined, intensity: 'medium' });
-      onClick();
+    try {
+      if (onClick) {
+        // Trigger feedback first
+        trigger('cardPlay', { element: cardRef.current || undefined, intensity: 'medium' });
+        // Then execute the original click handler
+        onClick();
+      }
+    } catch (error) {
+      console.error('Card click error:', error);
+      // Fallback: still execute the original click
+      if (onClick) {
+        onClick();
+      }
+    }
+  };
+
+  const handleMouseEnter = () => {
+    try {
+      if (isPlayable) {
+        trigger('cardDeal', { element: cardRef.current || undefined, intensity: 'light' });
+      }
+    } catch (error) {
+      // Silently fail for hover feedback
+      console.warn('Card hover feedback error:', error);
     }
   };
 
@@ -127,7 +148,7 @@ export const PlayingCard = ({
         className
       )}
       onClick={handleClick}
-      onMouseEnter={() => isPlayable && trigger('cardDeal', { element: cardRef.current || undefined, intensity: 'light' })}
+      onMouseEnter={handleMouseEnter}
       style={{
         animationDelay: dealAnimation ? `${dealDelay}ms` : undefined
       }}
