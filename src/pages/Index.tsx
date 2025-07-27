@@ -61,14 +61,14 @@ const Index = () => {
             onClick={() => navigate('/game')}
             className="bg-gradient-gold text-casino-black font-bold text-lg px-8 py-6 rounded-xl shadow-elevated hover:shadow-glow transition-all duration-300 hover:scale-105"
           >
-            Mock Game
+            Start Game
           </Button>
           <Button 
             size="lg"
             onClick={() => navigate('/redux-game')}
             className="bg-gradient-gold text-casino-black font-bold text-lg px-8 py-6 rounded-xl shadow-elevated hover:shadow-glow transition-all duration-300 hover:scale-105"
           >
-            Full Game
+            Redux Version
           </Button>
         </div>
 

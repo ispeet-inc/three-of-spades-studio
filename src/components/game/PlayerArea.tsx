@@ -14,13 +14,15 @@ interface PlayerAreaProps {
   position: 'bottom' | 'left' | 'top' | 'right';
   onCardPlay?: (card: Card) => void;
   isDealing?: boolean;
+  botCardsHidden?: boolean;
 }
 
 export const PlayerArea = ({ 
   player, 
   position, 
   onCardPlay,
-  isDealing = false 
+  isDealing = false,
+  botCardsHidden = false
 }: PlayerAreaProps) => {
   const isHuman = position === 'bottom';
   const isVertical = position === 'left' || position === 'right';
@@ -155,8 +157,13 @@ export const PlayerArea = ({
               );
             })}
           </>
+        ) : botCardsHidden ? (
+          // Bot player cards (completely hidden)
+          <div className="text-xs text-casino-white/60 p-2 rounded bg-casino-black/20">
+            Cards Hidden
+          </div>
         ) : (
-          // Bot player cards (hidden/back cards)
+          // Bot player cards (back cards visible)
           <>
             {player.cards.map((card, index) => {
               const dealDelay = isDealing ? index * 150 : 0;

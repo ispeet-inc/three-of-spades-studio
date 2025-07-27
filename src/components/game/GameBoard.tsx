@@ -28,9 +28,10 @@ interface GameBoardProps {
   onCardPlay: (card: Card) => void;
   onSettingsClick: () => void;
   isDealing?: boolean;
+  botCardsHidden?: boolean;
 }
 
-export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = false }: GameBoardProps) => {
+export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = false, botCardsHidden = false }: GameBoardProps) => {
   const [lastScores, setLastScores] = useState(gameState.teamScores);
   const [animateScore, setAnimateScore] = useState({ team1: false, team2: false });
   
@@ -213,6 +214,7 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = 
             position="left" 
             onCardPlay={onCardPlay}
             isDealing={isDealing}
+            botCardsHidden={botCardsHidden}
           />
         </div>
 
@@ -223,6 +225,7 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = 
             position="top" 
             onCardPlay={onCardPlay}
             isDealing={isDealing}
+            botCardsHidden={botCardsHidden}
           />
         </div>
 
@@ -233,6 +236,7 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = 
             position="right" 
             onCardPlay={onCardPlay}
             isDealing={isDealing}
+            botCardsHidden={botCardsHidden}
           />
         </div>
 
@@ -243,6 +247,7 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = 
             position="bottom" 
             onCardPlay={onCardPlay}
             isDealing={isDealing}
+            botCardsHidden={botCardsHidden}
           />
         </div>
       </section>
