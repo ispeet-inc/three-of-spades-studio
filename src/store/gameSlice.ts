@@ -1,0 +1,241 @@
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { GameState, Card, Player, TableCard } from "@/types/game";
+import { GameStages } from "./gameStages";
+import { generateDeck, shuffle, distributeDeck, createCard } from "@/utils/cardUtils";
+import { determineRoundWinner, assignTeamsByTeammateCard } from "@/utils/gameUtils";
+import { agentClasses } from "@/agents";
+
+const NUM_PLAYERS = 4;
+
+const initialState: GameState = {
+  stage: GameStages.INIT,
+  players: {
+    0: { hand: [], score: 0 },
+    1: { hand: [], score: 0 },
+    2: { hand: [], score: 0 },
+    3: { hand: [], score: 0 },
+  },
+  round: 0,
+  runningSuite: null,
+  trumpSuite: null,
+  bidAmount: null,
+  bidder: null,
+  tableCards: [],
+  scores: [0, 0],
+  turn: 0,
+  roundWinner: null,
+  isRoundEnding: false,
+  totalRounds: 0,
+  teams: {
+    0: [],
+    1: [],
+  },
+  playerTeamMap: null,
+  teamColors: {
+    0: "hsl(var(--amber))",
+    1: "hsl(var(--blue))",
+  },
+  playerAgents: {},
+  playerNames: { 0: "You", 1: "Nats", 2: "Prateek", 3: "Abhi" },
+  teammateCard: null,
+  biddingState: {
+    biddingActive: false,
+    currentBid: 165,
+    currentBidder: 0,
+    passedPlayers: [],
+    bidStatusByPlayer: {
+      0: "Bidding",
+      1: "Bidding", 
+      2: "Bidding",
+      3: "Bidding",
+    },
+    bidWinner: null,
+    bidHistory: [],
+    bidTimer: 30,
+  },
+};
+
+const gameSlice = createSlice({
+  name: "game",
+  initialState,
+  reducers: {
+    setStage: (state, action: PayloadAction<string>) => {
+      console.log("GameSlice.setStage: CHANGING STATE: FROM", state.stage, "TO", action.payload);
+      state.stage = action.payload;
+    },
+
+    startGame: (state) => {
+      const deck = shuffle(generateDeck());
+      const distributedHands = distributeDeck(deck, NUM_PLAYERS);
+
+      // Initialize each player's hand
+      for (let i = 0; i < NUM_PLAYERS; i++) {
+        state.players[i].hand = distributedHands[i];
+        state.players[i].score = 0;
+      }
+
+      // Randomly assign bot agents to computer players (1, 2, 3)
+      state.playerAgents = {};
+      for (let i = 1; i < NUM_PLAYERS; i++) {
+        const AgentClass = agentClasses[Math.floor(Math.random() * agentClasses.length)];
+        state.playerAgents[i] = new (AgentClass as any)();
+        // Use the class name for the bot's display name
+        state.playerNames[i] = (AgentClass as any).displayName + " " + state.playerNames[i];
+      }
+
+      // Set total rounds based on cards per player
+      state.totalRounds = distributedHands[0].length;
+      state.trumpSuite = null;
+      state.bidAmount = null;
+      state.bidder = null;
+      state.round = 0;
+      state.tableCards = [];
+      state.scores = [0, 0];
+      state.turn = 0;
+      state.roundWinner = null;
+      state.isRoundEnding = false;
+    },
+
+    playCard: (state, action: PayloadAction<{ playerIndex: number; cardIndex: number }>) => {
+      const { playerIndex, cardIndex } = action.payload;
+      const playerHand = [...state.players[playerIndex].hand];
+      const card = playerHand.splice(cardIndex, 1)[0];
+      state.players[playerIndex].hand = playerHand;
+      state.tableCards.push({ ...card, player: playerIndex });
+
+      if (state.tableCards.length === 1) {
+        state.runningSuite = card.suite;
+      }
+
+      if (state.tableCards.length === NUM_PLAYERS) {
+        const winner = determineRoundWinner(
+          state.tableCards,
+          state.runningSuite!,
+          state.trumpSuite!
+        );
+        const winningTeam = state.playerTeamMap![winner.player];
+
+        // Calculate total points from all cards in the table
+        const roundPoints = state.tableCards.reduce((sum, card) => sum + card.points, 0);
+
+        state.scores[winningTeam] += roundPoints;
+        state.players[winner.player].score += roundPoints;
+        state.roundWinner = winner.player;
+        state.isRoundEnding = true;
+        state.stage = GameStages.ROUND_SUMMARY;
+      } else {
+        state.turn = (state.turn + 1) % NUM_PLAYERS;
+      }
+    },
+
+    startNewRound: (state) => {
+      state.tableCards = [];
+      state.round = state.round + 1;
+      state.turn = state.roundWinner!;
+      state.roundWinner = null;
+      state.runningSuite = null;
+      state.isRoundEnding = false;
+      state.stage = GameStages.PLAYING;
+
+      // Check if game is over
+      if (state.round >= state.totalRounds) {
+        state.stage = GameStages.GAME_OVER;
+      }
+    },
+
+    setBidAndTrump: (state, action: PayloadAction<{ trumpSuite: number; bidder: number; teammateCard: { suite: number; number: number } }>) => {
+      const { trumpSuite, bidder, teammateCard } = action.payload;
+      state.trumpSuite = trumpSuite;
+      state.bidder = bidder;
+      state.teammateCard = createCard(teammateCard.suite, teammateCard.number);
+
+      // Assign teams based on teammate card
+      const { teams, playerTeamMap } = assignTeamsByTeammateCard(
+        state.players,
+        bidder,
+        teammateCard,
+        NUM_PLAYERS
+      );
+      state.teams = teams;
+      state.playerTeamMap = playerTeamMap;
+      state.stage = GameStages.TRUMP_SELECTION_COMPLETE;
+    },
+
+    startBiddingRound: (state) => {
+      state.biddingState = {
+        biddingActive: true,
+        currentBid: 165,
+        currentBidder: 0,
+        passedPlayers: [],
+        bidStatusByPlayer: {
+          0: "Bidding",
+          1: "Bidding",
+          2: "Bidding", 
+          3: "Bidding",
+        },
+        bidWinner: null,
+        bidHistory: [],
+        bidTimer: 30,
+      };
+    },
+
+    placeBid: (state, action: PayloadAction<{ playerIndex: number; bidAmount: number }>) => {
+      const { playerIndex, bidAmount } = action.payload;
+      state.biddingState.currentBid = bidAmount;
+      state.biddingState.bidStatusByPlayer[playerIndex] = `Current Bid: ${bidAmount}`;
+      state.biddingState.bidHistory.push({ player: playerIndex, bid: bidAmount });
+
+      // Advance to next eligible bidder
+      let nextBidder = (playerIndex + 1) % 4;
+      while (state.biddingState.passedPlayers.includes(nextBidder)) {
+        nextBidder = (nextBidder + 1) % 4;
+      }
+      state.biddingState.currentBidder = nextBidder;
+      state.biddingState.bidTimer = 30;
+    },
+
+    passBid: (state, action: PayloadAction<{ playerIndex: number }>) => {
+      const { playerIndex } = action.payload;
+      state.biddingState.passedPlayers.push(playerIndex);
+      state.biddingState.bidStatusByPlayer[playerIndex] = "Passed";
+
+      // If only one player left, set winner
+      const activePlayers = [0, 1, 2, 3].filter(
+        (idx) => !state.biddingState.passedPlayers.includes(idx)
+      );
+
+      if (activePlayers.length === 1) {
+        state.biddingState.bidWinner = activePlayers[0];
+        state.biddingState.biddingActive = false;
+        state.bidAmount = state.biddingState.currentBid;
+        state.stage = GameStages.TRUMP_SELECTION;
+      } else {
+        // Advance to next eligible bidder
+        let nextBidder = (playerIndex + 1) % 4;
+        while (state.biddingState.passedPlayers.includes(nextBidder)) {
+          nextBidder = (nextBidder + 1) % 4;
+        }
+        state.biddingState.currentBidder = nextBidder;
+        state.biddingState.bidTimer = 30;
+      }
+    },
+
+    updateBidTimer: (state, action: PayloadAction<number>) => {
+      state.biddingState.bidTimer = action.payload;
+    },
+  },
+});
+
+export const {
+  setStage,
+  startGame,
+  playCard,
+  startNewRound,
+  setBidAndTrump,
+  startBiddingRound,
+  placeBid,
+  passBid,
+  updateBidTimer,
+} = gameSlice.actions;
+
+export default gameSlice.reducer;

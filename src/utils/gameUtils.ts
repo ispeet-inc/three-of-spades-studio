@@ -1,0 +1,106 @@
+import { Card, TableCard, Player, TeammateCard } from "@/types/game";
+import { createCard } from "./cardUtils";
+
+export const determineRoundWinner = (
+  tableCards: TableCard[],
+  runningSuite: number,
+  trumpSuite: number
+): TableCard => {
+  // First check if any trump cards were played
+  const trumpCards = tableCards.filter((card) => card.suite === trumpSuite);
+
+  if (trumpCards.length > 0) {
+    // If trump was played, highest trump wins
+    return getMaxRankedCard(trumpCards);
+  } else {
+    // If no trump was played, highest card of running suite wins
+    const runningSuiteCards = tableCards.filter(
+      (card) => card.suite === runningSuite
+    );
+    return getMaxRankedCard(runningSuiteCards);
+  }
+};
+
+export const getMaxRankedCard = (cards: TableCard[]): TableCard => {
+  return cards.reduce((max, current) => {
+    return current.rank > max.rank ? current : max;
+  });
+};
+
+export const assignTeamsByTeammateCard = (
+  players: Record<number, Player>,
+  bidder: number,
+  teammateCard: TeammateCard,
+  numPlayers: number
+) => {
+  const teams = { 0: [], 1: [] } as Record<number, number[]>;
+  const playerTeamMap = {} as Record<number, number>;
+
+  // Find who has the teammate card
+  let teammateIndex = -1;
+  for (let i = 0; i < numPlayers; i++) {
+    const hasCard = players[i].hand.some(
+      (card) => card.suite === teammateCard.suite && card.number === teammateCard.number
+    );
+    if (hasCard) {
+      teammateIndex = i;
+      break;
+    }
+  }
+
+  // Assign teams
+  for (let i = 0; i < numPlayers; i++) {
+    if (i === bidder || i === teammateIndex) {
+      teams[0].push(i); // Bidder's team
+      playerTeamMap[i] = 0;
+    } else {
+      teams[1].push(i); // Opposition team
+      playerTeamMap[i] = 1;
+    }
+  }
+
+  return { teams, playerTeamMap };
+};
+
+export const getTeammateOptions = (hand: Card[], suite: number): Card[] => {
+  // Get all possible teammate cards for a given suite that are NOT in the player's hand
+  const allCards = [3, 5, 7, 8, 9, 10, 11, 12, 13, 1].map(num => createCard(suite, num));
+  
+  return allCards.filter(card => 
+    !hand.some(handCard => 
+      handCard.suite === card.suite && handCard.number === card.number
+    )
+  );
+};
+
+export const getDisplayPlayerName = (playerNames: Record<number, string>, idx: number): string => {
+  return playerNames[idx] || `Player ${idx + 1}`;
+};
+
+export const getFormattedPlayerName = (playerNames: Record<number, string>, idx: number | string): string => {
+  const index = typeof idx === 'string' ? parseInt(idx) : idx;
+  return getDisplayPlayerName(playerNames, index);
+};
+
+export const hasSuite = (hand: Card[], suite: number): boolean => {
+  return hand.some(card => card.suite === suite);
+};
+
+export const getRandomCardIndex = (hand: Card[]): number => {
+  return Math.floor(Math.random() * hand.length);
+};
+
+export const getRandomCardIndexBySuite = (hand: Card[], suite: number): number => {
+  const suiteCards = hand
+    .map((card, index) => ({ card, index }))
+    .filter(({ card }) => card.suite === suite);
+  
+  if (suiteCards.length === 0) return -1;
+  
+  const randomIndex = Math.floor(Math.random() * suiteCards.length);
+  return suiteCards[randomIndex].index;
+};
+
+export const getRandomSuite = (): number => {
+  return Math.floor(Math.random() * 4);
+};
