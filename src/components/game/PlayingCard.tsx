@@ -1,112 +1,91 @@
-import { cn } from "@/lib/utils";
-
-export interface Card {
-  suit: 'hearts' | 'diamonds' | 'clubs' | 'spades';
-  value: 'A' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | 'J' | 'Q' | 'K';
-  isVisible?: boolean;
-}
+import { Card } from "@/types/game";
+import { getSuiteName, getSuiteIcon, getSuiteColor } from "@/utils/cardUtils";
 
 interface PlayingCardProps {
   card?: Card;
-  isBack?: boolean;
+  hidden?: boolean;
+  mini?: boolean;
+  small?: boolean;
   className?: string;
   onClick?: () => void;
-  isSelected?: boolean;
-  isPlayable?: boolean;
-  size?: 'sm' | 'md' | 'lg';
+  disabled?: boolean;
 }
-
-const suitSymbols = {
-  hearts: '♥',
-  diamonds: '♦',
-  clubs: '♣',
-  spades: '♠'
-};
-
-const suitColors = {
-  hearts: 'text-casino-red',
-  diamonds: 'text-casino-red',
-  clubs: 'text-casino-black',
-  spades: 'text-casino-black'
-};
 
 export const PlayingCard = ({ 
   card, 
-  isBack = false, 
-  className, 
-  onClick, 
-  isSelected = false,
-  isPlayable = true,
-  size = 'md'
+  hidden = false, 
+  mini = false, 
+  small = false, 
+  className = "",
+  onClick,
+  disabled = false
 }: PlayingCardProps) => {
-  const sizeClasses = {
-    sm: 'w-12 h-16 text-xs',
-    md: 'w-16 h-24 text-sm',
-    lg: 'w-20 h-28 text-base'
-  };
+  if (!card && !hidden) {
+    return null;
+  }
 
-  const baseClasses = cn(
-    "relative rounded-lg border-2 border-gray-300 cursor-pointer transition-all duration-300",
-    "hover:scale-105 hover:shadow-elevated",
-    sizeClasses[size],
-    {
-      "shadow-glow ring-2 ring-gold scale-105": isSelected,
-      "opacity-50 cursor-not-allowed": !isPlayable,
-      "animate-card-deal": true
-    },
-    className
-  );
-
-  if (isBack) {
+  if (hidden) {
     return (
       <div 
-        className={cn(baseClasses, "bg-gradient-to-br from-casino-red via-red-600 to-red-800")}
-        onClick={onClick}
+        className={`
+          relative bg-gradient-to-br from-accent to-accent-dark rounded-lg shadow-card
+          ${mini ? "w-8 h-12" : small ? "w-12 h-18" : "w-16 h-24"}
+          ${className}
+        `}
       >
-        <div className="absolute inset-1 bg-white/10 rounded border border-white/20">
-          <div className="w-full h-full bg-[radial-gradient(circle,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[length:4px_4px] rounded">
-            <div className="flex items-center justify-center h-full">
-              <div className="text-white/80 text-lg font-bold transform rotate-45">
-                ♦
-              </div>
-            </div>
-          </div>
+        <div className="absolute inset-1 bg-gradient-to-br from-primary-light to-primary rounded border border-primary-light/20">
+          <div className="w-full h-full bg-gradient-to-br from-accent-subtle to-accent rounded-sm opacity-80" />
         </div>
       </div>
     );
   }
 
-  if (!card) {
-    return (
-      <div className={cn(baseClasses, "bg-card border-dashed border-border/50 opacity-30")}>
-        <div className="flex items-center justify-center h-full text-muted-foreground">
-          <div className="w-4 h-4 rounded-full border border-current"></div>
-        </div>
-      </div>
-    );
-  }
+  if (!card) return null;
+
+  const cardKey = `${card.id}_of_${getSuiteName(card.suite)}`;
+  const suitIcon = getSuiteIcon(card.suite);
+  const suitColor = getSuiteColor(card.suite);
+  const displayValue = card.number === 1 ? 'A' : 
+                      card.number === 11 ? 'J' : 
+                      card.number === 12 ? 'Q' : 
+                      card.number === 13 ? 'K' : 
+                      card.number.toString();
 
   return (
     <div 
-      className={cn(baseClasses, "bg-gradient-card shadow-card")}
-      onClick={onClick}
+      className={`
+        relative bg-gradient-to-br from-card to-card/90 rounded-lg shadow-card border border-card-border
+        ${mini ? "w-8 h-12" : small ? "w-12 h-18" : "w-16 h-24"}
+        ${onClick && !disabled ? "cursor-pointer hover:shadow-card-hover hover:scale-105 transition-all duration-200" : ""}
+        ${disabled ? "opacity-50 cursor-not-allowed" : ""}
+        ${className}
+      `}
+      onClick={onClick && !disabled ? onClick : undefined}
     >
-      {/* Top left corner */}
-      <div className={cn("absolute top-1 left-1 flex flex-col items-center", suitColors[card.suit])}>
-        <div className="font-bold leading-none">{card.value}</div>
-        <div className="text-xs leading-none">{suitSymbols[card.suit]}</div>
+      {/* Card Content */}
+      <div className="absolute inset-1 flex flex-col justify-between p-1">
+        {/* Top Left */}
+        <div className={`text-xs font-bold ${suitColor === 'red' ? 'text-destructive' : 'text-foreground'}`}>
+          <div className="leading-none">{displayValue}</div>
+          <div className="text-[10px] leading-none">{suitIcon}</div>
+        </div>
+        
+        {/* Center Suit */}
+        {!mini && (
+          <div className={`text-center ${suitColor === 'red' ? 'text-destructive' : 'text-foreground'}`}>
+            <div className={`${small ? "text-sm" : "text-lg"} leading-none`}>{suitIcon}</div>
+          </div>
+        )}
+        
+        {/* Bottom Right (rotated) */}
+        <div className={`self-end transform rotate-180 text-xs font-bold ${suitColor === 'red' ? 'text-destructive' : 'text-foreground'}`}>
+          <div className="leading-none">{displayValue}</div>
+          <div className="text-[10px] leading-none">{suitIcon}</div>
+        </div>
       </div>
       
-      {/* Center symbol */}
-      <div className={cn("absolute inset-0 flex items-center justify-center text-2xl", suitColors[card.suit])}>
-        {suitSymbols[card.suit]}
-      </div>
-      
-      {/* Bottom right corner (rotated) */}
-      <div className={cn("absolute bottom-1 right-1 flex flex-col items-center rotate-180", suitColors[card.suit])}>
-        <div className="font-bold leading-none">{card.value}</div>
-        <div className="text-xs leading-none">{suitSymbols[card.suit]}</div>
-      </div>
+      {/* Shine effect */}
+      <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-card-shine/10 to-transparent rounded-lg" />
     </div>
   );
 };
