@@ -44,18 +44,23 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick }: GameBoardP
   };
 
   return (
-    <div className="min-h-screen bg-gradient-felt relative overflow-hidden">
-      {/* Table Surface with Texture */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.1)_0%,rgba(0,0,0,0.3)_100%)]" />
-      <div className="absolute inset-0 opacity-20 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMSIvPjwvZz48L2c+PC9zdmc+')]" />
+    <div className="min-h-screen bg-gradient-table relative overflow-hidden">
+      {/* Premium Table Surface with Enhanced Texture */}
+      <div className="absolute inset-0 bg-gradient-felt" />
+      <div className="absolute inset-0 shadow-table" />
+      <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.1)_0%,transparent_50%)] bg-[length:200px_200px]" />
+      
+      {/* Elegant Table Border */}
+      <div className="absolute inset-4 border-2 border-gold/30 rounded-3xl shadow-elevated" />
+      <div className="absolute inset-6 border border-gold/20 rounded-3xl" />
 
-      {/* Game Controls */}
-      <div className="absolute top-4 right-4 flex gap-2 z-20">
+      {/* Premium Game Controls */}
+      <div className="absolute top-6 right-6 flex gap-3 z-20">
         <Button
           variant="secondary"
           size="sm"
           onClick={() => setShowBotCards(!showBotCards)}
-          className="bg-secondary/90 backdrop-blur border border-border/50"
+          className="bg-felt-green-light/90 hover:bg-felt-green-light text-gold border border-gold/30 backdrop-blur-sm shadow-card transition-all duration-300 hover:shadow-glow/50"
         >
           {showBotCards ? (
             <>
@@ -73,15 +78,17 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick }: GameBoardP
           variant="secondary"
           size="sm"
           onClick={onSettingsClick}
-          className="bg-secondary/90 backdrop-blur border border-border/50"
+          className="bg-felt-green-light/90 hover:bg-felt-green-light text-gold border border-gold/30 backdrop-blur-sm shadow-card transition-all duration-300 hover:shadow-glow/50"
         >
           <Settings className="w-4 h-4" />
         </Button>
       </div>
 
-      {/* Game Info Header */}
-      <div className="absolute top-4 left-4 z-20">
-        <GameInfo gameState={gameState} />
+      {/* Premium Game Info Header */}
+      <div className="absolute top-6 left-6 z-20">
+        <div className="bg-felt-green-light/90 backdrop-blur-sm border border-gold/30 rounded-lg shadow-card p-3">
+          <GameInfo gameState={gameState} />
+        </div>
       </div>
 
       {/* Main Game Area */}
@@ -114,46 +121,65 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick }: GameBoardP
           />
         </div>
 
-        {/* Center Play Area */}
+        {/* Premium Center Play Area */}
         <div className="flex items-center justify-center">
           <div className="relative">
-            {/* Table Center Circle */}
-            <div className="w-48 h-48 rounded-full bg-gradient-to-br from-felt-green-light/30 to-felt-green-dark/30 border-4 border-gold/20 flex items-center justify-center backdrop-blur-sm">
+            {/* Enhanced Table Center Circle */}
+            <div className="w-64 h-64 rounded-full bg-gradient-to-br from-felt-green-light/20 to-felt-green-dark/40 border-4 border-gold/30 flex items-center justify-center backdrop-blur-sm shadow-elevated relative overflow-hidden">
               
-              {/* Current Trick Cards */}
-              <div className="grid grid-cols-2 gap-4 place-items-center">
-                {gameState.currentTrick.map((card, index) => (
-                  <div
-                    key={`trick-${index}`}
-                    className="animate-card-deal"
-                    style={{ animationDelay: `${index * 200}ms` }}
-                  >
-                    <PlayingCard 
-                      card={card} 
-                      className="shadow-elevated"
-                    />
+              {/* Inner glow effect */}
+              <div className="absolute inset-2 rounded-full border border-gold/20 shadow-glow/20" />
+              
+              {/* Current Trick Cards with Enhanced Layout */}
+              <div className="relative z-10">
+                {gameState.currentTrick.length > 0 ? (
+                  <div className="grid grid-cols-2 gap-6 place-items-center">
+                    {gameState.currentTrick.map((card, index) => (
+                      <div
+                        key={`trick-${index}`}
+                        className="animate-card-deal transition-all duration-300 hover:scale-105"
+                        style={{ 
+                          animationDelay: `${index * 200}ms`,
+                          zIndex: gameState.currentTrick.length - index 
+                        }}
+                      >
+                        <PlayingCard 
+                          card={card} 
+                          className="shadow-elevated"
+                          size="md"
+                        />
+                      </div>
+                    ))}
+                    
+                    {/* Empty slots for remaining cards */}
+                    {Array.from({ length: 4 - gameState.currentTrick.length }).map((_, index) => (
+                      <div
+                        key={`empty-${index}`}
+                        className="w-16 h-24 rounded-lg border-2 border-dashed border-gold/20 bg-gold/5 flex items-center justify-center transition-all duration-300 hover:border-gold/40"
+                      >
+                        <div className="w-4 h-4 rounded-full border border-gold/20 animate-pulse"></div>
+                      </div>
+                    ))}
                   </div>
-                ))}
-                
-                {/* Empty slots for remaining cards */}
-                {Array.from({ length: 4 - gameState.currentTrick.length }).map((_, index) => (
-                  <div
-                    key={`empty-${index}`}
-                    className="w-16 h-24 rounded-lg border-2 border-dashed border-gold/30 bg-gold/5 flex items-center justify-center"
-                  >
-                    <div className="w-6 h-6 rounded-full border border-gold/30"></div>
+                ) : (
+                  /* Empty State */
+                  <div className="text-center text-gold/60">
+                    <div className="w-20 h-20 mx-auto mb-2 rounded-full border-2 border-dashed border-gold/20 flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-full border border-gold/20 animate-pulse"></div>
+                    </div>
+                    <div className="text-sm font-medium">Trick Area</div>
                   </div>
-                ))}
+                )}
               </div>
             </div>
 
-            {/* Table Logo/Text */}
-            <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 text-center">
-              <h1 className="text-2xl font-bold text-gold mb-2 drop-shadow-lg">
+            {/* Premium Table Branding */}
+            <div className="absolute -bottom-20 left-1/2 transform -translate-x-1/2 text-center">
+              <h1 className="font-casino text-3xl font-bold bg-gradient-gold bg-clip-text text-transparent mb-2 drop-shadow-lg tracking-wide">
                 Three of Spades
               </h1>
-              <div className="text-sm text-foreground/80">
-                Round {gameState.round}
+              <div className="text-sm text-gold/80 font-medium tracking-wider">
+                Round {gameState.round} • Premium Table
               </div>
             </div>
           </div>
@@ -169,13 +195,15 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick }: GameBoardP
           />
         </div>
 
-        {/* Team Scores */}
-        <div className="absolute bottom-4 right-4 flex gap-4">
-          <div className="bg-gold/90 text-casino-black px-4 py-2 rounded-lg font-bold shadow-elevated">
-            Team 1: {gameState.teamScores.team1}
+        {/* Premium Team Scores */}
+        <div className="absolute bottom-6 right-6 flex gap-4">
+          <div className="bg-gradient-gold text-casino-black px-6 py-3 rounded-xl font-bold shadow-elevated border border-gold-dark backdrop-blur-sm transition-all duration-300 hover:shadow-glow/50">
+            <div className="text-xs font-medium opacity-80 mb-1">Team 1</div>
+            <div className="text-lg font-bold">{gameState.teamScores.team1}</div>
           </div>
-          <div className="bg-blue-500/90 text-white px-4 py-2 rounded-lg font-bold shadow-elevated">
-            Team 2: {gameState.teamScores.team2}
+          <div className="bg-blue-500/90 text-white px-6 py-3 rounded-xl font-bold shadow-elevated border border-blue-600 backdrop-blur-sm transition-all duration-300 hover:shadow-lg">
+            <div className="text-xs font-medium opacity-80 mb-1">Team 2</div>
+            <div className="text-lg font-bold">{gameState.teamScores.team2}</div>
           </div>
         </div>
       </div>

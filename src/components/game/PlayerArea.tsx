@@ -54,29 +54,31 @@ export const PlayerArea = ({
       {/* Player Info */}
       <div className={cn("flex items-center gap-2 z-10", playerInfoClasses[position])}>
         <div className={cn(
-          "px-3 py-1 rounded-full text-sm font-semibold border-2 transition-all duration-300",
+          "px-4 py-2 rounded-full text-sm font-semibold border-2 transition-all duration-300 backdrop-blur-sm",
           {
             "bg-gradient-gold text-casino-black border-gold shadow-glow animate-glow-pulse": player.isCurrentPlayer,
-            "bg-secondary/90 text-secondary-foreground border-border": !player.isCurrentPlayer,
-            "ring-2 ring-blue-400": player.isTeammate
+            "bg-felt-green-light/80 text-gold border-gold/50": !player.isCurrentPlayer,
+            "ring-2 ring-blue-400/50": player.isTeammate
           }
         )}>
-          {player.name}
+          <span className="font-ui font-medium">{player.name}</span>
         </div>
         
         <Badge 
           variant={player.team === 1 ? "default" : "secondary"}
           className={cn(
-            "text-xs",
-            player.team === 1 ? "bg-gold text-casino-black" : "bg-blue-500 text-white"
+            "text-xs font-semibold border",
+            player.team === 1 
+              ? "bg-gradient-gold text-casino-black border-gold-dark" 
+              : "bg-blue-500/90 text-white border-blue-600"
           )}
         >
           Team {player.team}
         </Badge>
         
         {player.isTrump && (
-          <Badge className="bg-casino-red text-white text-xs animate-glow-pulse">
-            Trump
+          <Badge className="bg-casino-red/90 text-white text-xs animate-glow-pulse border border-casino-red">
+            👑 Trump
           </Badge>
         )}
       </div>
