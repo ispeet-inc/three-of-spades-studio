@@ -43,7 +43,7 @@ export const TrumpSelectionModal = () => {
 
   return (
     <Dialog open={true}>
-      <DialogContent className="max-w-md w-full bg-casino-green-dark border-0 text-casino-cream p-0">
+      <DialogContent className="max-w-md w-full bg-felt-green-dark border-0 text-foreground p-0">
         <div className="p-6">
           {/* Player Hand Display */}
           <div className="flex justify-center items-end h-32 relative mb-4">
@@ -65,14 +65,14 @@ export const TrumpSelectionModal = () => {
             })}
           </div>
 
-          <h2 className="text-xl font-bold mb-6 text-casino-gold text-center">
+          <h2 className="text-xl font-bold mb-6 text-gold text-center">
             Choose Trump & Teammate Card
           </h2>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Trump Suite Selection */}
             <div>
-              <label className="block font-semibold mb-2 text-casino-cream">
+              <label className="block font-semibold mb-2 text-foreground">
                 Trump Suite
               </label>
               <div className="flex gap-3">
@@ -81,12 +81,12 @@ export const TrumpSelectionModal = () => {
                     type="button"
                     key={s.value}
                     className={`
-                      bg-casino-forest text-casino-cream border-2 border-transparent
+                      bg-felt-green text-foreground border-2 border-transparent
                       rounded-lg px-4 py-3 text-lg font-semibold flex items-center gap-2
                       cursor-pointer transition-all duration-200 shadow-sm
                       ${trumpSuite === String(s.value) 
-                        ? 'border-casino-gold text-casino-gold shadow-casino-gold/30 shadow-lg' 
-                        : 'hover:border-casino-cream/30'
+                        ? 'border-gold text-gold shadow-glow' 
+                        : 'hover:border-foreground/30'
                       }
                     `}
                     onClick={() => setTrumpSuite(String(s.value))}
@@ -100,7 +100,7 @@ export const TrumpSelectionModal = () => {
 
             {/* Teammate Card Selection */}
             <div>
-              <label className="block font-semibold mb-2 text-casino-cream">
+              <label className="block font-semibold mb-2 text-foreground">
                 Choose Teammate Card
               </label>
               
@@ -111,12 +111,12 @@ export const TrumpSelectionModal = () => {
                     type="button"
                     key={s.value}
                     className={`
-                      bg-casino-forest text-casino-cream border-2 border-transparent
+                      bg-felt-green text-foreground border-2 border-transparent
                       rounded-lg px-4 py-2 text-sm font-semibold cursor-pointer 
                       transition-all duration-200
                       ${teammateSuiteTab === s.value 
-                        ? 'border-casino-gold text-casino-gold shadow-casino-gold/30 shadow-md' 
-                        : 'hover:border-casino-cream/30'
+                        ? 'border-gold text-gold shadow-glow' 
+                        : 'hover:border-foreground/30'
                       }
                     `}
                     onClick={() => setTeammateSuiteTab(s.value)}
@@ -142,8 +142,8 @@ export const TrumpSelectionModal = () => {
                         cursor-pointer transition-all duration-200 flex items-center justify-center
                         w-20 h-30
                         ${isSelected 
-                          ? 'border-casino-gold shadow-casino-gold/50 shadow-md' 
-                          : 'hover:border-casino-cream/30'
+                          ? 'border-gold shadow-glow' 
+                          : 'hover:border-foreground/30'
                         }
                       `}
                       onClick={() =>
@@ -161,7 +161,7 @@ export const TrumpSelectionModal = () => {
             </div>
 
             {error && (
-              <div className="bg-red-900/50 border border-red-600 rounded-lg p-3 text-center text-red-200">
+              <div className="bg-destructive/20 border border-destructive rounded-lg p-3 text-center text-destructive-foreground">
                 {error}
               </div>
             )}
@@ -170,10 +170,10 @@ export const TrumpSelectionModal = () => {
               type="submit"
               disabled={trumpSuite === "" || !teammateCard || !!error}
               className="
-                w-full py-3 rounded-lg bg-casino-gold text-casino-green font-bold text-lg
+                w-full py-3 rounded-lg bg-gold text-primary-foreground font-bold text-lg
                 transition-all duration-200 mt-4
-                disabled:bg-casino-cream/20 disabled:text-casino-cream/50 disabled:cursor-not-allowed
-                hover:bg-casino-gold-light
+                disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed
+                hover:bg-gold-light
               "
             >
               Submit
