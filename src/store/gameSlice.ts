@@ -100,6 +100,10 @@ const gameSlice = createSlice({
       const { playerIndex, cardIndex } = action.payload;
       const playerHand = [...state.players[playerIndex].hand];
       const card = playerHand.splice(cardIndex, 1)[0];
+      
+      // Sort the remaining hand by position value to maintain card order
+      playerHand.sort((a, b) => a.positionValue - b.positionValue);
+      
       state.players[playerIndex].hand = playerHand;
       state.tableCards.push({ ...card, player: playerIndex });
 
