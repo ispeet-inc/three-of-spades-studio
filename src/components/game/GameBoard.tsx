@@ -3,8 +3,7 @@ import { PlayingCard, Card } from "./PlayingCard";
 import { PlayerArea } from "./PlayerArea";
 import { GameInfo } from "./GameInfo";
 import { Button } from "@/components/ui/button";
-import { Settings, Eye, EyeOff } from "lucide-react";
-import { useState } from "react";
+import { Settings } from "lucide-react";
 
 interface Player {
   id: string;
@@ -33,7 +32,6 @@ interface GameBoardProps {
 }
 
 export const GameBoard = ({ gameState, onCardPlay, onSettingsClick }: GameBoardProps) => {
-  const [showBotCards, setShowBotCards] = useState(false);
   
   // Arrange players by position (assuming 4 players)
   const playerPositions = {
@@ -55,25 +53,7 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick }: GameBoardP
       <div className="absolute inset-6 border border-gold/20 rounded-3xl" />
 
       {/* Premium Game Controls */}
-      <div className="absolute top-6 right-6 flex gap-3 z-20">
-        <Button
-          variant="secondary"
-          size="sm"
-          onClick={() => setShowBotCards(!showBotCards)}
-          className="bg-felt-green-light/90 hover:bg-felt-green-light text-gold border border-gold/30 backdrop-blur-sm shadow-card transition-all duration-300 hover:shadow-glow/50"
-        >
-          {showBotCards ? (
-            <>
-              <EyeOff className="w-4 h-4 mr-2" />
-              Hide Bot Cards
-            </>
-          ) : (
-            <>
-              <Eye className="w-4 h-4 mr-2" />
-              Show Bot Cards
-            </>
-          )}
-        </Button>
+      <div className="absolute top-6 right-6 z-20">
         <Button
           variant="secondary"
           size="sm"
@@ -99,7 +79,7 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick }: GameBoardP
           <PlayerArea
             player={playerPositions.top}
             position="top"
-            showCards={showBotCards}
+            showCards={false}
           />
         </div>
 
@@ -108,7 +88,7 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick }: GameBoardP
           <PlayerArea
             player={playerPositions.left}
             position="left"
-            showCards={showBotCards}
+            showCards={false}
           />
         </div>
 
@@ -117,7 +97,7 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick }: GameBoardP
           <PlayerArea
             player={playerPositions.right}
             position="right"
-            showCards={showBotCards}
+            showCards={false}
           />
         </div>
 

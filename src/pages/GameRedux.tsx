@@ -32,12 +32,14 @@ const GameRedux = () => {
       team: (gameState.playerTeamMap?.[parseInt(index)] === 0 ? 1 : 2) as 1 | 2,
       cards: player.hand,
       isCurrentPlayer: parseInt(index) === gameState.turn && gameState.stage === GameStages.PLAYING,
-      isTeammate: gameState.playerTeamMap?.[parseInt(index)] === gameState.playerTeamMap?.[0] && parseInt(index) !== 0
+      isTeammate: gameState.playerTeamMap && gameState.playerTeamMap[parseInt(index)] === gameState.playerTeamMap[0] && parseInt(index) !== 0
     })),
     currentTrick: gameState.tableCards,
-    trumpSuit: gameState.trumpSuite === 0 ? 'clubs' as const : 
-              gameState.trumpSuite === 1 ? 'diamonds' as const :
-              gameState.trumpSuite === 2 ? 'hearts' as const : 'spades' as const,
+    trumpSuit: gameState.trumpSuite !== null 
+      ? (gameState.trumpSuite === 0 ? 'clubs' as const : 
+         gameState.trumpSuite === 1 ? 'diamonds' as const :
+         gameState.trumpSuite === 2 ? 'hearts' as const : 'spades' as const)
+      : 'spades' as const,
     currentBid: gameState.bidAmount || 0,
     round: gameState.round,
     teamScores: { 
