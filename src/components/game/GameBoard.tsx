@@ -34,6 +34,14 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = 
   const [lastScores, setLastScores] = useState(gameState.teamScores);
   const [animateScore, setAnimateScore] = useState({ team1: false, team2: false });
   
+  // Define players array FIRST before any useEffect that references it
+  const players = [
+    gameState.players[0], // bottom
+    gameState.players[1], // left  
+    gameState.players[2], // top
+    gameState.players[3]  // right
+  ];
+
   // Score animation effect
   useEffect(() => {
     if (lastScores.team1 !== gameState.teamScores.team1) {
@@ -48,13 +56,6 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = 
     }
     setLastScores(gameState.teamScores);
   }, [gameState.teamScores, lastScores]);
-
-  const players = [
-    gameState.players[0], // bottom
-    gameState.players[1], // left  
-    gameState.players[2], // top
-    gameState.players[3]  // right
-  ];
 
   // Announce current player turn
   useEffect(() => {
