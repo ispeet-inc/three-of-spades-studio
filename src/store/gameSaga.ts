@@ -62,10 +62,8 @@ function* biddingTimerSaga() {
         yield delay(1000);
         yield put(updateBidTimer(biddingState.bidTimer - 1));
       } else {
-        // Timer ran out, auto-pass only for human player (player 0)
-        if (biddingState.currentBidder === 0) {
-          yield put(passBid({ playerIndex: biddingState.currentBidder }));
-        }
+        // Timer ran out, auto-pass for current bidder
+        yield put(passBid({ playerIndex: biddingState.currentBidder }));
         break;
       }
     }
