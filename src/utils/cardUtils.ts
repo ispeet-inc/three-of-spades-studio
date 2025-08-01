@@ -1,5 +1,6 @@
 import { Card, Suite } from "@/types/game";
 import { suites, numbers} from "@/utils/constants"
+import { getSuiteName } from "./suiteUtils";
 
 // Utility functions for card operations
 export const getCardId = (number: number): string => {
@@ -8,6 +9,10 @@ export const getCardId = (number: number): string => {
   if (number === 12) return "Q";
   if (number === 13) return "K";
   return number.toString();
+};
+
+const getHash = (suite: Suite, number: number) => {
+  return `${getCardId(number)}-of-${getSuiteName(suite)}`;
 };
 
 const getPoints = (number: number, suite: Suite): number => {
@@ -37,13 +42,16 @@ export const createCard = (suite: Suite, number: number): Card => {
   const rank = getRank(number);
   const points = getPoints(number, suite)
   const positionValue = 100 * suite + rank;
+  const hash = getHash(suite, number);
+
   return {
     id,
     suite,
     number,
     rank: rank,
     points: points,
-    positionValue: positionValue
+    positionValue: positionValue,
+    hash: hash
   };
 };
 

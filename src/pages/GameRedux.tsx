@@ -54,7 +54,7 @@ const GameRedux = () => {
 
   const handleCardPlay = (card: Card) => {
     const playerHand = gameState.players[0].hand;
-    const cardIndex = playerHand.findIndex(c => c.id === card.id);
+    const cardIndex = playerHand.findIndex(c => c.positionValue === card.positionValue);
     if (cardIndex !== -1) {
       dispatch(playCard({ playerIndex: 0, cardIndex }));
     }

@@ -5,6 +5,7 @@ export interface Card {
   rank: number;
   points: number;
   positionValue: number;
+  hash: string;
 }
 
 export enum Suite {
