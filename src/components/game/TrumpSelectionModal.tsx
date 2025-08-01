@@ -126,26 +126,31 @@ export const TrumpSelectionModal = () => {
                 ))}
               </div>
 
-              {/* Teammate Cards Grid */}
-              <div className="flex flex-wrap gap-2 justify-center">
-                {teammateOptions.map((card) => {
+              {/* Teammate Cards Row */}
+              <div className="flex justify-center items-end h-20 relative">
+                {teammateOptions.map((card, idx) => {
                   const isSelected =
                     teammateCard &&
                     card.suite === teammateCard.suite &&
                     card.number === teammateCard.number;
+                  const overlap = 30;
+                  const marginLeft = idx === 0 ? "0px" : `${-overlap}px`;
                   return (
                     <button
                       type="button"
                       key={`${card.suite}-${card.number}`}
                       className={`
-                        bg-transparent border-2 border-transparent rounded-lg p-1
-                        cursor-pointer transition-all duration-200 flex items-center justify-center
-                        w-20 h-30
+                        relative border-2 border-transparent rounded-lg
+                        cursor-pointer transition-all duration-200
                         ${isSelected 
-                          ? 'border-gold shadow-glow' 
-                          : 'hover:border-foreground/30'
+                          ? 'border-gold shadow-glow z-10' 
+                          : 'hover:border-foreground/30 hover:z-10'
                         }
                       `}
+                      style={{
+                        marginLeft,
+                        zIndex: isSelected ? 10 : idx,
+                      }}
                       onClick={() =>
                         setTeammateCard({
                           suite: card.suite,
