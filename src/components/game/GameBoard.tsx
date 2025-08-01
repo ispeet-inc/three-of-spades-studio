@@ -222,9 +222,6 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = 
 
           {/* Game Title */}
           <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 text-center">
-            <h1 className="text-3xl font-bold text-gold mb-2 tracking-wide">
-              Three of Spades
-            </h1>
             <div className="text-sm text-gold/70 font-medium">
               Round {gameState.round}
             </div>
