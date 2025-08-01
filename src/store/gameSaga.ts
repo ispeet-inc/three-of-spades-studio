@@ -34,6 +34,10 @@ function* handleStageTransition(action: any) {
     yield put(startBiddingRound());
     console.log("Saga: Dispatched setStage(BIDDING) and startBiddingRound()");
   }
+  else if (action.payload === GameStages.ROUND_COMPLETE) {
+    console.log("Saga: Transitioning from ROUND_COMPLETE to ROUND_SUMMARY");
+    yield put(setStage(GameStages.ROUND_SUMMARY));
+  }
 }
 
 function* watchStageTransition() {

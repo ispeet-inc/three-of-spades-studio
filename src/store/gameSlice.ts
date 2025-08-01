@@ -126,7 +126,7 @@ const gameSlice = createSlice({
         state.players[winner.player].score += roundPoints;
         state.roundWinner = winner.player;
         state.isRoundEnding = true;
-        state.stage = GameStages.ROUND_SUMMARY;
+        state.stage = GameStages.ROUND_COMPLETE;
       } else {
         state.turn = (state.turn + 1) % NUM_PLAYERS;
       }

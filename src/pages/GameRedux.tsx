@@ -215,6 +215,14 @@ const GameRedux = () => {
     gameState.players
   ]);
 
+  useEffect(() => {
+    setTimeout(() => {
+      if(gameState.stage === GameStages.ROUND_COMPLETE) {
+        dispatch(setStage(GameStages.ROUND_COMPLETE));
+      }
+   }, 3000);
+  }, [gameState.stage]);
+
   // Handle bot trump selection
   useEffect(() => {
     if (gameState.stage === GameStages.TRUMP_SELECTION && 
