@@ -176,23 +176,19 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = 
                     const positions = {
                       0: { // Bottom player
                         container: "absolute bottom-4 left-1/2 transform -translate-x-1/2",
-                        cardClass: "transform rotate-1",
-                        labelClass: "absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs text-gold/80 font-medium whitespace-nowrap"
+                        cardClass: ""
                       },
                       1: { // Left player  
                         container: "absolute left-4 top-1/2 transform -translate-y-1/2",
-                        cardClass: "transform -rotate-2",
-                        labelClass: "absolute -left-16 top-1/2 transform -translate-y-1/2 -rotate-90 text-xs text-gold/80 font-medium whitespace-nowrap"
+                        cardClass: ""
                       },
                       2: { // Top player
                         container: "absolute top-4 left-1/2 transform -translate-x-1/2", 
-                        cardClass: "transform -rotate-1",
-                        labelClass: "absolute -top-6 left-1/2 transform -translate-x-1/2 text-xs text-gold/80 font-medium whitespace-nowrap"
+                        cardClass: ""
                       },
                       3: { // Right player
                         container: "absolute right-4 top-1/2 transform -translate-y-1/2",
-                        cardClass: "transform rotate-2", 
-                        labelClass: "absolute -right-16 top-1/2 transform -translate-y-1/2 rotate-90 text-xs text-gold/80 font-medium whitespace-nowrap"
+                        cardClass: ""
                       }
                     };
 
@@ -209,9 +205,6 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = 
                           card={playedCard} 
                           className={`shadow-elevated hover:scale-105 transition-transform duration-200 ${position.cardClass}`}
                         />
-                        <div className={position.labelClass}>
-                          {players[playerIndex]?.name}
-                        </div>
                       </div>
                     );
                   })}
