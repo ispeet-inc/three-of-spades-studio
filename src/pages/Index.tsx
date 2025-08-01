@@ -26,28 +26,28 @@ const Index = () => {
         <div className="flex gap-4 mb-12 perspective-1000">
           <div className="animate-card-deal" style={{ animationDelay: '0ms' }}>
             <PlayingCard 
-              card={{ id: 'A-spades', suite: 3, number: 1, rank: 14, points: 10, positionValue: 314 }} 
+              card={{ id: 'A-spades', suite: 3, number: 1, rank: 14, points: 10, positionValue: 314, hash: 'A-of-spade' }} 
               size="lg"
               className="hover:scale-110 transition-transform duration-300"
             />
           </div>
           <div className="animate-card-deal" style={{ animationDelay: '200ms' }}>
             <PlayingCard 
-              card={{ id: 'K-hearts', suite: 2, number: 13, rank: 13, points: 10, positionValue: 213 }} 
+              card={{ id: 'K-hearts', suite: 2, number: 13, rank: 13, points: 10, positionValue: 213, hash: 'K-of-heart' }} 
               size="lg"
               className="hover:scale-110 transition-transform duration-300"
             />
           </div>
           <div className="animate-card-deal" style={{ animationDelay: '400ms' }}>
             <PlayingCard 
-              card={{ id: 'Q-diamonds', suite: 1, number: 12, rank: 12, points: 10, positionValue: 112 }} 
+              card={{ id: 'Q-diamonds', suite: 1, number: 12, rank: 12, points: 10, positionValue: 112, hash: 'Q-of-diamond' }} 
               size="lg"
               className="hover:scale-110 transition-transform duration-300"
             />
           </div>
           <div className="animate-card-deal" style={{ animationDelay: '600ms' }}>
             <PlayingCard 
-              card={{ id: 'J-clubs', suite: 0, number: 11, rank: 11, points: 10, positionValue: 11 }} 
+              card={{ id: 'J-clubs', suite: 0, number: 11, rank: 11, points: 10, positionValue: 11, hash: 'J-of-club' }} 
               size="lg"
               className="hover:scale-110 transition-transform duration-300"
             />

@@ -113,7 +113,7 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = 
 
       {/* Team Scores */}
       <section 
-        className="absolute top-6 left-1/2 transform -translate-x-1/2 flex gap-6 z-20"
+        className="absolute top-6 right-6 flex gap-6 z-20"
         aria-label="Team scores"
       >
         <div 
