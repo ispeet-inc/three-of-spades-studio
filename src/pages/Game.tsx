@@ -52,6 +52,7 @@ const Game = () => {
       isTeammate: gameState.playerTeamMap && gameState.playerTeamMap[parseInt(index)] === gameState.playerTeamMap[0] && parseInt(index) !== 0
     })),
     currentTrick: gameState.tableCards,
+    runningSuite: gameState.runningSuite,
     roundWinner: gameState.roundWinner,
     trumpSuit: gameState.trumpSuite,
     currentBid: gameState.bidAmount || 0,

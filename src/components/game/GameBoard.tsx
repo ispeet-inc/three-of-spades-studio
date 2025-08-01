@@ -20,6 +20,7 @@ interface GameBoardProps {
       isTeammate?: boolean;
     }>;
     currentTrick: TableCard[];
+    runningSuite?: Suite;
     roundWinner?: number;
     trumpSuit: Suite;
     currentBid: number;
@@ -168,6 +169,7 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = 
         <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
           <PlayerArea 
             player={players[1]} 
+            runningSuite={gameState.runningSuite}
             position="left" 
             onCardPlay={onCardPlay}
             isDealing={isDealing}
@@ -179,6 +181,7 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = 
         <div className="absolute top-4 left-1/2 transform -translate-x-1/2">
           <PlayerArea 
             player={players[2]} 
+            runningSuite={gameState.runningSuite}
             position="top" 
             onCardPlay={onCardPlay}
             isDealing={isDealing}
@@ -190,6 +193,7 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = 
         <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
           <PlayerArea 
             player={players[3]} 
+            runningSuite={gameState.runningSuite}
             position="right" 
             onCardPlay={onCardPlay}
             isDealing={isDealing}
@@ -201,6 +205,7 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = 
         <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
           <PlayerArea 
             player={players[0]} 
+            runningSuite={gameState.runningSuite}
             position="bottom" 
             onCardPlay={onCardPlay}
             isDealing={isDealing}

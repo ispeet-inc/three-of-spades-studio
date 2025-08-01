@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { PlayingCard } from "./PlayingCard";
-import { Card } from "@/types/game";
+import { Card, Suite } from "@/types/game";
 
 interface PlayerAreaProps {
   player: {
@@ -11,6 +11,7 @@ interface PlayerAreaProps {
     isCurrentPlayer?: boolean;
     isTeammate?: boolean;
   };
+  runningSuite?: Suite,
   position: 'bottom' | 'left' | 'top' | 'right';
   onCardPlay?: (card: Card) => void;
   isDealing?: boolean;
@@ -19,6 +20,7 @@ interface PlayerAreaProps {
 
 export const PlayerArea = ({ 
   player, 
+  runningSuite,
   position, 
   onCardPlay,
   isDealing = false,
@@ -92,6 +94,21 @@ export const PlayerArea = ({
     }
   };
 
+  // Function to determine if a card is playable
+  const isCardPlayable = (hand: Array<Card>, card: Card, runningSuite: Suite) => {
+
+    if(runningSuite != null) {
+      // Check if player has any cards of the running suite
+      const hasRunningSuite = hand.some((card) => card.suite === runningSuite);
+      // If there's a running suite and player has cards of that suite,
+      // they must play a card of that suite
+      if (hasRunningSuite) {
+        return card.suite === runningSuite;
+      }
+    }
+    return true;
+  };
+
   return (
     <div className={cn("flex gap-4", getPositionClasses())}>
       {/* Player Info */}
@@ -139,7 +156,7 @@ export const PlayerArea = ({
                   card={card}
                   mini={!isHuman}
                   isPlayable={isHuman && player.isCurrentPlayer}
-                  onClick={isHuman && player.isCurrentPlayer ? () => onCardPlay?.(card) : undefined}
+                  onClick={isHuman && player.isCurrentPlayer && isCardPlayable(player.cards, card, runningSuite) ? () => onCardPlay?.(card) : undefined}
                   dealAnimation={isDealing}
                   dealDelay={dealDelay}
                   playerPosition={position}

@@ -66,8 +66,8 @@ export const CenterTable = ({currentTrick, round, winner}: CenterTableProps) => 
 
     {/* Game Title */}
     {winner && 
-      <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 text-center">
-        <div className="text-m text-gold/70 font-medium">
+      <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 text-center w-72">
+        <div className="text-s text-gold/70 font-medium">
           {winner} won the round!
         </div>
       </div>
