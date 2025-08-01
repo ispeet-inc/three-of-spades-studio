@@ -13,7 +13,7 @@ export function HandPreview({ hand }: { hand: Array<Card> }) {
         <div className="flex gap-1 justify-center flex-wrap">
           {hand.map((card, idx) => (
             <div key={idx} className="transform hover:scale-105 transition-transform duration-200">
-              <PlayingCard card={card} className="shadow-card" />
+              <PlayingCard card={card} className="shadow-card -ml-6" />
             </div>
           ))}
         </div>
