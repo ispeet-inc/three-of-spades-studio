@@ -17,6 +17,7 @@ import { BiddingModal } from "@/components/game/BiddingModal";
 import { TrumpSelectionModal } from "@/components/game/TrumpSelectionModal";
 import { RoundSummaryModal } from "@/components/game/RoundSummaryModal";
 import { GameOverModal } from "@/components/game/GameOverModal";
+import { BidResultModal } from "@/components/game/BidResultModal";
 import { SettingsModal } from "@/components/game/SettingsModal";
 import { Button } from "@/components/ui/button";
 import { getTeammateOptions } from "@/utils/gameUtils";
@@ -88,6 +89,10 @@ const Game = () => {
       bidder: gameState.biddingState.bidWinner!, 
       teammateCard 
     }));
+    // Don't immediately go to PLAYING - let BidResultModal handle the transition
+  };
+
+  const handleBidResultClose = () => {
     dispatch(setStage(GameStages.PLAYING));
   };
 
@@ -257,6 +262,18 @@ const Game = () => {
 
       {gameState.stage === GameStages.TRUMP_SELECTION && gameState.biddingState.bidWinner === 0 && (
         <TrumpSelectionModal />
+      )}
+
+      {gameState.stage === GameStages.TRUMP_SELECTION_COMPLETE && (
+        <BidResultModal
+          isOpen={true}
+          bidWinner={gameState.bidder!}
+          bidAmount={gameState.bidAmount!}
+          trumpSuite={gameState.trumpSuite!}
+          teammateCard={gameState.teammateCard!}
+          playerNames={gameState.playerNames}
+          onClose={handleBidResultClose}
+        />
       )}
 
       {gameState.stage === GameStages.ROUND_SUMMARY && (
