@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Card, PlayingCard } from "./PlayingCard";
 import { Suite } from "@/types/game";
-import { suitSymbols, suitColors } from "@/utils/suiteUtils";
+import { getSuiteColor, getSuiteIcon } from "@/utils/suiteUtils";
 
 interface GameState {
   players: Array<{
@@ -33,24 +33,24 @@ export const GameInfo = ({ gameState }: GameInfoProps) => {
       
       <div className="space-y-2 text-sm">
         {/* Trump Suit */}
-        <div className="flex items-center gap-2">
-          <span className="text-muted-foreground">Trump:</span>
-          <div className="flex items-center gap-1">
-            <span className={cn("text-lg", suitColors[gameState.trumpSuit])}>
-              {suitSymbols[gameState.trumpSuit]}
-            </span>
-            <span className="font-semibold capitalize">{gameState.trumpSuit}</span>
+        {gameState.trumpSuit && (
+          <div className="flex items-center gap-2">
+            <span className="text-muted-foreground">Trump:</span>
+            <div className="flex items-center gap-1">
+              <Badge variant="outline" className="bg-white text-s">
+                <span className={cn("text-lg", `text-casino-${getSuiteColor(gameState.trumpSuit)}`)}>
+                  {getSuiteIcon(gameState.trumpSuit)}
+                </span>
+              </Badge>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Teammate */}
         {gameState.teammateCard && (
           <div className="flex items-center gap-2">
             <span className="text-muted-foreground">Teammate:</span>
-            <Badge variant="outline" className="text-xs">
-              {/* todo fix this! */}
-              <PlayingCard card={gameState.teammateCard} mini />
-            </Badge>
+            <PlayingCard card={gameState.teammateCard} mini />
           </div>
         )}
 
