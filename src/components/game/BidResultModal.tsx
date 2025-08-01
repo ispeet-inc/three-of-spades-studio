@@ -31,7 +31,7 @@ export const BidResultModal: React.FC<BidResultModalProps> = ({
 }) => {
   return (
     <Dialog open={isOpen} onOpenChange={() => {}}>
-      <DialogContent className="sm:max-w-md bg-card border-border text-card-foreground">
+      <DialogContent className="sm:max-w-md bg-gradient-to-br from-felt-green-light to-felt-green-dark border-2 border-gold/40 shadow-elevated backdrop-blur-sm">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-primary text-center">
             Bidding Complete!

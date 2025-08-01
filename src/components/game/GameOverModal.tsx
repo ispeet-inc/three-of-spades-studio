@@ -17,7 +17,7 @@ export const GameOverModal = () => {
 
   return (
     <Dialog open={true}>
-      <DialogContent className="max-w-3xl bg-gradient-to-br from-felt-green-light to-felt-green-dark border-2 border-gold/40 shadow-elevated backdrop-blur-sm">
+      <DialogContent className="max-w-xl bg-gradient-to-br from-felt-green-light to-felt-green-dark border-2 border-gold/40 shadow-elevated backdrop-blur-sm">
         <DialogHeader className="text-center mb-8">
           <DialogTitle className="text-4xl font-casino text-gold mb-4 flex items-center justify-center gap-4">
             <Trophy className="w-12 h-12 text-gold animate-bounce" />
@@ -113,15 +113,6 @@ export const GameOverModal = () => {
               </div>
             </div>
 
-            {/* Score Difference */}
-            <div className="text-center mt-6 p-4 bg-gold/10 rounded-xl border border-gold/20">
-              <div className="text-sm text-gold/70 font-medium uppercase tracking-wider mb-1">
-                Victory Margin
-              </div>
-              <div className="text-2xl font-bold text-gold">
-                {Math.abs(winningScore - losingScore)} points
-              </div>
-            </div>
           </div>
 
           {/* Play Again Button */}

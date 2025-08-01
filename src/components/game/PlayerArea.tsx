@@ -118,11 +118,6 @@ export const PlayerArea = ({
           {player.isTeammate && (
             <div className="text-xs text-green-400 mt-1">★ Teammate</div>
           )}
-          {!isHuman && (
-            <div className="text-xs text-casino-white/60 mt-1">
-              {player.cards.length} cards
-            </div>
-          )}
         </div>
       </div>
 
