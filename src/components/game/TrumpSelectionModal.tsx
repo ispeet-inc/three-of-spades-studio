@@ -2,11 +2,11 @@ import { useState } from "react";
 import { useAppSelector, useAppDispatch } from "@/hooks";
 import { setBidAndTrump } from "@/store/gameSlice";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { suiteMetadata } from "@/utils/suiteUtils";
 import { getTeammateOptions } from "@/utils/gameUtils";
 import { PlayingCard } from "./PlayingCard";
 import { TeammateCard } from "@/types/game";
 import { HandPreview } from "./BiddingModal";
+import { SUITES } from "@/utils/suiteUtils";
 
 export const TrumpSelectionModal = () => {
   const dispatch = useAppDispatch();
@@ -60,7 +60,7 @@ export const TrumpSelectionModal = () => {
                 Trump Suite
               </label>
               <div className="flex gap-3">
-                {suiteMetadata.map((s) => (
+                {SUITES.map((s) => (
                   <button
                     type="button"
                     key={s.value}
@@ -76,7 +76,7 @@ export const TrumpSelectionModal = () => {
                     onClick={() => setTrumpSuite(String(s.value))}
                   >
                     <span className="text-xl">{s.icon}</span>
-                    <span className="text-sm">{s.name}</span>
+                    <span className="text-sm">{s.label}</span>
                   </button>
                 ))}
               </div>
@@ -90,7 +90,7 @@ export const TrumpSelectionModal = () => {
               
               {/* Suite Tabs */}
               <div className="flex gap-2 mb-3 justify-center">
-                {suiteMetadata.map((s) => (
+                {SUITES.map((s) => (
                   <button
                     type="button"
                     key={s.value}
@@ -105,7 +105,7 @@ export const TrumpSelectionModal = () => {
                     `}
                     onClick={() => setTeammateSuiteTab(s.value)}
                   >
-                    {s.icon} {s.name}
+                    {s.icon} {s.label}
                   </button>
                 ))}
               </div>
@@ -137,7 +137,7 @@ export const TrumpSelectionModal = () => {
                         })
                       }
                     >
-                      <PlayingCard card={card} size="sm" />
+                      <PlayingCard card={card} />
                     </button>
                   );
                 })}

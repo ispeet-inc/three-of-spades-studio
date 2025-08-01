@@ -37,6 +37,8 @@ export const SUITE_DATA = {
 };
 
 
+export const SUITES = Object.values(SUITE_DATA);
+
 // Optimized exports for backward compatibility and performance
 export const suitSymbols = Object.fromEntries(
   Object.entries(SUITE_DATA).map(([key, data]) => [key, data.symbol])
