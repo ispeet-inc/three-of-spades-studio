@@ -166,10 +166,8 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = 
             
             {/* Current Trick Cards - Positioned by Player */}
             <div className="relative w-full h-full">
-              {gameState.currentTrick.length > 0 ? (
-                <>
-                  {/* Diamond Pattern Card Display */}
-                  {gameState.currentTrick.map((playedCard) => {
+              {/* Diamond Pattern Card Display */}
+              {gameState.currentTrick.length > 0 && gameState.currentTrick.map((playedCard) => {
                     if (!playedCard) return null;
                     const playerIndex = playedCard.player;
 
@@ -207,16 +205,8 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = 
                         />
                       </div>
                     );
-                  })}
-                </>
-              ) : (
-                <div className="text-center text-gold/60">
-                  <div className="w-20 h-20 mx-auto mb-2 rounded-full border-2 border-dashed border-gold/30 flex items-center justify-center">
-                    <div className="w-8 h-8 rounded-full border border-gold/30 animate-pulse"></div>
-                  </div>
-                  <div className="text-sm font-medium">Playing Area</div>
-                </div>
-              )}
+                  })
+              }
             </div>
           </div>
 
