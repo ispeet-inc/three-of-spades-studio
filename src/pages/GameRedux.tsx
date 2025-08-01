@@ -42,6 +42,7 @@ const GameRedux = () => {
       isTeammate: gameState.playerTeamMap && gameState.playerTeamMap[parseInt(index)] === gameState.playerTeamMap[0] && parseInt(index) !== 0
     })),
     currentTrick: gameState.tableCards,
+    roundWinner: gameState.roundWinner,
     trumpSuit: gameState.trumpSuite,
     currentBid: gameState.bidAmount || 0,
     round: gameState.round,

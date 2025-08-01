@@ -20,6 +20,7 @@ interface GameBoardProps {
       isTeammate?: boolean;
     }>;
     currentTrick: TableCard[];
+    roundWinner?: number;
     trumpSuit: Suite;
     currentBid: number;
     round: number;
@@ -158,6 +159,7 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = 
         <CenterTable
           currentTrick={gameState.currentTrick}
           round={gameState.round}
+          winner={gameState.roundWinner && gameState.players[gameState.roundWinner].name}
         />
 
         {/* Player Areas */}
