@@ -155,7 +155,12 @@ const GameRedux = () => {
     if (gameState.stage === GameStages.BIDDING && 
         gameState.biddingState.currentBidder !== 0 && 
         gameState.biddingState.biddingActive) {
+      
+      console.log(`Bot ${gameState.biddingState.currentBidder} timeout starting...`);
+      
       const timer = setTimeout(() => {
+        console.log(`Bot ${gameState.biddingState.currentBidder} timeout executing...`);
+        
         const botAgent = gameState.playerAgents[gameState.biddingState.currentBidder];
         const currentPlayer = gameState.players[gameState.biddingState.currentBidder];
         
@@ -185,12 +190,25 @@ const GameRedux = () => {
             dispatch(passBid({ playerIndex: gameState.biddingState.currentBidder }));
           }
         } else {
+          console.log(`Bot ${gameState.biddingState.currentBidder} missing agent or player`);
           dispatch(passBid({ playerIndex: gameState.biddingState.currentBidder }));
         }
       }, 1500);
-      return () => clearTimeout(timer);
+      
+      return () => {
+        console.log(`Bot ${gameState.biddingState.currentBidder} timeout cancelled`);
+        clearTimeout(timer);
+      };
     }
-  }, [gameState.stage, gameState.biddingState, dispatch, gameState.playerAgents, gameState.players]);
+  }, [
+    gameState.stage, 
+    gameState.biddingState.currentBidder, 
+    gameState.biddingState.biddingActive,
+    gameState.biddingState.currentBid,
+    dispatch, 
+    gameState.playerAgents, 
+    gameState.players
+  ]);
 
   // Handle bot trump selection
   useEffect(() => {
