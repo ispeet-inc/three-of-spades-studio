@@ -25,10 +25,18 @@ export const BiddingModal = () => {
 
   const handleCustomBid = () => {
     const value = Number(customBid);
-    if (value > currentBid && value <= maxBid) {
-      dispatch(placeBid({ playerIndex: 0, bidAmount: value }));
-      setCustomBid("");
+    if (
+      isNaN(value) ||
+      value <= currentBid ||
+      value > maxBid ||
+      (currentBid < 200 && (value - currentBid) % 5 !== 0) ||
+      (currentBid >= 200 && (value - currentBid) % 10 !== 0)
+    ) {
+      alert("Invalid custom bid.");
+      return;
     }
+    dispatch(placeBid({ playerIndex: 0, bidAmount: value }));
+    setCustomBid("");
   };
 
   return (

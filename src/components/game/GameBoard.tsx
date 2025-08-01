@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { Settings } from "lucide-react";
-import { Card, Suite } from "@/types/game";
+import { Card, Suite, TableCard } from "@/types/game";
 import { PlayerArea } from "./PlayerArea";
 import { PlayingCard } from "./PlayingCard";
 import { GameInfo } from "./GameInfo";
@@ -19,7 +19,7 @@ interface GameBoardProps {
       isCurrentPlayer?: boolean;
       isTeammate?: boolean;
     }>;
-    currentTrick: Card[];
+    currentTrick: TableCard[];
     trumpSuit: Suite;
     currentBid: number;
     round: number;
@@ -169,9 +169,9 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = 
               {gameState.currentTrick.length > 0 ? (
                 <>
                   {/* Diamond Pattern Card Display */}
-                  {[0, 1, 2, 3].map((playerIndex) => {
-                    const playedCard = getPlayedCardForPlayer(playerIndex);
+                  {gameState.currentTrick.map((playedCard) => {
                     if (!playedCard) return null;
+                    const playerIndex = playedCard.player;
 
                     const positions = {
                       0: { // Bottom player
