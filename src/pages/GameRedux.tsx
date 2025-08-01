@@ -103,11 +103,6 @@ const GameRedux = () => {
     dispatch(startNewRound());
   };
 
-  const handleNewGame = () => {
-    dispatch(startGame());
-    dispatch(setStage(GameStages.BIDDING));
-    dispatch(startBiddingRound());
-  };
 
   // Handle bot actions
   useEffect(() => {
@@ -220,7 +215,7 @@ const GameRedux = () => {
   useEffect(() => {
     setTimeout(() => {
       if(gameState.stage === GameStages.ROUND_COMPLETE) {
-        dispatch(setStage(GameStages.ROUND_COMPLETE));
+        handleContinueAfterRound()
       }
    }, 3000);
   }, [gameState.stage]);

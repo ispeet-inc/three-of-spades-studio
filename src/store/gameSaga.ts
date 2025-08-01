@@ -27,17 +27,19 @@ function* handleStageTransition(action: any) {
   );
   if (action.payload === GameStages.DISTRIBUTE_CARDS) {
     console.log("Saga: Transitioning from DISTRIBUTE_CARDS to BIDDING");
-    // Optionally add a small delay for realism
-    yield delay(100);
-    yield put(setStage(GameStages.BIDDING));
-    // Initialize bidding state
-    yield put(startBiddingRound());
-    console.log("Saga: Dispatched setStage(BIDDING) and startBiddingRound()");
+    // // Optionally add a small delay for realism
+    // console.log("Timestamp:", new Date().toISOString());
+    // yield delay(2000);
+    // console.log("Timestamp:", new Date().toISOString());
+    // yield put(setStage(GameStages.BIDDING));
+    // // Initialize bidding state
+    // yield put(startBiddingRound());
+    // console.log("Saga: Dispatched setStage(BIDDING) and startBiddingRound()");
   }
-  else if (action.payload === GameStages.ROUND_COMPLETE) {
-    console.log("Saga: Transitioning from ROUND_COMPLETE to ROUND_SUMMARY");
-    yield put(setStage(GameStages.ROUND_SUMMARY));
-  }
+  // else if (action.payload === GameStages.ROUND_COMPLETE) {
+  //   console.log("Saga: Transitioning from ROUND_COMPLETE to ROUND_SUMMARY");
+  //   yield put(setStage(GameStages.ROUND_SUMMARY));
+  // }
 }
 
 function* watchStageTransition() {
