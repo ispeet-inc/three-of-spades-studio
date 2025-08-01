@@ -71,11 +71,11 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = 
     }
   }, [players]);
 
-  // Helper function to get card by player index from currentTrick
-  const getCardByPlayerIndex = (playerIndex: number): Card | null => {
-    // In currentTrick, cards are stored in the order they were played
-    // We need to match them with the correct player
-    // For now, assuming the order in currentTrick corresponds to player indices
+  // Helper function to get card played by specific player
+  const getPlayedCardForPlayer = (playerIndex: number): Card | null => {
+    // Search for a card in currentTrick that was played by this player
+    // Note: This assumes Card interface has a player property, or we need to track this differently
+    // For now, using the order they appear in currentTrick array based on play sequence
     return gameState.currentTrick[playerIndex] || null;
   };
 
@@ -168,57 +168,53 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = 
             <div className="relative w-full h-full">
               {gameState.currentTrick.length > 0 ? (
                 <>
-                  {/* Bottom Player Card (Player 0) */}
-                  {getCardByPlayerIndex(0) && (
-                    <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-fade-in">
-                      <PlayingCard 
-                        card={getCardByPlayerIndex(0)!} 
-                        className="shadow-elevated transform rotate-2 hover:scale-105 transition-transform duration-200"
-                      />
-                      <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs text-gold/80 font-medium whitespace-nowrap">
-                        {players[0]?.name}
-                      </div>
-                    </div>
-                  )}
+                  {/* Diamond Pattern Card Display */}
+                  {[0, 1, 2, 3].map((playerIndex) => {
+                    const playedCard = getPlayedCardForPlayer(playerIndex);
+                    if (!playedCard) return null;
 
-                  {/* Left Player Card (Player 1) */}
-                  {getCardByPlayerIndex(1) && (
-                    <div className="absolute left-8 top-1/2 transform -translate-y-1/2 animate-fade-in" style={{ animationDelay: '200ms' }}>
-                      <PlayingCard 
-                        card={getCardByPlayerIndex(1)!} 
-                        className="shadow-elevated transform -rotate-3 hover:scale-105 transition-transform duration-200"
-                      />
-                      <div className="absolute -left-12 top-1/2 transform -translate-y-1/2 text-xs text-gold/80 font-medium whitespace-nowrap -rotate-90">
-                        {players[1]?.name}
-                      </div>
-                    </div>
-                  )}
+                    const positions = {
+                      0: { // Bottom player
+                        container: "absolute bottom-4 left-1/2 transform -translate-x-1/2",
+                        cardClass: "transform rotate-1",
+                        labelClass: "absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs text-gold/80 font-medium whitespace-nowrap"
+                      },
+                      1: { // Left player  
+                        container: "absolute left-4 top-1/2 transform -translate-y-1/2",
+                        cardClass: "transform -rotate-2",
+                        labelClass: "absolute -left-16 top-1/2 transform -translate-y-1/2 -rotate-90 text-xs text-gold/80 font-medium whitespace-nowrap"
+                      },
+                      2: { // Top player
+                        container: "absolute top-4 left-1/2 transform -translate-x-1/2", 
+                        cardClass: "transform -rotate-1",
+                        labelClass: "absolute -top-6 left-1/2 transform -translate-x-1/2 text-xs text-gold/80 font-medium whitespace-nowrap"
+                      },
+                      3: { // Right player
+                        container: "absolute right-4 top-1/2 transform -translate-y-1/2",
+                        cardClass: "transform rotate-2", 
+                        labelClass: "absolute -right-16 top-1/2 transform -translate-y-1/2 rotate-90 text-xs text-gold/80 font-medium whitespace-nowrap"
+                      }
+                    };
 
-                  {/* Top Player Card (Player 2) */}
-                  {getCardByPlayerIndex(2) && (
-                    <div className="absolute top-8 left-1/2 transform -translate-x-1/2 animate-fade-in" style={{ animationDelay: '400ms' }}>
-                      <PlayingCard 
-                        card={getCardByPlayerIndex(2)!} 
-                        className="shadow-elevated transform rotate-180 -rotate-1 hover:scale-105 transition-transform duration-200"
-                      />
-                      <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 text-xs text-gold/80 font-medium whitespace-nowrap rotate-180">
-                        {players[2]?.name}
-                      </div>
-                    </div>
-                  )}
+                    const position = positions[playerIndex as keyof typeof positions];
+                    const animationDelay = `${playerIndex * 150}ms`;
 
-                  {/* Right Player Card (Player 3) */}
-                  {getCardByPlayerIndex(3) && (
-                    <div className="absolute right-8 top-1/2 transform -translate-y-1/2 animate-fade-in" style={{ animationDelay: '600ms' }}>
-                      <PlayingCard 
-                        card={getCardByPlayerIndex(3)!} 
-                        className="shadow-elevated transform rotate-3 hover:scale-105 transition-transform duration-200"
-                      />
-                      <div className="absolute -right-12 top-1/2 transform -translate-y-1/2 text-xs text-gold/80 font-medium whitespace-nowrap rotate-90">
-                        {players[3]?.name}
+                    return (
+                      <div 
+                        key={playerIndex}
+                        className={`${position.container} animate-fade-in`}
+                        style={{ animationDelay }}
+                      >
+                        <PlayingCard 
+                          card={playedCard} 
+                          className={`shadow-elevated hover:scale-105 transition-transform duration-200 ${position.cardClass}`}
+                        />
+                        <div className={position.labelClass}>
+                          {players[playerIndex]?.name}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    );
+                  })}
                 </>
               ) : (
                 <div className="text-center text-gold/60">
