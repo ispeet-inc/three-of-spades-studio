@@ -1,36 +1,70 @@
 import { Suite } from "@/types/game";
 
-export const suitSymbols = {
-  [Suite.Heart]: "♥",
-  [Suite.Diamond]: "♦",
-  [Suite.Clubs]: "♣",
-  [Suite.Spade]: "♠",
+// Consolidated suite data for better performance and maintainability
+export const SUITE_DATA = {
+  [Suite.Club]: {
+    symbol: "♣",
+    name: "club",
+    label: "Clubs",
+    icon: "♣️",
+    value: Suite.Club,
+    color: "black"
+  },
+  [Suite.Diamond]: {
+    symbol: "♦",
+    name: "diamond",
+    label: "Diamonds",
+    icon: "♦️",
+    value: Suite.Diamond,
+    color: "red"
+  },
+  [Suite.Heart]: {
+    symbol: "♥",
+    name: "heart",
+    label: "Hearts",
+    icon: "♥️",
+    value: Suite.Heart,
+    color: "red"
+  },
+  [Suite.Spade]: {
+    symbol: "♠",
+    name: "spade",
+    label: "Spades",
+    icon: "♠️",
+    value: Suite.Spade,
+    color: "black"
+  },
 };
 
-export const suitColors = {
-  [Suite.Heart]: "text-casino-red",
-  [Suite.Diamond]: "text-casino-red",
-  [Suite.Clubs]: "text-casino-black",
-  [Suite.Spade]: "text-casino-black",
-};
 
-export const suiteMetadata = [
-  { value: 0, icon: "♠", name: "Spades" },
-  { value: 1, icon: "♥", name: "Hearts" },
-  { value: 2, icon: "♦", name: "Diamonds" },
-  { value: 3, icon: "♣", name: "Clubs" },
-];
+// Optimized exports for backward compatibility and performance
+export const suitSymbols = Object.fromEntries(
+  Object.entries(SUITE_DATA).map(([key, data]) => [key, data.symbol])
+);
+
+
+// Optimized exports for backward compatibility and performance
+export const suitColors = Object.fromEntries(
+  Object.entries(SUITE_DATA).map(([key, data]) => [key, "text-casino-"+data.color])
+);
+
+export const suiteMetadata = Object.values(SUITE_DATA)
+  // Sort by Suite enum order: Spade, Heart, Club, Diamond
+  .sort((a, b) => a.value - b.value)
+  .map(data => ({
+    value: data.value,
+    icon: data.symbol,
+    name: data.label,
+  }));
 
 export const getSuiteName = (suite: Suite): string => {
-  const names = ['spade', 'heart', 'club', 'diamond'];
-  return names[suite];
+  return SUITE_DATA[suite].name;
 };
 
-export const getSuiteColor = (suite: number): string => {
-  return suite === 1 || suite === 3 ? 'red' : 'black';
+export const getSuiteColor = (suite: Suite): string => {
+  return SUITE_DATA[suite].color;
 };
 
-export const getSuiteIcon = (suite: number): string => {
-  const icons = ['♠', '♥', '♣', '♦'];
-  return icons[suite];
+export const getSuiteIcon = (suite: Suite): string => {
+  return SUITE_DATA[suite].symbol;
 };

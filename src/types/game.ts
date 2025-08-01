@@ -10,7 +10,7 @@ export interface Card {
 export enum Suite {
   Spade,
   Heart,
-  Clubs,
+  Club,
   Diamond
 }
 
