@@ -3,7 +3,7 @@ import { Card, Suite, TableCard } from "@/types/game";
 import { getRandomCardIndex, getRandomCardIndexBySuite, getRandomSuite } from "@/utils/gameUtils";
 
 export default class RandomBot extends BotAgent {
-  static displayName = "RandomBot";
+  static displayName = "Random";
 
   // Start a new round by playing a random card
   startRound(hand: Card[], trumpSuite: Suite): number {

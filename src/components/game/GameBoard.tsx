@@ -159,8 +159,7 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = 
         {/* Center Table Area */}
         <CenterTable
           currentTrick={gameState.currentTrick}
-          round={gameState.round}
-          winner={gameState.roundWinner && gameState.players[gameState.roundWinner].name}
+          winner={gameState.roundWinner !== null && gameState.players[gameState.roundWinner].name}
         />
 
         {/* Player Areas */}

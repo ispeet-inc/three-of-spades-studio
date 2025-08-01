@@ -9,7 +9,7 @@ import {
 } from "@/utils/handUtils";
 
 export default class GreedyBot extends BotAgent {
-  static displayName = "GreedyBot";
+  static displayName = "Greedy";
 
   // Start a new round by playing the highest card
   startRound(hand: Card[], trumpSuite: Suite): number {

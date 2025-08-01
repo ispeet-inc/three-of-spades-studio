@@ -3,13 +3,21 @@ import { TableCard } from "@/types/game";
 
 interface CenterTableProps {
   currentTrick: TableCard[];
-  round: number;
   winner?: string
 }
 
-export const CenterTable = ({currentTrick, round, winner}: CenterTableProps) => {
-
+export const CenterTable = ({currentTrick, winner}: CenterTableProps) => {
+  
   return (<div className="relative">
+    {/* Game Title */}
+    {winner && 
+      <div className="absolute -top-16 left-1/2 transform -translate-x-1/2 text-center w-72">
+        <div className="text-s text-gold/70 font-medium">
+          {winner} won the round!
+        </div>
+      </div>
+    }
+
     {/* Playing Area Circle */}
     <div 
       className="w-80 h-80 rounded-full bg-gradient-to-br from-felt-green-light/30 to-felt-green-dark/60 border-4 border-gold/40 flex items-center justify-center shadow-elevated backdrop-blur-sm"
@@ -64,13 +72,5 @@ export const CenterTable = ({currentTrick, round, winner}: CenterTableProps) => 
       </div>
     </div>
 
-    {/* Game Title */}
-    {winner && 
-      <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 text-center w-72">
-        <div className="text-s text-gold/70 font-medium">
-          {winner} won the round!
-        </div>
-      </div>
-    }
   </div>);
 }
