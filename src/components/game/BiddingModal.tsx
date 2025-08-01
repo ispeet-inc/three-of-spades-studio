@@ -4,7 +4,24 @@ import { placeBid, passBid } from "@/store/gameSlice";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { PlayingCard } from "./PlayingCard";
+import { Card, PlayingCard } from "./PlayingCard";
+
+export function HandPreview({ hand }: { hand: Array<Card> }) {
+  return (
+    <div className="hand-preview">
+      <div className="bg-casino-black/20 rounded-xl p-4 border border-gold/20 mb-6">
+        <div className="flex gap-1 justify-center flex-wrap">
+          {hand.map((card, idx) => (
+            <div key={idx} className="transform hover:scale-105 transition-transform duration-200">
+              <PlayingCard card={card} className="shadow-card" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 
 export const BiddingModal = () => {
   const dispatch = useAppDispatch();
@@ -48,17 +65,9 @@ export const BiddingModal = () => {
           </DialogTitle>
           <div className="w-16 h-1 bg-gradient-gold mx-auto rounded-full"></div>
         </DialogHeader>
-        
+
         {/* Premium Hand Preview */}
-        <div className="bg-casino-black/20 rounded-xl p-4 border border-gold/20 mb-6">
-          <div className="flex gap-1 justify-center flex-wrap">
-            {players[0].hand.map((card, idx) => (
-              <div key={idx} className="transform hover:scale-105 transition-transform duration-200">
-                <PlayingCard card={card} className="shadow-card" />
-              </div>
-            ))}
-          </div>
-        </div>
+        <HandPreview hand={players[0].hand} />
 
         {/* Premium Bidding Information */}
         <div className="bg-gradient-to-r from-gold/10 to-gold/5 rounded-xl p-4 border border-gold/30 mb-6">

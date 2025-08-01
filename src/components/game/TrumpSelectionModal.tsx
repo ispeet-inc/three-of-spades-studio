@@ -6,6 +6,7 @@ import { suiteMetadata } from "@/utils/suiteUtils";
 import { getTeammateOptions } from "@/utils/gameUtils";
 import { PlayingCard } from "./PlayingCard";
 import { TeammateCard } from "@/types/game";
+import { HandPreview } from "./BiddingModal";
 
 export const TrumpSelectionModal = () => {
   const dispatch = useAppDispatch();
@@ -46,24 +47,7 @@ export const TrumpSelectionModal = () => {
       <DialogContent className="max-w-md w-full bg-felt-green-dark border-0 text-foreground p-0">
         <div className="p-6">
           {/* Player Hand Display */}
-          <div className="flex justify-center items-end h-32 relative mb-4">
-            {players[0].hand.map((card, idx) => {
-              const overlap = 40;
-              const marginLeft = idx === 0 ? "0px" : `${-overlap}px`;
-              return (
-                <div
-                  key={idx}
-                  className="relative"
-                  style={{
-                    marginLeft,
-                    zIndex: idx,
-                  }}
-                >
-                  <PlayingCard card={card} size="sm" />
-                </div>
-              );
-            })}
-          </div>
+          <HandPreview hand={players[0].hand} />
 
           <h2 className="text-xl font-bold mb-6 text-gold text-center">
             Choose Trump & Teammate Card
