@@ -44,7 +44,7 @@ export const TrumpSelectionModal = () => {
 
   return (
     <Dialog open={true}>
-      <DialogContent className="max-w-md w-full bg-felt-green-dark border-0 text-foreground p-0">
+      <DialogContent className="max-w-xl w-full bg-felt-green-dark border-0 text-foreground p-0">
         <div className="p-6">
           {/* Player Hand Display */}
           <HandPreview hand={players[0].hand} />

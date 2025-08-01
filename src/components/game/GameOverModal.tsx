@@ -20,9 +20,9 @@ export const GameOverModal = () => {
       <DialogContent className="max-w-xl bg-gradient-to-br from-felt-green-light to-felt-green-dark border-2 border-gold/40 shadow-elevated backdrop-blur-sm">
         <DialogHeader className="text-center mb-8">
           <DialogTitle className="text-4xl font-casino text-gold mb-4 flex items-center justify-center gap-4">
-            <Trophy className="w-12 h-12 text-gold animate-bounce" />
+            <Trophy className="w-8 h-8 text-gold animate-bounce" />
             Game Over!
-            <Trophy className="w-12 h-12 text-gold animate-bounce" />
+            <Trophy className="w-8 h-8 text-gold animate-bounce" />
           </DialogTitle>
           <div className="w-24 h-1 bg-gradient-gold mx-auto rounded-full"></div>
         </DialogHeader>
@@ -38,7 +38,7 @@ export const GameOverModal = () => {
                 <Sparkles className="w-8 h-8 text-gold animate-pulse" />
               </div>
               
-              <h3 className="text-4xl font-casino font-bold text-gold mb-6 animate-pulse">
+              <h3 className="text-xl font-casino font-bold text-gold mb-6 animate-pulse">
                 🎉 Team {winningTeam + 1} Wins! 🎉
               </h3>
               

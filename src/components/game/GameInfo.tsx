@@ -33,7 +33,7 @@ export const GameInfo = ({ gameState }: GameInfoProps) => {
       
       <div className="space-y-2 text-sm">
         {/* Trump Suit */}
-        {gameState.trumpSuit && (
+        {gameState.trumpSuit !==null && (
           <div className="flex items-center gap-2">
             <span className="text-muted-foreground">Trump:</span>
             <div className="flex items-center gap-1">
