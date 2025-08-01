@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Settings } from "lucide-react";
 import { Card, Suite } from "@/types/game";
@@ -69,6 +70,14 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = 
       }
     }
   }, [players]);
+
+  // Helper function to get card by player index from currentTrick
+  const getCardByPlayerIndex = (playerIndex: number): Card | null => {
+    // In currentTrick, cards are stored in the order they were played
+    // We need to match them with the correct player
+    // For now, assuming the order in currentTrick corresponds to player indices
+    return gameState.currentTrick[playerIndex] || null;
+  };
 
   return (
     <main 
@@ -151,46 +160,74 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = 
           <div 
             className="w-80 h-80 rounded-full bg-gradient-to-br from-felt-green-light/30 to-felt-green-dark/60 border-4 border-gold/40 flex items-center justify-center shadow-elevated backdrop-blur-sm"
             role="region"
-            aria-label="Card playing area"
+            aria-label={`Current trick: ${gameState.currentTrick.length} of 4 cards played`}
+            aria-live="polite"
           >
             
-            {/* Inner Circle */}
-            <div className="w-64 h-64 rounded-full border-2 border-gold/20 flex items-center justify-center">
-              
-              {/* Current Trick Cards */}
-              <div 
-                className="relative"
-                role="region"
-                aria-label={`Current trick: ${gameState.currentTrick.length} of 4 cards played`}
-                aria-live="polite"
-              >
-                {gameState.currentTrick.length > 0 ? (
-                  <div className="grid grid-cols-2 gap-4 place-items-center">
-                    {gameState.currentTrick.map((card, index) => (
-                      <div
-                        key={`trick-${index}`}
-                        className="animate-fade-in"
-                        style={{ 
-                          animationDelay: `${index * 200}ms`,
-                          zIndex: gameState.currentTrick.length - index 
-                        }}
-                      >
-                        <PlayingCard 
-                          card={card} 
-                          className="shadow-elevated transform hover:scale-105 transition-transform duration-200"
-                        />
+            {/* Current Trick Cards - Positioned by Player */}
+            <div className="relative w-full h-full">
+              {gameState.currentTrick.length > 0 ? (
+                <>
+                  {/* Bottom Player Card (Player 0) */}
+                  {getCardByPlayerIndex(0) && (
+                    <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-fade-in">
+                      <PlayingCard 
+                        card={getCardByPlayerIndex(0)!} 
+                        className="shadow-elevated transform rotate-2 hover:scale-105 transition-transform duration-200"
+                      />
+                      <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs text-gold/80 font-medium whitespace-nowrap">
+                        {players[0]?.name}
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center text-gold/60">
-                    <div className="w-20 h-20 mx-auto mb-2 rounded-full border-2 border-dashed border-gold/30 flex items-center justify-center">
-                      <div className="w-8 h-8 rounded-full border border-gold/30 animate-pulse"></div>
                     </div>
-                    <div className="text-sm font-medium">Playing Area</div>
+                  )}
+
+                  {/* Left Player Card (Player 1) */}
+                  {getCardByPlayerIndex(1) && (
+                    <div className="absolute left-8 top-1/2 transform -translate-y-1/2 animate-fade-in" style={{ animationDelay: '200ms' }}>
+                      <PlayingCard 
+                        card={getCardByPlayerIndex(1)!} 
+                        className="shadow-elevated transform -rotate-3 hover:scale-105 transition-transform duration-200"
+                      />
+                      <div className="absolute -left-12 top-1/2 transform -translate-y-1/2 text-xs text-gold/80 font-medium whitespace-nowrap -rotate-90">
+                        {players[1]?.name}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Top Player Card (Player 2) */}
+                  {getCardByPlayerIndex(2) && (
+                    <div className="absolute top-8 left-1/2 transform -translate-x-1/2 animate-fade-in" style={{ animationDelay: '400ms' }}>
+                      <PlayingCard 
+                        card={getCardByPlayerIndex(2)!} 
+                        className="shadow-elevated transform rotate-180 -rotate-1 hover:scale-105 transition-transform duration-200"
+                      />
+                      <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 text-xs text-gold/80 font-medium whitespace-nowrap rotate-180">
+                        {players[2]?.name}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Right Player Card (Player 3) */}
+                  {getCardByPlayerIndex(3) && (
+                    <div className="absolute right-8 top-1/2 transform -translate-y-1/2 animate-fade-in" style={{ animationDelay: '600ms' }}>
+                      <PlayingCard 
+                        card={getCardByPlayerIndex(3)!} 
+                        className="shadow-elevated transform rotate-3 hover:scale-105 transition-transform duration-200"
+                      />
+                      <div className="absolute -right-12 top-1/2 transform -translate-y-1/2 text-xs text-gold/80 font-medium whitespace-nowrap rotate-90">
+                        {players[3]?.name}
+                      </div>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="text-center text-gold/60">
+                  <div className="w-20 h-20 mx-auto mb-2 rounded-full border-2 border-dashed border-gold/30 flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-full border border-gold/30 animate-pulse"></div>
                   </div>
-                )}
-              </div>
+                  <div className="text-sm font-medium">Playing Area</div>
+                </div>
+              )}
             </div>
           </div>
 
