@@ -65,11 +65,11 @@ export const TrumpSelectionModal = () => {
                     type="button"
                     key={s.value}
                     className={`
-                      bg-felt-green text-foreground border-2 border-transparent
+                      bg-felt-green text-foreground
                       rounded-lg px-4 py-3 text-lg font-semibold flex items-center gap-2
                       cursor-pointer transition-all duration-200 shadow-sm
                       ${trumpSuite === String(s.value) 
-                        ? 'border-gold text-gold shadow-glow' 
+                        ? 'border-2 border-gold text-gold shadow-glow' 
                         : 'hover:border-foreground/30'
                       }
                     `}
@@ -95,11 +95,11 @@ export const TrumpSelectionModal = () => {
                     type="button"
                     key={s.value}
                     className={`
-                      bg-felt-green text-foreground border-2 border-transparent
+                      bg-felt-green text-foreground
                       rounded-lg px-4 py-2 text-sm font-semibold cursor-pointer 
                       transition-all duration-200
                       ${teammateSuiteTab === s.value 
-                        ? 'border-gold text-gold shadow-glow' 
+                        ? 'border-2 border-gold text-gold' 
                         : 'hover:border-foreground/30'
                       }
                     `}
@@ -124,12 +124,7 @@ export const TrumpSelectionModal = () => {
                       className={`
                         bg-transparent border-2 border-transparent rounded-lg p-1
                         cursor-pointer transition-all duration-200 flex items-center justify-center
-                        w-20 h-30
-                        ${isSelected 
-                          ? 'border-gold shadow-glow' 
-                          : 'hover:border-foreground/30'
-                        }
-                      `}
+                        w-20 h-30 hover:border-foreground/30`}
                       onClick={() =>
                         setTeammateCard({
                           suite: card.suite,
@@ -137,7 +132,9 @@ export const TrumpSelectionModal = () => {
                         })
                       }
                     >
-                      <PlayingCard card={card} />
+                      <PlayingCard card={card} className={`hover:border-foreground/30 ${isSelected 
+                          && 'border-2 border-gold shadow-glow' 
+                        }`} />
                     </button>
                   );
                 })}
