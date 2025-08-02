@@ -38,9 +38,6 @@ const initialState: GameState = {
   playerAgents: {},
   playerNames: { 0: "You", 1: "Nats", 2: "Prateek", 3: "Abhi" },
   teammateCard: null,
-  isCollectingCards: false,
-  showCardsPhase: false,
-  collectionWinner: null,
   biddingState: {
     biddingActive: false,
     currentBid: 165,
@@ -120,9 +117,16 @@ const gameSlice = createSlice({
           state.runningSuite!,
           state.trumpSuite!
         );
+        const winningTeam = state.playerTeamMap![winner.player];
+
+        // Calculate total points from all cards in the table
+        const roundPoints = state.tableCards.reduce((sum, card) => sum + card.points, 0);
+
+        state.scores[winningTeam] += roundPoints;
+        state.players[winner.player].score += roundPoints;
         state.roundWinner = winner.player;
-        state.showCardsPhase = true;
-        state.stage = GameStages.CARDS_DISPLAY;
+        state.isRoundEnding = true;
+        state.stage = GameStages.ROUND_COMPLETE;
       } else {
         state.turn = (state.turn + 1) % NUM_PLAYERS;
       }
@@ -247,26 +251,6 @@ const gameSlice = createSlice({
     updateBidTimer: (state, action: PayloadAction<number>) => {
       state.biddingState.bidTimer = action.payload;
     },
-
-    startCardCollection: (state) => {
-      state.showCardsPhase = false;
-      state.isCollectingCards = true;
-      state.collectionWinner = state.roundWinner;
-    },
-
-    completeCardCollection: (state) => {
-      if (state.roundWinner !== null && state.playerTeamMap) {
-        const winningTeam = state.playerTeamMap[state.roundWinner];
-        const roundPoints = state.tableCards.reduce((sum, card) => sum + card.points, 0);
-        
-        state.scores[winningTeam] += roundPoints;
-        state.players[state.roundWinner].score += roundPoints;
-      }
-      
-      state.isCollectingCards = false;
-      state.collectionWinner = null;
-      state.stage = GameStages.ROUND_COMPLETE;
-    },
   },
 });
 
@@ -280,8 +264,6 @@ export const {
   placeBid,
   passBid,
   updateBidTimer,
-  startCardCollection,
-  completeCardCollection,
 } = gameSlice.actions;
 
 export default gameSlice.reducer;
