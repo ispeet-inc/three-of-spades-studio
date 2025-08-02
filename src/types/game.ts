@@ -55,6 +55,9 @@ export interface GameState {
   playerAgents: Record<number, any>;
   playerNames: Record<number, string>;
   teammateCard: Card | null;
+  isCollectingCards: boolean;
+  showCardsPhase: boolean;
+  collectionWinner: number | null;
   biddingState: BiddingState;
 }
 
