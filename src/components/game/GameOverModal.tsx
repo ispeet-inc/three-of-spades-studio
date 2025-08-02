@@ -4,12 +4,29 @@ import { Button } from "@/components/ui/button";
 import { Trophy, Crown, Star, Sparkles } from "lucide-react";
 
 export const GameOverModal = () => {
-  const { scores, teams, teamColors, playerNames } = useAppSelector(state => state.game);
+  const { scores, teams, teamColors, playerNames, bidAmount, bidder } = useAppSelector(state => state.game);
 
-  const winningTeam = scores[0] > scores[1] ? 0 : 1;
+  const teamScores = {
+    0: scores[0], // bidding team
+    1: scores[1], // defending team
+  };
+
+  // teams[0] is always bidding team, teams[1] is always defending team
+  const biddingTeam = 0;
+  const defendingTeam = 1;
+  
+   // Determine winner based on bid
+   let winningTeam = null;
+   let bidMet = false;
+   if (teamScores[biddingTeam] >= bidAmount) {
+     winningTeam = biddingTeam;
+     bidMet = true;
+   } else {
+     winningTeam = defendingTeam;
+     bidMet = false;
+   }
+ 
   const winningPlayers = teams[winningTeam] || [];
-  const winningScore = scores[winningTeam];
-  const losingScore = scores[winningTeam === 0 ? 1 : 0];
 
   const handleNewGame = () => {
     window.location.reload();
@@ -43,8 +60,11 @@ export const GameOverModal = () => {
               </h3>
               
               <div className="space-y-3">
-                <div className="text-lg font-semibold text-gold/80 uppercase tracking-wider mb-4">
-                  Champions
+                <div className="text-lg font-semibold text-gold/80 tracking-wider mb-4">
+                  {`${playerNames[bidder]} bid ${bidAmount}.`} 
+                </div>
+                <div className="text-lg font-semibold text-gold/80 tracking-wider mb-4">
+                  {bidMet ? "Bid and won!" : "Bid failed!"}
                 </div>
                 {winningPlayers.map((playerId, index) => (
                   <div 
@@ -107,7 +127,7 @@ export const GameOverModal = () => {
                 </div>
                 {winningTeam === 1 && (
                   <div className="text-sm text-gold/70 font-medium uppercase tracking-wider">
-                    🏆 Winners!
+                    🏆 Champions!
                   </div>
                 )}
               </div>
