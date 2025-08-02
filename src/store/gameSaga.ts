@@ -16,6 +16,8 @@ import {
   startBiddingRound,
   placeBid,
   passBid as passBidAction,
+  startCardCollection,
+  startNewRound,
 } from "./gameSlice";
 import { GameStages } from "./gameStages";
 import type { RootState } from "./index";
@@ -25,21 +27,17 @@ function* handleStageTransition(action: any) {
     "Saga: handleStageTransition called with payload:",
     action.payload
   );
-  if (action.payload === GameStages.DISTRIBUTE_CARDS) {
-    console.log("Saga: Transitioning from DISTRIBUTE_CARDS to BIDDING");
-    // // Optionally add a small delay for realism
-    // console.log("Timestamp:", new Date().toISOString());
-    // yield delay(2000);
-    // console.log("Timestamp:", new Date().toISOString());
-    // yield put(setStage(GameStages.BIDDING));
-    // // Initialize bidding state
-    // yield put(startBiddingRound());
-    // console.log("Saga: Dispatched setStage(BIDDING) and startBiddingRound()");
+  
+  if (action.payload === GameStages.CARDS_DISPLAY) {
+    console.log("Saga: Starting 2-second card display phase");
+    yield delay(1500);
+    console.log("Saga: Card display complete, starting collection animation");
+    yield put(startCardCollection());
+    console.log("Saga: Waiting for collection animation to finish");
+    yield delay(2500); // 2s animation + 0.5s cleanup
+    console.log("Saga: Animation complete, starting new round");
+    yield put(startNewRound());
   }
-  // else if (action.payload === GameStages.ROUND_COMPLETE) {
-  //   console.log("Saga: Transitioning from ROUND_COMPLETE to ROUND_SUMMARY");
-  //   yield put(setStage(GameStages.ROUND_SUMMARY));
-  // }
 }
 
 function* watchStageTransition() {
@@ -106,6 +104,5 @@ export default function* gameSaga() {
   yield all([
     watchStageTransition(),
     watchBiddingTimerTriggers(),
-    // Add individual game sagas here
   ]);
 }
