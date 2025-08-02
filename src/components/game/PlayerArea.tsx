@@ -10,6 +10,7 @@ interface PlayerAreaProps {
     cards: Card[];
     isCurrentPlayer?: boolean;
     isTeammate?: boolean;
+    isBidder?: boolean;
   };
   runningSuite?: Suite,
   position: 'bottom' | 'left' | 'top' | 'right';
@@ -124,7 +125,12 @@ export const PlayerArea = ({
             "text-sm font-bold mb-1",
             player.isCurrentPlayer ? "text-gold" : "text-casino-white"
           )}>
-            {player.name}
+            {player.name} {player.isBidder && <span
+              role="img"
+              aria-label="Bid Winner"
+            >
+              👑
+            </span>}
           </div>
           <div className={cn(
             "text-xs px-2 py-1 rounded-full",

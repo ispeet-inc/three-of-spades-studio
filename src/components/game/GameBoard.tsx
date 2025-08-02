@@ -18,6 +18,7 @@ interface GameBoardProps {
       cards: Card[];
       isCurrentPlayer?: boolean;
       isTeammate?: boolean;
+      isBidder?: boolean;
     }>;
     currentTrick: TableCard[];
     runningSuite?: Suite;

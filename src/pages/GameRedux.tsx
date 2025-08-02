@@ -39,7 +39,8 @@ const GameRedux = () => {
       team: (gameState.playerTeamMap?.[parseInt(index)] === 0 ? 1 : 2) as 1 | 2,
       cards: player.hand,
       isCurrentPlayer: parseInt(index) === gameState.turn && gameState.stage === GameStages.PLAYING,
-      isTeammate: gameState.playerTeamMap && gameState.playerTeamMap[parseInt(index)] === gameState.playerTeamMap[0] && parseInt(index) !== 0
+      isTeammate: gameState.playerTeamMap && gameState.playerTeamMap[parseInt(index)] === gameState.playerTeamMap[0] && parseInt(index) !== 0,
+      isBidder: gameState.bidder && gameState.bidder === parseInt(index)
     })),
     currentTrick: gameState.tableCards,
     runningSuite: gameState.runningSuite,
