@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { PlayingCard } from "@/components/game/PlayingCard";
 import { useNavigate } from "react-router-dom";
+import { Suite } from "@/types/game";
+import { createCard } from "@/utils/cardUtils";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -26,7 +28,7 @@ const Index = () => {
         <div className="flex gap-4 mb-12 perspective-1000">
           <div className="animate-card-deal" style={{ animationDelay: '0ms' }}>
             <PlayingCard 
-              card={{ id: 'A-spades', suite: 3, number: 1, rank: 14, points: 10, positionValue: 314, hash: 'A-of-spade' }} 
+              card={createCard(Suite.Spade, 1)} 
               size="lg"
               className="hover:scale-110 transition-transform duration-300"
             />
@@ -58,17 +60,10 @@ const Index = () => {
         <div className="flex gap-4 mb-8">
           <Button 
             size="lg"
-            onClick={() => navigate('/game')}
-            className="bg-gradient-gold text-casino-black font-bold text-lg px-8 py-6 rounded-xl shadow-elevated hover:shadow-glow transition-all duration-300 hover:scale-105"
-          >
-            Start Game
-          </Button>
-          <Button 
-            size="lg"
             onClick={() => navigate('/redux-game')}
             className="bg-gradient-gold text-casino-black font-bold text-lg px-8 py-6 rounded-xl shadow-elevated hover:shadow-glow transition-all duration-300 hover:scale-105"
           >
-            Redux Version
+            Start Game!
           </Button>
         </div>
 
