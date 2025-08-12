@@ -1,6 +1,7 @@
 import { PlayingCard } from "./PlayingCard";
 import { TableCard } from "@/types/game";
 import { useEffect, useState } from "react";
+import { TIMINGS } from "@/utils/constants";
 
 interface CenterTableProps {
   currentTrick: TableCard[];
@@ -27,7 +28,7 @@ export const CenterTable = ({
   useEffect(() => {
     if (isCollectingCards && collectionWinner !== null) {
       // Show points indicator after animation starts
-      const timer = setTimeout(() => setShowPoints(true), 2000);
+      const timer = setTimeout(() => setShowPoints(true), TIMINGS.collectionAnimationMs);
       return () => clearTimeout(timer);
     } else {
       setShowPoints(false);
@@ -100,7 +101,7 @@ export const CenterTable = ({
               };
 
               const position = positions[playerIndex as keyof typeof positions];
-              const animationDelay = `${playerIndex * 150}ms`;
+              const animationDelay = `${playerIndex * TIMINGS.dealingStaggerMs}ms`;
               const collectionDelay = `${playerIndex * 50}ms`;
 
               // Determine card styling based on game state
@@ -109,7 +110,7 @@ export const CenterTable = ({
               if (isCollectingCards && collectionWinner !== null) {
                 // Collection animation
                 const targetTransform = collectionTargets[collectionWinner as keyof typeof collectionTargets];
-                cardClassName += ` transform ${targetTransform} scale-75 opacity-0 duration-2000`;
+                cardClassName += ` transform ${targetTransform} scale-75 opacity-0 duration-[${TIMINGS.collectionAnimationMs}ms]`;
               } else if (showCardsPhase && isWinningCard) {
                 // Highlight winning card during display phase
                 cardClassName += ` ring-2 ring-gold/60 shadow-[0_0_20px_rgba(255,215,0,0.4)] scale-105`;
