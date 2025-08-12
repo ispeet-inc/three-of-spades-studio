@@ -98,11 +98,12 @@ export const selectBidWinner = createSelector(selectBiddingStateRaw, (b) => b.bi
 export const selectBidHistory = createSelector(selectBiddingStateRaw, (b) => b.bidHistory);
 export const selectBidTimer = createSelector(selectBiddingStateRaw, (b) => b.bidTimer);
 
-// Phase flags (adapters to current fields)
-export const selectShowCardsPhase = createSelector(selectGame, (g): boolean => g.showCardsPhase);
-export const selectIsCollectingCards = createSelector(
-  selectGame,
-  (g): boolean => g.isCollectingCards
+// Phase flags (derived from stage and game state)
+export const selectShowCardsPhase = createSelector(selectStage, (stage): boolean => stage === GameStages.CARDS_DISPLAY);
+export const selectIsCollectingCards = createSelector(selectStage, (stage): boolean => stage === GameStages.CARDS_DISPLAY);
+export const selectIsRoundEnding = createSelector(
+  [selectIsTrickComplete, selectTrickWinnerIndex],
+  (isTrickComplete, trickWinner): boolean => isTrickComplete && trickWinner !== null
 );
 export const selectCollectionWinner = createSelector(
   selectGame,

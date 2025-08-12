@@ -96,7 +96,6 @@ const gameSlice = createSlice({
       state.scores = [0, 0];
       state.turn = 0;
       state.roundWinner = null;
-      state.isRoundEnding = false;
     },
 
     playCard: (state, action: PayloadAction<{ playerIndex: number; cardIndex: number }>) => {
@@ -129,8 +128,6 @@ const gameSlice = createSlice({
         state.scores[winningTeam] += roundPoints;
         state.players[winner.player].score += roundPoints;
         state.roundWinner = winner.player;
-        state.isRoundEnding = true;
-        state.showCardsPhase = true;
       } else {
         state.turn = (state.turn + 1) % NUM_PLAYERS;
       }
@@ -143,9 +140,6 @@ const gameSlice = createSlice({
       state.turn = state.roundWinner!;
       state.roundWinner = null;
       state.runningSuite = null;
-      state.isRoundEnding = false;
-      state.showCardsPhase = false;
-      state.isCollectingCards = false;
       state.collectionWinner = null;
       console.log("GAME: Setting stage to PLAYING, current turn:", state.turn);
       state.stage = GameStages.PLAYING;
@@ -157,8 +151,6 @@ const gameSlice = createSlice({
     },
 
     startCardCollection: (state) => {
-      state.showCardsPhase = false;
-      state.isCollectingCards = true;
       state.collectionWinner = state.roundWinner;
       state.stage = GameStages.ROUND_COMPLETE;
     },

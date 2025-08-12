@@ -1,7 +1,13 @@
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
 import { RootState } from "@/store";
 import { GameStages } from "@/store/gameStages";
+import { 
+  selectIsCollectingCards, 
+  selectShowCardsPhase, 
+  selectCollectionWinner 
+} from "@/store/selectors";
+import { useAppSelector } from "@/hooks/useAppSelector";
 import { 
   startGame, 
   startBiddingRound, 
@@ -26,7 +32,10 @@ import { TIMINGS } from "@/utils/constants";
 
 const GameRedux = () => {
   const dispatch = useDispatch();
-  const gameState = useSelector((state: RootState) => state.game);
+  const gameState = useAppSelector((state: RootState) => state.game);
+  const isCollectingCards = useAppSelector(selectIsCollectingCards);
+  const showCardsPhase = useAppSelector(selectShowCardsPhase);
+  const collectionWinner = useAppSelector(selectCollectionWinner);
   const { trigger } = useFeedback();
 
   // Add dealing animation state
@@ -54,9 +63,9 @@ const GameRedux = () => {
       team2: gameState.scores[1] 
     },
     teammateCard: gameState.teammateCard,
-    isCollectingCards: gameState.isCollectingCards,
-    showCardsPhase: gameState.showCardsPhase,
-    collectionWinner: gameState.collectionWinner
+    isCollectingCards,
+    showCardsPhase,
+    collectionWinner
   };
 
   const handleCardPlay = (card: Card) => {

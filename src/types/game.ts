@@ -49,6 +49,7 @@ export interface GameState {
   scores: [number, number];
   turn: number;
   roundWinner: number | null;
+  /** @deprecated Use selectIsRoundEnding selector instead */
   isRoundEnding: boolean;
   totalRounds: number;
   teams: Record<number, number[]>;
@@ -57,7 +58,9 @@ export interface GameState {
   playerAgents: Record<number, any>;
   playerNames: Record<number, string>;
   teammateCard: Card | null;
+  /** @deprecated Use selectIsCollectingCards selector instead */
   isCollectingCards: boolean;
+  /** @deprecated Use selectShowCardsPhase selector instead */
   showCardsPhase: boolean;
   collectionWinner: number | null;
   biddingState: BiddingState;
