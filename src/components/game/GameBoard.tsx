@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import { announceToScreenReader, gameStateAnnouncements } from "@/utils/accessibility";
 import { CenterTable } from "./CenterTable";
 import { useAppSelector } from "@/hooks/useAppSelector";
-import { selectIsCollectingCards, selectShowCardsPhase } from "@/store/selectors";
+import { selectCollectionWinner, selectIsCollectingCards, selectShowCardsPhase } from "@/store/selectors";
 
 interface GameBoardProps {
   gameState: {
@@ -48,7 +48,8 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = 
   // Use derived selectors for animation states
   const isCollectingCards = useAppSelector(selectIsCollectingCards);
   const showCardsPhase = useAppSelector(selectShowCardsPhase);
-  
+  const collectionWinner = useAppSelector(selectCollectionWinner);
+
   // Define players array FIRST before any useEffect that references it
   const players = [
     gameState.players[0], // bottom
@@ -173,7 +174,7 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = 
           winner={gameState.roundWinner !== null && gameState.players[gameState.roundWinner].name}
           isCollectingCards={isCollectingCards}
           showCardsPhase={showCardsPhase}
-          collectionWinner={gameState.collectionWinner}
+          collectionWinner={collectionWinner}
           roundWinner={gameState.roundWinner}
           playerNames={gameState.playerNames}
         />

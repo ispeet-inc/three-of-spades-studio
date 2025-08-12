@@ -33,9 +33,6 @@ import { TIMINGS } from "@/utils/constants";
 const GameRedux = () => {
   const dispatch = useDispatch();
   const gameState = useAppSelector((state: RootState) => state.game);
-  const isCollectingCards = useAppSelector(selectIsCollectingCards);
-  const showCardsPhase = useAppSelector(selectShowCardsPhase);
-  const collectionWinner = useAppSelector(selectCollectionWinner);
   const { trigger } = useFeedback();
 
   // Add dealing animation state
@@ -63,9 +60,6 @@ const GameRedux = () => {
       team2: gameState.scores[1] 
     },
     teammateCard: gameState.teammateCard,
-    isCollectingCards,
-    showCardsPhase,
-    collectionWinner
   };
 
   const handleCardPlay = (card: Card) => {
