@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { GameState, Card, Player, TableCard } from "@/types/game";
-import { GameStages } from "./gameStages";
+import { GameStages, type GameStage } from "./gameStages";
 import { generateDeck, shuffle, distributeDeck, createCard } from "@/utils/cardUtils";
 import { determineRoundWinner, assignTeamsByTeammateCard } from "@/utils/gameUtils";
 import { agentClasses } from "@/agents";
@@ -62,7 +62,7 @@ const gameSlice = createSlice({
   name: "game",
   initialState,
   reducers: {
-    setStage: (state, action: PayloadAction<import('./gameStages').GameStage>) => {
+    setStage: (state, action: PayloadAction<GameStage>) => {
       console.log("GameSlice.setStage: CHANGING STATE: FROM", state.stage, "TO", action.payload);
       state.stage = action.payload;
     },

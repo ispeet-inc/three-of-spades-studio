@@ -1,3 +1,5 @@
+import type { GameStage } from '../store/gameStages';
+
 export interface Card {
   id: string;
   suite: number;
@@ -36,7 +38,7 @@ export interface BiddingState {
 }
 
 export interface GameState {
-  stage: import('../store/gameStages').GameStage;
+  stage: GameStage;
   players: Record<number, Player>;
   round: number;
   runningSuite: number | null;
