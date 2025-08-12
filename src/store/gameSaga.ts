@@ -18,9 +18,17 @@ import {
   passBid as passBidAction,
   startCardCollection,
   startNewRound,
+  playCard,
 } from "./gameSlice";
-import { GameStages } from "./gameStages";
+import { GameStages, type GameStage } from "./gameStages";
 import type { RootState } from "./index";
+import { TIMINGS } from "@/utils/constants";
+import { 
+  selectIsTrickComplete, 
+  selectBiddingStateRaw, 
+  selectStage 
+} from "./selectors";
+import type { BiddingState } from "@/types/game";
 
 function* handleStageTransition(action: any) {
   console.log(
@@ -29,15 +37,29 @@ function* handleStageTransition(action: any) {
   );
   
   if (action.payload === GameStages.CARDS_DISPLAY) {
-    console.log("Saga: Starting 2-second card display phase");
-    yield delay(1500);
-    console.log("Saga: Card display complete, starting collection animation");
+    console.log("Saga: Starting trick display phase");
+    yield delay(TIMINGS.trickDisplayMs);
+    console.log("Saga: Trick display complete, starting collection animation");
     yield put(startCardCollection());
     console.log("Saga: Waiting for collection animation to finish");
-    yield delay(2500); // 2s animation + 0.5s cleanup
+    yield delay(TIMINGS.collectionAnimationMs + TIMINGS.collectionBufferMs);
     console.log("Saga: Animation complete, starting new round");
     yield put(startNewRound());
   }
+}
+
+// Watch for trick completion and automatically transition to CARDS_DISPLAY
+function* watchTrickCompletion() {
+  console.log("Saga: watchTrickCompletion started");
+  yield takeEvery(playCard.type, function* handleTrickCompletion() {
+    const isTrickComplete: boolean = yield select(selectIsTrickComplete);
+    const stage: GameStage = yield select(selectStage);
+    
+    if (isTrickComplete && stage === GameStages.PLAYING) {
+      console.log("Saga: Trick completed with 4 cards, transitioning to CARDS_DISPLAY");
+      yield put(setStage(GameStages.CARDS_DISPLAY));
+    }
+  });
 }
 
 function* watchStageTransition() {
@@ -50,9 +72,9 @@ function* biddingTimerSaga() {
   console.log("Saga: biddingTimerSaga started");
   try {
     while (true) {
-      // Get current bidding state
-      const biddingState: any = yield select((state: RootState) => state.game.biddingState);
-      const stage: typeof GameStages[keyof typeof GameStages] = yield select((state: RootState) => state.game.stage);
+      // Get current bidding state using selectors
+      const biddingState: BiddingState = yield select(selectBiddingStateRaw);
+      const stage: GameStage = yield select(selectStage);
       console.log(
         "Saga: Timer check - stage:",
         stage,
@@ -63,7 +85,7 @@ function* biddingTimerSaga() {
       );
       if (stage !== GameStages.BIDDING || !biddingState.biddingActive) break;
       if (biddingState.bidTimer > 0) {
-        yield delay(1000);
+        yield delay(TIMINGS.biddingTimerStepMs);
         yield put(updateBidTimer(biddingState.bidTimer - 1));
       } else {
         // Timer ran out, auto-pass for current bidder
@@ -104,5 +126,6 @@ export default function* gameSaga() {
   yield all([
     watchStageTransition(),
     watchBiddingTimerTriggers(),
+    watchTrickCompletion(),
   ]);
 }

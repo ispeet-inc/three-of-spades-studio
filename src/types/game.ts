@@ -1,3 +1,5 @@
+import type { GameStage } from '../store/gameStages';
+
 export interface Card {
   id: string;
   suite: number;
@@ -25,10 +27,12 @@ export interface Player {
 }
 
 export interface BiddingState {
+  /** @deprecated Use selectBiddingActive selector instead */
   biddingActive: boolean;
   currentBid: number;
   currentBidder: number;
   passedPlayers: number[];
+  /** @deprecated Use selectBidStatusByPlayer selector instead */
   bidStatusByPlayer: Record<number, string>;
   bidWinner: number | null;
   bidHistory: Array<{ player: number; bid: number }>;
@@ -36,7 +40,7 @@ export interface BiddingState {
 }
 
 export interface GameState {
-  stage: string;
+  stage: GameStage;
   players: Record<number, Player>;
   round: number;
   runningSuite: number | null;
@@ -47,6 +51,7 @@ export interface GameState {
   scores: [number, number];
   turn: number;
   roundWinner: number | null;
+  /** @deprecated Use selectIsRoundEnding selector instead */
   isRoundEnding: boolean;
   totalRounds: number;
   teams: Record<number, number[]>;
@@ -55,7 +60,9 @@ export interface GameState {
   playerAgents: Record<number, any>;
   playerNames: Record<number, string>;
   teammateCard: Card | null;
+  /** @deprecated Use selectIsCollectingCards selector instead */
   isCollectingCards: boolean;
+  /** @deprecated Use selectShowCardsPhase selector instead */
   showCardsPhase: boolean;
   collectionWinner: number | null;
   biddingState: BiddingState;

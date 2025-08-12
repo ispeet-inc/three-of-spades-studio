@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { announceToScreenReader, gameStateAnnouncements } from "@/utils/accessibility";
 import { CenterTable } from "./CenterTable";
+import { useAppSelector } from "@/hooks/useAppSelector";
+import { selectCollectionWinner, selectIsCollectingCards, selectShowCardsPhase } from "@/store/selectors";
 
 interface GameBoardProps {
   gameState: {
@@ -43,6 +45,11 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = 
   const [lastScores, setLastScores] = useState(gameState.teamScores);
   const [animateScore, setAnimateScore] = useState({ team1: false, team2: false });
   
+  // Use derived selectors for animation states
+  const isCollectingCards = useAppSelector(selectIsCollectingCards);
+  const showCardsPhase = useAppSelector(selectShowCardsPhase);
+  const collectionWinner = useAppSelector(selectCollectionWinner);
+
   // Define players array FIRST before any useEffect that references it
   const players = [
     gameState.players[0], // bottom
@@ -165,9 +172,9 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = 
         <CenterTable
           currentTrick={gameState.currentTrick}
           winner={gameState.roundWinner !== null && gameState.players[gameState.roundWinner].name}
-          isCollectingCards={gameState.isCollectingCards}
-          showCardsPhase={gameState.showCardsPhase}
-          collectionWinner={gameState.collectionWinner}
+          isCollectingCards={isCollectingCards}
+          showCardsPhase={showCardsPhase}
+          collectionWinner={collectionWinner}
           roundWinner={gameState.roundWinner}
           playerNames={gameState.playerNames}
         />

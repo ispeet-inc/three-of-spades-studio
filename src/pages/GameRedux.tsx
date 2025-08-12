@@ -1,7 +1,13 @@
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
 import { RootState } from "@/store";
 import { GameStages } from "@/store/gameStages";
+import { 
+  selectIsCollectingCards, 
+  selectShowCardsPhase, 
+  selectCollectionWinner 
+} from "@/store/selectors";
+import { useAppSelector } from "@/hooks/useAppSelector";
 import { 
   startGame, 
   startBiddingRound, 
@@ -22,10 +28,11 @@ import { Card } from "@/types/game";
 import { Button } from "@/components/ui/button";
 import { getTeammateOptions } from "@/utils/gameUtils";
 import { useFeedback } from "@/utils/feedbackSystem";
+import { TIMINGS } from "@/utils/constants";
 
 const GameRedux = () => {
   const dispatch = useDispatch();
-  const gameState = useSelector((state: RootState) => state.game);
+  const gameState = useAppSelector((state: RootState) => state.game);
   const { trigger } = useFeedback();
 
   // Add dealing animation state
@@ -53,9 +60,6 @@ const GameRedux = () => {
       team2: gameState.scores[1] 
     },
     teammateCard: gameState.teammateCard,
-    isCollectingCards: gameState.isCollectingCards,
-    showCardsPhase: gameState.showCardsPhase,
-    collectionWinner: gameState.collectionWinner
   };
 
   const handleCardPlay = (card: Card) => {
@@ -151,24 +155,18 @@ const GameRedux = () => {
         } else {
           console.log(`Bot ${gameState.turn} cannot play - no hand or no agent`);
         }
-      }, 1000);
+      }, TIMINGS.botPlayDelayMs);
       return () => clearTimeout(timer);
     }
   }, [gameState.stage, gameState.turn, dispatch, gameState.players, gameState.tableCards, gameState.trumpSuite, gameState.runningSuite, gameState.playerAgents]);
 
-  // Handle round completion - trigger CARDS_DISPLAY stage when showCardsPhase becomes true
-  useEffect(() => {
-    if (gameState.showCardsPhase && gameState.stage !== GameStages.CARDS_DISPLAY) {
-      console.log("GameRedux: Round completed, starting CARDS_DISPLAY stage");
-      dispatch(setStage(GameStages.CARDS_DISPLAY));
-    }
-  }, [gameState.showCardsPhase, gameState.stage, dispatch]);
 
   // Handle bot bidding
   useEffect(() => {
     if (gameState.stage === GameStages.BIDDING && 
         gameState.biddingState.currentBidder !== 0 && 
-        gameState.biddingState.biddingActive) {
+        gameState.biddingState.passedPlayers.length < 3 &&
+        gameState.biddingState.bidWinner === null) {
       
       console.log(`Bot ${gameState.biddingState.currentBidder} timeout starting...`);
       
@@ -207,7 +205,7 @@ const GameRedux = () => {
           console.log(`Bot ${gameState.biddingState.currentBidder} missing agent or player`);
           dispatch(passBid({ playerIndex: gameState.biddingState.currentBidder }));
         }
-      }, 1500);
+      }, TIMINGS.botBidThinkMs);
       
       return () => {
         console.log(`Bot ${gameState.biddingState.currentBidder} timeout cancelled`);
@@ -257,7 +255,7 @@ const GameRedux = () => {
             handleTrumpSelection(randomTrump, randomTeammate);
           }
         }
-      }, 2000);
+      }, TIMINGS.botTrumpThinkMs);
       return () => clearTimeout(timer);
     }
   }, [gameState.stage, gameState.biddingState.bidWinner, gameState.playerAgents, gameState.players, gameState.playerNames]);
