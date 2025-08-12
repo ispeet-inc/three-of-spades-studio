@@ -22,6 +22,7 @@ import { Card } from "@/types/game";
 import { Button } from "@/components/ui/button";
 import { getTeammateOptions } from "@/utils/gameUtils";
 import { useFeedback } from "@/utils/feedbackSystem";
+import { TIMINGS } from "@/utils/constants";
 
 const GameRedux = () => {
   const dispatch = useDispatch();
@@ -151,18 +152,11 @@ const GameRedux = () => {
         } else {
           console.log(`Bot ${gameState.turn} cannot play - no hand or no agent`);
         }
-      }, 1000);
+      }, TIMINGS.botPlayDelayMs);
       return () => clearTimeout(timer);
     }
   }, [gameState.stage, gameState.turn, dispatch, gameState.players, gameState.tableCards, gameState.trumpSuite, gameState.runningSuite, gameState.playerAgents]);
 
-  // Handle round completion - trigger CARDS_DISPLAY stage when showCardsPhase becomes true
-  useEffect(() => {
-    if (gameState.showCardsPhase && gameState.stage !== GameStages.CARDS_DISPLAY) {
-      console.log("GameRedux: Round completed, starting CARDS_DISPLAY stage");
-      dispatch(setStage(GameStages.CARDS_DISPLAY));
-    }
-  }, [gameState.showCardsPhase, gameState.stage, dispatch]);
 
   // Handle bot bidding
   useEffect(() => {
@@ -207,7 +201,7 @@ const GameRedux = () => {
           console.log(`Bot ${gameState.biddingState.currentBidder} missing agent or player`);
           dispatch(passBid({ playerIndex: gameState.biddingState.currentBidder }));
         }
-      }, 1500);
+      }, TIMINGS.botBidThinkMs);
       
       return () => {
         console.log(`Bot ${gameState.biddingState.currentBidder} timeout cancelled`);
@@ -257,7 +251,7 @@ const GameRedux = () => {
             handleTrumpSelection(randomTrump, randomTeammate);
           }
         }
-      }, 2000);
+      }, TIMINGS.botTrumpThinkMs);
       return () => clearTimeout(timer);
     }
   }, [gameState.stage, gameState.biddingState.bidWinner, gameState.playerAgents, gameState.players, gameState.playerNames]);
