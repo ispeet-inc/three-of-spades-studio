@@ -20,7 +20,7 @@ import {
   startNewRound,
   playCard,
 } from "./gameSlice";
-import { GameStages } from "./gameStages";
+import { GameStages, type GameStage } from "./gameStages";
 import type { RootState } from "./index";
 import { TIMINGS } from "@/utils/constants";
 import { 
@@ -28,6 +28,7 @@ import {
   selectBiddingStateRaw, 
   selectStage 
 } from "./selectors";
+import type { BiddingState } from "@/types/game";
 
 function* handleStageTransition(action: any) {
   console.log(
@@ -52,7 +53,7 @@ function* watchTrickCompletion() {
   console.log("Saga: watchTrickCompletion started");
   yield takeEvery(playCard.type, function* handleTrickCompletion() {
     const isTrickComplete: boolean = yield select(selectIsTrickComplete);
-    const stage: string = yield select(selectStage);
+    const stage: GameStage = yield select(selectStage);
     
     if (isTrickComplete && stage === GameStages.PLAYING) {
       console.log("Saga: Trick completed with 4 cards, transitioning to CARDS_DISPLAY");
@@ -72,8 +73,8 @@ function* biddingTimerSaga() {
   try {
     while (true) {
       // Get current bidding state using selectors
-      const biddingState: any = yield select(selectBiddingStateRaw);
-      const stage: string = yield select(selectStage);
+      const biddingState: BiddingState = yield select(selectBiddingStateRaw);
+      const stage: GameStage = yield select(selectStage);
       console.log(
         "Saga: Timer check - stage:",
         stage,

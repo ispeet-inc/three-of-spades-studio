@@ -62,7 +62,7 @@ const gameSlice = createSlice({
   name: "game",
   initialState,
   reducers: {
-    setStage: (state, action: PayloadAction<string>) => {
+    setStage: (state, action: PayloadAction<import('./gameStages').GameStage>) => {
       console.log("GameSlice.setStage: CHANGING STATE: FROM", state.stage, "TO", action.payload);
       state.stage = action.payload;
     },

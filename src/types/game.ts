@@ -36,7 +36,7 @@ export interface BiddingState {
 }
 
 export interface GameState {
-  stage: string;
+  stage: import('../store/gameStages').GameStage;
   players: Record<number, Player>;
   round: number;
   runningSuite: number | null;
