@@ -55,7 +55,6 @@ export interface GameState {
   isRoundEnding: boolean;
   totalRounds: number;
   playerTeamMap: Record<number, number> | null;
-  teamColors: Record<number, string>;
   playerAgents: Record<number, any>;
   playerNames: Record<number, string>;
   teammateCard: Card | null;

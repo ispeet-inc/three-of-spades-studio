@@ -6,7 +6,7 @@ import { selectTeams } from "@/store/selectors";
 
 export const GameOverModal = () => {
   const teams = useAppSelector(selectTeams);
-  const { scores, teamColors, playerNames, bidAmount, bidder } = useAppSelector(state => state.game);
+  const { scores, playerNames, bidAmount, bidder } = useAppSelector(state => state.game);
 
   const teamScores = {
     0: scores[0], // bidding team

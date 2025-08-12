@@ -27,10 +27,6 @@ const initialState: GameState = {
   isRoundEnding: false,
   totalRounds: 0,
   playerTeamMap: null,
-  teamColors: {
-    0: "hsl(var(--amber))",
-    1: "hsl(var(--blue))",
-  },
   playerAgents: {},
   playerNames: { 0: "You", 1: "Nats", 2: "Prateek", 3: "Abhi" },
   teammateCard: null,
