@@ -135,7 +135,7 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = 
             >
               {gameState.teamScores.team1}
             </div>
-            <div className="text-sm text-muted-foreground">Team 1</div>
+            <div className="text-sm">Team 1</div>
           </div>
         </div>
         <div 

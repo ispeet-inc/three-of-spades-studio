@@ -67,6 +67,10 @@ export const getSuiteColor = (suite: Suite): string => {
   return SUITE_DATA[suite].color;
 };
 
-export const getSuiteIcon = (suite: Suite): string => {
+export const getSuiteSymbol = (suite: Suite): string => {
   return SUITE_DATA[suite].symbol;
+};
+
+export const getSuiteIcon = (suite: Suite): string => {
+  return SUITE_DATA[suite].icon;
 };

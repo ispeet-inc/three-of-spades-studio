@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { Card } from "@/types/game";
-import { getSuiteIcon, getSuiteColor } from "@/utils/suiteUtils";
+import { getSuiteSymbol, getSuiteColor } from "@/utils/suiteUtils";
 import { cn } from "@/lib/utils";
 import { useFeedback } from "@/utils/feedbackSystem";
 import { cardDescriptions } from "@/utils/accessibility";
@@ -36,7 +36,7 @@ export const PlayingCard = ({
   const { trigger } = useFeedback();
   
   const cardDescription = cardDescriptions.getFullDescription(card.number, card.suite);
-  const suitIcon = getSuiteIcon(card.suite);
+  const suitIcon = getSuiteSymbol(card.suite);
   const suitColor = getSuiteColor(card.suite);
   const displayNumber = card.id;
 
