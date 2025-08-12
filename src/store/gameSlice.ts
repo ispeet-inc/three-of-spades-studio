@@ -185,16 +185,18 @@ const gameSlice = createSlice({
 
     startBiddingRound: (state) => {
       state.biddingState = {
+        // Keep deprecated fields for now with default values
         biddingActive: true,
-        currentBid: 165,
-        currentBidder: 0,
-        passedPlayers: [],
         bidStatusByPlayer: {
           0: "Bidding",
           1: "Bidding",
           2: "Bidding", 
           3: "Bidding",
         },
+        // Core fields
+        currentBid: 165,
+        currentBidder: 0,
+        passedPlayers: [],
         bidWinner: null,
         bidHistory: [],
         bidTimer: 30,
@@ -204,7 +206,6 @@ const gameSlice = createSlice({
     placeBid: (state, action: PayloadAction<{ playerIndex: number; bidAmount: number }>) => {
       const { playerIndex, bidAmount } = action.payload;
       state.biddingState.currentBid = bidAmount;
-      state.biddingState.bidStatusByPlayer[playerIndex] = `Current Bid: ${bidAmount}`;
       state.biddingState.bidHistory.push({ player: playerIndex, bid: bidAmount });
 
       // Advance to next eligible bidder
@@ -219,7 +220,6 @@ const gameSlice = createSlice({
     passBid: (state, action: PayloadAction<{ playerIndex: number }>) => {
       const { playerIndex } = action.payload;
       state.biddingState.passedPlayers.push(playerIndex);
-      state.biddingState.bidStatusByPlayer[playerIndex] = "Passed";
 
       // If only one player left, set winner
       const activePlayers = [0, 1, 2, 3].filter(
@@ -228,7 +228,6 @@ const gameSlice = createSlice({
 
       if (activePlayers.length === 1) {
         state.biddingState.bidWinner = activePlayers[0];
-        state.biddingState.biddingActive = false;
         state.bidAmount = state.biddingState.currentBid;
         console.log(
           "CHANGING STATE: FROM ",

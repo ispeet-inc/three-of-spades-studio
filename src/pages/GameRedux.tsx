@@ -171,7 +171,8 @@ const GameRedux = () => {
   useEffect(() => {
     if (gameState.stage === GameStages.BIDDING && 
         gameState.biddingState.currentBidder !== 0 && 
-        gameState.biddingState.biddingActive) {
+        gameState.biddingState.passedPlayers.length < 3 &&
+        gameState.biddingState.bidWinner === null) {
       
       console.log(`Bot ${gameState.biddingState.currentBidder} timeout starting...`);
       

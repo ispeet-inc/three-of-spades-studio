@@ -27,10 +27,12 @@ export interface Player {
 }
 
 export interface BiddingState {
+  /** @deprecated Use selectBiddingActive selector instead */
   biddingActive: boolean;
   currentBid: number;
   currentBidder: number;
   passedPlayers: number[];
+  /** @deprecated Use selectBidStatusByPlayer selector instead */
   bidStatusByPlayer: Record<number, string>;
   bidWinner: number | null;
   bidHistory: Array<{ player: number; bid: number }>;

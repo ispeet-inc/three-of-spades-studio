@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { useAppSelector, useAppDispatch } from "@/hooks";
 import { placeBid, passBid } from "@/store/gameSlice";
+import { 
+  selectCurrentBid, 
+  selectCurrentBidder, 
+  selectPassedPlayers, 
+  selectBidTimer 
+} from "@/store/selectors";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,10 +31,13 @@ export function HandPreview({ hand }: { hand: Array<Card> }) {
 
 export const BiddingModal = () => {
   const dispatch = useAppDispatch();
-  const { biddingState, players, playerNames } = useAppSelector(state => state.game);
+  const { players, playerNames } = useAppSelector(state => state.game);
+  const currentBid = useAppSelector(selectCurrentBid);
+  const currentBidder = useAppSelector(selectCurrentBidder);
+  const passedPlayers = useAppSelector(selectPassedPlayers);
+  const bidTimer = useAppSelector(selectBidTimer);
   const [customBid, setCustomBid] = useState("");
 
-  const { currentBid, currentBidder, passedPlayers, bidTimer } = biddingState;
   const minIncrement = currentBid < 200 ? 5 : 10;
   const maxBid = 250;
   const canBid = !passedPlayers.includes(0) && currentBidder === 0;
