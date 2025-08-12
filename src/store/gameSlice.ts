@@ -38,6 +38,9 @@ const initialState: GameState = {
   playerAgents: {},
   playerNames: { 0: "You", 1: "Nats", 2: "Prateek", 3: "Abhi" },
   teammateCard: null,
+  isCollectingCards: false,
+  showCardsPhase: false,
+  collectionWinner: null,
   biddingState: {
     biddingActive: false,
     currentBid: 165,
@@ -112,6 +115,7 @@ const gameSlice = createSlice({
       }
 
       if (state.tableCards.length === NUM_PLAYERS) {
+        console.log("GAME: All 4 cards played, determining winner");
         const winner = determineRoundWinner(
           state.tableCards,
           state.runningSuite!,
@@ -126,25 +130,37 @@ const gameSlice = createSlice({
         state.players[winner.player].score += roundPoints;
         state.roundWinner = winner.player;
         state.isRoundEnding = true;
-        state.stage = GameStages.ROUND_COMPLETE;
+        state.showCardsPhase = true;
       } else {
         state.turn = (state.turn + 1) % NUM_PLAYERS;
       }
     },
 
     startNewRound: (state) => {
+      console.log("GAME: Starting new round, previous winner:", state.roundWinner);
       state.tableCards = [];
       state.round = state.round + 1;
       state.turn = state.roundWinner!;
       state.roundWinner = null;
       state.runningSuite = null;
       state.isRoundEnding = false;
+      state.showCardsPhase = false;
+      state.isCollectingCards = false;
+      state.collectionWinner = null;
+      console.log("GAME: Setting stage to PLAYING, current turn:", state.turn);
       state.stage = GameStages.PLAYING;
 
       // Check if game is over
       if (state.round >= state.totalRounds) {
         state.stage = GameStages.GAME_OVER;
       }
+    },
+
+    startCardCollection: (state) => {
+      state.showCardsPhase = false;
+      state.isCollectingCards = true;
+      state.collectionWinner = state.roundWinner;
+      state.stage = GameStages.ROUND_COMPLETE;
     },
 
     setBidAndTrump: (state, action: PayloadAction<{ trumpSuite: number; bidder: number; teammateCard: { suite: number; number: number } }>) => {
@@ -264,6 +280,7 @@ export const {
   placeBid,
   passBid,
   updateBidTimer,
+  startCardCollection,
 } = gameSlice.actions;
 
 export default gameSlice.reducer;

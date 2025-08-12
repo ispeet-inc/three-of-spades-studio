@@ -52,7 +52,10 @@ const GameRedux = () => {
       team1: gameState.scores[0], 
       team2: gameState.scores[1] 
     },
-    teammateCard: gameState.teammateCard
+    teammateCard: gameState.teammateCard,
+    isCollectingCards: gameState.isCollectingCards,
+    showCardsPhase: gameState.showCardsPhase,
+    collectionWinner: gameState.collectionWinner
   };
 
   const handleCardPlay = (card: Card) => {
@@ -153,6 +156,14 @@ const GameRedux = () => {
     }
   }, [gameState.stage, gameState.turn, dispatch, gameState.players, gameState.tableCards, gameState.trumpSuite, gameState.runningSuite, gameState.playerAgents]);
 
+  // Handle round completion - trigger CARDS_DISPLAY stage when showCardsPhase becomes true
+  useEffect(() => {
+    if (gameState.showCardsPhase && gameState.stage !== GameStages.CARDS_DISPLAY) {
+      console.log("GameRedux: Round completed, starting CARDS_DISPLAY stage");
+      dispatch(setStage(GameStages.CARDS_DISPLAY));
+    }
+  }, [gameState.showCardsPhase, gameState.stage, dispatch]);
+
   // Handle bot bidding
   useEffect(() => {
     if (gameState.stage === GameStages.BIDDING && 
@@ -213,13 +224,6 @@ const GameRedux = () => {
     gameState.players
   ]);
 
-  useEffect(() => {
-    setTimeout(() => {
-      if(gameState.stage === GameStages.ROUND_COMPLETE) {
-        handleContinueAfterRound()
-      }
-   }, 3000);
-  }, [gameState.stage]);
 
   // Handle bot trump selection
   useEffect(() => {

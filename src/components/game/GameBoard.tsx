@@ -27,7 +27,11 @@ interface GameBoardProps {
     currentBid: number;
     round: number;
     teamScores: { team1: number; team2: number };
-    teammateCard?: Card
+    teammateCard?: Card;
+    isCollectingCards?: boolean;
+    showCardsPhase?: boolean;
+    collectionWinner?: number | null;
+    playerNames?: Record<number, string>;
   };
   onCardPlay: (card: Card) => void;
   onSettingsClick: () => void;
@@ -161,6 +165,11 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = 
         <CenterTable
           currentTrick={gameState.currentTrick}
           winner={gameState.roundWinner !== null && gameState.players[gameState.roundWinner].name}
+          isCollectingCards={gameState.isCollectingCards}
+          showCardsPhase={gameState.showCardsPhase}
+          collectionWinner={gameState.collectionWinner}
+          roundWinner={gameState.roundWinner}
+          playerNames={gameState.playerNames}
         />
 
         {/* Player Areas */}
