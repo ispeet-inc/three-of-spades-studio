@@ -84,8 +84,26 @@ export const selectPlayerTeamMap = createSelector(
 /** Team id for a given player (or null) */
 export const makeSelectTeamForPlayer = (playerIndex: number) =>
   createSelector(selectPlayerTeamMap, (map): number | null => (map ? map[playerIndex] ?? null : null));
-/** Teams composition */
-export const selectTeams = createSelector(selectGame, (g): Record<number, number[]> => g.teams);
+
+// Derive teams from playerTeamMap
+export const selectTeams = createSelector(
+  selectPlayerTeamMap,
+  (playerTeamMap): Record<number, number[]> => {
+    if (!playerTeamMap) return { 0: [], 1: [] };
+    
+    const teams: Record<number, number[]> = { 0: [], 1: [] };
+    
+    // Group players by their team
+    Object.entries(playerTeamMap).forEach(([playerId, teamId]) => {
+      const player = parseInt(playerId);
+      const team = teamId;
+      if (!teams[team]) teams[team] = [];
+      teams[team].push(player);
+    });
+    
+    return teams;
+  }
+);
 
 // Bidding (core selectors)
 /** Raw bidding state */

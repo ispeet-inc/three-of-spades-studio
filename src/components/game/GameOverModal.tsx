@@ -2,9 +2,11 @@ import { useAppSelector } from "@/hooks";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Trophy, Crown, Star, Sparkles } from "lucide-react";
+import { selectTeams } from "@/store/selectors";
 
 export const GameOverModal = () => {
-  const { scores, teams, teamColors, playerNames, bidAmount, bidder } = useAppSelector(state => state.game);
+  const teams = useAppSelector(selectTeams);
+  const { scores, teamColors, playerNames, bidAmount, bidder } = useAppSelector(state => state.game);
 
   const teamScores = {
     0: scores[0], // bidding team
