@@ -132,8 +132,8 @@ export const selectBidStatusByPlayer = createSelector(
 );
 
 // Phase flags (derived from stage and game state)
-export const selectShowCardsPhase = createSelector(selectStage, (stage): boolean => stage === GameStages.CARDS_DISPLAY);
-export const selectIsCollectingCards = createSelector(selectStage, (stage): boolean => stage === GameStages.CARDS_DISPLAY);
+export const selectShowCardsPhase = createSelector(selectStage, (stage): boolean => stage === GameStages.ROUND_COMPLETE);
+export const selectIsCollectingCards = createSelector(selectStage, (stage): boolean => stage === GameStages.ROUND_COMPLETE);
 export const selectIsRoundEnding = createSelector(
   [selectIsTrickComplete, selectTrickWinnerIndex],
   (isTrickComplete, trickWinner): boolean => isTrickComplete && trickWinner !== null
