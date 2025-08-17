@@ -101,7 +101,7 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStartGame }) => {
     <div className="min-h-screen bg-gradient-felt flex items-center justify-center animate-in fade-in duration-500">
       <div className="text-center max-w-4xl mx-auto px-6">
         <div className="mb-6 flex items-baseline justify-center gap-3">
-          <span className="font-['Open_Sans'] text-white text-xl font-semibold tracking-wide">Welcome</span>
+          <span className="font-['Lora'] text-white text-2xl font-normal tracking-wide">Welcome</span>
           {isEditing ? (
             <div className="flex flex-col items-center">
               <input
@@ -115,7 +115,7 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStartGame }) => {
                 }}
                 onKeyDown={handleKeyDown}
                 onBlur={handleInputBlur}
-                className={`font-['Open_Sans'] bg-white/10 backdrop-blur-sm border-b-2 text-white text-xl px-3 py-2 rounded-t-md focus:outline-none transition-all duration-300 min-w-[180px] ${
+                className={`font-['Lora'] bg-white/10 backdrop-blur-sm border-b-2 text-white text-2xl px-3 py-2 rounded-t-md focus:outline-none transition-all duration-300 min-w-[180px] ${
                   validationMessage 
                     ? 'border-red-400 shadow-lg shadow-red-500/20' 
                     : 'border-yellow-400 focus:border-yellow-300 focus:shadow-lg focus:shadow-yellow-500/20'
@@ -131,7 +131,7 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStartGame }) => {
           ) : (
             <span
               onClick={handleNameClick}
-              className="font-['Open_Sans'] text-white text-xl font-semibold opacity-90 hover:opacity-100 cursor-pointer transition-all duration-300 hover:text-yellow-300 hover:scale-105 hover:drop-shadow-[0_0_10px_rgba(234,179,8,0.5)] border-b-2 border-transparent hover:border-yellow-300/50 pb-1"
+              className="font-['Lora'] text-white text-2xl font-normal opacity-90 hover:opacity-100 cursor-pointer transition-all duration-300 hover:text-yellow-300 hover:scale-105 hover:drop-shadow-[0_0_10px_rgba(234,179,8,0.5)] border-b-2 border-transparent hover:border-yellow-300/50 pb-1"
             >
               {playerName}
             </span>
