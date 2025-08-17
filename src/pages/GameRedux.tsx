@@ -16,7 +16,8 @@ import {
   setBidAndTrump, 
   playCard, 
   startNewRound,
-  setStage 
+  setStage,
+  setPlayerName
 } from "@/store/gameSlice";
 import { BiddingModal } from "@/components/game/BiddingModal";
 import { TrumpSelectionModal } from "@/components/game/TrumpSelectionModal";
@@ -72,6 +73,9 @@ const GameRedux = () => {
   };
 
   const handleStartGame = (playerName: string = 'You') => {
+    // Set the player name in the game state
+    dispatch(setPlayerName({ playerIndex: 0, name: playerName }));
+    
     setIsDealing(true);
     dispatch(startGame());
     dispatch(setStage(GameStages.BIDDING));

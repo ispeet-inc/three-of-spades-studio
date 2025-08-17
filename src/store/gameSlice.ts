@@ -247,6 +247,11 @@ const gameSlice = createSlice({
     updateBidTimer: (state, action: PayloadAction<number>) => {
       state.biddingState.bidTimer = action.payload;
     },
+
+    setPlayerName: (state, action: PayloadAction<{ playerIndex: number; name: string }>) => {
+      const { playerIndex, name } = action.payload;
+      state.playerNames[playerIndex] = name;
+    },
   },
 });
 
@@ -261,6 +266,7 @@ export const {
   passBid,
   updateBidTimer,
   startCardCollection,
+  setPlayerName,
 } = gameSlice.actions;
 
 export default gameSlice.reducer;

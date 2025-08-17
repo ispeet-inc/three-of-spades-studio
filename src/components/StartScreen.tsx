@@ -9,6 +9,7 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStartGame }) => {
   const [playerName, setPlayerName] = useState<string>('Stranger');
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState('');
+  const [validationMessage, setValidationMessage] = useState<string>('');
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Load saved name from localStorage on component mount
@@ -30,28 +31,45 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStartGame }) => {
   const handleNameClick = () => {
     setIsEditing(true);
     setEditValue(playerName);
+    setValidationMessage(''); // Clear any previous validation messages
   };
 
   const handleNameSave = () => {
     const trimmedValue = editValue.trim();
     if (trimmedValue) {
       // Validate: only letters and spaces, max 2 words
-      const isValidName = /^[A-Za-z\s]+$/.test(trimmedValue) && 
-                         trimmedValue.split(' ').filter(word => word.length > 0).length <= 2;
+      const hasInvalidChars = !/^[A-Za-z\s]+$/.test(trimmedValue);
+      const wordCount = trimmedValue.split(' ').filter(word => word.length > 0).length;
+      const isTooManyWords = wordCount > 2;
       
-      if (isValidName) {
-        // Capitalize first letter of each word
-        const formattedName = trimmedValue
-          .split(' ')
-          .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-          .join(' ');
-        
-        setPlayerName(formattedName);
-        localStorage.setItem('threeOfSpades_playerName', formattedName);
-      } else {
-        // Reset to previous valid name if validation fails
+      if (hasInvalidChars) {
+        setValidationMessage('Only letters and spaces allowed');
         setEditValue(playerName);
+        setIsEditing(false);
+        return;
       }
+      
+      if (isTooManyWords) {
+        setValidationMessage('Maximum 2 words allowed');
+        setEditValue(playerName);
+        setIsEditing(false);
+        return;
+      }
+      
+      // Clear any previous validation messages
+      setValidationMessage('');
+      
+      // Capitalize first letter of each word
+      const formattedName = trimmedValue
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(' ');
+      
+      setPlayerName(formattedName);
+      localStorage.setItem('threeOfSpades_playerName', formattedName);
+    } else {
+      // If empty, just close editing without changing the name
+      setEditValue(playerName);
     }
     setIsEditing(false);
   };
@@ -70,12 +88,17 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStartGame }) => {
   };
 
   const handleStartGame = () => {
+    // Ensure we have a valid name, fallback to "You" if needed
+    const validName = playerName && playerName.trim() && playerName !== 'Stranger' 
+      ? playerName.trim() 
+      : 'You';
+    
     // Pass the player name to the parent component
-    onStartGame(playerName);
+    onStartGame(validName);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-felt flex items-center justify-center">
+    <div className="min-h-screen bg-gradient-felt flex items-center justify-center animate-in fade-in duration-500">
       <div className="text-center">
         <div className="mb-4 flex items-center justify-center gap-2">
           <span className="text-white text-lg">Welcome</span>
@@ -85,24 +108,30 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStartGame }) => {
                 ref={inputRef}
                 type="text"
                 value={editValue}
-                onChange={(e) => setEditValue(e.target.value)}
+                onChange={(e) => {
+                  setEditValue(e.target.value);
+                  // Clear validation message as user types
+                  if (validationMessage) setValidationMessage('');
+                }}
                 onKeyDown={handleKeyDown}
                 onBlur={handleInputBlur}
-                className={`bg-transparent border-b-2 text-white text-lg px-2 py-1 focus:outline-none transition-colors ${
-                  editValue.trim() && !/^[A-Za-z\s]+$/.test(editValue) 
+                className={`bg-transparent border-b-2 text-white text-lg px-2 py-1 focus:outline-none transition-all duration-300 ${
+                  validationMessage 
                     ? 'border-red-400' 
-                    : editValue.trim() && editValue.split(' ').filter(word => word.length > 0).length > 2
-                    ? 'border-orange-400'
                     : 'border-gold focus:border-yellow-300'
                 }`}
                 placeholder="Enter your name"
               />
-              <span className="text-xs text-gray-300 mt-1">Letters and spaces only, max 2 words</span>
+              {validationMessage ? (
+                <span className="text-xs text-red-300 mt-1">{validationMessage}</span>
+              ) : (
+                <span className="text-xs text-gray-300 mt-1">Letters and spaces only, max 2 words</span>
+              )}
             </div>
           ) : (
             <span
               onClick={handleNameClick}
-              className="text-white text-lg opacity-60 hover:opacity-100 cursor-pointer transition-opacity duration-200 hover:text-gold"
+              className="text-white text-lg opacity-60 hover:opacity-100 cursor-pointer transition-all duration-300 hover:text-gold hover:scale-105"
             >
               {playerName}
             </span>
@@ -111,7 +140,7 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStartGame }) => {
         <h1 className="text-4xl font-bold text-gold mb-8">Three of Spades</h1>
         <Button 
           onClick={handleStartGame}
-          className="bg-gradient-gold text-casino-black font-bold text-lg px-8 py-4"
+          className="bg-gradient-gold text-casino-black font-bold text-lg px-8 py-4 hover:scale-105 transition-transform duration-200"
         >
           Start New Game
         </Button>
