@@ -101,7 +101,7 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStartGame }) => {
     <div className="min-h-screen bg-gradient-felt flex items-center justify-center animate-in fade-in duration-500">
       <div className="text-center">
         <div className="mb-4 flex items-center justify-center gap-2">
-          <span className="text-white text-lg">Welcome</span>
+          <span className="text-white text-2xl font-medium tracking-wide">Welcome</span>
           {isEditing ? (
             <div className="flex flex-col items-center">
               <input
@@ -115,34 +115,34 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStartGame }) => {
                 }}
                 onKeyDown={handleKeyDown}
                 onBlur={handleInputBlur}
-                className={`bg-transparent border-b-2 text-white text-lg px-2 py-1 focus:outline-none transition-all duration-300 ${
+                className={`bg-white/5 backdrop-blur-sm border-b-2 text-white text-xl px-3 py-2 rounded-t-md focus:outline-none transition-all duration-300 ${
                   validationMessage 
-                    ? 'border-red-400' 
-                    : 'border-gold focus:border-yellow-300'
+                    ? 'border-red-400 shadow-lg shadow-red-500/20' 
+                    : 'border-yellow-400 focus:border-yellow-300 focus:shadow-lg focus:shadow-yellow-500/20'
                 }`}
                 placeholder="Enter your name"
               />
               {validationMessage ? (
-                <span className="text-xs text-red-300 mt-1">{validationMessage}</span>
+                <span className="text-2xs text-red-300 mt-2 font-medium">{validationMessage}</span>
               ) : (
-                <span className="text-xs text-gray-300 mt-1">Letters and spaces only, max 2 words</span>
+                <span className="text-2xs text-gray-400 mt-2 font-light">Max 2 words</span>
               )}
             </div>
           ) : (
             <span
               onClick={handleNameClick}
-              className="text-white text-lg opacity-60 hover:opacity-100 cursor-pointer transition-all duration-300 hover:text-gold hover:scale-105"
+              className="text-white text-2xl opacity-70 hover:opacity-100 cursor-pointer transition-all duration-300 hover:text-yellow-300 hover:scale-105 hover:drop-shadow-[0_0_10px_rgba(234,179,8,0.5)]"
             >
               {playerName}
             </span>
           )}
         </div>
-        <h1 className="text-4xl font-bold text-gold mb-8">Three of Spades</h1>
+        <h1 className="text-6xl font-bold text-gold mb-8 tracking-wide drop-shadow-[0_0_15px_rgba(234,179,8,0.2)]">Three of Spades</h1>
         <Button 
           onClick={handleStartGame}
           className="bg-gradient-gold text-casino-black font-bold text-lg px-8 py-4 hover:scale-105 transition-transform duration-200"
         >
-          Start New Game
+          Start
         </Button>
       </div>
     </div>
