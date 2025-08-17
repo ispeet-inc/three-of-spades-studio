@@ -9,7 +9,6 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStartGame }) => {
   const [playerName, setPlayerName] = useState<string>('Stranger');
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState('');
-  const [validationMessage, setValidationMessage] = useState<string>('');
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Load saved name from localStorage on component mount
@@ -31,7 +30,6 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStartGame }) => {
   const handleNameClick = () => {
     setIsEditing(true);
     setEditValue(playerName);
-    setValidationMessage(''); // Clear any previous validation messages
   };
 
   const handleNameSave = () => {
@@ -42,22 +40,12 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStartGame }) => {
       const wordCount = trimmedValue.split(' ').filter(word => word.length > 0).length;
       const isTooManyWords = wordCount > 2;
       
-      if (hasInvalidChars) {
-        setValidationMessage('Only letters and spaces allowed');
+      if (hasInvalidChars || isTooManyWords) {
+        // If validation fails, just close editing without changing the name
         setEditValue(playerName);
         setIsEditing(false);
         return;
       }
-      
-      if (isTooManyWords) {
-        setValidationMessage('Maximum 2 words allowed');
-        setEditValue(playerName);
-        setIsEditing(false);
-        return;
-      }
-      
-      // Clear any previous validation messages
-      setValidationMessage('');
       
       // Capitalize first letter of each word
       const formattedName = trimmedValue
@@ -103,42 +91,33 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStartGame }) => {
         <div className="mb-6 flex items-baseline justify-center gap-3">
           <span className="font-['Lora'] text-white text-2xl font-normal tracking-wide">Welcome</span>
           {isEditing ? (
-            <div className="flex flex-col items-center">
-              <input
-                ref={inputRef}
-                type="text"
-                value={editValue}
-                onChange={(e) => {
-                  setEditValue(e.target.value);
-                  // Clear validation message as user types
-                  if (validationMessage) setValidationMessage('');
-                }}
-                onKeyDown={handleKeyDown}
-                onBlur={handleInputBlur}
-                className={`font-['Lora'] bg-white/10 backdrop-blur-sm border-b-2 text-white text-2xl px-3 py-2 rounded-t-md focus:outline-none transition-all duration-300 min-w-[180px] ${
-                  validationMessage 
-                    ? 'border-red-400 shadow-lg shadow-red-500/20' 
-                    : 'border-yellow-400 focus:border-yellow-300 focus:shadow-lg focus:shadow-yellow-500/20'
-                }`}
-                placeholder="Enter your name"
-              />
-              {validationMessage ? (
-                <span className="font-['Open_Sans'] text-xs text-red-300 mt-2 font-medium">{validationMessage}</span>
-              ) : (
-                <span className="font-['Open_Sans'] text-xs text-gray-300 mt-2 font-light">Max 2 words</span>
-              )}
-            </div>
+            <input
+              ref={inputRef}
+              type="text"
+              value={editValue}
+              onChange={(e) => setEditValue(e.target.value)}
+              onKeyDown={handleKeyDown}
+              onBlur={handleInputBlur}
+              className="font-['Lora'] text-white text-2xl font-normal opacity-90 transition-all duration-300 bg-transparent border-none outline-none px-0 py-0 border-b-2 border-yellow-400 cursor-text"
+              placeholder="Enter your name"
+              style={{ width: `${Math.max(120, editValue.length * 16)}px` }}
+            />
           ) : (
             <span
               onClick={handleNameClick}
-              className="font-['Lora'] text-white text-2xl font-normal opacity-90 hover:opacity-100 cursor-pointer transition-all duration-300 hover:text-yellow-300 hover:scale-105 hover:drop-shadow-[0_0_10px_rgba(234,179,8,0.5)] border-b-2 border-transparent hover:border-yellow-300/50 pb-1"
+              className={`font-['Lora'] text-white text-2xl font-normal cursor-pointer transition-all duration-300 hover:opacity-100 hover:text-yellow-300 hover:drop-shadow-[0_0_10px_rgba(234,179,8,0.5)] ${
+                playerName === 'Stranger' ? 'opacity-50' : 'opacity-90'
+              }`}
             >
               {playerName}
+              {playerName === 'Stranger' && (
+                <span className="inline-block w-1 h-6 bg-yellow-400 ml-1 animate-pulse"></span>
+              )}
             </span>
           )}
         </div>
         
-        <h1 className="font-['Merriweather'] text-5xl md:text-6xl font-black text-gold mb-8 tracking-wide leading-tight drop-shadow-[0_0_20px_rgba(234,179,8,0.3)]">
+        <h1 className="font-['Merriweather'] text-5xl md:text-6xl font-black text-gold mb-8 tracking-wide leading-tight drop-shadow-[0_0_20px_rgba(234,179,8,0.5)]">
           Three of Spades
         </h1>
         
