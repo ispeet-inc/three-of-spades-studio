@@ -6,7 +6,7 @@ interface StartScreenProps {
 }
 
 const StartScreen: React.FC<StartScreenProps> = ({ onStartGame }) => {
-  const [playerName, setPlayerName] = useState<string>('Stranger');
+  const [playerName, setPlayerName] = useState<string>('');
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -16,6 +16,17 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStartGame }) => {
     const savedName = localStorage.getItem('threeOfSpades_playerName');
     if (savedName && savedName.trim()) {
       setPlayerName(savedName.trim());
+    } else {
+      // Typewriter effect for "Stranger"
+      let index = 0;
+      const typeInterval = setInterval(() => {
+        if (index < 'Stranger'.length) {
+          setPlayerName('Stranger'.substring(0, index + 1));
+          index++;
+        } else {
+          clearInterval(typeInterval);
+        }
+      }, 200); // 200ms delay between each letter
     }
   }, []);
 
@@ -106,12 +117,12 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStartGame }) => {
             <span
               onClick={handleNameClick}
               className={`font-['Lora'] text-white text-2xl font-normal cursor-pointer transition-all duration-300 hover:opacity-100 hover:text-yellow-300 hover:drop-shadow-[0_0_10px_rgba(234,179,8,0.5)] ${
-                playerName === 'Stranger' ? 'opacity-50' : 'opacity-90'
+                playerName === 'Stranger' || editValue.length === 0 ? 'opacity-50' : 'opacity-90'
               }`}
             >
               {playerName}
               {playerName === 'Stranger' && (
-                <span className="inline-block w-1 h-6 bg-yellow-400 ml-1 animate-pulse"></span>
+                <span className="inline-block w-2 h-6 bg-yellow-400 ml-1 animate-pulse" style={{ verticalAlign: 'text-bottom' }}></span>
               )}
             </span>
           )}
