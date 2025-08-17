@@ -26,15 +26,7 @@ const initialState: GameState = {
   roundWinner: null,
   isRoundEnding: false,
   totalRounds: 0,
-  teams: {
-    0: [],
-    1: [],
-  },
   playerTeamMap: null,
-  teamColors: {
-    0: "hsl(var(--amber))",
-    1: "hsl(var(--blue))",
-  },
   playerAgents: {},
   playerNames: { 0: "You", 1: "Nats", 2: "Prateek", 3: "Abhi" },
   teammateCard: null,
@@ -48,7 +40,7 @@ const initialState: GameState = {
     passedPlayers: [],
     bidStatusByPlayer: {
       0: "Bidding",
-      1: "Bidding", 
+      1: "Bidding",
       2: "Bidding",
       3: "Bidding",
     },
@@ -163,16 +155,13 @@ const gameSlice = createSlice({
       console.log(`Setting trump ${trumpSuite} and teammate: ${state.teammateCard}`)
       console.log(state.teammateCard);
       // Assign teams based on teammate card
-      const { teams, playerTeamMap } = assignTeamsByTeammateCard(
+      const playerTeamMap = assignTeamsByTeammateCard(
         state.players,
         bidder,
         teammateCard,
         NUM_PLAYERS
       );
-      state.teams = teams;
       state.playerTeamMap = playerTeamMap;
-      console.log(state.teams);
-      console.log(state.playerTeamMap);
       // todo - make this happen through setStage too.
       console.log(
         "CHANGING STATE: FROM ",

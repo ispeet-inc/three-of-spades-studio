@@ -1,4 +1,4 @@
-Great idea. Here’s a clear, incremental, phase-by-phase plan to simplify Redux state, centralize transitions in sagas, remove redundancies, and make everything more intuitive—ready to be dumped into plan.md.
+Great idea. Here's a clear, incremental, phase-by-phase plan to simplify Redux state, centralize transitions in sagas, remove redundancies, and make everything more intuitive—ready to be dumped into plan.md.
 
 # Redux and Saga Refactor Plan (Phase-by-Phase)
 
@@ -10,7 +10,7 @@ High-level strategy:
 - Shift "flow" orchestration into sagas (single source of truth for transitions/timers)
 - Collapse redundant flags into derived selectors
 - Remove non-serializable entities from Redux (e.g., bot agents)
-- Rename fields to clearer domain names with temporary adapters to keep components working
+- Keep current field names (they are already clear and descriptive)
 - Update components gradually to rely on selectors instead of raw state
 
 -------------------------------------------------------------------------------
@@ -113,28 +113,7 @@ Phase 3 — Make Bidding State Minimal and Clear
 
 -------------------------------------------------------------------------------
 
-Phase 4 — Clarify Domain Naming (with adapters)
-
-- Objectives:
-  - Improve naming without breaking consumers immediately
-- Rename (internal first, with selector adapters):
-  - runningSuite → leadingSuit
-  - tableCards → trick
-  - round → trickNumber (keep totalRounds if it truly means total tricks)
-  - trumpSuite → trumpSuit
-  - bidder → bidLeader (or highestBidder)
-- Changes:
-  - Keep old selector names that map to new fields for backward compatibility
-  - Add TODO notes to remove adapters once components are migrated
-- Files to update:
-  - src/types/game.ts
-  - src/store/selectors.ts (old → new compatibility layer)
-- Acceptance:
-  - No UI changes; selectors continue to satisfy current components
-
--------------------------------------------------------------------------------
-
-Phase 5 — Teams Simplification
+Phase 4 — Teams Simplification
 
 - Objectives:
   - Make one source of truth for teams
@@ -154,7 +133,7 @@ Phase 5 — Teams Simplification
 
 -------------------------------------------------------------------------------
 
-Phase 6 — Remove Non-Serializable Data from Redux
+Phase 5 — Remove Non-Serializable Data from Redux
 
 - Objectives:
   - Ensure Redux only holds serializable state
@@ -177,7 +156,7 @@ Phase 6 — Remove Non-Serializable Data from Redux
 
 -------------------------------------------------------------------------------
 
-Phase 7 — Component Migration to Selectors
+Phase 6 — Component Migration to Selectors
 
 - Objectives:
   - Make components selector-driven and props-light
@@ -185,7 +164,7 @@ Phase 7 — Component Migration to Selectors
   - GameRedux.tsx: use selectors for everything; minimize inline transforms
   - BiddingModal, TrumpSelectionModal, BidResultModal, RoundSummaryModal, CenterTable, PlayerArea:
     - Replace direct state field access with selectors
-    - Remove local duplication of derivations (e.g., who’s turn, leading suit)
+    - Remove local duplication of derivations (e.g., who's turn, leading suit)
 - Files to update:
   - src/pages/GameRedux.tsx
   - src/components/game/*.tsx (as needed)
@@ -194,14 +173,14 @@ Phase 7 — Component Migration to Selectors
 
 -------------------------------------------------------------------------------
 
-Phase 8 — Clean Up Deprecated Fields and Adapters
+Phase 7 — Clean Up Deprecated Fields
 
 - Objectives:
   - Remove technical debt after safe migration
 - Changes:
   - Delete deprecated fields from GameState and reducers
-  - Remove adapter selectors and old names
-  - Update types to final names (no aliases)
+  - Remove redundant selectors and old names
+  - Clean up types to remove deprecated fields
 - Files to update:
   - src/types/game.ts
   - src/store/selectors.ts
@@ -211,7 +190,7 @@ Phase 8 — Clean Up Deprecated Fields and Adapters
 
 -------------------------------------------------------------------------------
 
-Phase 9 — Documentation and Dev UX
+Phase 8 — Documentation and Dev UX
 
 - Objectives:
   - Make maintenance easy and onboarding fast
@@ -225,8 +204,6 @@ Phase 9 — Documentation and Dev UX
   - Contributors can understand state at a glance
 
 -------------------------------------------------------------------------------
-
-
 
 Mermaid: Target Stage Flow After Refactor
 
@@ -245,11 +222,7 @@ flowchart LR
   K -->|tick| L["update timer in state"]
   K -->|"timeout or 3 passes"| M["resolve leader"]
   M --> N["setStage(TRUMP_SELECTION)"]
-
-
 ```
-
-
 
 -------------------------------------------------------------------------------
 
@@ -258,19 +231,19 @@ Files to Create (summary)
 - src/store/selectors.ts
 - src/agents/registry.ts
 
-Key Principles We’ll Enforce
+Key Principles We'll Enforce
 
 - Only sagas change stages (reducers do not transition stages arbitrarily)
 - Redux contains only serializable data
 - Components consume selectors, not raw nested state
 - Derived booleans are not stored—selectors compute them
-- Clear, domain-appropriate names with temporary adapters during migration
+- Keep current field names (they are already clear and descriptive)
 
 Rollback Plan
 
 - Each phase is self-contained and reversible via git revert
-- Adapter selectors guarantee UI stability during transitions
-- We’ll commit per-phase with messages explaining changes
+- Selectors guarantee UI stability during transitions
+- We'll commit per-phase with messages explaining changes
 
 Success Criteria
 
@@ -281,3 +254,4 @@ Success Criteria
 - No regressions in gameplay, bidding, or animations
 
 Implement the plan
+

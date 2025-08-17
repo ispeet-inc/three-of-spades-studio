@@ -54,9 +54,7 @@ export interface GameState {
   /** @deprecated Use selectIsRoundEnding selector instead */
   isRoundEnding: boolean;
   totalRounds: number;
-  teams: Record<number, number[]>;
   playerTeamMap: Record<number, number> | null;
-  teamColors: Record<number, string>;
   playerAgents: Record<number, any>;
   playerNames: Record<number, string>;
   teammateCard: Card | null;
