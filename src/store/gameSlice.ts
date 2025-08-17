@@ -59,9 +59,14 @@ const gameSlice = createSlice({
       state.stage = action.payload;
     },
 
-    startGame: (state) => {
+    startGame: (state, action: PayloadAction<{ playerName?: string } | undefined>) => {
       const deck = shuffle(generateDeck());
       const distributedHands = distributeDeck(deck, NUM_PLAYERS);
+      
+      // Set player name if provided
+      if (action.payload?.playerName) {
+        state.playerNames[0] = action.payload.playerName;
+      }
 
       // Initialize each player's hand
       for (let i = 0; i < NUM_PLAYERS; i++) {
