@@ -2,8 +2,9 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { GameState, Card, Player, TableCard } from "@/types/game";
 import { GameStages, type GameStage } from "./gameStages";
 import { generateDeck, shuffle, distributeDeck, createCard } from "@/utils/cardUtils";
-import { determineRoundWinner, assignTeamsByTeammateCard } from "@/utils/gameUtils";
+import { determineRoundWinner, assignTeamsByTeammateCard, selectRandomNames } from "@/utils/gameUtils";
 import { agentClasses } from "@/agents";
+import { PLAYER_NAME_POOL } from "@/utils/constants";
 
 const NUM_PLAYERS = 4;
 
@@ -28,7 +29,7 @@ const initialState: GameState = {
   totalRounds: 0,
   playerTeamMap: null,
   playerAgents: {},
-  playerNames: { 0: "You", 1: "Nats", 2: "Prateek", 3: "Abhi" },
+  playerNames: { 0: "You", 1: "", 2: "", 3: "" },
   teammateCard: null,
   isCollectingCards: false,
   showCardsPhase: false,
@@ -71,11 +72,13 @@ const gameSlice = createSlice({
 
       // Randomly assign bot agents to computer players (1, 2, 3)
       state.playerAgents = {};
+      const sampledNames = selectRandomNames(PLAYER_NAME_POOL, state.playerNames);
+
       for (let i = 1; i < NUM_PLAYERS; i++) {
         const AgentClass = agentClasses[Math.floor(Math.random() * agentClasses.length)];
         state.playerAgents[i] = new (AgentClass as any)();
         // Use the class name for the bot's display name
-        state.playerNames[i] = (AgentClass as any).displayName + " " + state.playerNames[i];
+        state.playerNames[i] = sampledNames.pop();
       }
 
       // Set total rounds based on cards per player
