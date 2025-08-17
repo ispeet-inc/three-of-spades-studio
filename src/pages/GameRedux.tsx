@@ -29,6 +29,7 @@ import { Button } from "@/components/ui/button";
 import { getTeammateOptions } from "@/utils/gameUtils";
 import { useFeedback } from "@/utils/feedbackSystem";
 import { TIMINGS } from "@/utils/constants";
+import StartScreen from "@/components/StartScreen";
 
 const GameRedux = () => {
   const dispatch = useDispatch();
@@ -261,19 +262,7 @@ const GameRedux = () => {
   }, [gameState.stage, gameState.biddingState.bidWinner, gameState.playerAgents, gameState.players, gameState.playerNames]);
 
   if (gameState.stage === GameStages.INIT) {
-    return (
-      <div className="min-h-screen bg-gradient-felt flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold text-gold mb-8">Three of Spades</h1>
-          <Button 
-            onClick={handleStartGame}
-            className="bg-gradient-gold text-casino-black font-bold text-lg px-8 py-4"
-          >
-            Start New Game
-          </Button>
-        </div>
-      </div>
-    );
+    return <StartScreen onStartGame={handleStartGame} />;
   }
 
   return (
