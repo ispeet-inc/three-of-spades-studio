@@ -71,7 +71,7 @@ const GameRedux = () => {
     }
   };
 
-  const handleStartGame = () => {
+  const handleStartGame = (playerName: string = 'You') => {
     setIsDealing(true);
     dispatch(startGame());
     dispatch(setStage(GameStages.BIDDING));
@@ -262,7 +262,7 @@ const GameRedux = () => {
   }, [gameState.stage, gameState.biddingState.bidWinner, gameState.playerAgents, gameState.players, gameState.playerNames]);
 
   if (gameState.stage === GameStages.INIT) {
-    return <StartScreen onStartGame={handleStartGame} />;
+    return <StartScreen onStartGame={(playerName: string) => handleStartGame(playerName)} />;
   }
 
   return (
