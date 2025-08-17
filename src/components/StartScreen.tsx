@@ -99,9 +99,9 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStartGame }) => {
 
   return (
     <div className="min-h-screen bg-gradient-felt flex items-center justify-center animate-in fade-in duration-500">
-      <div className="text-center">
-        <div className="mb-4 flex items-center justify-center gap-2">
-          <span className="text-white text-2xl font-medium tracking-wide">Welcome</span>
+      <div className="text-center max-w-4xl mx-auto px-6">
+        <div className="mb-6 flex items-baseline justify-center gap-3">
+          <span className="font-['Open_Sans'] text-white text-xl font-semibold tracking-wide">Welcome</span>
           {isEditing ? (
             <div className="flex flex-col items-center">
               <input
@@ -115,7 +115,7 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStartGame }) => {
                 }}
                 onKeyDown={handleKeyDown}
                 onBlur={handleInputBlur}
-                className={`bg-white/5 backdrop-blur-sm border-b-2 text-white text-xl px-3 py-2 rounded-t-md focus:outline-none transition-all duration-300 ${
+                className={`font-['Open_Sans'] bg-white/10 backdrop-blur-sm border-b-2 text-white text-xl px-3 py-2 rounded-t-md focus:outline-none transition-all duration-300 min-w-[180px] ${
                   validationMessage 
                     ? 'border-red-400 shadow-lg shadow-red-500/20' 
                     : 'border-yellow-400 focus:border-yellow-300 focus:shadow-lg focus:shadow-yellow-500/20'
@@ -123,24 +123,28 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStartGame }) => {
                 placeholder="Enter your name"
               />
               {validationMessage ? (
-                <span className="text-2xs text-red-300 mt-2 font-medium">{validationMessage}</span>
+                <span className="font-['Open_Sans'] text-xs text-red-300 mt-2 font-medium">{validationMessage}</span>
               ) : (
-                <span className="text-2xs text-gray-400 mt-2 font-light">Max 2 words</span>
+                <span className="font-['Open_Sans'] text-xs text-gray-300 mt-2 font-light">Max 2 words</span>
               )}
             </div>
           ) : (
             <span
               onClick={handleNameClick}
-              className="text-white text-2xl opacity-70 hover:opacity-100 cursor-pointer transition-all duration-300 hover:text-yellow-300 hover:scale-105 hover:drop-shadow-[0_0_10px_rgba(234,179,8,0.5)]"
+              className="font-['Open_Sans'] text-white text-xl font-semibold opacity-90 hover:opacity-100 cursor-pointer transition-all duration-300 hover:text-yellow-300 hover:scale-105 hover:drop-shadow-[0_0_10px_rgba(234,179,8,0.5)] border-b-2 border-transparent hover:border-yellow-300/50 pb-1"
             >
               {playerName}
             </span>
           )}
         </div>
-        <h1 className="text-6xl font-bold text-gold mb-8 tracking-wide drop-shadow-[0_0_15px_rgba(234,179,8,0.2)]">Three of Spades</h1>
+        
+        <h1 className="font-['Merriweather'] text-5xl md:text-6xl font-black text-gold mb-8 tracking-wide leading-tight drop-shadow-[0_0_20px_rgba(234,179,8,0.3)]">
+          Three of Spades
+        </h1>
+        
         <Button 
           onClick={handleStartGame}
-          className="bg-gradient-gold text-casino-black font-bold text-lg px-8 py-4 hover:scale-105 transition-transform duration-200"
+          className="font-['Open_Sans'] bg-gradient-gold text-casino-black font-bold text-lg px-10 py-5 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl rounded-lg"
         >
           Start
         </Button>
