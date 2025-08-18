@@ -16,6 +16,7 @@ const initialState: GameState = {
     2: { hand: [], score: 0 },
     3: { hand: [], score: 0 },
   },
+  startingPlayer: 0,
   round: 0,
   runningSuite: null,
   trumpSuite: null,
@@ -83,13 +84,16 @@ const gameSlice = createSlice({
 
       // Set total rounds based on cards per player
       state.totalRounds = distributedHands[0].length;
+      // Randomly select starting player
+      state.startingPlayer = Math.floor(Math.random() * NUM_PLAYERS);
       state.trumpSuite = null;
       state.bidAmount = null;
       state.bidder = null;
       state.round = 0;
       state.tableCards = [];
       state.scores = [0, 0];
-      state.turn = 0;
+      state.turn = state.startingPlayer;
+      state.biddingState.currentBidder = state.startingPlayer;
       state.roundWinner = null;
     },
 
@@ -187,7 +191,7 @@ const gameSlice = createSlice({
         },
         // Core fields
         currentBid: 165,
-        currentBidder: 0,
+        currentBidder: state.startingPlayer,
         passedPlayers: [],
         bidWinner: null,
         bidHistory: [],
