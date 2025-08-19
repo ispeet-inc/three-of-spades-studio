@@ -1,5 +1,5 @@
 import { Card, Suite } from "@/types/game";
-import { suites, numbers} from "@/utils/constants"
+import { DECK_SUITES, DECK_NUMBERS} from "@/utils/constants"
 import { getSuiteName } from "./suiteUtils";
 
 // Utility functions for card operations
@@ -58,8 +58,8 @@ export const createCard = (suite: Suite, number: number): Card => {
 export const generateDeck = (): Card[] => {
   const deck: Card[] = [];
 
-  suites.forEach((suite) => {
-    numbers.forEach((number) => {
+  DECK_SUITES.forEach((suite) => {
+    DECK_NUMBERS.forEach((number) => {
       deck.push(createCard(suite, number));
     });
   });
