@@ -116,7 +116,7 @@ export default class GreedyBot extends BotAgent {
     
     return {
       trumpSuite: bestSuite.suite,
-      teammateCard: { suite: strongestTeammate.suite, number: strongestTeammate.number }
+      teammateCard: strongestTeammate
     };
   }
 

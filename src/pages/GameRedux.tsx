@@ -31,6 +31,7 @@ import { getTeammateOptions } from "@/utils/gameUtils";
 import { useFeedback } from "@/utils/feedbackSystem";
 import { TIMINGS } from "@/utils/constants";
 import StartScreen from "@/components/StartScreen";
+import { createCard } from "@/utils/cardUtils";
 
 const GameRedux = () => {
   const dispatch = useDispatch();
@@ -97,7 +98,7 @@ const GameRedux = () => {
     dispatch(passBid({ playerIndex: 0 }));
   };
 
-  const handleTrumpSelection = (trumpSuite: number, teammateCard: { suite: number; number: number }) => {
+  const handleTrumpSelection = (trumpSuite: number, teammateCard: Card) => {
     trigger('trump', { intensity: 'strong' });
     dispatch(setBidAndTrump({ 
       trumpSuite, 
@@ -256,7 +257,7 @@ const GameRedux = () => {
             console.error(`Bot ${gameState.biddingState.bidWinner} trump selection error:`, error);
             // Fallback: random trump and teammate
             const randomTrump = Math.floor(Math.random() * 4);
-            const randomTeammate = { suite: randomTrump, number: 1 }; // Ace
+            const randomTeammate = createCard(randomTrump, 1);
             handleTrumpSelection(randomTrump, randomTeammate);
           }
         }

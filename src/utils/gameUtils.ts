@@ -1,4 +1,4 @@
-import { Card, Suite, TableCard, Player, TeammateCard } from "@/types/game";
+import { Card, Suite, TableCard, Player } from "@/types/game";
 import { createCard } from "./cardUtils";
 
 export const determineRoundWinner = (
@@ -30,7 +30,7 @@ export const getMaxRankedCard = (cards: TableCard[]): TableCard => {
 export const assignTeamsByTeammateCard = (
   players: Record<number, Player>,
   bidder: number,
-  teammateCard: TeammateCard,
+  teammateCard: Card,
   numPlayers: number
 ) => {
   const playerTeamMap = {} as Record<number, number>;

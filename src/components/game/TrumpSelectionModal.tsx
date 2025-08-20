@@ -4,20 +4,20 @@ import { setBidAndTrump } from "@/store/gameSlice";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { getTeammateOptions } from "@/utils/gameUtils";
 import { PlayingCard } from "./PlayingCard";
-import { TeammateCard } from "@/types/game";
+import { Card, Suite } from "@/types/game";
 import { HandPreview } from "./BiddingModal";
 import { SUITES } from "@/utils/suiteUtils";
 
 export const TrumpSelectionModal = () => {
   const dispatch = useAppDispatch();
   const { players } = useAppSelector(state => state.game);
-  const [trumpSuite, setTrumpSuite] = useState<string>("");
-  const [teammateCard, setTeammateCard] = useState<TeammateCard | null>(null);
+  const [trumpSuite, setTrumpSuite] = useState<Suite | null>(null);
+  const [teammateCard, setTeammateCard] = useState<Card | null>(null);
   const [teammateSuiteTab, setTeammateSuiteTab] = useState<number>(0);
   const [error, setError] = useState<string>("");
 
   const validate = () => {
-    if (trumpSuite === "" || trumpSuite === null) {
+    if (trumpSuite === null) {
       setError("Please select a trump suite.");
       return false;
     }
@@ -32,8 +32,10 @@ export const TrumpSelectionModal = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (validate()) {
+      console.log("TrumpSelectionModal - trump chosen:  ", trumpSuite);
+      console.log("TrumpSelectionModal - teammate chosen: ", teammateCard);
       dispatch(setBidAndTrump({
-        trumpSuite: Number(trumpSuite),
+        trumpSuite: trumpSuite,
         bidder: 0,
         teammateCard
       }));
@@ -68,12 +70,12 @@ export const TrumpSelectionModal = () => {
                       bg-felt-green text-foreground
                       rounded-lg px-4 py-3 text-lg font-semibold flex items-center gap-2
                       cursor-pointer transition-all duration-200 shadow-sm
-                      ${trumpSuite === String(s.value) 
+                      ${trumpSuite === s.value
                         ? 'border-2 border-gold text-gold shadow-glow' 
                         : 'hover:border-foreground/30'
                       }
                     `}
-                    onClick={() => setTrumpSuite(String(s.value))}
+                    onClick={() => setTrumpSuite(s.value)}
                   >
                     <span className="text-xl">{s.icon}</span>
                     <span className="text-sm">{s.label}</span>
@@ -126,10 +128,7 @@ export const TrumpSelectionModal = () => {
                         cursor-pointer transition-all duration-200 flex items-center justify-center
                         w-20 h-30 hover:border-foreground/30`}
                       onClick={() =>
-                        setTeammateCard({
-                          suite: card.suite,
-                          number: card.number,
-                        })
+                        setTeammateCard(card)
                       }
                     >
                       <PlayingCard card={card} className={`hover:border-foreground/30 ${isSelected 
@@ -149,7 +148,7 @@ export const TrumpSelectionModal = () => {
 
             <button
               type="submit"
-              disabled={trumpSuite === "" || !teammateCard || !!error}
+              disabled={trumpSuite === null || !teammateCard || !!error}
               className="
                 w-full py-3 rounded-lg bg-gold text-primary-foreground font-bold text-lg
                 transition-all duration-200 mt-4

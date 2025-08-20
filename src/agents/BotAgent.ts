@@ -8,7 +8,7 @@ export interface BidAction {
 
 export interface TrumpTeammateChoice {
   trumpSuite: Suite;
-  teammateCard: { suite: Suite; number: number };
+  teammateCard: Card;
 }
 
 export interface BotChoiceParams {
