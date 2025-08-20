@@ -21,3 +21,5 @@ export const TIMINGS = {
   dealingStaggerMs: 150,         // dealing stagger between cards
 } as const;
 
+
+export const PLAYER_NAME_POOL = ["Akash", "Natasha", "Prateek", "Abhi", "Vladmir Putin", "Dumbledore"]

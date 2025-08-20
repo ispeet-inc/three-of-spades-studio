@@ -42,6 +42,7 @@ export interface BiddingState {
 export interface GameState {
   stage: GameStage;
   players: Record<number, Player>;
+  startingPlayer: number;
   round: number;
   runningSuite: number | null;
   trumpSuite: number | null;

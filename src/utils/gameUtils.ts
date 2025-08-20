@@ -101,3 +101,18 @@ export const getRandomCardIndexBySuite = (hand: Card[], suite: number): number =
 export const getRandomSuite = (): number => {
   return Math.floor(Math.random() * 4);
 };
+
+// Function to randomly select 3 names from the pool that are not already in state.playerNames
+export const selectRandomNames = (pool: string[], playerNames: Record<number, string>): string[] => {
+  // Collect all names currently in use (including player 0)
+  const usedNames = new Set(Object.values(playerNames).map(name => name.trim()).filter(Boolean));
+  // Filter pool to exclude used names
+  const availableNames = pool.filter(name => !usedNames.has(name));
+  // Shuffle available names
+  for (let i = availableNames.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [availableNames[i], availableNames[j]] = [availableNames[j], availableNames[i]];
+  }
+  // Return up to 3 names
+  return availableNames.slice(0, 3);
+}
