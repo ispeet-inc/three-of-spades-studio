@@ -80,7 +80,8 @@ const gameSlice = createSlice({
         const AgentClass = agentClasses[Math.floor(Math.random() * agentClasses.length)];
         state.playerAgents[i] = new (AgentClass as any)();
         // Use the class name for the bot's display name
-        state.playerNames[i] = (AgentClass as any).displayName + " " + state.playerNames[i];
+        const originalName = state.playerNames[i];
+        state.playerNames[i] = (AgentClass as any).displayName + " " + originalName;
       }
 
       // Set total rounds based on cards per player
