@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from './ui/button';
+import HowToPlayModal from './HowToPlayModal';
 
 interface StartScreenProps {
   onStartGame: (playerName: string) => void;
@@ -9,6 +10,7 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStartGame }) => {
   const [playerName, setPlayerName] = useState<string>('');
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState('');
+  const [showHowToPlay, setShowHowToPlay] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Load saved name from localStorage on component mount
@@ -132,13 +134,26 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStartGame }) => {
           Three of Spades
         </h1>
         
-        <Button 
-          onClick={handleStartGame}
-          className="font-['Open_Sans'] bg-gradient-gold text-casino-black font-bold text-lg px-10 py-5 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl rounded-lg"
-        >
-          Start
-        </Button>
+        <div className="flex justify-center gap-4">
+          <Button 
+            onClick={handleStartGame}
+            className="font-['Open_Sans'] bg-gradient-gold text-casino-black font-bold text-lg px-10 py-5 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl rounded-lg"
+          >
+            Start
+          </Button>
+          <Button 
+            onClick={() => setShowHowToPlay(true)}
+            className="font-['Open_Sans'] bg-gradient-gold text-casino-black font-bold text-lg px-10 py-5 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl rounded-lg"
+          >
+            How to Play
+          </Button>
+        </div>
       </div>
+      
+      <HowToPlayModal 
+        isOpen={showHowToPlay} 
+        onClose={() => setShowHowToPlay(false)} 
+      />
     </div>
   );
 };
