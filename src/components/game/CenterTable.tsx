@@ -1,7 +1,7 @@
-import { PlayingCard } from "./PlayingCard";
 import { TableCard } from "@/types/game";
-import { useEffect, useState } from "react";
 import { TIMINGS } from "@/utils/constants";
+import { useEffect, useState } from "react";
+import { PlayingCard } from "./PlayingCard";
 
 interface CenterTableProps {
   currentTrick: TableCard[];

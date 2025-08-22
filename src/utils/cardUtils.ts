@@ -1,5 +1,5 @@
 import { Card, Suite } from "@/types/game";
-import { DECK_SUITES, DECK_NUMBERS } from "@/utils/constants";
+import { DECK_NUMBERS, DECK_SUITES } from "@/utils/constants";
 import { getSuiteName } from "./suiteUtils";
 
 // Utility functions for card operations

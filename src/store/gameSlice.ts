@@ -1,20 +1,15 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { GameState, Card, Player, TableCard } from "@/types/game";
-import { GameStages, type GameStage } from "./gameStages";
-import {
-  generateDeck,
-  shuffle,
-  distributeDeck,
-  createCard,
-} from "@/utils/cardUtils";
-import {
-  determineRoundWinner,
-  assignTeamsByTeammateCard,
-  selectRandomNames,
-} from "@/utils/gameUtils";
 import { agentClasses } from "@/agents";
+import { Card, GameState } from "@/types/game";
+import { distributeDeck, generateDeck, shuffle } from "@/utils/cardUtils";
 import { PLAYER_NAME_POOL } from "@/utils/constants";
 import { initialBiddingState } from "@/utils/gameSetupUtils";
+import {
+  assignTeamsByTeammateCard,
+  determineRoundWinner,
+  selectRandomNames,
+} from "@/utils/gameUtils";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { GameStages, type GameStage } from "./gameStages";
 
 const NUM_PLAYERS = 4;
 

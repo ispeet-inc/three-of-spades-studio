@@ -1,12 +1,12 @@
-import { useState } from "react";
-import { useAppSelector, useAppDispatch } from "@/hooks";
-import { setBidAndTrump } from "@/store/gameSlice";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { getTeammateOptions } from "@/utils/gameUtils";
-import { PlayingCard } from "./PlayingCard";
+import { useAppDispatch, useAppSelector } from "@/hooks";
+import { setBidAndTrump } from "@/store/gameSlice";
 import { Card, Suite } from "@/types/game";
-import { HandPreview } from "./BiddingModal";
+import { getTeammateOptions } from "@/utils/gameUtils";
 import { SUITES } from "@/utils/suiteUtils";
+import { useState } from "react";
+import { HandPreview } from "./BiddingModal";
+import { PlayingCard } from "./PlayingCard";
 
 export const TrumpSelectionModal = () => {
   const dispatch = useAppDispatch();

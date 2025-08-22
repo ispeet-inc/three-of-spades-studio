@@ -1,14 +1,14 @@
-import { useAppSelector } from "@/hooks";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Trophy, Crown, Sparkles } from "lucide-react";
-import { selectTeams } from "@/store/selectors";
+import { useAppSelector } from "@/hooks";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { selectTeams } from "@/store/selectors";
+import { Crown, Sparkles, Trophy } from "lucide-react";
 
 export const GameOverModal = () => {
   const teams = useAppSelector(selectTeams);

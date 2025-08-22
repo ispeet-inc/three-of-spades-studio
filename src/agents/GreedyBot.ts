@@ -1,11 +1,5 @@
-import { getHash } from "@/utils/cardUtils";
-import BotAgent, {
-  BidAction,
-  TrumpTeammateChoice,
-  BidParams,
-  TrumpTeammateParams,
-} from "./BotAgent";
 import { Card, Suite, TableCard } from "@/types/game";
+import { getHash } from "@/utils/cardUtils";
 import { DECK_SUITES } from "@/utils/constants";
 import { determineRoundWinner } from "@/utils/gameUtils";
 import {
@@ -16,6 +10,12 @@ import {
   getTeammateInSuite,
   teammateOptionScore,
 } from "@/utils/handUtils";
+import BotAgent, {
+  BidAction,
+  BidParams,
+  TrumpTeammateChoice,
+  TrumpTeammateParams,
+} from "./BotAgent";
 
 export default class GreedyBot extends BotAgent {
   static displayName = "Greedy";

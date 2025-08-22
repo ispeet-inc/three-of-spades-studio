@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
-import { PlayingCard } from "./PlayingCard";
 import { Card, Suite } from "@/types/game";
+import { PlayingCard } from "./PlayingCard";
 
 interface PlayerAreaProps {
   player: {

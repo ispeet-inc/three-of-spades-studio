@@ -1,34 +1,33 @@
-import {
-  all,
-  takeEvery,
-  put,
-  delay,
-  select,
-  take,
-  race,
-  call,
-  cancelled,
-} from "redux-saga/effects";
-import {
-  setStage,
-  updateBidTimer,
-  passBid,
-  startBiddingRound,
-  placeBid,
-  passBid as passBidAction,
-  startCardCollection,
-  startNewRound,
-  playCard,
-} from "./gameSlice";
-import { GameStages, type GameStage } from "./gameStages";
-import type { RootState } from "./index";
+import type { BiddingState } from "@/types/game";
 import { TIMINGS } from "@/utils/constants";
 import {
-  selectIsTrickComplete,
+  all,
+  call,
+  cancelled,
+  delay,
+  put,
+  race,
+  select,
+  take,
+  takeEvery,
+} from "redux-saga/effects";
+import {
+  passBid,
+  passBid as passBidAction,
+  placeBid,
+  playCard,
+  setStage,
+  startBiddingRound,
+  startCardCollection,
+  startNewRound,
+  updateBidTimer,
+} from "./gameSlice";
+import { GameStages, type GameStage } from "./gameStages";
+import {
   selectBiddingStateRaw,
+  selectIsTrickComplete,
   selectStage,
 } from "./selectors";
-import type { BiddingState } from "@/types/game";
 
 function* handleStageTransition(action: any) {
   console.log(

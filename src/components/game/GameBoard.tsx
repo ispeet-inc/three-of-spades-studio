@@ -1,21 +1,21 @@
-import { useState, useEffect } from "react";
-import { Settings } from "lucide-react";
-import { Card, Suite, TableCard } from "@/types/game";
-import { PlayerArea } from "./PlayerArea";
-import { GameInfo } from "./GameInfo";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import {
-  announceToScreenReader,
-  gameStateAnnouncements,
-} from "@/utils/accessibility";
-import { CenterTable } from "./CenterTable";
 import { useAppSelector } from "@/hooks/useAppSelector";
+import { cn } from "@/lib/utils";
 import {
   selectCollectionWinner,
   selectIsCollectingCards,
   selectShowCardsPhase,
 } from "@/store/selectors";
+import { Card, Suite, TableCard } from "@/types/game";
+import {
+  announceToScreenReader,
+  gameStateAnnouncements,
+} from "@/utils/accessibility";
+import { Settings } from "lucide-react";
+import { useEffect, useState } from "react";
+import { CenterTable } from "./CenterTable";
+import { GameInfo } from "./GameInfo";
+import { PlayerArea } from "./PlayerArea";
 
 interface GameBoardProps {
   gameState: {

@@ -1,37 +1,31 @@
-import { useDispatch } from "react-redux";
-import { useEffect, useState } from "react";
-import { RootState } from "@/store";
-import { GameStages } from "@/store/gameStages";
-import {
-  selectIsCollectingCards,
-  selectShowCardsPhase,
-  selectCollectionWinner,
-} from "@/store/selectors";
-import { useAppSelector } from "@/hooks/useAppSelector";
-import {
-  startGame,
-  startBiddingRound,
-  placeBid,
-  passBid,
-  setBidAndTrump,
-  playCard,
-  startNewRound,
-  setStage,
-  setPlayerName,
-} from "@/store/gameSlice";
 import { BiddingModal } from "@/components/game/BiddingModal";
-import { TrumpSelectionModal } from "@/components/game/TrumpSelectionModal";
-import { RoundSummaryModal } from "@/components/game/RoundSummaryModal";
-import { GameOverModal } from "@/components/game/GameOverModal";
 import { BidResultModal } from "@/components/game/BidResultModal";
 import { GameBoard } from "@/components/game/GameBoard";
-import { Card } from "@/types/game";
-import { Button } from "@/components/ui/button";
-import { getTeammateOptions } from "@/utils/gameUtils";
-import { useFeedback } from "@/utils/feedbackSystem";
-import { TIMINGS } from "@/utils/constants";
+import { GameOverModal } from "@/components/game/GameOverModal";
+import { RoundSummaryModal } from "@/components/game/RoundSummaryModal";
+import { TrumpSelectionModal } from "@/components/game/TrumpSelectionModal";
 import StartScreen from "@/components/StartScreen";
+import { useAppSelector } from "@/hooks/useAppSelector";
+import { RootState } from "@/store";
+import {
+  passBid,
+  placeBid,
+  playCard,
+  setBidAndTrump,
+  setPlayerName,
+  setStage,
+  startBiddingRound,
+  startGame,
+  startNewRound,
+} from "@/store/gameSlice";
+import { GameStages } from "@/store/gameStages";
+import { Card } from "@/types/game";
 import { createCard } from "@/utils/cardUtils";
+import { TIMINGS } from "@/utils/constants";
+import { useFeedback } from "@/utils/feedbackSystem";
+import { getTeammateOptions } from "@/utils/gameUtils";
+import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 
 const GameRedux = () => {
   const dispatch = useDispatch();

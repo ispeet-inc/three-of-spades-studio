@@ -1,8 +1,8 @@
-import { Button } from "@/components/ui/button";
 import { PlayingCard } from "@/components/game/PlayingCard";
-import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 import { Suite } from "@/types/game";
 import { createCard } from "@/utils/cardUtils";
+import { useNavigate } from "react-router-dom";
 
 const Index = () => {
   const navigate = useNavigate();

@@ -2,17 +2,17 @@
   Centralized, memoized selectors for the game state.
   Phase 0: Additive-only, no behavior changes. These selectors are not yet used.
 */
-import { createSelector } from "@reduxjs/toolkit";
 import type { RootState } from "@/store";
+import type { GameStage } from "@/store/gameStages";
 import { GameStages } from "@/store/gameStages";
 import type {
-  GameState,
-  Card,
-  TableCard,
-  Player,
   BiddingState,
+  Card,
+  GameState,
+  Player,
+  TableCard,
 } from "@/types/game";
-import type { GameStage } from "@/store/gameStages";
+import { createSelector } from "@reduxjs/toolkit";
 
 // Root selectors
 /** Returns the game slice */

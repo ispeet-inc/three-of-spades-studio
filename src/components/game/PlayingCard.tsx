@@ -1,9 +1,9 @@
-import { useRef } from "react";
-import { Card } from "@/types/game";
-import { getSuiteSymbol, getSuiteColor } from "@/utils/suiteUtils";
 import { cn } from "@/lib/utils";
-import { useFeedback } from "@/utils/feedbackSystem";
+import { Card } from "@/types/game";
 import { cardDescriptions } from "@/utils/accessibility";
+import { useFeedback } from "@/utils/feedbackSystem";
+import { getSuiteColor, getSuiteSymbol } from "@/utils/suiteUtils";
+import { useRef } from "react";
 
 export type { Card };
 

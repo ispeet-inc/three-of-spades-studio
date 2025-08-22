@@ -1,7 +1,7 @@
-import RandomBot from "./RandomBot";
-import GreedyBot from "./GreedyBot";
 import BotAgent from "./BotAgent";
+import GreedyBot from "./GreedyBot";
+import RandomBot from "./RandomBot";
 
 export const agentClasses: (typeof BotAgent)[] = [GreedyBot];
 
-export { BotAgent, RandomBot, GreedyBot };
+export { BotAgent, GreedyBot, RandomBot };

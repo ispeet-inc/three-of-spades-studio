@@ -1,4 +1,4 @@
-import { Card, Suite, TableCard, Player } from "@/types/game";
+import { Card, Player, Suite, TableCard } from "@/types/game";
 import { createCard } from "./cardUtils";
 import { BIDDING_TEAM, DEFENDING_TEAM } from "./constants";
 
