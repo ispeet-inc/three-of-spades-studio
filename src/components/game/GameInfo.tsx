@@ -1,8 +1,8 @@
-import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-import { Card, PlayingCard } from "./PlayingCard";
+import { cn } from "@/lib/utils";
 import { Suite } from "@/types/game";
 import { getSuiteColor, getSuiteIcon } from "@/utils/suiteUtils";
+import { Card, PlayingCard } from "./PlayingCard";
 
 interface GameState {
   players: Array<{
@@ -29,16 +29,23 @@ interface GameInfoProps {
 export const GameInfo = ({ gameState }: GameInfoProps) => {
   return (
     <div className="bg-secondary/90 backdrop-blur border border-border/50 rounded-lg p-4 shadow-elevated">
-      <h2 className="text-lg font-bold text-foreground mb-3">Three of Spades</h2>
-      
+      <h2 className="text-lg font-bold text-foreground mb-3">
+        Three of Spades
+      </h2>
+
       <div className="space-y-2 text-sm">
         {/* Trump Suit */}
-        {gameState.trumpSuit !==null && (
+        {gameState.trumpSuit !== null && (
           <div className="flex items-center gap-2">
             <span className="text-muted-foreground">Trump:</span>
             <div className="flex items-center gap-1">
               <Badge variant="outline" className="bg-white text-s">
-                <span className={cn("text-lg", `text-casino-${getSuiteColor(gameState.trumpSuit)}`)}>
+                <span
+                  className={cn(
+                    "text-lg",
+                    `text-casino-${getSuiteColor(gameState.trumpSuit)}`
+                  )}
+                >
                   {getSuiteIcon(gameState.trumpSuit)}
                 </span>
               </Badge>

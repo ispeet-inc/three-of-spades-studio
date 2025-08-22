@@ -12,4 +12,4 @@ export const GameStages = {
   GAME_OVER: "GAME_OVER",
 } as const;
 
-export type GameStage = typeof GameStages[keyof typeof GameStages];
+export type GameStage = (typeof GameStages)[keyof typeof GameStages];

@@ -1,4 +1,5 @@
 ## PR Title Guidelines
+
 PR title **must follow Conventional Commits** (used for versioning):
 
 - `feat: add new user login` → minor release

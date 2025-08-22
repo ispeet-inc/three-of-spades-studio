@@ -1,9 +1,9 @@
-import { useRef } from "react";
-import { Card } from "@/types/game";
-import { getSuiteSymbol, getSuiteColor } from "@/utils/suiteUtils";
 import { cn } from "@/lib/utils";
-import { useFeedback } from "@/utils/feedbackSystem";
+import { Card } from "@/types/game";
 import { cardDescriptions } from "@/utils/accessibility";
+import { useFeedback } from "@/utils/feedbackSystem";
+import { getSuiteColor, getSuiteSymbol } from "@/utils/suiteUtils";
+import { useRef } from "react";
 
 export type { Card };
 
@@ -12,61 +12,64 @@ interface PlayingCardProps {
   isPlayable?: boolean;
   isSelected?: boolean;
   mini?: boolean;
-  size?: 'sm' | 'md' | 'lg';
+  size?: "sm" | "md" | "lg";
   onClick?: () => void;
   className?: string;
   dealAnimation?: boolean;
   dealDelay?: number;
-  playerPosition?: 'bottom' | 'left' | 'top' | 'right';
+  playerPosition?: "bottom" | "left" | "top" | "right";
 }
 
-export const PlayingCard = ({ 
-  card, 
-  isPlayable = false, 
-  isSelected = false, 
-  mini = false, 
-  size = 'md',
-  onClick, 
+export const PlayingCard = ({
+  card,
+  isPlayable = false,
+  isSelected = false,
+  mini = false,
+  size = "md",
+  onClick,
   className,
   dealAnimation = false,
   dealDelay = 0,
-  playerPosition = 'bottom'
+  playerPosition = "bottom",
 }: PlayingCardProps) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const { trigger } = useFeedback();
-  
-  const cardDescription = cardDescriptions.getFullDescription(card.number, card.suite);
+
+  const cardDescription = cardDescriptions.getFullDescription(
+    card.number,
+    card.suite
+  );
   const suitIcon = getSuiteSymbol(card.suite);
   const suitColor = getSuiteColor(card.suite);
   const displayNumber = card.id;
 
   // Animation classes based on dealing position
   const getDealAnimation = () => {
-    if (!dealAnimation) return '';
-    
+    if (!dealAnimation) return "";
+
     const baseDelay = `animate-delay-[${dealDelay}ms]`;
-    
+
     switch (playerPosition) {
-      case 'bottom':
+      case "bottom":
         return `animate-[deal-to-bottom_0.8s_ease-out_forwards] ${baseDelay}`;
-      case 'left':
+      case "left":
         return `animate-[deal-to-left_0.8s_ease-out_forwards] ${baseDelay}`;
-      case 'top':
+      case "top":
         return `animate-[deal-to-top_0.8s_ease-out_forwards] ${baseDelay}`;
-      case 'right':
+      case "right":
         return `animate-[deal-to-right_0.8s_ease-out_forwards] ${baseDelay}`;
       default:
-        return '';
+        return "";
     }
   };
 
   const getCardSize = () => {
     if (mini) return "w-8 h-12";
-    
+
     switch (size) {
-      case 'sm':
+      case "sm":
         return "w-12 h-18";
-      case 'lg':
+      case "lg":
         return "w-20 h-30";
       default: // 'md'
         return "w-16 h-24";
@@ -74,30 +77,31 @@ export const PlayingCard = ({
   };
 
   const getTextSize = () => {
-    if (mini) return {
-      number: "text-[10px]",
-      suit: "text-[8px]",
-      center: "text-sm"
-    };
-    
+    if (mini)
+      return {
+        number: "text-[10px]",
+        suit: "text-[8px]",
+        center: "text-sm",
+      };
+
     switch (size) {
-      case 'sm':
+      case "sm":
         return {
           number: "text-xs",
-          suit: "text-[10px]", 
-          center: "text-lg"
+          suit: "text-[10px]",
+          center: "text-lg",
         };
-      case 'lg':
+      case "lg":
         return {
           number: "text-base",
           suit: "text-sm",
-          center: "text-3xl"
+          center: "text-3xl",
         };
       default: // 'md'
         return {
           number: "text-sm",
           suit: "text-xs",
-          center: "text-2xl"
+          center: "text-2xl",
         };
     }
   };
@@ -108,12 +112,15 @@ export const PlayingCard = ({
     try {
       if (onClick) {
         // Trigger feedback first
-        trigger('cardPlay', { element: cardRef.current || undefined, intensity: 'medium' });
+        trigger("cardPlay", {
+          element: cardRef.current || undefined,
+          intensity: "medium",
+        });
         // Then execute the original click handler
         onClick();
       }
     } catch (error) {
-      console.error('Card click error:', error);
+      console.error("Card click error:", error);
       // Fallback: still execute the original click
       if (onClick) {
         onClick();
@@ -124,11 +131,14 @@ export const PlayingCard = ({
   const handleMouseEnter = () => {
     try {
       if (isPlayable) {
-        trigger('cardDeal', { element: cardRef.current || undefined, intensity: 'light' });
+        trigger("cardDeal", {
+          element: cardRef.current || undefined,
+          intensity: "light",
+        });
       }
     } catch (error) {
       // Silently fail for hover feedback
-      console.warn('Card hover feedback error:', error);
+      console.warn("Card hover feedback error:", error);
     }
   };
 
@@ -139,8 +149,10 @@ export const PlayingCard = ({
         "relative bg-white rounded-lg border-2 border-casino-black/20 shadow-card transition-all duration-300",
         getCardSize(),
         "cursor-pointer select-none overflow-hidden",
-        isPlayable && "hover:scale-110 hover:shadow-card-hover hover:-translate-y-2 hover:border-gold/50 hover:animate-card-hover-lift",
-        isSelected && "scale-105 shadow-card-selected border-gold -translate-y-1",
+        isPlayable &&
+          "hover:scale-110 hover:shadow-card-hover hover:-translate-y-2 hover:border-gold/50 hover:animate-card-hover-lift",
+        isSelected &&
+          "scale-105 shadow-card-selected border-gold -translate-y-1",
         !isPlayable && !onClick && "cursor-default",
         dealAnimation && getDealAnimation(),
         "transform-gpu", // Enable hardware acceleration
@@ -152,45 +164,55 @@ export const PlayingCard = ({
       tabIndex={isPlayable ? 0 : -1}
       aria-label={isPlayable ? `Play ${cardDescription}` : cardDescription}
       aria-pressed={isSelected}
-      onKeyDown={(e) => {
-        if (isPlayable && (e.key === 'Enter' || e.key === ' ')) {
+      onKeyDown={e => {
+        if (isPlayable && (e.key === "Enter" || e.key === " ")) {
           e.preventDefault();
           handleClick();
         }
       }}
       style={{
-        animationDelay: dealAnimation ? `${dealDelay}ms` : undefined
+        animationDelay: dealAnimation ? `${dealDelay}ms` : undefined,
       }}
     >
       {/* Card face */}
       <div className="absolute inset-1 bg-white rounded-md flex flex-col justify-between p-1">
         {/* Top left number and suit */}
-        <div className={cn(
-          "flex flex-col items-start leading-none",
-          suitColor === 'red' ? "text-red-600" : "text-casino-black"
-        )}>
-          <span className={cn("font-bold", textSizes.number)}>{displayNumber}</span>
+        <div
+          className={cn(
+            "flex flex-col items-start leading-none",
+            suitColor === "red" ? "text-red-600" : "text-casino-black"
+          )}
+        >
+          <span className={cn("font-bold", textSizes.number)}>
+            {displayNumber}
+          </span>
           <span className={textSizes.suit}>{suitIcon}</span>
         </div>
 
         {/* Center suit icon */}
         {!mini && (
           <div className="flex-1 flex items-center justify-center">
-            <span className={cn(
-              textSizes.center,
-              suitColor === 'red' ? "text-red-600" : "text-casino-black"
-            )}>
+            <span
+              className={cn(
+                textSizes.center,
+                suitColor === "red" ? "text-red-600" : "text-casino-black"
+              )}
+            >
               {suitIcon}
             </span>
           </div>
         )}
 
         {/* Bottom right number and suit (rotated) */}
-        <div className={cn(
-          "flex flex-col items-end leading-none rotate-180 self-end",
-          suitColor === 'red' ? "text-red-600" : "text-casino-black"
-        )}>
-          <span className={cn("font-bold", textSizes.number)}>{displayNumber}</span>
+        <div
+          className={cn(
+            "flex flex-col items-end leading-none rotate-180 self-end",
+            suitColor === "red" ? "text-red-600" : "text-casino-black"
+          )}
+        >
+          <span className={cn("font-bold", textSizes.number)}>
+            {displayNumber}
+          </span>
           <span className={textSizes.suit}>{suitIcon}</span>
         </div>
       </div>

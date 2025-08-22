@@ -1,41 +1,40 @@
+import type { BiddingState } from "@/types/game";
+import { TIMINGS } from "@/utils/constants";
 import {
   all,
-  takeEvery,
-  put,
-  delay,
-  select,
-  take,
-  race,
   call,
   cancelled,
+  delay,
+  put,
+  race,
+  select,
+  take,
+  takeEvery,
 } from "redux-saga/effects";
 import {
-  setStage,
-  updateBidTimer,
   passBid,
-  startBiddingRound,
-  placeBid,
   passBid as passBidAction,
+  placeBid,
+  playCard,
+  setStage,
+  startBiddingRound,
   startCardCollection,
   startNewRound,
-  playCard,
+  updateBidTimer,
 } from "./gameSlice";
 import { GameStages, type GameStage } from "./gameStages";
-import type { RootState } from "./index";
-import { TIMINGS } from "@/utils/constants";
-import { 
-  selectIsTrickComplete, 
-  selectBiddingStateRaw, 
-  selectStage 
+import {
+  selectBiddingStateRaw,
+  selectIsTrickComplete,
+  selectStage,
 } from "./selectors";
-import type { BiddingState } from "@/types/game";
 
 function* handleStageTransition(action: any) {
   console.log(
     "Saga: handleStageTransition called with payload:",
     action.payload
   );
-  
+
   if (action.payload === GameStages.CARDS_DISPLAY) {
     console.log("Saga: Starting trick display phase");
     yield delay(TIMINGS.trickDisplayMs);
@@ -54,9 +53,11 @@ function* watchTrickCompletion() {
   yield takeEvery(playCard.type, function* handleTrickCompletion() {
     const isTrickComplete: boolean = yield select(selectIsTrickComplete);
     const stage: GameStage = yield select(selectStage);
-    
+
     if (isTrickComplete && stage === GameStages.PLAYING) {
-      console.log("Saga: Trick completed with 4 cards, transitioning to CARDS_DISPLAY");
+      console.log(
+        "Saga: Trick completed with 4 cards, transitioning to CARDS_DISPLAY"
+      );
       yield put(setStage(GameStages.CARDS_DISPLAY));
     }
   });

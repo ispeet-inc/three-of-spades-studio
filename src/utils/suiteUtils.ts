@@ -8,7 +8,7 @@ export const SUITE_DATA = {
     label: "Clubs",
     icon: "♣️",
     value: Suite.Club,
-    color: "black"
+    color: "black",
   },
   [Suite.Diamond]: {
     symbol: "♦",
@@ -16,7 +16,7 @@ export const SUITE_DATA = {
     label: "Diamonds",
     icon: "♦️",
     value: Suite.Diamond,
-    color: "red"
+    color: "red",
   },
   [Suite.Heart]: {
     symbol: "♥",
@@ -24,7 +24,7 @@ export const SUITE_DATA = {
     label: "Hearts",
     icon: "♥️",
     value: Suite.Heart,
-    color: "red"
+    color: "red",
   },
   [Suite.Spade]: {
     symbol: "♠",
@@ -32,10 +32,9 @@ export const SUITE_DATA = {
     label: "Spades",
     icon: "♠️",
     value: Suite.Spade,
-    color: "black"
+    color: "black",
   },
 };
-
 
 export const SUITES = Object.values(SUITE_DATA);
 
@@ -44,10 +43,12 @@ export const suitSymbols = Object.fromEntries(
   Object.entries(SUITE_DATA).map(([key, data]) => [key, data.symbol])
 );
 
-
 // Optimized exports for backward compatibility and performance
 export const suitColors = Object.fromEntries(
-  Object.entries(SUITE_DATA).map(([key, data]) => [key, "text-casino-"+data.color])
+  Object.entries(SUITE_DATA).map(([key, data]) => [
+    key,
+    "text-casino-" + data.color,
+  ])
 );
 
 export const suiteMetadata = Object.values(SUITE_DATA)

@@ -13,7 +13,7 @@ High-level strategy:
 - Keep current field names (they are already clear and descriptive)
 - Update components gradually to rely on selectors instead of raw state
 
--------------------------------------------------------------------------------
+---
 
 Phase 0 — Foundations and Safety Nets
 
@@ -36,7 +36,7 @@ Phase 0 — Foundations and Safety Nets
 - Acceptance:
   - No UI/behavior changes; all screens work exactly as before
 
--------------------------------------------------------------------------------
+---
 
 Phase 1 — Centralize Stage Transitions in Saga
 
@@ -45,9 +45,9 @@ Phase 1 — Centralize Stage Transitions in Saga
 - Changes:
   - In gameSaga.ts:
     - Add watcher for playCard to detect trick completion; then:
-      1) compute winner (or read from reducer after it sets roundWinner)
-      2) setStage(CARDS_DISPLAY) and start animation timing
-      3) after animation delay + buffer, dispatch startNewRound
+      1. compute winner (or read from reducer after it sets roundWinner)
+      2. setStage(CARDS_DISPLAY) and start animation timing
+      3. after animation delay + buffer, dispatch startNewRound
     - Ensure setStage is the only way to change stage
   - In gameSlice.ts:
     - Remove direct stage mutations from reducers (except via setStage)
@@ -58,7 +58,7 @@ Phase 1 — Centralize Stage Transitions in Saga
   - Card collection animation runs reliably; next round starts only after saga delay
   - No regressions in bidding/trump selection flow
 
--------------------------------------------------------------------------------
+---
 
 Phase 2 — Remove Redundant Flags (replace with selectors)
 
@@ -79,7 +79,7 @@ Phase 2 — Remove Redundant Flags (replace with selectors)
 - Acceptance:
   - No change in UI, all logic uses selectors; deprecated fields no longer written
 
--------------------------------------------------------------------------------
+---
 
 Phase 3 — Make Bidding State Minimal and Clear
 
@@ -87,12 +87,12 @@ Phase 3 — Make Bidding State Minimal and Clear
   - Keep only core items; derive the rest via selectors
 - Proposed structure:
   - bidding: {
-    order: number[]                // turn order of players
-    index: number                  // pointer to current bidder in order
-    bids: Record   // last valid bid per player
-    passed: Set            // store as array in Redux, selector exposes Set
+    order: number[] // turn order of players
+    index: number // pointer to current bidder in order
+    bids: Record // last valid bid per player
+    passed: Set // store as array in Redux, selector exposes Set
     leader: { player: number; amount: number } | null
-    timer: number                  // countdown value for UI
+    timer: number // countdown value for UI
     }
 - Remove/derive:
   - biddingActive → derive from stage === BIDDING
@@ -111,7 +111,7 @@ Phase 3 — Make Bidding State Minimal and Clear
 - Acceptance:
   - Bidding UI unchanged; code is simpler and more consistent
 
--------------------------------------------------------------------------------
+---
 
 Phase 4 — Teams Simplification
 
@@ -131,7 +131,7 @@ Phase 4 — Teams Simplification
 - Acceptance:
   - No behavior changes; simplified mental model
 
--------------------------------------------------------------------------------
+---
 
 Phase 5 — Remove Non-Serializable Data from Redux
 
@@ -154,7 +154,7 @@ Phase 5 — Remove Non-Serializable Data from Redux
 - Acceptance:
   - No behavior changes; no non-serializable warnings
 
--------------------------------------------------------------------------------
+---
 
 Phase 6 — Component Migration to Selectors
 
@@ -167,11 +167,11 @@ Phase 6 — Component Migration to Selectors
     - Remove local duplication of derivations (e.g., who's turn, leading suit)
 - Files to update:
   - src/pages/GameRedux.tsx
-  - src/components/game/*.tsx (as needed)
+  - src/components/game/\*.tsx (as needed)
 - Acceptance:
   - Code is cleaner; easier to reason about flows; no UI changes
 
--------------------------------------------------------------------------------
+---
 
 Phase 7 — Clean Up Deprecated Fields
 
@@ -188,7 +188,7 @@ Phase 7 — Clean Up Deprecated Fields
 - Acceptance:
   - Build is clean; no references to deprecated fields; tests pass
 
--------------------------------------------------------------------------------
+---
 
 Phase 8 — Documentation and Dev UX
 
@@ -203,7 +203,7 @@ Phase 8 — Documentation and Dev UX
 - Acceptance:
   - Contributors can understand state at a glance
 
--------------------------------------------------------------------------------
+---
 
 Mermaid: Target Stage Flow After Refactor
 
@@ -224,7 +224,7 @@ flowchart LR
   M --> N["setStage(TRUMP_SELECTION)"]
 ```
 
--------------------------------------------------------------------------------
+---
 
 Files to Create (summary)
 
@@ -254,4 +254,3 @@ Success Criteria
 - No regressions in gameplay, bidding, or animations
 
 Implement the plan
-
