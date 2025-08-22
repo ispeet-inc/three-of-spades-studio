@@ -1,13 +1,17 @@
 import { agentClasses } from "@/agents";
 import { Card, GameState } from "@/types/game";
-import { distributeDeck, generateDeck, shuffle } from "@/utils/cardUtils";
+import { distributeDeck, shuffle } from "@/utils/cardUtils";
 import { PLAYER_NAME_POOL } from "@/utils/constants";
 import { initialBiddingState } from "@/utils/gameSetupUtils";
 import {
   assignTeamsByTeammateCard,
-  determineRoundWinner,
   selectRandomNames,
 } from "@/utils/gameUtils";
+import {
+  initialTableState,
+  newRoundOnTable,
+  playCardOnTable,
+} from "@/utils/tableUtils";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { GameStages, type GameStage } from "./gameStages";
 
@@ -31,7 +35,6 @@ const initialState: GameState = {
   scores: [0, 0],
   turn: 0,
   roundWinner: null,
-  isRoundEnding: false,
   totalRounds: 0,
   playerTeamMap: null,
   playerAgents: {},
@@ -41,6 +44,7 @@ const initialState: GameState = {
   showCardsPhase: false,
   collectionWinner: null,
   biddingState: initialBiddingState(NUM_PLAYERS, 0, false),
+  tableState: initialTableState(0, true),
 };
 
 const gameSlice = createSlice({
@@ -58,7 +62,9 @@ const gameSlice = createSlice({
     },
 
     startGame: state => {
-      const deck = shuffle(generateDeck());
+      // todo - make it single shuffle
+      const deck = shuffle(state.tableState.discardedCards);
+      state.tableState.discardedCards = [];
       const distributedHands = distributeDeck(deck, NUM_PLAYERS);
 
       // Initialize each player's hand
@@ -90,11 +96,11 @@ const gameSlice = createSlice({
       state.bidAmount = null;
       state.bidder = null;
       state.round = 0;
-      state.tableCards = [];
+      state.tableState = initialTableState(state.startingPlayer, false);
       state.scores = [0, 0];
-      state.turn = state.startingPlayer;
+      state.tableState.turn = state.startingPlayer;
+
       state.biddingState.currentBidder = state.startingPlayer;
-      state.roundWinner = null;
     },
 
     playCard: (
@@ -109,47 +115,42 @@ const gameSlice = createSlice({
       playerHand.sort((a, b) => a.positionValue - b.positionValue);
 
       state.players[playerIndex].hand = playerHand;
-      state.tableCards.push({ ...card, player: playerIndex });
+      const tableCard = { ...card, player: playerIndex };
 
-      if (state.tableCards.length === 1) {
-        state.runningSuite = card.suite;
-      }
+      state.tableState = playCardOnTable(
+        state.tableState,
+        tableCard,
+        state.trumpSuite,
+        NUM_PLAYERS
+      );
 
-      if (state.tableCards.length === NUM_PLAYERS) {
-        console.log("GAME: All 4 cards played, determining winner");
-        const winner = determineRoundWinner(
-          state.tableCards,
-          state.runningSuite!,
-          state.trumpSuite!
-        );
-        const winningTeam = state.playerTeamMap![winner.player];
+      const roundWinner = state.tableState.roundWinner;
+      if (roundWinner !== null) {
+        const winningTeam = state.playerTeamMap[roundWinner.player];
 
         // Calculate total points from all cards in the table
-        const roundPoints = state.tableCards.reduce(
+        const roundPoints = state.tableState.tableCards.reduce(
           (sum, card) => sum + card.points,
           0
         );
 
         state.scores[winningTeam] += roundPoints;
-        state.players[winner.player].score += roundPoints;
-        state.roundWinner = winner.player;
-      } else {
-        state.turn = (state.turn + 1) % NUM_PLAYERS;
+        state.players[roundWinner.player].score += roundPoints;
       }
     },
 
     startNewRound: state => {
       console.log(
         "GAME: Starting new round, previous winner:",
-        state.roundWinner
+        state.tableState.roundWinner.player
       );
-      state.tableCards = [];
+      state.tableState = newRoundOnTable(state.tableState);
       state.round = state.round + 1;
-      state.turn = state.roundWinner!;
-      state.roundWinner = null;
-      state.runningSuite = null;
       state.collectionWinner = null;
-      console.log("GAME: Setting stage to PLAYING, current turn:", state.turn);
+      console.log(
+        "GAME: Setting stage to PLAYING, current turn:",
+        state.tableState.turn
+      );
       state.stage = GameStages.PLAYING;
 
       // Check if game is over
@@ -159,7 +160,7 @@ const gameSlice = createSlice({
     },
 
     startCardCollection: state => {
-      state.collectionWinner = state.roundWinner;
+      state.collectionWinner = state.tableState.roundWinner.player;
       state.stage = GameStages.ROUND_COMPLETE;
     },
 

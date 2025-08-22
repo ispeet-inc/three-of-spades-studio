@@ -62,10 +62,14 @@ const GameRedux = () => {
     currentBid: gameState.bidAmount || 0,
     round: gameState.round,
     teamScores: {
-      team1: gameState.scores[0],
-      team2: gameState.scores[1],
+      team1: gameState.scores?.[0] ?? 0,
+      team2: gameState.scores?.[1] ?? 0,
     },
     teammateCard: gameState.teammateCard,
+    playerNames: gameState.playerNames,
+    isCollectingCards: gameState.isCollectingCards,
+    showCardsPhase: gameState.showCardsPhase,
+    collectionWinner: gameState.collectionWinner,
   };
 
   const handleCardPlay = (card: Card) => {
@@ -358,6 +362,11 @@ const GameRedux = () => {
         onStartGame={(playerName: string) => handleStartGame(playerName)}
       />
     );
+  }
+
+  // Safety check to ensure game state is properly initialized
+  if (!gameState || !gameState.players || !gameState.scores || !tableState) {
+    return <div>Loading...</div>;
   }
 
   return (

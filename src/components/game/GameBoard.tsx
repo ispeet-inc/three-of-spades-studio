@@ -53,7 +53,9 @@ export const GameBoard = ({
   isDealing = false,
   botCardsHidden = false,
 }: GameBoardProps) => {
-  const [lastScores, setLastScores] = useState(gameState.teamScores);
+  const [lastScores, setLastScores] = useState(
+    gameState?.teamScores ?? { team1: 0, team2: 0 }
+  );
   const [animateScore, setAnimateScore] = useState({
     team1: false,
     team2: false,
@@ -196,12 +198,12 @@ export const GameBoard = ({
           currentTrick={tableState.tableCards}
           winner={
             tableState.roundWinner !== null &&
-            gameState.players[tableState.roundWinner.number].name
+            gameState.players[tableState.roundWinner.player]?.name
           }
           isCollectingCards={isCollectingCards}
           showCardsPhase={showCardsPhase}
           collectionWinner={collectionWinner}
-          roundWinner={tableState.roundWinner.number}
+          roundWinner={tableState.roundWinner?.player ?? null}
           playerNames={gameState.playerNames}
         />
 
