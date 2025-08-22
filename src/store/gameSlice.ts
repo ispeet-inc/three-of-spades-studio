@@ -5,6 +5,7 @@ import { generateDeck, shuffle, distributeDeck, createCard } from "@/utils/cardU
 import { determineRoundWinner, assignTeamsByTeammateCard, selectRandomNames } from "@/utils/gameUtils";
 import { agentClasses } from "@/agents";
 import { PLAYER_NAME_POOL } from "@/utils/constants";
+import { initialBiddingState } from "@/utils/gameSetupUtils";
 
 const NUM_PLAYERS = 4;
 
@@ -35,21 +36,7 @@ const initialState: GameState = {
   isCollectingCards: false,
   showCardsPhase: false,
   collectionWinner: null,
-  biddingState: {
-    biddingActive: false,
-    currentBid: 165,
-    currentBidder: 0,
-    passedPlayers: [],
-    bidStatusByPlayer: {
-      0: "Bidding",
-      1: "Bidding",
-      2: "Bidding",
-      3: "Bidding",
-    },
-    bidWinner: null,
-    bidHistory: [],
-    bidTimer: 30,
-  },
+  biddingState: initialBiddingState(NUM_PLAYERS, 0, false),
 };
 
 const gameSlice = createSlice({
@@ -180,23 +167,8 @@ const gameSlice = createSlice({
     },
 
     startBiddingRound: (state) => {
-      state.biddingState = {
-        // Keep deprecated fields for now with default values
-        biddingActive: true,
-        bidStatusByPlayer: {
-          0: "Bidding",
-          1: "Bidding",
-          2: "Bidding", 
-          3: "Bidding",
-        },
-        // Core fields
-        currentBid: 165,
-        currentBidder: state.startingPlayer,
-        passedPlayers: [],
-        bidWinner: null,
-        bidHistory: [],
-        bidTimer: 30,
-      };
+      const newBiddingState = initialBiddingState(NUM_PLAYERS, state.startingPlayer, true);
+      state.biddingState = newBiddingState;
     },
 
     placeBid: (state, action: PayloadAction<{ playerIndex: number; bidAmount: number }>) => {
