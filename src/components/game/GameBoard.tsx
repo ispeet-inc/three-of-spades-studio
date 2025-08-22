@@ -6,7 +6,7 @@ import {
   selectIsCollectingCards,
   selectShowCardsPhase,
 } from "@/store/selectors";
-import { Card, Suite, TableState } from "@/types/game";
+import { Card, PlayerState, Suite, TableState } from "@/types/game";
 import {
   announceToScreenReader,
   gameStateAnnouncements,
@@ -36,9 +36,9 @@ interface GameBoardProps {
     isCollectingCards?: boolean;
     showCardsPhase?: boolean;
     collectionWinner?: number | null;
-    playerNames?: Record<number, string>;
   };
   tableState: TableState;
+  playerState: PlayerState;
   onCardPlay: (card: Card) => void;
   onSettingsClick: () => void;
   isDealing?: boolean;
@@ -48,6 +48,7 @@ interface GameBoardProps {
 export const GameBoard = ({
   gameState,
   tableState,
+  playerState,
   onCardPlay,
   onSettingsClick,
   isDealing = false,
@@ -204,7 +205,7 @@ export const GameBoard = ({
           showCardsPhase={showCardsPhase}
           collectionWinner={collectionWinner}
           roundWinner={tableState.roundWinner?.player ?? null}
-          playerNames={gameState.playerNames}
+          playerNames={playerState.playerNames}
         />
 
         {/* Player Areas */}

@@ -33,6 +33,9 @@ const GameRedux = () => {
   const tableState = useAppSelector(
     (state: RootState) => state.game.tableState
   );
+  const playerState = useAppSelector(
+    (state: RootState) => state.game.playerState
+  );
   const { trigger } = useFeedback();
 
   // Add dealing animation state
@@ -43,7 +46,7 @@ const GameRedux = () => {
     players: Object.entries(gameState.players).map(([index, player]) => ({
       id: `player-${index}`,
       name:
-        gameState.playerNames[parseInt(index)] ||
+        playerState.playerNames[parseInt(index)] ||
         `Player ${parseInt(index) + 1}`,
       team: (gameState.playerTeamMap?.[parseInt(index)] === 0 ? 1 : 2) as 1 | 2,
       cards: player.hand,
@@ -66,7 +69,6 @@ const GameRedux = () => {
       team2: gameState.scores?.[1] ?? 0,
     },
     teammateCard: gameState.teammateCard,
-    playerNames: gameState.playerNames,
     isCollectingCards: gameState.isCollectingCards,
     showCardsPhase: gameState.showCardsPhase,
     collectionWinner: gameState.collectionWinner,
@@ -322,7 +324,7 @@ const GameRedux = () => {
 
             const choice = botAgent.chooseTrumpAndTeammate({
               hand: bidWinner.hand,
-              playerNames: gameState.playerNames,
+              playerNames: playerState.playerNames,
               playerIndex: gameState.biddingState.bidWinner!,
               teammateOptions: allTeammateOptions,
             });
@@ -351,7 +353,7 @@ const GameRedux = () => {
     gameState.biddingState.bidWinner,
     gameState.playerAgents,
     gameState.players,
-    gameState.playerNames,
+    playerState.playerNames,
     handleTrumpSelection,
   ]);
 
@@ -373,6 +375,7 @@ const GameRedux = () => {
       <GameBoard
         gameState={transformedGameState}
         tableState={tableState}
+        playerState={playerState}
         onCardPlay={handleCardPlay}
         onSettingsClick={() => console.log("Settings")}
         isDealing={isDealing}
@@ -391,7 +394,7 @@ const GameRedux = () => {
           bidAmount={gameState.bidAmount!}
           trumpSuite={gameState.trumpSuite!}
           teammateCard={gameState.teammateCard!}
-          playerNames={gameState.playerNames}
+          playerNames={playerState.playerNames}
           onClose={handleBidResultClose}
         />
       )}

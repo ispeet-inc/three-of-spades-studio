@@ -33,7 +33,6 @@ const initialState: GameState = {
   totalRounds: 0,
   playerTeamMap: null,
   playerAgents: {},
-  playerNames: { 0: "You", 1: "", 2: "", 3: "" },
   teammateCard: null,
   isCollectingCards: false,
   showCardsPhase: false,
@@ -42,6 +41,7 @@ const initialState: GameState = {
   tableState: initialTableState(0, true),
   playerState: {
     startingPlayer: 0,
+    playerNames: { 0: "You", 1: "", 2: "", 3: "" },
   },
 };
 
@@ -75,7 +75,7 @@ const gameSlice = createSlice({
       state.playerAgents = {};
       const sampledNames = selectRandomNames(
         PLAYER_NAME_POOL,
-        state.playerNames
+        state.playerState.playerNames
       );
 
       for (let i = 1; i < NUM_PLAYERS; i++) {
@@ -83,9 +83,8 @@ const gameSlice = createSlice({
           agentClasses[Math.floor(Math.random() * agentClasses.length)];
         state.playerAgents[i] = new (AgentClass as any)();
         // Use the class name for the bot's display name
-        state.playerNames[i] = sampledNames.pop();
+        state.playerState.playerNames[i] = sampledNames.pop();
       }
-
       // Set total rounds based on cards per player
       state.totalRounds = distributedHands[0].length;
       // Randomly select starting player
@@ -274,7 +273,7 @@ const gameSlice = createSlice({
       action: PayloadAction<{ playerIndex: number; name: string }>
     ) => {
       const { playerIndex, name } = action.payload;
-      state.playerNames[playerIndex] = name;
+      state.playerState.playerNames[playerIndex] = name;
     },
   },
 });

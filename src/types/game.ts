@@ -51,7 +51,7 @@ export interface PlayerState {
   // players: Record<number, Player>;
   // playerTeamMap: Record<number, number> | null;
   // playerAgents: Record<number, any>;
-  // playerNames: Record<number, string>;
+  playerNames: Record<number, string>;
   startingPlayer: number;
 }
 
@@ -66,7 +66,6 @@ export interface GameState {
   totalRounds: number;
   playerTeamMap: Record<number, number> | null;
   playerAgents: Record<number, any>;
-  playerNames: Record<number, string>;
   teammateCard: Card | null;
   /** @deprecated Use selectIsCollectingCards selector instead */
   isCollectingCards: boolean;
