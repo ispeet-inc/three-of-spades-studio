@@ -14,6 +14,7 @@ export const GameOverModal = () => {
   const winningTeam = scores[0] >= bidAmount ? 0 : 1;
   const firstPlayerWon = teams[winningTeam].includes(0);
 
+  // todo - dispatch action to reset state, instead of reloading site.
   const handleNewGame = () => {
     window.location.reload();
   };

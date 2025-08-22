@@ -1,5 +1,6 @@
 import { Card, Suite, TableCard, Player } from "@/types/game";
 import { createCard } from "./cardUtils";
+import { BIDDING_TEAM, DEFENDING_TEAM } from "./constants";
 
 export const determineRoundWinner = (
   tableCards: TableCard[],
@@ -50,9 +51,9 @@ export const assignTeamsByTeammateCard = (
   // Assign teams
   for (let i = 0; i < numPlayers; i++) {
     if (i === bidder || i === teammateIndex) {
-      playerTeamMap[i] = 0;
+      playerTeamMap[i] = BIDDING_TEAM;
     } else {
-      playerTeamMap[i] = 1;
+      playerTeamMap[i] = DEFENDING_TEAM;
     }
   }
 

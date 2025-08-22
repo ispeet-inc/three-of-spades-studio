@@ -21,5 +21,9 @@ export const TIMINGS = {
   dealingStaggerMs: 150,         // dealing stagger between cards
 } as const;
 
+export const BIDDING_TEAM = 0;
+export const DEFENDING_TEAM = 1;
+// todo - use this to set orientation + update hard-coded logic everywhere
+export const FIRST_PLAYER_ID = 0;
 
 export const PLAYER_NAME_POOL = ["Akash", "Natasha", "Prateek", "Abhi", "Vladmir Putin", "Dumbledore"]
