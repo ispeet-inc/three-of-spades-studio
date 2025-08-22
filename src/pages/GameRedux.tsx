@@ -140,7 +140,7 @@ const GameRedux = () => {
       );
       const timer = setTimeout(() => {
         const currentPlayer = gameState.players[tableState.turn];
-        const botAgent = gameState.playerAgents[tableState.turn];
+        const botAgent = playerState.playerAgents[tableState.turn];
 
         console.log(
           `Bot ${tableState.turn} - Hand length: ${currentPlayer?.hand?.length}, Agent exists: ${!!botAgent}`
@@ -214,7 +214,7 @@ const GameRedux = () => {
     tableState.tableCards,
     gameState.trumpSuite,
     tableState.runningSuite,
-    gameState.playerAgents,
+    playerState.playerAgents,
   ]);
 
   // Handle bot bidding
@@ -235,7 +235,7 @@ const GameRedux = () => {
         );
 
         const botAgent =
-          gameState.playerAgents[gameState.biddingState.currentBidder];
+          playerState.playerAgents[gameState.biddingState.currentBidder];
         const currentPlayer =
           gameState.players[gameState.biddingState.currentBidder];
 
@@ -299,7 +299,7 @@ const GameRedux = () => {
     gameState.biddingState.bidWinner,
     gameState.biddingState.currentBid,
     dispatch,
-    gameState.playerAgents,
+    playerState.playerAgents,
     gameState.players,
     gameState.biddingState.passedPlayers,
   ]);
@@ -312,7 +312,7 @@ const GameRedux = () => {
     ) {
       const timer = setTimeout(() => {
         const botAgent =
-          gameState.playerAgents[gameState.biddingState.bidWinner!];
+          playerState.playerAgents[gameState.biddingState.bidWinner!];
         const bidWinner = gameState.players[gameState.biddingState.bidWinner!];
 
         if (botAgent && bidWinner) {
@@ -351,7 +351,7 @@ const GameRedux = () => {
   }, [
     gameState.stage,
     gameState.biddingState.bidWinner,
-    gameState.playerAgents,
+    playerState.playerAgents,
     gameState.players,
     playerState.playerNames,
     handleTrumpSelection,

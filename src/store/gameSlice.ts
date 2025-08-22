@@ -1,7 +1,7 @@
 import { agentClasses } from "@/agents";
 import { Card, GameState } from "@/types/game";
 import { distributeDeck, shuffle } from "@/utils/cardUtils";
-import { PLAYER_NAME_POOL } from "@/utils/constants";
+import { FIRST_PLAYER_ID, PLAYER_NAME_POOL } from "@/utils/constants";
 import { initialBiddingState } from "@/utils/gameSetupUtils";
 import {
   assignTeamsByTeammateCard,
@@ -32,7 +32,6 @@ const initialState: GameState = {
   scores: [0, 0],
   totalRounds: 0,
   playerTeamMap: null,
-  playerAgents: {},
   teammateCard: null,
   isCollectingCards: false,
   showCardsPhase: false,
@@ -41,6 +40,7 @@ const initialState: GameState = {
   tableState: initialTableState(0, true),
   playerState: {
     startingPlayer: 0,
+    playerAgents: {},
     playerNames: { 0: "You", 1: "", 2: "", 3: "" },
   },
 };
@@ -72,16 +72,17 @@ const gameSlice = createSlice({
       }
 
       // Randomly assign bot agents to computer players (1, 2, 3)
-      state.playerAgents = {};
+      state.playerState.playerAgents = {};
       const sampledNames = selectRandomNames(
         PLAYER_NAME_POOL,
         state.playerState.playerNames
       );
 
-      for (let i = 1; i < NUM_PLAYERS; i++) {
+      for (let i = 0; i < NUM_PLAYERS; i++) {
+        if (i == FIRST_PLAYER_ID) continue;
         const AgentClass =
           agentClasses[Math.floor(Math.random() * agentClasses.length)];
-        state.playerAgents[i] = new (AgentClass as any)();
+        state.playerState.playerAgents[i] = new (AgentClass as any)();
         // Use the class name for the bot's display name
         state.playerState.playerNames[i] = sampledNames.pop();
       }
