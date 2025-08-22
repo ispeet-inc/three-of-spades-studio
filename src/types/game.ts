@@ -1,4 +1,4 @@
-import type { GameStage } from '../store/gameStages';
+import type { GameStage } from "../store/gameStages";
 
 export interface Card {
   id: string;
@@ -14,7 +14,7 @@ export enum Suite {
   Spade,
   Heart,
   Club,
-  Diamond
+  Diamond,
 }
 
 export interface TableCard extends Card {
@@ -65,9 +65,4 @@ export interface GameState {
   showCardsPhase: boolean;
   collectionWinner: number | null;
   biddingState: BiddingState;
-}
-
-export interface TeammateCard {
-  suite: number;
-  number: number;
 }
