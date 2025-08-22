@@ -47,10 +47,17 @@ export interface TableState {
   discardedCards: Card[];
 }
 
+export interface PlayerState {
+  // players: Record<number, Player>;
+  // playerTeamMap: Record<number, number> | null;
+  // playerAgents: Record<number, any>;
+  // playerNames: Record<number, string>;
+  startingPlayer: number;
+}
+
 export interface GameState {
   stage: GameStage;
   players: Record<number, Player>;
-  startingPlayer: number;
   round: number;
   trumpSuite: number | null;
   bidAmount: number | null;
@@ -68,4 +75,5 @@ export interface GameState {
   collectionWinner: number | null;
   biddingState: BiddingState;
   tableState: TableState;
+  playerState: PlayerState;
 }

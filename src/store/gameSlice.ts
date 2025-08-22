@@ -25,16 +25,11 @@ const initialState: GameState = {
     2: { hand: [], score: 0 },
     3: { hand: [], score: 0 },
   },
-  startingPlayer: 0,
   round: 0,
-  runningSuite: null,
   trumpSuite: null,
   bidAmount: null,
   bidder: null,
-  tableCards: [],
   scores: [0, 0],
-  turn: 0,
-  roundWinner: null,
   totalRounds: 0,
   playerTeamMap: null,
   playerAgents: {},
@@ -45,6 +40,9 @@ const initialState: GameState = {
   collectionWinner: null,
   biddingState: initialBiddingState(NUM_PLAYERS, 0, false),
   tableState: initialTableState(0, true),
+  playerState: {
+    startingPlayer: 0,
+  },
 };
 
 const gameSlice = createSlice({
@@ -91,16 +89,18 @@ const gameSlice = createSlice({
       // Set total rounds based on cards per player
       state.totalRounds = distributedHands[0].length;
       // Randomly select starting player
-      state.startingPlayer = Math.floor(Math.random() * NUM_PLAYERS);
+      state.playerState.startingPlayer = Math.floor(
+        Math.random() * NUM_PLAYERS
+      );
       state.trumpSuite = null;
       state.bidAmount = null;
       state.bidder = null;
       state.round = 0;
-      state.tableState = initialTableState(state.startingPlayer, false);
+      state.tableState = initialTableState(
+        state.playerState.startingPlayer,
+        false
+      );
       state.scores = [0, 0];
-      state.tableState.turn = state.startingPlayer;
-
-      state.biddingState.currentBidder = state.startingPlayer;
     },
 
     playCard: (
@@ -201,7 +201,7 @@ const gameSlice = createSlice({
     startBiddingRound: state => {
       const newBiddingState = initialBiddingState(
         NUM_PLAYERS,
-        state.startingPlayer,
+        state.tableState.turn,
         true
       );
       state.biddingState = newBiddingState;
