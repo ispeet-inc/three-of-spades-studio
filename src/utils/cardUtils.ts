@@ -11,7 +11,7 @@ export const getCardId = (number: number): string => {
   return number.toString();
 };
 
-const getHash = (suite: Suite, number: number) => {
+export const getHash = (suite: Suite, number: number) => {
   return `${getCardId(number)}-of-${getSuiteName(suite)}`;
 };
 
@@ -55,6 +55,11 @@ export const createCard = (suite: Suite, number: number): Card => {
   };
 };
 
+export const getCardSet = (cards: Card[]): Set<string> => {
+  const cardSet = new Set(cards.map(card => card.hash));
+  return cardSet;
+}
+
 export const generateDeck = (): Card[] => {
   const deck: Card[] = [];
 
@@ -65,6 +70,17 @@ export const generateDeck = (): Card[] => {
   });
   return deck;
 };
+
+
+export const getTopKCardsFromSuite = (suite: Suite, k: number): Card[] => {
+  const topCards: Card[] = [];
+  
+  DECK_NUMBERS.slice(-k).forEach((number) => {
+    topCards.push(createCard(suite, number));
+  });
+
+  return topCards;
+}
 
 export const shuffle = (array: Card[]): Card[] => {
   const shuffled = [...array];

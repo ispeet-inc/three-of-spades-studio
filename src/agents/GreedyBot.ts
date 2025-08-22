@@ -1,11 +1,15 @@
+import { getHash } from "@/utils/cardUtils";
 import BotAgent, { BidAction, TrumpTeammateChoice, BidParams, TrumpTeammateParams } from "./BotAgent";
 import { Card, Suite, TableCard } from "@/types/game";
-import { determineRoundWinner, getRandomCardIndex, getRandomCardIndexBySuite, hasSuite } from "@/utils/gameUtils";
+import { DECK_SUITES } from "@/utils/constants";
+import { determineRoundWinner } from "@/utils/gameUtils";
 import {
   getHighestRankedCardIndex,
   getHighestRankedCardIndexInSuite,
   getLeastValueCardIndex,
   getLeastValueCardIndexInSuite,
+  getTeammateInSuite,
+  teammateOptionScore,
 } from "@/utils/handUtils";
 
 export default class GreedyBot extends BotAgent {
@@ -93,9 +97,9 @@ export default class GreedyBot extends BotAgent {
 
   chooseTrumpAndTeammate(params: TrumpTeammateParams): TrumpTeammateChoice {
     const { hand, teammateOptions } = params;
-    
+    console.log("chooseTrumpAndTeammate: ", hand);
     // Choose trump based on strongest suite
-    const suiteCounts = [0, 1, 2, 3].map(suite => ({
+    const suiteCounts = DECK_SUITES.map(suite => ({
       suite,
       count: hand.filter(card => card.suite === suite).length,
       strength: hand
@@ -108,15 +112,40 @@ export default class GreedyBot extends BotAgent {
        (current.count === best.count && current.strength > best.strength)) 
         ? current : best
     );
+    const trumpSuite = bestSuite.suite;
     
-    // Choose strongest teammate card available
-    const strongestTeammate = teammateOptions.reduce((best, current) => 
-      current.rank > best.rank ? current : best
-    );
+    // Find potential teammate cards for each suite
+    const potentialTeammateOptions = DECK_SUITES
+      .map((suite) => getTeammateInSuite(hand, suite))
+      .filter(option => option !== null);
+    
+    const handSet = new Set(hand.map(card => card.hash));
+    const hasCrownJewel = handSet.has(getHash(Suite.Spade, 3))
+    
+    const cardOptionsScored = potentialTeammateOptions.map(
+      option => ({
+        option,
+        card: option.potentialTeammateCard,
+        score: teammateOptionScore(option.potentialTeammateCard, trumpSuite, hasCrownJewel),
+        unwinnablePoints: option.unwinnablePoints
+      })
+    )
+
+    // Choose strongest teammate card available (with tie-breaker using unwinnablePoints)
+    const strongestTeammate = cardOptionsScored.reduce((best, current) => {
+      if (current.score > best.score) {
+        return current;
+      } else if (current.score === best.score) {
+        // Use unwinnablePoints as tie-breaker
+        return current.unwinnablePoints > best.unwinnablePoints ? current : best;
+      } else {
+        return best;
+      }
+    });
     
     return {
-      trumpSuite: bestSuite.suite,
-      teammateCard: { suite: strongestTeammate.suite, number: strongestTeammate.number }
+      trumpSuite: trumpSuite,
+      teammateCard: strongestTeammate.card
     };
   }
 

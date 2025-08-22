@@ -154,11 +154,11 @@ const gameSlice = createSlice({
       state.stage = GameStages.ROUND_COMPLETE;
     },
 
-    setBidAndTrump: (state, action: PayloadAction<{ trumpSuite: number; bidder: number; teammateCard: { suite: number; number: number } }>) => {
+    setBidAndTrump: (state, action: PayloadAction<{ trumpSuite: number; bidder: number; teammateCard: Card }>) => {
       const { trumpSuite, bidder, teammateCard } = action.payload;
       state.trumpSuite = trumpSuite;
       state.bidder = bidder;
-      state.teammateCard = createCard(teammateCard.suite, teammateCard.number);
+      state.teammateCard = teammateCard;
       console.log(`Setting trump ${trumpSuite} and teammate: ${state.teammateCard}`)
       console.log(state.teammateCard);
       // Assign teams based on teammate card
