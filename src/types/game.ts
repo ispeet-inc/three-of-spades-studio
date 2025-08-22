@@ -52,18 +52,10 @@ export interface GameState {
   players: Record<number, Player>;
   startingPlayer: number;
   round: number;
-  /** @deprecated Use tableState.runningSuite */
-  runningSuite: number | null;
   trumpSuite: number | null;
   bidAmount: number | null;
   bidder: number | null;
-  /** @deprecated Use tableState.tableCards */
-  tableCards: TableCard[];
   scores: [number, number];
-  /** @deprecated Use tableState.turn */
-  turn: number;
-  /** @deprecated Use tableState.roundWinner */
-  roundWinner: number | null;
   totalRounds: number;
   playerTeamMap: Record<number, number> | null;
   playerAgents: Record<number, any>;
