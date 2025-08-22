@@ -8,7 +8,7 @@ import { getCardSet, getTopKCardsFromSuite } from "./cardUtils";
  * @returns True if the suite is present, false otherwise.
  */
 export function hasSuite(hand: Card[], suite: Suite): boolean {
-  const suiteCards = hand.filter((card) => card.suite === suite);
+  const suiteCards = hand.filter(card => card.suite === suite);
   return suiteCards.length > 0;
 }
 
@@ -28,8 +28,11 @@ export function getRandomCardIndex(hand: Card[]): number | null {
  * @param suite - The suite to filter by.
  * @returns The index of a random card in the suite, or null if none found.
  */
-export function getRandomCardIndexBySuite(hand: Card[], suite: Suite): number | null {
-  const suiteCards = hand.filter((card) => card.suite === suite);
+export function getRandomCardIndexBySuite(
+  hand: Card[],
+  suite: Suite
+): number | null {
+  const suiteCards = hand.filter(card => card.suite === suite);
   if (suiteCards.length > 0) {
     const randomIndex = getRandomCardIndex(suiteCards);
     if (randomIndex === null) return null;
@@ -61,10 +64,13 @@ export function getHighestRankedCardIndex(hand: Card[]): number | null {
  * @param suite - The suite to filter by.
  * @returns The index of the highest ranked card in the suite, or null if none found.
  */
-export function getHighestRankedCardIndexInSuite(hand: Card[], suite: Suite): number | null {
+export function getHighestRankedCardIndexInSuite(
+  hand: Card[],
+  suite: Suite
+): number | null {
   if (!hand || hand.length === 0) return null;
 
-  const suiteCards = hand.filter((card) => card.suite === suite);
+  const suiteCards = hand.filter(card => card.suite === suite);
   if (suiteCards.length === 0) return null;
 
   // Use getHighestRankedCardIndex on the filtered suite cards
@@ -97,11 +103,14 @@ export function getLeastValueCardIndex(hand: Card[]): number | null {
  * @param suite - The suite to filter by.
  * @returns The index of the least value card in the suite, or null if none found.
  */
-export function getLeastValueCardIndexInSuite(hand: Card[], suite: Suite): number | null {
+export function getLeastValueCardIndexInSuite(
+  hand: Card[],
+  suite: Suite
+): number | null {
   if (!hand || hand.length === 0) return null;
 
   // Filter cards by suite
-  const suiteCards = hand.filter((card) => card.suite === suite);
+  const suiteCards = hand.filter(card => card.suite === suite);
   if (suiteCards.length === 0) return null;
 
   // Find the least value card in the filtered suite cards
@@ -117,23 +126,31 @@ export function printCardHashes(hand: Card[]) {
   }
 }
 
-export function getTeammateInSuite(hand: Card[], suite: Suite, verbose: boolean = false) {
+export function getTeammateInSuite(
+  hand: Card[],
+  suite: Suite,
+  verbose: boolean = false
+) {
   if (!hasSuite(hand, suite)) return null;
 
-  const suiteCards = hand.filter((card) => card.suite === suite);
+  const suiteCards = hand.filter(card => card.suite === suite);
   const topCards = getTopKCardsFromSuite(suite, suiteCards.length);
 
   const topCardsSet = getCardSet(topCards);
   const winnableCards = suiteCards.filter(card => topCardsSet.has(card.hash));
-  const unwinnableCards = suiteCards.filter(card => !topCardsSet.has(card.hash));
-  
+  const unwinnableCards = suiteCards.filter(
+    card => !topCardsSet.has(card.hash)
+  );
+
   // Get the top ranked card from topCards which is not in suiteCardsSet
   const suiteCardsSet = getCardSet(suiteCards);
-  const potentialTeammateCard = topCards.reverse().find(card => !suiteCardsSet.has(card.hash));
+  const potentialTeammateCard = topCards
+    .reverse()
+    .find(card => !suiteCardsSet.has(card.hash));
 
   // To check if topRankedCardNotInHand is unknown (i.e., not found), check if it is undefined:
   if (typeof potentialTeammateCard === "undefined") {
-    verbose && console.log("Top ranked card not in hand is unknown (undefined).");
+    console.log("Top ranked card not in hand is unknown (undefined).");
     return null;
   }
 
@@ -141,39 +158,45 @@ export function getTeammateInSuite(hand: Card[], suite: Suite, verbose: boolean 
     count: suiteCards.length,
     winnableCards: winnableCards,
     unwinnableCards: unwinnableCards,
-    unwinnablePoints: unwinnableCards.reduce((sum, card) => sum + card.points, 0),
-    potentialTeammateCard: potentialTeammateCard
+    unwinnablePoints: unwinnableCards.reduce(
+      (sum, card) => sum + card.points,
+      0
+    ),
+    potentialTeammateCard: potentialTeammateCard,
   };
 }
 
-
 export function teammateRawScore(card: Card): number {
-  if(card.rank <= 12) {
+  if (card.rank <= 12) {
     // delta measures how much below Q the card is.
-    const delta = 12 - card.rank
+    const delta = 12 - card.rank;
     return 0.15 - delta * 0.015;
-  } else if(card.rank === 13) {
+  } else if (card.rank === 13) {
     return 0.5;
-  } else if(card.rank === 14) {
+  } else if (card.rank === 14) {
     return 0.8;
   }
-  console.error("ERROR: What card is this? Lol.")
+  console.error("ERROR: What card is this? Lol.");
   return 0;
 }
 
-export function teammateOptionScore(card: Card, trumpSuite: Suite, hasCrownJewel: boolean): number {
-  const rawScore  = teammateRawScore(card)
+export function teammateOptionScore(
+  card: Card,
+  trumpSuite: Suite,
+  hasCrownJewel: boolean
+): number {
+  const rawScore = teammateRawScore(card);
   let boost = 1;
-  
+
   // trump boost
-  if(card.suite === trumpSuite) {
+  if (card.suite === trumpSuite) {
     boost = boost * 1.5;
   }
 
   // spade boost
-  if(card.suite === Suite.Spade) {
+  if (card.suite === Suite.Spade) {
     // to cover 3 of Spades
-    if(hasCrownJewel) {
+    if (hasCrownJewel) {
       boost = boost * 2;
     }
     boost = boost * 1.6;

@@ -12,10 +12,17 @@ export default tseslint.config(
     files: ["**/*.{ts,tsx}"],
     languageOptions: {
       ecmaVersion: 2020,
-      globals: globals.browser,
+      globals: {
+        ...globals.browser,
+        React: "readonly",
+        JSX: "readonly",
+      },
       parserOptions: {
         project: "./tsconfig.app.json",
         tsconfigRootDir: import.meta.dirname,
+        ecmaFeatures: {
+          jsx: true,
+        },
       },
     },
     plugins: {
@@ -31,7 +38,9 @@ export default tseslint.config(
       ],
       "@typescript-eslint/no-unused-vars": "off",
       "@typescript-eslint/no-deprecated": "warn",
-      "prettier/prettier": "error",
+      "prettier/prettier": "off", // Disable prettier rule to avoid conflicts
+      "@typescript-eslint/no-explicit-any": "warn",
+      "@typescript-eslint/no-non-null-assertion": "warn",
     },
   }
 );

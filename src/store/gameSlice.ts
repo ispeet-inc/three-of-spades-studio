@@ -1,8 +1,17 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { GameState, Card, Player, TableCard } from "@/types/game";
 import { GameStages, type GameStage } from "./gameStages";
-import { generateDeck, shuffle, distributeDeck, createCard } from "@/utils/cardUtils";
-import { determineRoundWinner, assignTeamsByTeammateCard, selectRandomNames } from "@/utils/gameUtils";
+import {
+  generateDeck,
+  shuffle,
+  distributeDeck,
+  createCard,
+} from "@/utils/cardUtils";
+import {
+  determineRoundWinner,
+  assignTeamsByTeammateCard,
+  selectRandomNames,
+} from "@/utils/gameUtils";
 import { agentClasses } from "@/agents";
 import { PLAYER_NAME_POOL } from "@/utils/constants";
 import { initialBiddingState } from "@/utils/gameSetupUtils";
@@ -44,11 +53,16 @@ const gameSlice = createSlice({
   initialState,
   reducers: {
     setStage: (state, action: PayloadAction<GameStage>) => {
-      console.log("GameSlice.setStage: CHANGING STATE: FROM", state.stage, "TO", action.payload);
+      console.log(
+        "GameSlice.setStage: CHANGING STATE: FROM",
+        state.stage,
+        "TO",
+        action.payload
+      );
       state.stage = action.payload;
     },
 
-    startGame: (state) => {
+    startGame: state => {
       const deck = shuffle(generateDeck());
       const distributedHands = distributeDeck(deck, NUM_PLAYERS);
 
@@ -60,10 +74,14 @@ const gameSlice = createSlice({
 
       // Randomly assign bot agents to computer players (1, 2, 3)
       state.playerAgents = {};
-      const sampledNames = selectRandomNames(PLAYER_NAME_POOL, state.playerNames);
+      const sampledNames = selectRandomNames(
+        PLAYER_NAME_POOL,
+        state.playerNames
+      );
 
       for (let i = 1; i < NUM_PLAYERS; i++) {
-        const AgentClass = agentClasses[Math.floor(Math.random() * agentClasses.length)];
+        const AgentClass =
+          agentClasses[Math.floor(Math.random() * agentClasses.length)];
         state.playerAgents[i] = new (AgentClass as any)();
         // Use the class name for the bot's display name
         state.playerNames[i] = sampledNames.pop();
@@ -84,14 +102,17 @@ const gameSlice = createSlice({
       state.roundWinner = null;
     },
 
-    playCard: (state, action: PayloadAction<{ playerIndex: number; cardIndex: number }>) => {
+    playCard: (
+      state,
+      action: PayloadAction<{ playerIndex: number; cardIndex: number }>
+    ) => {
       const { playerIndex, cardIndex } = action.payload;
       const playerHand = [...state.players[playerIndex].hand];
       const card = playerHand.splice(cardIndex, 1)[0];
-      
+
       // Sort the remaining hand by position value to maintain card order
       playerHand.sort((a, b) => a.positionValue - b.positionValue);
-      
+
       state.players[playerIndex].hand = playerHand;
       state.tableCards.push({ ...card, player: playerIndex });
 
@@ -109,7 +130,10 @@ const gameSlice = createSlice({
         const winningTeam = state.playerTeamMap![winner.player];
 
         // Calculate total points from all cards in the table
-        const roundPoints = state.tableCards.reduce((sum, card) => sum + card.points, 0);
+        const roundPoints = state.tableCards.reduce(
+          (sum, card) => sum + card.points,
+          0
+        );
 
         state.scores[winningTeam] += roundPoints;
         state.players[winner.player].score += roundPoints;
@@ -119,8 +143,11 @@ const gameSlice = createSlice({
       }
     },
 
-    startNewRound: (state) => {
-      console.log("GAME: Starting new round, previous winner:", state.roundWinner);
+    startNewRound: state => {
+      console.log(
+        "GAME: Starting new round, previous winner:",
+        state.roundWinner
+      );
       state.tableCards = [];
       state.round = state.round + 1;
       state.turn = state.roundWinner!;
@@ -136,17 +163,26 @@ const gameSlice = createSlice({
       }
     },
 
-    startCardCollection: (state) => {
+    startCardCollection: state => {
       state.collectionWinner = state.roundWinner;
       state.stage = GameStages.ROUND_COMPLETE;
     },
 
-    setBidAndTrump: (state, action: PayloadAction<{ trumpSuite: number; bidder: number; teammateCard: Card }>) => {
+    setBidAndTrump: (
+      state,
+      action: PayloadAction<{
+        trumpSuite: number;
+        bidder: number;
+        teammateCard: Card;
+      }>
+    ) => {
       const { trumpSuite, bidder, teammateCard } = action.payload;
       state.trumpSuite = trumpSuite;
       state.bidder = bidder;
       state.teammateCard = teammateCard;
-      console.log(`Setting trump ${trumpSuite} and teammate: ${state.teammateCard}`)
+      console.log(
+        `Setting trump ${trumpSuite} and teammate: ${state.teammateCard}`
+      );
       console.log(state.teammateCard);
       // Assign teams based on teammate card
       const playerTeamMap = assignTeamsByTeammateCard(
@@ -166,15 +202,25 @@ const gameSlice = createSlice({
       state.stage = GameStages.TRUMP_SELECTION_COMPLETE;
     },
 
-    startBiddingRound: (state) => {
-      const newBiddingState = initialBiddingState(NUM_PLAYERS, state.startingPlayer, true);
+    startBiddingRound: state => {
+      const newBiddingState = initialBiddingState(
+        NUM_PLAYERS,
+        state.startingPlayer,
+        true
+      );
       state.biddingState = newBiddingState;
     },
 
-    placeBid: (state, action: PayloadAction<{ playerIndex: number; bidAmount: number }>) => {
+    placeBid: (
+      state,
+      action: PayloadAction<{ playerIndex: number; bidAmount: number }>
+    ) => {
       const { playerIndex, bidAmount } = action.payload;
       state.biddingState.currentBid = bidAmount;
-      state.biddingState.bidHistory.push({ player: playerIndex, bid: bidAmount });
+      state.biddingState.bidHistory.push({
+        player: playerIndex,
+        bid: bidAmount,
+      });
 
       // Advance to next eligible bidder
       let nextBidder = (playerIndex + 1) % 4;
@@ -191,7 +237,7 @@ const gameSlice = createSlice({
 
       // If only one player left, set winner
       const activePlayers = [0, 1, 2, 3].filter(
-        (idx) => !state.biddingState.passedPlayers.includes(idx)
+        idx => !state.biddingState.passedPlayers.includes(idx)
       );
 
       if (activePlayers.length === 1) {
@@ -227,7 +273,10 @@ const gameSlice = createSlice({
       state.biddingState.bidTimer = action.payload;
     },
 
-    setPlayerName: (state, action: PayloadAction<{ playerIndex: number; name: string }>) => {
+    setPlayerName: (
+      state,
+      action: PayloadAction<{ playerIndex: number; name: string }>
+    ) => {
       const { playerIndex, name } = action.payload;
       state.playerNames[playerIndex] = name;
     },

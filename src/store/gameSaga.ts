@@ -23,10 +23,10 @@ import {
 import { GameStages, type GameStage } from "./gameStages";
 import type { RootState } from "./index";
 import { TIMINGS } from "@/utils/constants";
-import { 
-  selectIsTrickComplete, 
-  selectBiddingStateRaw, 
-  selectStage 
+import {
+  selectIsTrickComplete,
+  selectBiddingStateRaw,
+  selectStage,
 } from "./selectors";
 import type { BiddingState } from "@/types/game";
 
@@ -35,7 +35,7 @@ function* handleStageTransition(action: any) {
     "Saga: handleStageTransition called with payload:",
     action.payload
   );
-  
+
   if (action.payload === GameStages.CARDS_DISPLAY) {
     console.log("Saga: Starting trick display phase");
     yield delay(TIMINGS.trickDisplayMs);
@@ -54,9 +54,11 @@ function* watchTrickCompletion() {
   yield takeEvery(playCard.type, function* handleTrickCompletion() {
     const isTrickComplete: boolean = yield select(selectIsTrickComplete);
     const stage: GameStage = yield select(selectStage);
-    
+
     if (isTrickComplete && stage === GameStages.PLAYING) {
-      console.log("Saga: Trick completed with 4 cards, transitioning to CARDS_DISPLAY");
+      console.log(
+        "Saga: Trick completed with 4 cards, transitioning to CARDS_DISPLAY"
+      );
       yield put(setStage(GameStages.CARDS_DISPLAY));
     }
   });

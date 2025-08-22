@@ -34,11 +34,13 @@ export const TrumpSelectionModal = () => {
     if (validate()) {
       console.log("TrumpSelectionModal - trump chosen:  ", trumpSuite);
       console.log("TrumpSelectionModal - teammate chosen: ", teammateCard);
-      dispatch(setBidAndTrump({
-        trumpSuite: trumpSuite,
-        bidder: 0,
-        teammateCard
-      }));
+      dispatch(
+        setBidAndTrump({
+          trumpSuite: trumpSuite,
+          bidder: 0,
+          teammateCard,
+        })
+      );
     }
   };
 
@@ -62,7 +64,7 @@ export const TrumpSelectionModal = () => {
                 Trump Suite
               </label>
               <div className="flex gap-3">
-                {SUITES.map((s) => (
+                {SUITES.map(s => (
                   <button
                     type="button"
                     key={s.value}
@@ -70,9 +72,10 @@ export const TrumpSelectionModal = () => {
                       bg-felt-green text-foreground
                       rounded-lg px-4 py-3 text-lg font-semibold flex items-center gap-2
                       cursor-pointer transition-all duration-200 shadow-sm
-                      ${trumpSuite === s.value
-                        ? 'border-2 border-gold text-gold shadow-glow' 
-                        : 'hover:border-foreground/30'
+                      ${
+                        trumpSuite === s.value
+                          ? "border-2 border-gold text-gold shadow-glow"
+                          : "hover:border-foreground/30"
                       }
                     `}
                     onClick={() => setTrumpSuite(s.value)}
@@ -89,10 +92,10 @@ export const TrumpSelectionModal = () => {
               <label className="block font-semibold mb-2 text-foreground">
                 Choose Teammate Card
               </label>
-              
+
               {/* Suite Tabs */}
               <div className="flex gap-2 mb-3 justify-center">
-                {SUITES.map((s) => (
+                {SUITES.map(s => (
                   <button
                     type="button"
                     key={s.value}
@@ -100,9 +103,10 @@ export const TrumpSelectionModal = () => {
                       bg-felt-green text-foreground
                       rounded-lg px-4 py-2 text-sm font-semibold cursor-pointer 
                       transition-all duration-200
-                      ${teammateSuiteTab === s.value 
-                        ? 'border-2 border-gold text-gold' 
-                        : 'hover:border-foreground/30'
+                      ${
+                        teammateSuiteTab === s.value
+                          ? "border-2 border-gold text-gold"
+                          : "hover:border-foreground/30"
                       }
                     `}
                     onClick={() => setTeammateSuiteTab(s.value)}
@@ -114,7 +118,7 @@ export const TrumpSelectionModal = () => {
 
               {/* Teammate Cards Grid */}
               <div className="flex flex-wrap gap-2 justify-center">
-                {teammateOptions.map((card) => {
+                {teammateOptions.map(card => {
                   const isSelected =
                     teammateCard &&
                     card.suite === teammateCard.suite &&
@@ -127,13 +131,14 @@ export const TrumpSelectionModal = () => {
                         bg-transparent border-2 border-transparent rounded-lg p-1
                         cursor-pointer transition-all duration-200 flex items-center justify-center
                         w-20 h-30 hover:border-foreground/30`}
-                      onClick={() =>
-                        setTeammateCard(card)
-                      }
+                      onClick={() => setTeammateCard(card)}
                     >
-                      <PlayingCard card={card} className={`hover:border-foreground/30 ${isSelected 
-                          && 'border-2 border-gold shadow-glow' 
-                        }`} />
+                      <PlayingCard
+                        card={card}
+                        className={`hover:border-foreground/30 ${
+                          isSelected && "border-2 border-gold shadow-glow"
+                        }`}
+                      />
                     </button>
                   );
                 })}

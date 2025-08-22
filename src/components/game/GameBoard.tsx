@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Settings } from "lucide-react";
 import { Card, Suite, TableCard } from "@/types/game";
@@ -6,10 +5,17 @@ import { PlayerArea } from "./PlayerArea";
 import { GameInfo } from "./GameInfo";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { announceToScreenReader, gameStateAnnouncements } from "@/utils/accessibility";
+import {
+  announceToScreenReader,
+  gameStateAnnouncements,
+} from "@/utils/accessibility";
 import { CenterTable } from "./CenterTable";
 import { useAppSelector } from "@/hooks/useAppSelector";
-import { selectCollectionWinner, selectIsCollectingCards, selectShowCardsPhase } from "@/store/selectors";
+import {
+  selectCollectionWinner,
+  selectIsCollectingCards,
+  selectShowCardsPhase,
+} from "@/store/selectors";
 
 interface GameBoardProps {
   gameState: {
@@ -41,10 +47,19 @@ interface GameBoardProps {
   botCardsHidden?: boolean;
 }
 
-export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = false, botCardsHidden = false }: GameBoardProps) => {
+export const GameBoard = ({
+  gameState,
+  onCardPlay,
+  onSettingsClick,
+  isDealing = false,
+  botCardsHidden = false,
+}: GameBoardProps) => {
   const [lastScores, setLastScores] = useState(gameState.teamScores);
-  const [animateScore, setAnimateScore] = useState({ team1: false, team2: false });
-  
+  const [animateScore, setAnimateScore] = useState({
+    team1: false,
+    team2: false,
+  });
+
   // Use derived selectors for animation states
   const isCollectingCards = useAppSelector(selectIsCollectingCards);
   const showCardsPhase = useAppSelector(selectShowCardsPhase);
@@ -53,22 +68,32 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = 
   // Define players array FIRST before any useEffect that references it
   const players = [
     gameState.players[0], // bottom
-    gameState.players[1], // left  
+    gameState.players[1], // left
     gameState.players[2], // top
-    gameState.players[3]  // right
+    gameState.players[3], // right
   ];
 
   // Score animation effect
   useEffect(() => {
     if (lastScores.team1 !== gameState.teamScores.team1) {
       setAnimateScore(prev => ({ ...prev, team1: true }));
-      announceToScreenReader(`Team 1 scores updated: ${gameState.teamScores.team1} points`);
-      setTimeout(() => setAnimateScore(prev => ({ ...prev, team1: false })), 500);
+      announceToScreenReader(
+        `Team 1 scores updated: ${gameState.teamScores.team1} points`
+      );
+      setTimeout(
+        () => setAnimateScore(prev => ({ ...prev, team1: false })),
+        500
+      );
     }
     if (lastScores.team2 !== gameState.teamScores.team2) {
       setAnimateScore(prev => ({ ...prev, team2: true }));
-      announceToScreenReader(`Team 2 scores updated: ${gameState.teamScores.team2} points`);
-      setTimeout(() => setAnimateScore(prev => ({ ...prev, team2: false })), 500);
+      announceToScreenReader(
+        `Team 2 scores updated: ${gameState.teamScores.team2} points`
+      );
+      setTimeout(
+        () => setAnimateScore(prev => ({ ...prev, team2: false })),
+        500
+      );
     }
     setLastScores(gameState.teamScores);
   }, [gameState.teamScores, lastScores]);
@@ -77,10 +102,12 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = 
   useEffect(() => {
     const currentPlayer = players.find(p => p.isCurrentPlayer);
     if (currentPlayer) {
-      if (currentPlayer.id === 'player-0') {
+      if (currentPlayer.id === "player-0") {
         announceToScreenReader(gameStateAnnouncements.yourTurn);
       } else {
-        announceToScreenReader(gameStateAnnouncements.botTurn(currentPlayer.name));
+        announceToScreenReader(
+          gameStateAnnouncements.botTurn(currentPlayer.name)
+        );
       }
     }
   }, [players]);
@@ -94,7 +121,7 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = 
   };
 
   return (
-    <main 
+    <main
       className="min-h-screen bg-gradient-felt relative overflow-hidden"
       role="main"
       aria-label="Three of Spades game board"
@@ -102,7 +129,7 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = 
       {/* Premium Felt Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-felt-green-dark via-felt-green to-felt-green-light opacity-90" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.1)_100%)]" />
-      
+
       {/* Table Border */}
       <div className="absolute inset-8 border-4 border-gold/30 rounded-3xl shadow-glow/10" />
 
@@ -126,18 +153,21 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = 
       </header>
 
       {/* Team Scores */}
-      <section 
+      <section
         className="absolute top-6 right-6 flex gap-6 z-20"
         aria-label="Team scores"
       >
-        <div 
+        <div
           className="bg-gradient-gold text-casino-black px-6 py-3 rounded-xl shadow-elevated border border-gold-dark"
           role="status"
           aria-live="polite"
         >
           <div className="text-center">
-            <div 
-              className={cn("text-2xl font-bold", animateScore.team1 && "animate-score-update")}
+            <div
+              className={cn(
+                "text-2xl font-bold",
+                animateScore.team1 && "animate-score-update"
+              )}
               aria-label={`Team 1 score: ${gameState.teamScores.team1} points`}
             >
               {gameState.teamScores.team1}
@@ -145,14 +175,17 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = 
             <div className="text-sm">Team 1</div>
           </div>
         </div>
-        <div 
+        <div
           className="bg-blue-500 text-white px-6 py-3 rounded-xl shadow-elevated border border-blue-600"
           role="status"
           aria-live="polite"
         >
           <div className="text-center">
-            <div 
-              className={cn("text-2xl font-bold", animateScore.team2 && "animate-score-update")}
+            <div
+              className={cn(
+                "text-2xl font-bold",
+                animateScore.team2 && "animate-score-update"
+              )}
               aria-label={`Team 2 score: ${gameState.teamScores.team2} points`}
             >
               {gameState.teamScores.team2}
@@ -163,15 +196,17 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = 
       </section>
 
       {/* Main Game Area */}
-      <section 
+      <section
         className="relative h-screen flex items-center justify-center"
         aria-label="Game playing area"
       >
-        
         {/* Center Table Area */}
         <CenterTable
           currentTrick={gameState.currentTrick}
-          winner={gameState.roundWinner !== null && gameState.players[gameState.roundWinner].name}
+          winner={
+            gameState.roundWinner !== null &&
+            gameState.players[gameState.roundWinner].name
+          }
           isCollectingCards={isCollectingCards}
           showCardsPhase={showCardsPhase}
           collectionWinner={collectionWinner}
@@ -180,13 +215,13 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = 
         />
 
         {/* Player Areas */}
-        
+
         {/* Left Player */}
         <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
-          <PlayerArea 
-            player={players[1]} 
+          <PlayerArea
+            player={players[1]}
             runningSuite={gameState.runningSuite}
-            position="left" 
+            position="left"
             onCardPlay={onCardPlay}
             isDealing={isDealing}
             botCardsHidden={botCardsHidden}
@@ -195,10 +230,10 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = 
 
         {/* Top Player */}
         <div className="absolute top-4 left-1/2 transform -translate-x-1/2">
-          <PlayerArea 
-            player={players[2]} 
+          <PlayerArea
+            player={players[2]}
             runningSuite={gameState.runningSuite}
-            position="top" 
+            position="top"
             onCardPlay={onCardPlay}
             isDealing={isDealing}
             botCardsHidden={botCardsHidden}
@@ -207,10 +242,10 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = 
 
         {/* Right Player */}
         <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-          <PlayerArea 
-            player={players[3]} 
+          <PlayerArea
+            player={players[3]}
             runningSuite={gameState.runningSuite}
-            position="right" 
+            position="right"
             onCardPlay={onCardPlay}
             isDealing={isDealing}
             botCardsHidden={botCardsHidden}
@@ -219,10 +254,10 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = 
 
         {/* Bottom Player (Human) */}
         <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
-          <PlayerArea 
-            player={players[0]} 
+          <PlayerArea
+            player={players[0]}
             runningSuite={gameState.runningSuite}
-            position="bottom" 
+            position="bottom"
             onCardPlay={onCardPlay}
             isDealing={isDealing}
             botCardsHidden={botCardsHidden}

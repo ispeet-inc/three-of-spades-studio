@@ -1,5 +1,5 @@
 import { Card, Suite } from "@/types/game";
-import { DECK_SUITES, DECK_NUMBERS} from "@/utils/constants"
+import { DECK_SUITES, DECK_NUMBERS } from "@/utils/constants";
 import { getSuiteName } from "./suiteUtils";
 
 // Utility functions for card operations
@@ -40,7 +40,7 @@ const getRank = (number: number): number => {
 export const createCard = (suite: Suite, number: number): Card => {
   const id = getCardId(number);
   const rank = getRank(number);
-  const points = getPoints(number, suite)
+  const points = getPoints(number, suite);
   const positionValue = 100 * suite + rank;
   const hash = getHash(suite, number);
 
@@ -51,36 +51,35 @@ export const createCard = (suite: Suite, number: number): Card => {
     rank: rank,
     points: points,
     positionValue: positionValue,
-    hash: hash
+    hash: hash,
   };
 };
 
 export const getCardSet = (cards: Card[]): Set<string> => {
   const cardSet = new Set(cards.map(card => card.hash));
   return cardSet;
-}
+};
 
 export const generateDeck = (): Card[] => {
   const deck: Card[] = [];
 
-  DECK_SUITES.forEach((suite) => {
-    DECK_NUMBERS.forEach((number) => {
+  DECK_SUITES.forEach(suite => {
+    DECK_NUMBERS.forEach(number => {
       deck.push(createCard(suite, number));
     });
   });
   return deck;
 };
 
-
 export const getTopKCardsFromSuite = (suite: Suite, k: number): Card[] => {
   const topCards: Card[] = [];
-  
-  DECK_NUMBERS.slice(-k).forEach((number) => {
+
+  DECK_NUMBERS.slice(-k).forEach(number => {
     topCards.push(createCard(suite, number));
   });
 
   return topCards;
-}
+};
 
 export const shuffle = (array: Card[]): Card[] => {
   const shuffled = [...array];
@@ -92,7 +91,9 @@ export const shuffle = (array: Card[]): Card[] => {
 };
 
 export const distributeDeck = (deck: Card[], numPlayers: number): Card[][] => {
-  const hands: Card[][] = Array(numPlayers).fill(null).map(() => []);
+  const hands: Card[][] = Array(numPlayers)
+    .fill(null)
+    .map(() => []);
 
   if (deck.length % numPlayers !== 0) {
     throw new Error("Deck size must be divisible by number of players");
@@ -103,7 +104,7 @@ export const distributeDeck = (deck: Card[], numPlayers: number): Card[][] => {
   }
 
   // Sort each hand by position value
-  hands.forEach((hand) => {
+  hands.forEach(hand => {
     hand.sort((a, b) => a.positionValue - b.positionValue);
   });
 

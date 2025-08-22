@@ -2,7 +2,7 @@ import { Card, Suite, TableCard } from "@/types/game";
 import { hasSuite } from "@/utils/gameUtils";
 
 export interface BidAction {
-  action: 'bid' | 'pass';
+  action: "bid" | "pass";
   bidAmount?: number;
 }
 
@@ -37,28 +37,30 @@ export interface TrumpTeammateParams {
 
 export default abstract class BotAgent {
   abstract startRound(hand: Card[], trumpSuite: Suite): number;
-  
+
   abstract pickRunningSuite(
-    hand: Card[], 
-    runningSuite: Suite, 
-    trumpSuite: Suite, 
+    hand: Card[],
+    runningSuite: Suite,
+    trumpSuite: Suite,
     tableCards: TableCard[]
   ): number;
-  
+
   abstract toCutOrNotToCut(
-    hand: Card[], 
-    runningSuite: Suite, 
-    trumpSuite: Suite, 
+    hand: Card[],
+    runningSuite: Suite,
+    trumpSuite: Suite,
     tableCards: TableCard[]
   ): number;
 
   abstract getBidAction(params: BidParams): BidAction;
-  
-  abstract chooseTrumpAndTeammate(params: TrumpTeammateParams): TrumpTeammateChoice;
+
+  abstract chooseTrumpAndTeammate(
+    params: TrumpTeammateParams
+  ): TrumpTeammateChoice;
 
   chooseCardIndex(params: BotChoiceParams, verbose = false): number | null {
     const { hand, tableCards, trumpSuite, runningSuite, playerIndex } = params;
-    
+
     if (verbose) {
       console.log("Current hand:", hand);
     }
@@ -82,7 +84,9 @@ export default abstract class BotAgent {
         tableCards
       );
       if (verbose) {
-        console.log(`Playing card from running suite at index: ${pickedCardIndex}`);
+        console.log(
+          `Playing card from running suite at index: ${pickedCardIndex}`
+        );
       }
       return pickedCardIndex;
     }
