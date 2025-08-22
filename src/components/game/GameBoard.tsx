@@ -6,7 +6,7 @@ import {
   selectIsCollectingCards,
   selectShowCardsPhase,
 } from "@/store/selectors";
-import { Card, Suite, TableCard } from "@/types/game";
+import { Card, Suite, TableState } from "@/types/game";
 import {
   announceToScreenReader,
   gameStateAnnouncements,
@@ -28,9 +28,6 @@ interface GameBoardProps {
       isTeammate?: boolean;
       isBidder?: boolean;
     }>;
-    currentTrick: TableCard[];
-    runningSuite?: Suite;
-    roundWinner?: number;
     trumpSuit: Suite;
     currentBid: number;
     round: number;
@@ -41,6 +38,7 @@ interface GameBoardProps {
     collectionWinner?: number | null;
     playerNames?: Record<number, string>;
   };
+  tableState: TableState;
   onCardPlay: (card: Card) => void;
   onSettingsClick: () => void;
   isDealing?: boolean;
@@ -49,6 +47,7 @@ interface GameBoardProps {
 
 export const GameBoard = ({
   gameState,
+  tableState,
   onCardPlay,
   onSettingsClick,
   isDealing = false,
@@ -111,14 +110,6 @@ export const GameBoard = ({
       }
     }
   }, [players]);
-
-  // Helper function to get card played by specific player
-  const getPlayedCardForPlayer = (playerIndex: number): Card | null => {
-    // Search for a card in currentTrick that was played by this player
-    // Note: This assumes Card interface has a player property, or we need to track this differently
-    // For now, using the order they appear in currentTrick array based on play sequence
-    return gameState.currentTrick[playerIndex] || null;
-  };
 
   return (
     <main
@@ -202,15 +193,15 @@ export const GameBoard = ({
       >
         {/* Center Table Area */}
         <CenterTable
-          currentTrick={gameState.currentTrick}
+          currentTrick={tableState.tableCards}
           winner={
-            gameState.roundWinner !== null &&
-            gameState.players[gameState.roundWinner].name
+            tableState.roundWinner !== null &&
+            gameState.players[tableState.roundWinner.number].name
           }
           isCollectingCards={isCollectingCards}
           showCardsPhase={showCardsPhase}
           collectionWinner={collectionWinner}
-          roundWinner={gameState.roundWinner}
+          roundWinner={tableState.roundWinner.number}
           playerNames={gameState.playerNames}
         />
 
@@ -220,7 +211,7 @@ export const GameBoard = ({
         <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
           <PlayerArea
             player={players[1]}
-            runningSuite={gameState.runningSuite}
+            runningSuite={tableState.runningSuite}
             position="left"
             onCardPlay={onCardPlay}
             isDealing={isDealing}
@@ -232,7 +223,7 @@ export const GameBoard = ({
         <div className="absolute top-4 left-1/2 transform -translate-x-1/2">
           <PlayerArea
             player={players[2]}
-            runningSuite={gameState.runningSuite}
+            runningSuite={tableState.runningSuite}
             position="top"
             onCardPlay={onCardPlay}
             isDealing={isDealing}
@@ -244,7 +235,7 @@ export const GameBoard = ({
         <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
           <PlayerArea
             player={players[3]}
-            runningSuite={gameState.runningSuite}
+            runningSuite={tableState.runningSuite}
             position="right"
             onCardPlay={onCardPlay}
             isDealing={isDealing}
@@ -256,7 +247,7 @@ export const GameBoard = ({
         <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
           <PlayerArea
             player={players[0]}
-            runningSuite={gameState.runningSuite}
+            runningSuite={tableState.runningSuite}
             position="bottom"
             onCardPlay={onCardPlay}
             isDealing={isDealing}

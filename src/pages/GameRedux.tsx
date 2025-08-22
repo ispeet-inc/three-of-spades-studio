@@ -21,7 +21,7 @@ import {
 import { GameStages } from "@/store/gameStages";
 import { Card } from "@/types/game";
 import { createCard } from "@/utils/cardUtils";
-import { TIMINGS } from "@/utils/constants";
+import { FIRST_PLAYER_ID, TIMINGS } from "@/utils/constants";
 import { useFeedback } from "@/utils/feedbackSystem";
 import { getTeammateOptions } from "@/utils/gameUtils";
 import { useEffect, useState } from "react";
@@ -30,6 +30,9 @@ import { useDispatch } from "react-redux";
 const GameRedux = () => {
   const dispatch = useDispatch();
   const gameState = useAppSelector((state: RootState) => state.game);
+  const tableState = useAppSelector(
+    (state: RootState) => state.game.tableState
+  );
   const { trigger } = useFeedback();
 
   // Add dealing animation state
@@ -45,7 +48,7 @@ const GameRedux = () => {
       team: (gameState.playerTeamMap?.[parseInt(index)] === 0 ? 1 : 2) as 1 | 2,
       cards: player.hand,
       isCurrentPlayer:
-        parseInt(index) === gameState.turn &&
+        parseInt(index) === tableState.turn &&
         gameState.stage === GameStages.PLAYING,
       isTeammate:
         gameState.playerTeamMap &&
@@ -55,9 +58,6 @@ const GameRedux = () => {
       isBidder:
         gameState.bidder !== null && gameState.bidder === parseInt(index),
     })),
-    currentTrick: gameState.tableCards,
-    runningSuite: gameState.runningSuite,
-    roundWinner: gameState.roundWinner,
     trumpSuit: gameState.trumpSuite,
     currentBid: gameState.bidAmount || 0,
     round: gameState.round,
@@ -126,39 +126,44 @@ const GameRedux = () => {
 
   // Handle bot actions
   useEffect(() => {
-    if (gameState.stage === GameStages.PLAYING && gameState.turn !== 0) {
+    if (
+      gameState.stage === GameStages.PLAYING &&
+      tableState.turn !== FIRST_PLAYER_ID
+    ) {
       console.log(
-        `Bot ${gameState.turn} should play now. Stage: ${gameState.stage}, Turn: ${gameState.turn}`
+        `Bot ${tableState.turn} should play now. Stage: ${gameState.stage}, Turn: ${tableState.turn}`
       );
       const timer = setTimeout(() => {
-        const currentPlayer = gameState.players[gameState.turn];
-        const botAgent = gameState.playerAgents[gameState.turn];
+        const currentPlayer = gameState.players[tableState.turn];
+        const botAgent = gameState.playerAgents[tableState.turn];
 
         console.log(
-          `Bot ${gameState.turn} - Hand length: ${currentPlayer?.hand?.length}, Agent exists: ${!!botAgent}`
+          `Bot ${tableState.turn} - Hand length: ${currentPlayer?.hand?.length}, Agent exists: ${!!botAgent}`
         );
 
         if (currentPlayer.hand.length > 0 && botAgent) {
           try {
             console.log(
-              `Bot ${gameState.turn} attempting to choose card with:`,
+              `Bot ${tableState.turn} attempting to choose card with:`,
               {
                 handSize: currentPlayer.hand.length,
-                tableCards: gameState.tableCards.length,
+                tableCards: tableState.tableCards.length,
                 trumpSuite: gameState.trumpSuite,
-                runningSuite: gameState.runningSuite,
+                runningSuite: tableState.runningSuite,
               }
             );
 
             const cardIndex = botAgent.chooseCardIndex({
               hand: currentPlayer.hand,
-              tableCards: gameState.tableCards,
+              tableCards: tableState.tableCards,
               trumpSuite: gameState.trumpSuite,
-              runningSuite: gameState.runningSuite,
-              playerIndex: gameState.turn,
+              runningSuite: tableState.runningSuite,
+              playerIndex: tableState.turn,
             });
 
-            console.log(`Bot ${gameState.turn} chose card index: ${cardIndex}`);
+            console.log(
+              `Bot ${tableState.turn} chose card index: ${cardIndex}`
+            );
 
             const validCardIndex =
               cardIndex !== null &&
@@ -168,29 +173,29 @@ const GameRedux = () => {
                 : Math.floor(Math.random() * currentPlayer.hand.length);
 
             console.log(
-              `Bot ${gameState.turn} playing card at index: ${validCardIndex}`
+              `Bot ${tableState.turn} playing card at index: ${validCardIndex}`
             );
             dispatch(
               playCard({
-                playerIndex: gameState.turn,
+                playerIndex: tableState.turn,
                 cardIndex: validCardIndex,
               })
             );
           } catch (error) {
-            console.error(`Bot ${gameState.turn} error:`, error);
+            console.error(`Bot ${tableState.turn} error:`, error);
             const fallbackIndex = Math.floor(
               Math.random() * currentPlayer.hand.length
             );
             dispatch(
               playCard({
-                playerIndex: gameState.turn,
+                playerIndex: tableState.turn,
                 cardIndex: fallbackIndex,
               })
             );
           }
         } else {
           console.log(
-            `Bot ${gameState.turn} cannot play - no hand or no agent`
+            `Bot ${tableState.turn} cannot play - no hand or no agent`
           );
         }
       }, TIMINGS.botPlayDelayMs);
@@ -198,12 +203,12 @@ const GameRedux = () => {
     }
   }, [
     gameState.stage,
-    gameState.turn,
+    tableState.turn,
     dispatch,
     gameState.players,
-    gameState.tableCards,
+    tableState.tableCards,
     gameState.trumpSuite,
-    gameState.runningSuite,
+    tableState.runningSuite,
     gameState.playerAgents,
   ]);
 
@@ -286,11 +291,12 @@ const GameRedux = () => {
   }, [
     gameState.stage,
     gameState.biddingState.currentBidder,
-    gameState.biddingState.biddingActive,
+    gameState.biddingState.bidWinner,
     gameState.biddingState.currentBid,
     dispatch,
     gameState.playerAgents,
     gameState.players,
+    gameState.biddingState.passedPlayers,
   ]);
 
   // Handle bot trump selection
@@ -343,6 +349,7 @@ const GameRedux = () => {
     gameState.playerAgents,
     gameState.players,
     gameState.playerNames,
+    handleTrumpSelection,
   ]);
 
   if (gameState.stage === GameStages.INIT) {
@@ -357,6 +364,7 @@ const GameRedux = () => {
     <div className="relative">
       <GameBoard
         gameState={transformedGameState}
+        tableState={tableState}
         onCardPlay={handleCardPlay}
         onSettingsClick={() => console.log("Settings")}
         isDealing={isDealing}
