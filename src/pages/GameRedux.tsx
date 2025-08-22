@@ -73,18 +73,18 @@ const GameRedux = () => {
   };
 
   const handleCardPlay = (card: Card) => {
-    const playerHand = gameState.players[0].hand;
+    const playerHand = gameState.players[FIRST_PLAYER_ID].hand;
     const cardIndex = playerHand.findIndex(
       c => c.positionValue === card.positionValue
     );
     if (cardIndex !== -1) {
-      dispatch(playCard({ playerIndex: 0, cardIndex }));
+      dispatch(playCard({ playerIndex: FIRST_PLAYER_ID, cardIndex }));
     }
   };
 
   const handleStartGame = (playerName: string = "You") => {
     // Set the player name in the game state
-    dispatch(setPlayerName({ playerIndex: 0, name: playerName }));
+    dispatch(setPlayerName({ playerIndex: FIRST_PLAYER_ID, name: playerName }));
 
     setIsDealing(true);
     dispatch(startGame());
@@ -99,12 +99,12 @@ const GameRedux = () => {
 
   const handleBid = (amount: number) => {
     trigger("bid", { intensity: "medium" });
-    dispatch(placeBid({ playerIndex: 0, bidAmount: amount }));
+    dispatch(placeBid({ playerIndex: FIRST_PLAYER_ID, bidAmount: amount }));
   };
 
   const handlePass = () => {
     trigger("buttonClick", { intensity: "light" });
-    dispatch(passBid({ playerIndex: 0 }));
+    dispatch(passBid({ playerIndex: FIRST_PLAYER_ID }));
   };
 
   const handleTrumpSelection = (trumpSuite: number, teammateCard: Card) => {
@@ -116,7 +116,6 @@ const GameRedux = () => {
         teammateCard,
       })
     );
-    // Don't immediately go to PLAYING - let BidResultModal handle the transition
   };
 
   const handleBidResultClose = () => {
@@ -220,7 +219,7 @@ const GameRedux = () => {
   useEffect(() => {
     if (
       gameState.stage === GameStages.BIDDING &&
-      gameState.biddingState.currentBidder !== 0 &&
+      gameState.biddingState.currentBidder !== FIRST_PLAYER_ID &&
       gameState.biddingState.passedPlayers.length < 3 &&
       gameState.biddingState.bidWinner === null
     ) {
@@ -307,7 +306,7 @@ const GameRedux = () => {
   useEffect(() => {
     if (
       gameState.stage === GameStages.TRUMP_SELECTION &&
-      gameState.biddingState.bidWinner !== 0
+      gameState.biddingState.bidWinner !== FIRST_PLAYER_ID
     ) {
       const timer = setTimeout(() => {
         const botAgent =
