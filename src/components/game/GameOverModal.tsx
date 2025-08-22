@@ -83,11 +83,6 @@ export const GameOverModal = () => {
                 >
                   {scores[0]}
                 </div>
-                {winningTeam === 0 && (
-                  <div className="text-xs text-gold/70 font-medium uppercase tracking-wider">
-                    🏆 Winners!
-                  </div>
-                )}
                 <div className="text-xs text-gold/70 font-medium tracking-wider">
                   {teams[0].map(playerId => playerNames[playerId]).join(", ")}
                 </div>

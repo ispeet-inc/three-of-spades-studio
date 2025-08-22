@@ -65,7 +65,7 @@ export const selectPlayers = createSelector(
 /** Current turn index */
 export const selectTurnIndex = createSelector(
   selectGame,
-  (g): number => g.turn
+  (g): number => g.tableState.turn
 );
 /** Player hand factory */
 export const makeSelectPlayerHand = (playerIndex: number) =>
@@ -81,7 +81,7 @@ export const makeSelectIsCurrentPlayer = (playerIndex: number) =>
 /** Cards currently on table (current trick) */
 export const selectCurrentTrick = createSelector(
   selectGame,
-  (g): TableCard[] => g.tableCards
+  (g): TableCard[] => g.tableState.tableCards
 );
 /** Number of cards in current trick */
 export const selectTrickCount = createSelector(
@@ -91,7 +91,7 @@ export const selectTrickCount = createSelector(
 /** Leading suit for the trick (runningSuite) */
 export const selectLeadingSuit = createSelector(
   selectGame,
-  (g): number | null => g.runningSuite
+  (g): number | null => g.tableState.runningSuite
 );
 /** Current trump suit */
 export const selectTrumpSuit = createSelector(
@@ -106,7 +106,7 @@ export const selectTrickLeaderIndex = createSelector(
 /** Index of trick winner (roundWinner) */
 export const selectTrickWinnerIndex = createSelector(
   selectGame,
-  (g): number | null => g.roundWinner
+  (g): number | null => g.tableState.roundWinner.player
 );
 /** Whether the trick has 4 cards */
 export const selectIsTrickComplete = createSelector(

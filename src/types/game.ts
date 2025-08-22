@@ -39,21 +39,23 @@ export interface BiddingState {
   bidTimer: number;
 }
 
+export interface TableState {
+  runningSuite: Suite | null;
+  tableCards: TableCard[];
+  turn: number;
+  roundWinner: TableCard | null;
+  discardedCards: Card[];
+}
+
 export interface GameState {
   stage: GameStage;
   players: Record<number, Player>;
   startingPlayer: number;
   round: number;
-  runningSuite: number | null;
   trumpSuite: number | null;
   bidAmount: number | null;
   bidder: number | null;
-  tableCards: TableCard[];
   scores: [number, number];
-  turn: number;
-  roundWinner: number | null;
-  /** @deprecated Use selectIsRoundEnding selector instead */
-  isRoundEnding: boolean;
   totalRounds: number;
   playerTeamMap: Record<number, number> | null;
   playerAgents: Record<number, any>;
@@ -65,4 +67,5 @@ export interface GameState {
   showCardsPhase: boolean;
   collectionWinner: number | null;
   biddingState: BiddingState;
+  tableState: TableState;
 }
