@@ -2,7 +2,7 @@ import { agentClasses } from "@/agents";
 import { Card, GameState } from "@/types/game";
 import { distributeDeck, shuffle } from "@/utils/cardUtils";
 import { FIRST_PLAYER_ID, PLAYER_NAME_POOL } from "@/utils/constants";
-import { initialBiddingState } from "@/utils/gameSetupUtils";
+import { initialBiddingState, initPlayerObject } from "@/utils/gameSetupUtils";
 import {
   assignTeamsByTeammateCard,
   selectRandomNames,
@@ -25,7 +25,6 @@ const initialState: GameState = {
   bidder: null,
   scores: [0, 0],
   totalRounds: 0,
-  playerTeamMap: null,
   teammateCard: null,
   isCollectingCards: false,
   showCardsPhase: false,
@@ -37,10 +36,10 @@ const initialState: GameState = {
     playerAgents: {},
     playerNames: { 0: "You", 1: "", 2: "", 3: "" },
     players: {
-      0: { hand: [], score: 0, isBidWinner: false, isTeammate: false },
-      1: { hand: [], score: 0, isBidWinner: false, isTeammate: false },
-      2: { hand: [], score: 0, isBidWinner: false, isTeammate: false },
-      3: { hand: [], score: 0, isBidWinner: false, isTeammate: false },
+      0: initPlayerObject([]),
+      1: initPlayerObject([]),
+      2: initPlayerObject([]),
+      3: initPlayerObject([]),
     },
   },
 };
@@ -67,8 +66,7 @@ const gameSlice = createSlice({
 
       // Initialize each player's hand
       for (let i = 0; i < NUM_PLAYERS; i++) {
-        state.playerState.players[i].hand = distributedHands[i];
-        state.playerState.players[i].score = 0;
+        state.playerState.players[i] = initPlayerObject(distributedHands[i]);
       }
 
       // Randomly assign bot agents to computer players (1, 2, 3)
@@ -126,7 +124,7 @@ const gameSlice = createSlice({
 
       const roundWinner = state.tableState.roundWinner;
       if (roundWinner !== null) {
-        const winningTeam = state.playerTeamMap[roundWinner.player];
+        const winningTeam = state.playerState.players[roundWinner.player].team;
 
         // Calculate total points from all cards in the table
         const roundPoints = state.tableState.tableCards.reduce(
@@ -180,16 +178,14 @@ const gameSlice = createSlice({
         `Setting trump ${trumpSuite} and teammate: ${state.teammateCard}`
       );
       console.log(state.teammateCard);
-      // todo - update isBidWinner and isTeammate fields in states.playerState.players has to happen within below call
-      // state.playerState.players[state.bidder].isBidWinner = true;
       // Assign teams based on teammate card
-      const playerTeamMap = assignTeamsByTeammateCard(
+      const updatedPlayers = assignTeamsByTeammateCard(
         state.playerState.players,
         bidder,
         teammateCard,
         NUM_PLAYERS
       );
-      state.playerTeamMap = playerTeamMap;
+      state.playerState.players = updatedPlayers;
       // todo - make this happen through setStage too.
       console.log(
         "CHANGING STATE: FROM ",

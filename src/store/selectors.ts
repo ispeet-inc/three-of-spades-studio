@@ -9,7 +9,7 @@ import type {
   BiddingState,
   Card,
   GameState,
-  Player,
+  Playerv2,
   TableCard,
 } from "@/types/game";
 import { createSelector } from "@reduxjs/toolkit";
@@ -57,11 +57,6 @@ export const selectIsGameOver = createSelector(
 );
 
 // Players and turn
-/** All players map */
-export const selectPlayers = createSelector(
-  selectGame,
-  (g): Record<number, Player> => g.players
-);
 /** Current turn index */
 export const selectTurnIndex = createSelector(
   selectGame,
@@ -126,28 +121,22 @@ export const selectTeamScores = createSelector(
   ([team1, team2]) => ({ team1, team2 })
 );
 /** Player -> team map */
-export const selectPlayerTeamMap = createSelector(
+export const selectPlayers = createSelector(
   selectGame,
-  (g): Record<number, number> | null => g.playerTeamMap
+  (g): Record<number, Playerv2> | null => g.playerState.players
 );
-/** Team id for a given player (or null) */
-export const makeSelectTeamForPlayer = (playerIndex: number) =>
-  createSelector(selectPlayerTeamMap, (map): number | null =>
-    map ? (map[playerIndex] ?? null) : null
-  );
 
-// Derive teams from playerTeamMap
+// Derive teams from players
 export const selectTeams = createSelector(
-  selectPlayerTeamMap,
-  (playerTeamMap): Record<number, number[]> => {
-    if (!playerTeamMap) return { 0: [], 1: [] };
-
+  selectPlayers,
+  (players): Record<number, number[]> => {
     const teams: Record<number, number[]> = { 0: [], 1: [] };
 
     // Group players by their team
-    Object.entries(playerTeamMap).forEach(([playerId, teamId]) => {
+    Object.entries(players).forEach(([playerId, playerRecord]) => {
       const player = parseInt(playerId);
-      const team = teamId;
+      const team = playerRecord.team;
+      if (team === null) return { 0: [], 1: [] };
       if (!teams[team]) teams[team] = [];
       teams[team].push(player);
     });

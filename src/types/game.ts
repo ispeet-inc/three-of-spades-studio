@@ -26,6 +26,7 @@ export interface Playerv2 {
   score: number;
   isTeammate: boolean;
   isBidWinner: boolean;
+  team: number | null;
 }
 
 export interface Player {
@@ -57,7 +58,6 @@ export interface TableState {
 export interface PlayerState {
   startingPlayer: number;
   players: Record<number, Playerv2>;
-  // playerTeamMap: Record<number, number> | null;
   playerAgents: Record<number, any>;
   playerNames: Record<number, string>;
 }
@@ -70,7 +70,6 @@ export interface GameState {
   bidder: number | null;
   scores: [number, number];
   totalRounds: number;
-  playerTeamMap: Record<number, number> | null;
   teammateCard: Card | null;
   /** @deprecated Use selectIsCollectingCards selector instead */
   isCollectingCards: boolean;

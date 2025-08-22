@@ -34,8 +34,6 @@ export const assignTeamsByTeammateCard = (
   teammateCard: Card,
   numPlayers: number
 ) => {
-  const playerTeamMap = {} as Record<number, number>;
-
   // Find who has the teammate card
   let teammateIndex = -1;
   for (let i = 0; i < numPlayers; i++) {
@@ -52,13 +50,19 @@ export const assignTeamsByTeammateCard = (
   // Assign teams
   for (let i = 0; i < numPlayers; i++) {
     if (i === bidder || i === teammateIndex) {
-      playerTeamMap[i] = BIDDING_TEAM;
+      players[i].team = BIDDING_TEAM;
+      if (i === teammateIndex) {
+        players[i].isTeammate = true;
+      }
+      if (i === bidder) {
+        players[i].isBidWinner = true;
+      }
     } else {
-      playerTeamMap[i] = DEFENDING_TEAM;
+      players[i].team = DEFENDING_TEAM;
     }
   }
 
-  return playerTeamMap;
+  return players;
 };
 
 export const getTeammateOptions = (hand: Card[], suite: number): Card[] => {

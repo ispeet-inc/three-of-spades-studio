@@ -49,15 +49,15 @@ const GameRedux = () => {
       name:
         playerState.playerNames[parseInt(index)] ||
         `Player ${parseInt(index) + 1}`,
-      team: (gameState.playerTeamMap?.[parseInt(index)] === 0 ? 1 : 2) as 1 | 2,
+      team:
+        player.team === null ? null : ((player.team === 0 ? 1 : 2) as 1 | 2),
       cards: player.hand,
       isCurrentPlayer:
         parseInt(index) === tableState.turn &&
         gameState.stage === GameStages.PLAYING,
       isTeammate:
-        gameState.playerTeamMap &&
-        gameState.playerTeamMap[parseInt(index)] ===
-          gameState.playerTeamMap[FIRST_PLAYER_ID] &&
+        player.team !== null &&
+        player.team === playerState.players[FIRST_PLAYER_ID].team &&
         parseInt(index) !== FIRST_PLAYER_ID,
       isBidder:
         gameState.bidder !== null && gameState.bidder === parseInt(index),

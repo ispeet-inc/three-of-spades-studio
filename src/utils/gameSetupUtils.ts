@@ -1,4 +1,4 @@
-import { BiddingState } from "@/types/game";
+import { BiddingState, Card, Playerv2 } from "@/types/game";
 
 export const initialBiddingState = (
   numPlayers: number,
@@ -16,5 +16,15 @@ export const initialBiddingState = (
     bidWinner: null,
     bidHistory: [],
     bidTimer: 30,
+  };
+};
+
+export const initPlayerObject = (hand: Card[]): Playerv2 => {
+  return {
+    hand: hand,
+    score: 0,
+    isBidWinner: false,
+    isTeammate: false,
+    team: null,
   };
 };
