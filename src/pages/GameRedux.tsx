@@ -43,7 +43,8 @@ const GameRedux = () => {
 
   // Transform Redux state to GameBoard props
   const transformedGameState = {
-    players: Object.entries(gameState.players).map(([index, player]) => ({
+    // todo - dismantle this object
+    players: Object.entries(playerState.players).map(([index, player]) => ({
       id: `player-${index}`,
       name:
         playerState.playerNames[parseInt(index)] ||
@@ -56,8 +57,8 @@ const GameRedux = () => {
       isTeammate:
         gameState.playerTeamMap &&
         gameState.playerTeamMap[parseInt(index)] ===
-          gameState.playerTeamMap[0] &&
-        parseInt(index) !== 0,
+          gameState.playerTeamMap[FIRST_PLAYER_ID] &&
+        parseInt(index) !== FIRST_PLAYER_ID,
       isBidder:
         gameState.bidder !== null && gameState.bidder === parseInt(index),
     })),
@@ -75,7 +76,7 @@ const GameRedux = () => {
   };
 
   const handleCardPlay = (card: Card) => {
-    const playerHand = gameState.players[FIRST_PLAYER_ID].hand;
+    const playerHand = playerState.players[FIRST_PLAYER_ID].hand;
     const cardIndex = playerHand.findIndex(
       c => c.positionValue === card.positionValue
     );
@@ -139,7 +140,7 @@ const GameRedux = () => {
         `Bot ${tableState.turn} should play now. Stage: ${gameState.stage}, Turn: ${tableState.turn}`
       );
       const timer = setTimeout(() => {
-        const currentPlayer = gameState.players[tableState.turn];
+        const currentPlayer = playerState.players[tableState.turn];
         const botAgent = playerState.playerAgents[tableState.turn];
 
         console.log(
@@ -210,7 +211,7 @@ const GameRedux = () => {
     gameState.stage,
     tableState.turn,
     dispatch,
-    gameState.players,
+    playerState.players,
     tableState.tableCards,
     gameState.trumpSuite,
     tableState.runningSuite,
@@ -237,7 +238,7 @@ const GameRedux = () => {
         const botAgent =
           playerState.playerAgents[gameState.biddingState.currentBidder];
         const currentPlayer =
-          gameState.players[gameState.biddingState.currentBidder];
+          playerState.players[gameState.biddingState.currentBidder];
 
         if (botAgent && currentPlayer) {
           try {
@@ -300,7 +301,7 @@ const GameRedux = () => {
     gameState.biddingState.currentBid,
     dispatch,
     playerState.playerAgents,
-    gameState.players,
+    playerState.players,
     gameState.biddingState.passedPlayers,
   ]);
 
@@ -313,7 +314,8 @@ const GameRedux = () => {
       const timer = setTimeout(() => {
         const botAgent =
           playerState.playerAgents[gameState.biddingState.bidWinner!];
-        const bidWinner = gameState.players[gameState.biddingState.bidWinner!];
+        const bidWinner =
+          playerState.players[gameState.biddingState.bidWinner!];
 
         if (botAgent && bidWinner) {
           try {
@@ -352,7 +354,7 @@ const GameRedux = () => {
     gameState.stage,
     gameState.biddingState.bidWinner,
     playerState.playerAgents,
-    gameState.players,
+    playerState.players,
     playerState.playerNames,
     handleTrumpSelection,
   ]);
@@ -366,7 +368,7 @@ const GameRedux = () => {
   }
 
   // Safety check to ensure game state is properly initialized
-  if (!gameState || !gameState.players || !gameState.scores || !tableState) {
+  if (!gameState || !playerState.players || !gameState.scores || !tableState) {
     return <div>Loading...</div>;
   }
 

@@ -21,6 +21,13 @@ export interface TableCard extends Card {
   player: number;
 }
 
+export interface Playerv2 {
+  hand: Card[];
+  score: number;
+  isTeammate: boolean;
+  isBidWinner: boolean;
+}
+
 export interface Player {
   hand: Card[];
   score: number;
@@ -49,7 +56,7 @@ export interface TableState {
 
 export interface PlayerState {
   startingPlayer: number;
-  // players: Record<number, Player>;
+  players: Record<number, Playerv2>;
   // playerTeamMap: Record<number, number> | null;
   playerAgents: Record<number, any>;
   playerNames: Record<number, string>;
@@ -57,7 +64,6 @@ export interface PlayerState {
 
 export interface GameState {
   stage: GameStage;
-  players: Record<number, Player>;
   round: number;
   trumpSuite: number | null;
   bidAmount: number | null;

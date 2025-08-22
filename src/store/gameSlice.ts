@@ -19,12 +19,6 @@ const NUM_PLAYERS = 4;
 
 const initialState: GameState = {
   stage: GameStages.INIT,
-  players: {
-    0: { hand: [], score: 0 },
-    1: { hand: [], score: 0 },
-    2: { hand: [], score: 0 },
-    3: { hand: [], score: 0 },
-  },
   round: 0,
   trumpSuite: null,
   bidAmount: null,
@@ -42,6 +36,12 @@ const initialState: GameState = {
     startingPlayer: 0,
     playerAgents: {},
     playerNames: { 0: "You", 1: "", 2: "", 3: "" },
+    players: {
+      0: { hand: [], score: 0, isBidWinner: false, isTeammate: false },
+      1: { hand: [], score: 0, isBidWinner: false, isTeammate: false },
+      2: { hand: [], score: 0, isBidWinner: false, isTeammate: false },
+      3: { hand: [], score: 0, isBidWinner: false, isTeammate: false },
+    },
   },
 };
 
@@ -67,8 +67,8 @@ const gameSlice = createSlice({
 
       // Initialize each player's hand
       for (let i = 0; i < NUM_PLAYERS; i++) {
-        state.players[i].hand = distributedHands[i];
-        state.players[i].score = 0;
+        state.playerState.players[i].hand = distributedHands[i];
+        state.playerState.players[i].score = 0;
       }
 
       // Randomly assign bot agents to computer players (1, 2, 3)
@@ -108,13 +108,13 @@ const gameSlice = createSlice({
       action: PayloadAction<{ playerIndex: number; cardIndex: number }>
     ) => {
       const { playerIndex, cardIndex } = action.payload;
-      const playerHand = [...state.players[playerIndex].hand];
+      const playerHand = [...state.playerState.players[playerIndex].hand];
       const card = playerHand.splice(cardIndex, 1)[0];
 
       // Sort the remaining hand by position value to maintain card order
       playerHand.sort((a, b) => a.positionValue - b.positionValue);
 
-      state.players[playerIndex].hand = playerHand;
+      state.playerState.players[playerIndex].hand = playerHand;
       const tableCard = { ...card, player: playerIndex };
 
       state.tableState = playCardOnTable(
@@ -135,7 +135,7 @@ const gameSlice = createSlice({
         );
 
         state.scores[winningTeam] += roundPoints;
-        state.players[roundWinner.player].score += roundPoints;
+        state.playerState.players[roundWinner.player].score += roundPoints;
       }
     },
 
@@ -180,9 +180,11 @@ const gameSlice = createSlice({
         `Setting trump ${trumpSuite} and teammate: ${state.teammateCard}`
       );
       console.log(state.teammateCard);
+      // todo - update isBidWinner and isTeammate fields in states.playerState.players has to happen within below call
+      // state.playerState.players[state.bidder].isBidWinner = true;
       // Assign teams based on teammate card
       const playerTeamMap = assignTeamsByTeammateCard(
-        state.players,
+        state.playerState.players,
         bidder,
         teammateCard,
         NUM_PLAYERS

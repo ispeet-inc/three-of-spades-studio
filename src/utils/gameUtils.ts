@@ -1,4 +1,4 @@
-import { Card, Player, Suite, TableCard } from "@/types/game";
+import { Card, Playerv2, Suite, TableCard } from "@/types/game";
 import { createCard } from "./cardUtils";
 import { BIDDING_TEAM, DEFENDING_TEAM } from "./constants";
 
@@ -29,7 +29,7 @@ export const getMaxRankedCard = (cards: TableCard[]): TableCard => {
 };
 
 export const assignTeamsByTeammateCard = (
-  players: Record<number, Player>,
+  players: Record<number, Playerv2>,
   bidder: number,
   teammateCard: Card,
   numPlayers: number
