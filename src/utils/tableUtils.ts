@@ -46,13 +46,10 @@ export const playCardOnTable = (
 };
 
 export const newRoundOnTable = (oldState: TableState): TableState => {
-  if (oldState.roundWinner === null) {
-    throw new Error("Round winner cannot be null before start of newRound");
-  }
   return {
     runningSuite: null,
     tableCards: [],
-    turn: oldState.roundWinner.player,
+    turn: oldState.roundWinner?.player,
     roundWinner: null,
     discardedCards: oldState.discardedCards.concat(oldState.tableCards),
   };

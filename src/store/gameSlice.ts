@@ -140,7 +140,7 @@ const gameSlice = createSlice({
     startNewRound: state => {
       console.log(
         "GAME: Starting new round, previous winner:",
-        state.tableState.roundWinner.player
+        state.tableState.roundWinner?.player
       );
       state.tableState = newRoundOnTable(state.tableState);
       state.round = state.round + 1;
@@ -158,7 +158,7 @@ const gameSlice = createSlice({
     },
 
     startCardCollection: state => {
-      state.collectionWinner = state.tableState.roundWinner.player;
+      state.collectionWinner = state.tableState.roundWinner?.player;
       state.stage = GameStages.ROUND_COMPLETE;
     },
 

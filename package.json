@@ -8,6 +8,7 @@
     "dev:no-lint": "vite --mode development",
     "build": "vite build",
     "build:dev": "vite build --mode development",
+    "build:prod": "vite build --mode production",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
