@@ -91,34 +91,30 @@ export const selectIsTrickComplete = createSelector(
 );
 
 // Scores and teams
-/** Tuple scores [team1, team2] */
-export const selectScoresTuple = createSelector(
-  selectGame,
-  (g): [number, number] => g.scores
-);
-/** Named team scores */
+/** Named team scores - updated for new format */
 export const selectTeamScores = createSelector(
-  selectScoresTuple,
-  ([team1, team2]) => ({ team1, team2 })
+  selectGame,
+  (g): { team1: number; team2: number } => g.scores
 );
+
 /** Player -> team map */
 export const selectPlayers = createSelector(
   selectGame,
   (g): Record<number, Playerv2> | null => g.playerState.players
 );
 
-// Derive teams from players
+// Derive teams from players - updated for new team system (1/2 instead of 0/1)
 export const selectTeams = createSelector(
   selectPlayers,
   (players): Record<number, number[]> => {
-    const teams: Record<number, number[]> = { 0: [], 1: [] };
+    const teams: Record<number, number[]> = { 1: [], 2: [] }; // Changed from 0/1 to 1/2
     if (!players) return teams;
 
     // Group players by their team
     Object.entries(players).forEach(([playerId, playerRecord]) => {
       const player = parseInt(playerId);
       const team = playerRecord.team;
-      if (team === null) return { 0: [], 1: [] };
+      if (team === null) return { 1: [], 2: [] }; // Changed from 0/1 to 1/2
       if (!teams[team]) teams[team] = [];
       teams[team].push(player);
     });
@@ -197,9 +193,18 @@ export const selectBidAmount = createSelector(
   selectGame,
   (g): number | null => g.bidAmount
 );
+
+// Phase 1: Basic selectors for new state structure
+/** Current player index - only valid during PLAYING stage */
+export const selectCurrentPlayerIndex = createSelector(
+  [selectGame, selectStage],
+  (game, stage): number =>
+    stage === GameStages.PLAYING ? game.tableState.turn : -1
+);
+
 export const selectBidder = createSelector(
   selectGame,
-  (g): number | null => g.bidder
+  (g): number | null => g.bidWinner // Changed from g.bidder to g.bidWinner
 );
 export const selectTeammateCard = createSelector(
   selectGame,

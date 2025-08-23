@@ -17,13 +17,18 @@ import { GameStages, type GameStage } from "./gameStages";
 
 const NUM_PLAYERS = 4;
 
+// Helper function to convert team number to scores key
+const getTeamScoreKey = (team: number): "team1" | "team2" => {
+  return team === 1 ? "team1" : "team2";
+};
+
 const initialState: GameState = {
   stage: GameStages.INIT,
   round: 0,
   trumpSuite: null,
   bidAmount: null,
-  bidder: null,
-  scores: [0, 0],
+  bidWinner: null, // Changed from bidder to bidWinner
+  scores: { team1: 0, team2: 0 }, // Changed from [0, 0] to object format
   totalRounds: 0,
   teammateCard: null,
   isCollectingCards: false,
@@ -93,13 +98,13 @@ const gameSlice = createSlice({
       );
       state.trumpSuite = null;
       state.bidAmount = null;
-      state.bidder = null;
+      state.bidWinner = null;
       state.round = 0;
       state.tableState = initialTableState(
         state.playerState.startingPlayer,
         false
       );
-      state.scores = [0, 0];
+      state.scores = { team1: 0, team2: 0 };
     },
 
     playCard: (
@@ -135,7 +140,7 @@ const gameSlice = createSlice({
           0
         );
 
-        state.scores[winningTeam] += roundPoints;
+        state.scores[getTeamScoreKey(winningTeam)] += roundPoints;
         state.playerState.players[roundWinner.player].score += roundPoints;
       }
     },
@@ -175,7 +180,7 @@ const gameSlice = createSlice({
     ) => {
       const { trumpSuite, bidder, teammateCard } = action.payload;
       state.trumpSuite = trumpSuite;
-      state.bidder = bidder;
+      state.bidWinner = bidder;
       state.teammateCard = teammateCard;
       console.log(
         `Setting trump ${trumpSuite} and teammate: ${state.teammateCard}`

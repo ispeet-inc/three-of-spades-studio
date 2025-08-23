@@ -12,12 +12,12 @@ import { Crown, Sparkles, Trophy } from "lucide-react";
 
 export const GameOverModal = () => {
   const teams = useAppSelector(selectTeams);
-  const { scores, bidAmount, bidder } = useAppSelector(state => state.game);
+  const { scores, bidAmount, bidWinner } = useAppSelector(state => state.game); // Changed from bidder to bidWinner
   const { playerNames } = useAppSelector(state => state.game.playerState);
   const isMobile = useIsMobile();
 
-  // Determine winner based on bid
-  const winningTeam = bidAmount !== null && scores[0] >= bidAmount ? 0 : 1;
+  // Determine winner based on bid - updated for new team system (1/2 instead of 0/1)
+  const winningTeam = bidAmount !== null && scores.team1 >= bidAmount ? 1 : 2; // Changed from 0/1 to 1/2
   const firstPlayerWon = teams[winningTeam].includes(0);
 
   // todo - dispatch action to reset state, instead of reloading site.
@@ -55,13 +55,13 @@ export const GameOverModal = () => {
               <div
                 className={`text-center p-3 rounded-xl border-2 transition-all duration-500
                 ${
-                  winningTeam === 0
+                  winningTeam === 1
                     ? "bg-gradient-gold/20 border-gold shadow-glow animate-pulse"
                     : "bg-felt-green-light/20 border-gold/20"
                 }`}
               >
                 <div className="flex items-center justify-center gap-1 mb-2">
-                  {winningTeam === 0 && (
+                  {winningTeam === 1 && (
                     <Crown
                       className={`${isMobile ? "w-4 h-4" : "w-5 h-5"} text-gold`}
                     />
@@ -71,7 +71,7 @@ export const GameOverModal = () => {
                   >
                     Bidding Team
                   </div>
-                  {winningTeam === 0 && (
+                  {winningTeam === 1 && (
                     <Crown
                       className={`${isMobile ? "w-4 h-4" : "w-5 h-5"} text-gold`}
                     />
@@ -80,10 +80,10 @@ export const GameOverModal = () => {
                 <div
                   className={`${isMobile ? "text-3xl" : "text-4xl"} font-casino font-bold text-gold mb-1`}
                 >
-                  {scores[0]}
+                  {scores.team1}
                 </div>
                 <div className="text-xs text-gold/70 font-medium tracking-wider">
-                  {teams[0].map(playerId => playerNames[playerId]).join(", ")}
+                  {teams[1].map(playerId => playerNames[playerId]).join(", ")}
                 </div>
               </div>
 
@@ -91,35 +91,35 @@ export const GameOverModal = () => {
               <div
                 className={`text-center p-3 rounded-xl border-2 transition-all duration-500
                 ${
-                  winningTeam === 1
+                  winningTeam === 2
                     ? "bg-gradient-gold/20 border-gold shadow-glow animate-pulse"
                     : "bg-blue-500/10 border-blue-400/30"
                 }`}
               >
                 <div className="flex items-center justify-center gap-1 mb-2">
-                  {winningTeam === 1 && (
+                  {winningTeam === 2 && (
                     <Crown
                       className={`${isMobile ? "w-4 h-4" : "w-5 h-5"} text-gold`}
                     />
                   )}
                   <div
-                    className={`${isMobile ? "text-sm" : "text-base"} font-bold ${winningTeam === 1 ? "text-gold" : "text-blue-300"}`}
+                    className={`${isMobile ? "text-sm" : "text-base"} font-bold ${winningTeam === 2 ? "text-gold" : "text-blue-300"}`}
                   >
                     Defending Team
                   </div>
-                  {winningTeam === 1 && (
+                  {winningTeam === 2 && (
                     <Crown
                       className={`${isMobile ? "w-4 h-4" : "w-5 h-5"} text-gold`}
                     />
                   )}
                 </div>
                 <div
-                  className={`${isMobile ? "text-3xl" : "text-4xl"} font-casino font-bold mb-1 ${winningTeam === 1 ? "text-gold" : "text-blue-300"}`}
+                  className={`${isMobile ? "text-3xl" : "text-4xl"} font-casino font-bold mb-1 ${winningTeam === 2 ? "text-gold" : "text-blue-300"}`}
                 >
-                  {scores[1]}
+                  {scores.team2}
                 </div>
                 <div className="text-xs text-gold/70 font-medium tracking-wider">
-                  {teams[1].map(playerId => playerNames[playerId]).join(", ")}
+                  {teams[2].map(playerId => playerNames[playerId]).join(", ")}
                 </div>
               </div>
             </div>

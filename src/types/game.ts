@@ -26,7 +26,7 @@ export interface Playerv2 {
   score: number;
   isTeammate: boolean;
   isBidWinner: boolean;
-  team: number | null;
+  team: 1 | 2 | null; // Changed from number | null to 1 | 2 | null
 }
 
 export interface Player {
@@ -67,8 +67,8 @@ export interface GameState {
   round: number;
   trumpSuite: number | null;
   bidAmount: number | null;
-  bidder: number | null;
-  scores: [number, number];
+  bidWinner: number | null; // Changed from bidder to bidWinner
+  scores: { team1: number; team2: number }; // Changed from [number, number] to object
   totalRounds: number;
   teammateCard: Card | null;
   /** @deprecated Use selectIsCollectingCards selector instead */
