@@ -6,7 +6,14 @@ import {
   selectIsCollectingCards,
   selectShowCardsPhase,
 } from "@/store/selectors";
-import { Card, PlayerState, Suite, TableState } from "@/types/game";
+import {
+  Card,
+  PlayerDisplayData,
+  PlayerState,
+  Suite,
+  TableState,
+  TeamScores,
+} from "@/types/game";
 import {
   announceToScreenReader,
   gameStateAnnouncements,
@@ -19,19 +26,11 @@ import { PlayerArea } from "./PlayerArea";
 
 interface GameBoardProps {
   gameState: {
-    players: Array<{
-      id: string;
-      name: string;
-      team: 1 | 2 | null; // Updated to match the new team system
-      cards: Card[];
-      isCurrentPlayer?: boolean;
-      isTeammate?: boolean;
-      isBidder?: boolean;
-    }>;
+    players: PlayerDisplayData[];
     trumpSuit: Suite | null;
     currentBid: number;
     round: number;
-    teamScores: { team1: number; team2: number };
+    teamScores: TeamScores;
     teammateCard: Card | null;
     isCollectingCards?: boolean;
     showCardsPhase?: boolean;
@@ -54,10 +53,12 @@ export const GameBoard = ({
   isDealing = false,
   botCardsHidden = false,
 }: GameBoardProps) => {
-  const [lastScores, setLastScores] = useState(
+  const [lastScores, setLastScores] = useState<TeamScores>(
     gameState?.teamScores ?? { team1: 0, team2: 0 }
   );
-  const [animateScore, setAnimateScore] = useState({
+  const [animateScore, setAnimateScore] = useState<
+    Record<keyof TeamScores, boolean>
+  >({
     team1: false,
     team2: false,
   });

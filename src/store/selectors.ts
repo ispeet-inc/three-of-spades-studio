@@ -1,6 +1,7 @@
 /*
   Centralized, memoized selectors for the game state.
-  Phase 0: Additive-only, no behavior changes. These selectors are not yet used.
+  Phase 2: Player data selectors implemented and integrated.
+  All selectors are properly memoized for optimal performance.
 */
 import type { RootState } from "@/store";
 import type { GameStage } from "@/store/gameStages";
@@ -9,8 +10,10 @@ import type {
   BiddingState,
   Card,
   GameState,
+  PlayerDisplayData,
   Playerv2,
   TableCard,
+  TeamScores,
 } from "@/types/game";
 import { createSelector } from "@reduxjs/toolkit";
 
@@ -96,7 +99,7 @@ export const selectIsTrickComplete = createSelector(
 /** Named team scores - updated for new format */
 export const selectTeamScores = createSelector(
   selectGame,
-  (g): { team1: number; team2: number } => g.scores
+  (g): TeamScores => g.scores
 );
 
 /** Player -> team map */
@@ -218,7 +221,7 @@ export const selectCurrentPlayerIndex = createSelector(
 /** Transform players for UI consumption - computed on-demand, no state redundancy */
 export const selectPlayerDisplayData = createSelector(
   [selectPlayers, selectPlayerState, selectCurrentPlayerIndex],
-  (players, playerState, currentPlayerIndex) => {
+  (players, playerState, currentPlayerIndex): PlayerDisplayData[] => {
     if (!players) return [];
 
     return Object.entries(players).map(([index, player]) => ({

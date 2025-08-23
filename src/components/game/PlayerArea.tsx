@@ -10,7 +10,7 @@ interface PlayerAreaProps {
     cards: Card[];
     isCurrentPlayer?: boolean;
     isTeammate?: boolean;
-    isBidder?: boolean;
+    isBidWinner?: boolean;
   };
   runningSuite: Suite | null;
   position: "bottom" | "left" | "top" | "right";
@@ -133,7 +133,7 @@ export const PlayerArea = ({
             )}
           >
             {player.name}{" "}
-            {player.isBidder && (
+            {player.isBidWinner && (
               <span role="img" aria-label="Bid Winner">
                 👑
               </span>

@@ -1,5 +1,5 @@
 import { agentClasses } from "@/agents";
-import { Card, GameState } from "@/types/game";
+import { Card, GameState, TeamScores } from "@/types/game";
 import { distributeDeck, shuffle } from "@/utils/cardUtils";
 import { FIRST_PLAYER_ID, PLAYER_NAME_POOL } from "@/utils/constants";
 import { initialBiddingState, initPlayerObject } from "@/utils/gameSetupUtils";
@@ -18,7 +18,7 @@ import { GameStages, type GameStage } from "./gameStages";
 const NUM_PLAYERS = 4;
 
 // Helper function to convert team number to scores key
-const getTeamScoreKey = (team: number): "team1" | "team2" => {
+const getTeamScoreKey = (team: number): keyof TeamScores => {
   return team === 1 ? "team1" : "team2";
 };
 
