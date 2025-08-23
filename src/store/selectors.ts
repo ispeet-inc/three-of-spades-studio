@@ -1,142 +1,86 @@
-/*
-  Centralized, memoized selectors for the game state.
-  Phase 0: Additive-only, no behavior changes. These selectors are not yet used.
-*/
+/**
+ * Centralized, memoized selectors for the game state.
+ * All selectors are properly memoized for optimal performance.
+ */
 import type { RootState } from "@/store";
 import type { GameStage } from "@/store/gameStages";
 import { GameStages } from "@/store/gameStages";
 import type {
   BiddingState,
-  Card,
   GameState,
+  PlayerDisplayData,
   Playerv2,
   TableCard,
+  TeamScores,
 } from "@/types/game";
 import { createSelector } from "@reduxjs/toolkit";
 
-// Root selectors
+// ============================================================================
+// ROOT SELECTORS
+// ============================================================================
+
 /** Returns the game slice */
 export const selectGame = (state: RootState): GameState => state.game;
-/** Returns the current stage */
+
+/** Returns the player state slice */
+export const selectPlayerState = (state: RootState) => state.game.playerState;
+
+/** Returns the current game stage */
 export const selectStage = createSelector(
   selectGame,
   (g): GameStage => g.stage as GameStage
 );
 
-export const selectIsInit = createSelector(
-  selectStage,
-  s => s === GameStages.INIT
-);
-export const selectIsBidding = createSelector(
-  selectStage,
-  s => s === GameStages.BIDDING
-);
-export const selectIsTrumpSelection = createSelector(
-  selectStage,
-  s => s === GameStages.TRUMP_SELECTION
-);
-export const selectIsPlaying = createSelector(
-  selectStage,
-  s => s === GameStages.PLAYING
-);
-export const selectIsCardsDisplay = createSelector(
-  selectStage,
-  s => s === GameStages.CARDS_DISPLAY
-);
-export const selectIsRoundComplete = createSelector(
-  selectStage,
-  s => s === GameStages.ROUND_COMPLETE
-);
-export const selectIsRoundSummary = createSelector(
-  selectStage,
-  s => s === GameStages.ROUND_SUMMARY
-);
-export const selectIsGameOver = createSelector(
-  selectStage,
-  s => s === GameStages.GAME_OVER
-);
+// ============================================================================
+// TRICK MANAGEMENT SELECTORS
+// ============================================================================
 
-// Players and turn
-/** Current turn index */
-export const selectTurnIndex = createSelector(
-  selectGame,
-  (g): number => g.tableState.turn
-);
-/** Player hand factory */
-export const makeSelectPlayerHand = (playerIndex: number) =>
-  createSelector(
-    selectPlayers,
-    (players): Card[] => players[playerIndex]?.hand ?? []
-  );
-/** Is given player the current turn */
-export const makeSelectIsCurrentPlayer = (playerIndex: number) =>
-  createSelector(selectTurnIndex, (turn): boolean => turn === playerIndex);
-
-// Trick (table, leader/winner, suits)
-/** Cards currently on table (current trick) */
+/** Cards currently on the table (current trick) */
 export const selectCurrentTrick = createSelector(
   selectGame,
   (g): TableCard[] => g.tableState.tableCards
 );
+
 /** Number of cards in current trick */
 export const selectTrickCount = createSelector(
   selectCurrentTrick,
   t => t.length
 );
-/** Leading suit for the trick (runningSuite) */
-export const selectLeadingSuit = createSelector(
-  selectGame,
-  (g): number | null => g.tableState.runningSuite
-);
-/** Current trump suit */
-export const selectTrumpSuit = createSelector(
-  selectGame,
-  (g): number | null => g.trumpSuite
-);
-/** Index of trick leader (first to play this trick) */
-export const selectTrickLeaderIndex = createSelector(
-  selectCurrentTrick,
-  (t): number | null => (t.length > 0 ? t[0].player : null)
-);
-/** Index of trick winner (roundWinner) */
-export const selectTrickWinnerIndex = createSelector(
-  selectGame,
-  (g): number | null => g.tableState.roundWinner.player
-);
-/** Whether the trick has 4 cards */
+
+/** Whether the trick has 4 cards (is complete) */
 export const selectIsTrickComplete = createSelector(
   selectTrickCount,
   c => c === 4
 );
 
-// Scores and teams
-/** Tuple scores [team1, team2] */
-export const selectScoresTuple = createSelector(
-  selectGame,
-  (g): [number, number] => g.scores
-);
-/** Named team scores */
-export const selectTeamScores = createSelector(
-  selectScoresTuple,
-  ([team1, team2]) => ({ team1, team2 })
-);
-/** Player -> team map */
+// ============================================================================
+// PLAYER AND TEAM SELECTORS
+// ============================================================================
+
+/** All players mapped by index */
 export const selectPlayers = createSelector(
-  selectGame,
-  (g): Record<number, Playerv2> | null => g.playerState.players
+  selectPlayerState,
+  (playerState): Record<number, Playerv2> | null => playerState.players
 );
 
-// Derive teams from players
+/** Current player index - only valid during PLAYING stage */
+export const selectCurrentPlayerIndex = createSelector(
+  [selectGame, selectStage],
+  (game, stage): number =>
+    stage === GameStages.PLAYING ? game.tableState.turn : -1
+);
+
+/** Teams derived from players (1/2 instead of 0/1) */
 export const selectTeams = createSelector(
   selectPlayers,
   (players): Record<number, number[]> => {
-    const teams: Record<number, number[]> = { 0: [], 1: [] };
+    const teams: Record<number, number[]> = { 1: [], 2: [] };
+    if (!players) return teams;
 
-    // Group players by their team
     Object.entries(players).forEach(([playerId, playerRecord]) => {
       const player = parseInt(playerId);
       const team = playerRecord.team;
-      if (team === null) return { 0: [], 1: [] };
+      if (team === null) return;
       if (!teams[team]) teams[team] = [];
       teams[team].push(player);
     });
@@ -145,86 +89,94 @@ export const selectTeams = createSelector(
   }
 );
 
-// Bidding (core selectors)
+/** Transform players for UI consumption */
+export const selectPlayerDisplayData = createSelector(
+  [selectPlayers, selectPlayerState, selectCurrentPlayerIndex],
+  (players, playerState, currentPlayerIndex): PlayerDisplayData[] => {
+    if (!players) return [];
+
+    return Object.entries(players).map(([index, player]) => ({
+      id: `player-${index}`,
+      name:
+        playerState.playerNames[parseInt(index)] ||
+        `Player ${parseInt(index) + 1}`,
+      team: player.team,
+      cards: player.hand,
+      isCurrentPlayer: parseInt(index) === currentPlayerIndex,
+      isTeammate: player.isTeammate,
+      isBidWinner: player.isBidWinner,
+    }));
+  }
+);
+
+// ============================================================================
+// BIDDING SELECTORS
+// ============================================================================
+
 /** Raw bidding state */
 export const selectBiddingStateRaw = createSelector(
   selectGame,
   (g): BiddingState => g.biddingState
 );
+
+/** Current bid amount */
 export const selectCurrentBid = createSelector(
   selectBiddingStateRaw,
   b => b.currentBid
 );
+
+/** Current player whose turn it is to bid */
 export const selectCurrentBidder = createSelector(
   selectBiddingStateRaw,
   b => b.currentBidder
 );
+
+/** Players who have passed on bidding */
 export const selectPassedPlayers = createSelector(
   selectBiddingStateRaw,
   b => b.passedPlayers
 );
-export const selectBidWinner = createSelector(
+
+/** Winner of the bidding round */
+export const selectBidder = createSelector(
   selectBiddingStateRaw,
   b => b.bidWinner
 );
-export const selectBidHistory = createSelector(
-  selectBiddingStateRaw,
-  b => b.bidHistory
-);
+
+/** Bidding timer value */
 export const selectBidTimer = createSelector(
   selectBiddingStateRaw,
   b => b.bidTimer
 );
 
-// Bidding (derived selectors)
-export const selectBiddingActive = createSelector(
-  [selectPassedPlayers, selectBidWinner],
-  (passedPlayers, bidWinner): boolean =>
-    passedPlayers.length < 3 && bidWinner === null
-);
-export const selectActiveBidders = createSelector(
-  selectPassedPlayers,
-  (passedPlayers): number[] =>
-    [0, 1, 2, 3].filter(idx => !passedPlayers.includes(idx))
+// ============================================================================
+// SCORE AND COLLECTION SELECTORS
+// ============================================================================
+
+/** Team scores */
+export const selectTeamScores = createSelector(
+  selectGame,
+  (g): TeamScores => g.scores
 );
 
-// Phase flags (derived from stage and game state)
+/** Winner of card collection phase */
+export const selectCollectionWinner = createSelector(
+  selectGame,
+  (g): number | null => g.tableState.roundWinner?.player ?? null
+);
+
+// ============================================================================
+// PHASE FLAG SELECTORS
+// ============================================================================
+
+/** Whether to show cards phase */
 export const selectShowCardsPhase = createSelector(
   selectStage,
   (stage): boolean => stage === GameStages.ROUND_COMPLETE
 );
+
+/** Whether currently collecting cards */
 export const selectIsCollectingCards = createSelector(
   selectStage,
   (stage): boolean => stage === GameStages.ROUND_COMPLETE
-);
-export const selectIsRoundEnding = createSelector(
-  [selectIsTrickComplete, selectTrickWinnerIndex],
-  (isTrickComplete, trickWinner): boolean =>
-    isTrickComplete && trickWinner !== null
-);
-export const selectCollectionWinner = createSelector(
-  selectGame,
-  (g): number | null => g.collectionWinner
-);
-
-// Game config & identity
-export const selectTotalRounds = createSelector(
-  selectGame,
-  (g): number => g.totalRounds
-);
-export const selectRoundIndex = createSelector(
-  selectGame,
-  (g): number => g.round
-);
-export const selectBidAmount = createSelector(
-  selectGame,
-  (g): number | null => g.bidAmount
-);
-export const selectBidder = createSelector(
-  selectGame,
-  (g): number | null => g.bidder
-);
-export const selectTeammateCard = createSelector(
-  selectGame,
-  (g): Card | null => g.teammateCard
 );

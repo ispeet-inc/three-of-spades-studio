@@ -6,13 +6,13 @@ interface PlayerAreaProps {
   player: {
     id: string;
     name: string;
-    team: 1 | 2;
+    team: 1 | 2 | null; // Changed to allow null for initial game phases
     cards: Card[];
     isCurrentPlayer?: boolean;
     isTeammate?: boolean;
-    isBidder?: boolean;
+    isBidWinner?: boolean;
   };
-  runningSuite?: Suite;
+  runningSuite: Suite | null;
   position: "bottom" | "left" | "top" | "right";
   onCardPlay?: (card: Card) => void;
   isDealing?: boolean;
@@ -99,7 +99,7 @@ export const PlayerArea = ({
   const isCardPlayable = (
     hand: Array<Card>,
     card: Card,
-    runningSuite: Suite
+    runningSuite: Suite | null
   ) => {
     if (runningSuite != null) {
       // Check if player has any cards of the running suite
@@ -133,7 +133,7 @@ export const PlayerArea = ({
             )}
           >
             {player.name}{" "}
-            {player.isBidder && (
+            {player.isBidWinner && (
               <span role="img" aria-label="Bid Winner">
                 👑
               </span>

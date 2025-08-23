@@ -1,5 +1,5 @@
 import { agentClasses } from "@/agents";
-import { Card, GameState } from "@/types/game";
+import { Card, GameState, Suite, TeamScores } from "@/types/game";
 import { distributeDeck, shuffle } from "@/utils/cardUtils";
 import { FIRST_PLAYER_ID, PLAYER_NAME_POOL } from "@/utils/constants";
 import { initialBiddingState, initPlayerObject } from "@/utils/gameSetupUtils";
@@ -17,18 +17,21 @@ import { GameStages, type GameStage } from "./gameStages";
 
 const NUM_PLAYERS = 4;
 
+// Helper function to convert team number to scores key
+const getTeamScoreKey = (team: number): keyof TeamScores => {
+  return team === 1 ? "team1" : "team2";
+};
+
 const initialState: GameState = {
   stage: GameStages.INIT,
   round: 0,
   trumpSuite: null,
   bidAmount: null,
-  bidder: null,
-  scores: [0, 0],
+  bidWinner: null, // Changed from bidder to bidWinner
+  scores: { team1: 0, team2: 0 }, // Changed from [0, 0] to object format
   totalRounds: 0,
   teammateCard: null,
-  isCollectingCards: false,
-  showCardsPhase: false,
-  collectionWinner: null,
+  currentBid: 0,
   biddingState: initialBiddingState(NUM_PLAYERS, 0, false),
   tableState: initialTableState(0, true),
   playerState: {
@@ -82,7 +85,8 @@ const gameSlice = createSlice({
           agentClasses[Math.floor(Math.random() * agentClasses.length)];
         state.playerState.playerAgents[i] = new (AgentClass as any)();
         // Use the class name for the bot's display name
-        state.playerState.playerNames[i] = sampledNames.pop();
+        const name = sampledNames.pop();
+        state.playerState.playerNames[i] = name !== undefined ? name : "";
       }
       // Set total rounds based on cards per player
       state.totalRounds = distributedHands[0].length;
@@ -92,13 +96,13 @@ const gameSlice = createSlice({
       );
       state.trumpSuite = null;
       state.bidAmount = null;
-      state.bidder = null;
+      state.bidWinner = null;
       state.round = 0;
       state.tableState = initialTableState(
         state.playerState.startingPlayer,
         false
       );
-      state.scores = [0, 0];
+      state.scores = { team1: 0, team2: 0 };
     },
 
     playCard: (
@@ -118,21 +122,23 @@ const gameSlice = createSlice({
       state.tableState = playCardOnTable(
         state.tableState,
         tableCard,
-        state.trumpSuite,
+        state.trumpSuite as Suite,
         NUM_PLAYERS
       );
 
       const roundWinner = state.tableState.roundWinner;
       if (roundWinner !== null) {
         const winningTeam = state.playerState.players[roundWinner.player].team;
-
+        if (winningTeam === null) {
+          throw Error("team id is null for player");
+        }
         // Calculate total points from all cards in the table
         const roundPoints = state.tableState.tableCards.reduce(
           (sum, card) => sum + card.points,
           0
         );
 
-        state.scores[winningTeam] += roundPoints;
+        state.scores[getTeamScoreKey(winningTeam)] += roundPoints;
         state.playerState.players[roundWinner.player].score += roundPoints;
       }
     },
@@ -144,7 +150,6 @@ const gameSlice = createSlice({
       );
       state.tableState = newRoundOnTable(state.tableState);
       state.round = state.round + 1;
-      state.collectionWinner = null;
       console.log(
         "GAME: Setting stage to PLAYING, current turn:",
         state.tableState.turn
@@ -158,21 +163,20 @@ const gameSlice = createSlice({
     },
 
     startCardCollection: state => {
-      state.collectionWinner = state.tableState.roundWinner?.player;
       state.stage = GameStages.ROUND_COMPLETE;
     },
 
     setBidAndTrump: (
       state,
       action: PayloadAction<{
-        trumpSuite: number;
+        trumpSuite: Suite;
         bidder: number;
         teammateCard: Card;
       }>
     ) => {
       const { trumpSuite, bidder, teammateCard } = action.payload;
       state.trumpSuite = trumpSuite;
-      state.bidder = bidder;
+      state.bidWinner = bidder;
       state.teammateCard = teammateCard;
       console.log(
         `Setting trump ${trumpSuite} and teammate: ${state.teammateCard}`

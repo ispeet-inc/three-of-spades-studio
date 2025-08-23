@@ -2,40 +2,35 @@ import { Button } from "@/components/ui/button";
 import { useAppSelector } from "@/hooks/useAppSelector";
 import { cn } from "@/lib/utils";
 import {
-  selectCollectionWinner,
-  selectIsCollectingCards,
-  selectShowCardsPhase,
-} from "@/store/selectors";
-import { Card, PlayerState, Suite, TableState } from "@/types/game";
+  Card,
+  PlayerDisplayData,
+  PlayerState,
+  Suite,
+  TableState,
+  TeamScores,
+} from "@/types/game";
 import {
   announceToScreenReader,
   gameStateAnnouncements,
 } from "@/utils/accessibility";
 import { Settings } from "lucide-react";
 import { useEffect, useState } from "react";
+import {
+  selectIsCollectingCards,
+  selectShowCardsPhase,
+} from "../../store/selectors";
 import { CenterTable } from "./CenterTable";
 import { GameInfo } from "./GameInfo";
 import { PlayerArea } from "./PlayerArea";
 
 interface GameBoardProps {
   gameState: {
-    players: Array<{
-      id: string;
-      name: string;
-      team: 1 | 2;
-      cards: Card[];
-      isCurrentPlayer?: boolean;
-      isTeammate?: boolean;
-      isBidder?: boolean;
-    }>;
-    trumpSuit: Suite;
+    players: PlayerDisplayData[];
+    trumpSuit: Suite | null;
     currentBid: number;
     round: number;
-    teamScores: { team1: number; team2: number };
-    teammateCard?: Card;
-    isCollectingCards?: boolean;
-    showCardsPhase?: boolean;
-    collectionWinner?: number | null;
+    teamScores: TeamScores;
+    teammateCard: Card | null;
   };
   tableState: TableState;
   playerState: PlayerState;
@@ -54,10 +49,12 @@ export const GameBoard = ({
   isDealing = false,
   botCardsHidden = false,
 }: GameBoardProps) => {
-  const [lastScores, setLastScores] = useState(
+  const [lastScores, setLastScores] = useState<TeamScores>(
     gameState?.teamScores ?? { team1: 0, team2: 0 }
   );
-  const [animateScore, setAnimateScore] = useState({
+  const [animateScore, setAnimateScore] = useState<
+    Record<keyof TeamScores, boolean>
+  >({
     team1: false,
     team2: false,
   });
@@ -65,7 +62,6 @@ export const GameBoard = ({
   // Use derived selectors for animation states
   const isCollectingCards = useAppSelector(selectIsCollectingCards);
   const showCardsPhase = useAppSelector(selectShowCardsPhase);
-  const collectionWinner = useAppSelector(selectCollectionWinner);
 
   // Define players array FIRST before any useEffect that references it
   const players = [
@@ -131,7 +127,12 @@ export const GameBoard = ({
       <header className="absolute top-6 left-6 right-6 flex justify-between items-center z-20">
         {/* Game Info */}
         <div className="bg-casino-black/40 backdrop-blur-sm border border-gold/30 rounded-lg shadow-elevated p-4">
-          <GameInfo gameState={gameState} />
+          <GameInfo
+            trumpSuit={gameState.trumpSuit}
+            bidAmount={gameState.currentBid}
+            round={gameState.round}
+            teammateCard={gameState.teammateCard}
+          />
         </div>
 
         {/* Settings */}
@@ -198,12 +199,10 @@ export const GameBoard = ({
         <CenterTable
           currentTrick={tableState.tableCards}
           winner={
-            tableState.roundWinner !== null &&
-            gameState.players[tableState.roundWinner.player]?.name
+            tableState.roundWinner !== null
+              ? gameState.players[tableState.roundWinner.player]?.name
+              : undefined
           }
-          isCollectingCards={isCollectingCards}
-          showCardsPhase={showCardsPhase}
-          collectionWinner={collectionWinner}
           roundWinner={tableState.roundWinner?.player ?? null}
           playerNames={playerState.playerNames}
         />

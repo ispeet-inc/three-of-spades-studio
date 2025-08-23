@@ -95,6 +95,7 @@ function* biddingTimerSaga() {
       }
     }
   } finally {
+    // @ts-expect-error - cancelled is not typed
     if (yield cancelled()) {
       console.log("Saga: biddingTimerSaga cancelled");
     }

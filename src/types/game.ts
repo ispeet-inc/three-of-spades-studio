@@ -21,17 +21,31 @@ export interface TableCard extends Card {
   player: number;
 }
 
-export interface Playerv2 {
-  hand: Card[];
-  score: number;
-  isTeammate: boolean;
-  isBidWinner: boolean;
-  team: number | null;
+// Team scores interface
+export interface TeamScores {
+  team1: number;
+  team2: number;
 }
 
-export interface Player {
+// Base player interface with common properties
+export interface BasePlayer {
+  team: 1 | 2 | null;
+  isTeammate: boolean;
+  isBidWinner: boolean;
+}
+
+// Game state player - extends base with game-specific properties
+export interface Playerv2 extends BasePlayer {
   hand: Card[];
   score: number;
+}
+
+// UI display player - extends base with display-specific properties
+export interface PlayerDisplayData extends BasePlayer {
+  id: string;
+  name: string;
+  cards: Card[];
+  isCurrentPlayer?: boolean;
 }
 
 export interface BiddingState {
@@ -67,15 +81,12 @@ export interface GameState {
   round: number;
   trumpSuite: number | null;
   bidAmount: number | null;
-  bidder: number | null;
-  scores: [number, number];
+  bidWinner: number | null; // Changed from bidder to bidWinner
+  scores: TeamScores; // Updated to use the new type
   totalRounds: number;
   teammateCard: Card | null;
-  /** @deprecated Use selectIsCollectingCards selector instead */
-  isCollectingCards: boolean;
-  /** @deprecated Use selectShowCardsPhase selector instead */
-  showCardsPhase: boolean;
-  collectionWinner: number | null;
+  /** @deprecated Use selectCurrentBid selector instead */
+  currentBid: number;
   biddingState: BiddingState;
   tableState: TableState;
   playerState: PlayerState;

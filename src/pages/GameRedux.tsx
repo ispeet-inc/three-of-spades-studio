@@ -18,12 +18,19 @@ import {
   startNewRound,
 } from "@/store/gameSlice";
 import { GameStages } from "@/store/gameStages";
-import { Card } from "@/types/game";
+import {
+  selectBidder,
+  selectCurrentBid,
+  selectPlayerDisplayData,
+  selectPlayerState,
+  selectTeamScores,
+} from "@/store/selectors";
+import { Card, Suite } from "@/types/game";
 import { createCard } from "@/utils/cardUtils";
 import { FIRST_PLAYER_ID, TIMINGS } from "@/utils/constants";
 import { useFeedback } from "@/utils/feedbackSystem";
 import { getTeammateOptions } from "@/utils/gameUtils";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 
 const GameRedux = () => {
@@ -32,46 +39,26 @@ const GameRedux = () => {
   const tableState = useAppSelector(
     (state: RootState) => state.game.tableState
   );
-  const playerState = useAppSelector(
-    (state: RootState) => state.game.playerState
-  );
+  const playerState = useAppSelector(selectPlayerState); // Updated to use focused selector
   const { trigger } = useFeedback();
 
   // Add dealing animation state
   const [isDealing, setIsDealing] = useState(false);
 
-  // Transform Redux state to GameBoard props
+  // Use selectors instead of manual transformations - Phase 2 implementation
+  const players = useAppSelector(selectPlayerDisplayData);
+  const teamScores = useAppSelector(selectTeamScores);
+  const currentBid = useAppSelector(selectCurrentBid);
+  const bidWinner = useAppSelector(selectBidder);
+
+  // Transform Redux state to GameBoard props - now using selectors
   const transformedGameState = {
-    // todo - dismantle this object
-    players: Object.entries(playerState.players).map(([index, player]) => ({
-      id: `player-${index}`,
-      name:
-        playerState.playerNames[parseInt(index)] ||
-        `Player ${parseInt(index) + 1}`,
-      team:
-        player.team === null ? null : ((player.team === 0 ? 1 : 2) as 1 | 2),
-      cards: player.hand,
-      isCurrentPlayer:
-        parseInt(index) === tableState.turn &&
-        gameState.stage === GameStages.PLAYING,
-      isTeammate:
-        player.team !== null &&
-        player.team === playerState.players[FIRST_PLAYER_ID].team &&
-        parseInt(index) !== FIRST_PLAYER_ID,
-      isBidder:
-        gameState.bidder !== null && gameState.bidder === parseInt(index),
-    })),
+    players, // Now comes from selector - no more manual transformation
     trumpSuit: gameState.trumpSuite,
-    currentBid: gameState.bidAmount || 0,
+    currentBid, // Now comes from selector
     round: gameState.round,
-    teamScores: {
-      team1: gameState.scores?.[0] ?? 0,
-      team2: gameState.scores?.[1] ?? 0,
-    },
+    teamScores, // Now comes from selector
     teammateCard: gameState.teammateCard,
-    isCollectingCards: gameState.isCollectingCards,
-    showCardsPhase: gameState.showCardsPhase,
-    collectionWinner: gameState.collectionWinner,
   };
 
   const handleCardPlay = (card: Card) => {
@@ -109,16 +96,19 @@ const GameRedux = () => {
     dispatch(passBid({ playerIndex: FIRST_PLAYER_ID }));
   };
 
-  const handleTrumpSelection = (trumpSuite: number, teammateCard: Card) => {
-    trigger("trump", { intensity: "strong" });
-    dispatch(
-      setBidAndTrump({
-        trumpSuite,
-        bidder: gameState.biddingState.bidWinner!,
-        teammateCard,
-      })
-    );
-  };
+  const handleTrumpSelection = useCallback(
+    (trumpSuite: Suite, teammateCard: Card) => {
+      trigger("trump", { intensity: "strong" });
+      dispatch(
+        setBidAndTrump({
+          trumpSuite: trumpSuite,
+          bidder: gameState.biddingState.bidWinner as number,
+          teammateCard,
+        })
+      );
+    },
+    [trigger, dispatch, gameState.biddingState.bidWinner]
+  );
 
   const handleBidResultClose = () => {
     dispatch(setStage(GameStages.PLAYING));
@@ -312,9 +302,9 @@ const GameRedux = () => {
     ) {
       const timer = setTimeout(() => {
         const botAgent =
-          playerState.playerAgents[gameState.biddingState.bidWinner!];
+          playerState.playerAgents[gameState.biddingState.bidWinner as number];
         const bidWinner =
-          playerState.players[gameState.biddingState.bidWinner!];
+          playerState.players[gameState.biddingState.bidWinner as number];
 
         if (botAgent && bidWinner) {
           try {
@@ -326,7 +316,7 @@ const GameRedux = () => {
             const choice = botAgent.chooseTrumpAndTeammate({
               hand: bidWinner.hand,
               playerNames: playerState.playerNames,
-              playerIndex: gameState.biddingState.bidWinner!,
+              playerIndex: gameState.biddingState.bidWinner as number,
               teammateOptions: allTeammateOptions,
             });
 
@@ -391,10 +381,10 @@ const GameRedux = () => {
       {gameState.stage === GameStages.TRUMP_SELECTION_COMPLETE && (
         <BidResultModal
           isOpen={true}
-          bidWinner={gameState.bidder!}
-          bidAmount={gameState.bidAmount!}
-          trumpSuite={gameState.trumpSuite!}
-          teammateCard={gameState.teammateCard!}
+          bidWinner={bidWinner as number}
+          bidAmount={gameState.bidAmount as number}
+          trumpSuite={gameState.trumpSuite as number}
+          teammateCard={gameState.teammateCard as Card}
           playerNames={playerState.playerNames}
           onClose={handleBidResultClose}
         />

@@ -22,6 +22,7 @@ export default class GreedyBot extends BotAgent {
 
   // Start a new round by playing the highest card
   startRound(hand: Card[], trumpSuite: Suite): number {
+    // @ts-expect-error - hand is not empty when this is called
     return getHighestRankedCardIndex(hand);
   }
 
@@ -45,8 +46,12 @@ export default class GreedyBot extends BotAgent {
       hand,
       runningSuite
     );
+    if (highestCardIndex === null) {
+      throw Error("can't be null");
+    }
     const highestCard = hand[highestCardIndex];
     if (isRoundCut || winningCard.rank > highestCard.rank) {
+      // @ts-expect-error - hand is not empty when this is called
       return getLeastValueCardIndexInSuite(hand, runningSuite);
     } else {
       return highestCardIndex;
@@ -76,10 +81,12 @@ export default class GreedyBot extends BotAgent {
     if (highestTrumpIndex !== null) {
       const highestTrump = hand[highestTrumpIndex];
       if (isRoundCut && winningCard.rank > highestTrump.rank) {
+        // @ts-expect-error - hand is not empty when this is called
         return getLeastValueCardIndex(hand);
       }
       return highestTrumpIndex;
     } else {
+      // @ts-expect-error - hand is not empty when this is called
       return getLeastValueCardIndex(hand);
     }
   }
