@@ -31,14 +31,14 @@ export const TrumpSelectionModal = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (validate()) {
+    if (validate() && trumpSuite !== null && teammateCard !== null) {
       console.log("TrumpSelectionModal - trump chosen:  ", trumpSuite);
       console.log("TrumpSelectionModal - teammate chosen: ", teammateCard);
       dispatch(
         setBidAndTrump({
-          trumpSuite: trumpSuite,
+          trumpSuite: trumpSuite as number, // ensure type matches reducer
           bidder: 0,
-          teammateCard,
+          teammateCard: teammateCard as Card, // ensure not null
         })
       );
     }

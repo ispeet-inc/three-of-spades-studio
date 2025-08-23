@@ -57,20 +57,6 @@ export const selectIsGameOver = createSelector(
 );
 
 // Players and turn
-/** Current turn index */
-export const selectTurnIndex = createSelector(
-  selectGame,
-  (g): number => g.tableState.turn
-);
-/** Player hand factory */
-export const makeSelectPlayerHand = (playerIndex: number) =>
-  createSelector(
-    selectPlayers,
-    (players): Card[] => players[playerIndex]?.hand ?? []
-  );
-/** Is given player the current turn */
-export const makeSelectIsCurrentPlayer = (playerIndex: number) =>
-  createSelector(selectTurnIndex, (turn): boolean => turn === playerIndex);
 
 // Trick (table, leader/winner, suits)
 /** Cards currently on table (current trick) */
@@ -97,11 +83,6 @@ export const selectTrumpSuit = createSelector(
 export const selectTrickLeaderIndex = createSelector(
   selectCurrentTrick,
   (t): number | null => (t.length > 0 ? t[0].player : null)
-);
-/** Index of trick winner (roundWinner) */
-export const selectTrickWinnerIndex = createSelector(
-  selectGame,
-  (g): number | null => g.tableState.roundWinner.player
 );
 /** Whether the trick has 4 cards */
 export const selectIsTrickComplete = createSelector(
@@ -131,6 +112,7 @@ export const selectTeams = createSelector(
   selectPlayers,
   (players): Record<number, number[]> => {
     const teams: Record<number, number[]> = { 0: [], 1: [] };
+    if (!players) return teams;
 
     // Group players by their team
     Object.entries(players).forEach(([playerId, playerRecord]) => {
@@ -196,11 +178,6 @@ export const selectShowCardsPhase = createSelector(
 export const selectIsCollectingCards = createSelector(
   selectStage,
   (stage): boolean => stage === GameStages.ROUND_COMPLETE
-);
-export const selectIsRoundEnding = createSelector(
-  [selectIsTrickComplete, selectTrickWinnerIndex],
-  (isTrickComplete, trickWinner): boolean =>
-    isTrickComplete && trickWinner !== null
 );
 export const selectCollectionWinner = createSelector(
   selectGame,

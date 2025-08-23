@@ -82,7 +82,8 @@ const gameSlice = createSlice({
           agentClasses[Math.floor(Math.random() * agentClasses.length)];
         state.playerState.playerAgents[i] = new (AgentClass as any)();
         // Use the class name for the bot's display name
-        state.playerState.playerNames[i] = sampledNames.pop();
+        const name = sampledNames.pop();
+        state.playerState.playerNames[i] = name !== undefined ? name : "";
       }
       // Set total rounds based on cards per player
       state.totalRounds = distributedHands[0].length;
@@ -118,14 +119,16 @@ const gameSlice = createSlice({
       state.tableState = playCardOnTable(
         state.tableState,
         tableCard,
-        state.trumpSuite,
+        state.trumpSuite!,
         NUM_PLAYERS
       );
 
       const roundWinner = state.tableState.roundWinner;
       if (roundWinner !== null) {
         const winningTeam = state.playerState.players[roundWinner.player].team;
-
+        if (winningTeam === null) {
+          throw Error("team id is null for player");
+        }
         // Calculate total points from all cards in the table
         const roundPoints = state.tableState.tableCards.reduce(
           (sum, card) => sum + card.points,
@@ -158,7 +161,7 @@ const gameSlice = createSlice({
     },
 
     startCardCollection: state => {
-      state.collectionWinner = state.tableState.roundWinner?.player;
+      state.collectionWinner = state.tableState.roundWinner?.player ?? null;
       state.stage = GameStages.ROUND_COMPLETE;
     },
 

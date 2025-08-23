@@ -31,7 +31,7 @@ export const playCardOnTable = (
     console.log("GAME: All 4 cards played, determining winner");
     roundWinner = determineRoundWinner(
       updatedTableCards,
-      runningSuite,
+      runningSuite!,
       trumpSuite
     );
     runningSuite = tableCard.suite;
@@ -49,7 +49,7 @@ export const newRoundOnTable = (oldState: TableState): TableState => {
   return {
     runningSuite: null,
     tableCards: [],
-    turn: oldState.roundWinner?.player,
+    turn: oldState.roundWinner?.player!,
     roundWinner: null,
     discardedCards: oldState.discardedCards.concat(oldState.tableCards),
   };
