@@ -7,6 +7,8 @@ import type { GameStage } from "@/store/gameStages";
 import { GameStages } from "@/store/gameStages";
 import type {
   BiddingState,
+  GameConfig,
+  GameProgress,
   GameState,
   PlayerDisplayData,
   Playerv2,
@@ -29,6 +31,16 @@ export const selectPlayerState = (state: RootState) => state.game.playerState;
 export const selectStage = createSelector(
   selectGame,
   (g): GameStage => g.gameProgress.stage as GameStage
+);
+
+export const selectGameConfig = createSelector(
+  selectGame,
+  (g): GameConfig | null => g.gameConfig
+);
+
+export const selectGameProgress = createSelector(
+  selectGame,
+  (g): GameProgress => g.gameProgress
 );
 
 // ============================================================================

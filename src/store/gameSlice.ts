@@ -23,13 +23,7 @@ const getTeamScoreKey = (team: number): keyof TeamScores => {
 };
 
 const initialState: GameState = {
-  gameConfig: {
-    bidAmount: null,
-    bidWinner: null,
-    teammateCard: null,
-    trumpSuite: null,
-    totalRounds: 0,
-  },
+  gameConfig: null,
   gameProgress: {
     stage: GameStages.INIT,
     round: 0,
@@ -92,14 +86,11 @@ const gameSlice = createSlice({
         state.playerState.playerNames[i] = name !== undefined ? name : "";
       }
       // Set total rounds based on cards per player
-      state.gameConfig.totalRounds = distributedHands[0].length;
+      state.gameConfig = null;
       // Randomly select starting player
       state.playerState.startingPlayer = Math.floor(
         Math.random() * NUM_PLAYERS
       );
-      state.gameConfig.trumpSuite = null;
-      state.gameConfig.bidAmount = null;
-      state.gameConfig.bidWinner = null;
       state.gameProgress.round = 0;
       state.tableState = initialTableState(
         state.playerState.startingPlayer,
@@ -122,10 +113,14 @@ const gameSlice = createSlice({
       state.playerState.players[playerIndex].hand = playerHand;
       const tableCard = { ...card, player: playerIndex };
 
+      if (!state.gameConfig) {
+        throw new Error("Game config is not initialized");
+      }
+
       state.tableState = playCardOnTable(
         state.tableState,
         tableCard,
-        state.gameConfig.trumpSuite as Suite,
+        state.gameConfig.trumpSuite,
         NUM_PLAYERS
       );
 
@@ -160,7 +155,10 @@ const gameSlice = createSlice({
       state.gameProgress.stage = GameStages.PLAYING;
 
       // Check if game is over
-      if (state.gameProgress.round >= state.gameConfig.totalRounds) {
+      if (
+        state.gameConfig &&
+        state.gameProgress.round >= state.gameConfig.totalRounds
+      ) {
         state.gameProgress.stage = GameStages.GAME_OVER;
       }
     },
@@ -178,13 +176,15 @@ const gameSlice = createSlice({
       }>
     ) => {
       const { trumpSuite, bidder, teammateCard } = action.payload;
-      state.gameConfig.trumpSuite = trumpSuite;
-      state.gameConfig.bidWinner = bidder;
-      state.gameConfig.teammateCard = teammateCard;
-      console.log(
-        `Setting trump ${trumpSuite} and teammate: ${state.gameConfig.teammateCard}`
-      );
-      console.log(state.gameConfig.teammateCard);
+      state.gameConfig = {
+        bidAmount: state.biddingState.currentBid,
+        bidWinner: bidder,
+        teammateCard: teammateCard,
+        trumpSuite: trumpSuite,
+        totalRounds: 10,
+      };
+      // todo - remove hardcoded total rounds
+      console.log(`Setting trump ${trumpSuite} and teammate: ${teammateCard}`);
       // Assign teams based on teammate card
       const updatedPlayers = assignTeamsByTeammateCard(
         state.playerState.players,
@@ -243,7 +243,6 @@ const gameSlice = createSlice({
 
       if (activePlayers.length === 1) {
         state.biddingState.bidWinner = activePlayers[0];
-        state.gameConfig.bidAmount = state.biddingState.currentBid;
         console.log(
           "CHANGING STATE: FROM ",
           state.gameProgress.stage,

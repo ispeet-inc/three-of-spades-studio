@@ -21,6 +21,8 @@ import { GameStages } from "@/store/gameStages";
 import {
   selectBidder,
   selectCurrentBid,
+  selectGameConfig,
+  selectGameProgress,
   selectPlayerDisplayData,
   selectPlayerState,
   selectTeamScores,
@@ -40,6 +42,8 @@ const GameRedux = () => {
     (state: RootState) => state.game.tableState
   );
   const playerState = useAppSelector(selectPlayerState); // Updated to use focused selector
+  const gameConfig = useAppSelector(selectGameConfig);
+  const gameProgress = useAppSelector(selectGameProgress);
   const { trigger } = useFeedback();
 
   // Add dealing animation state
@@ -50,16 +54,6 @@ const GameRedux = () => {
   const teamScores = useAppSelector(selectTeamScores);
   const currentBid = useAppSelector(selectCurrentBid);
   const bidWinner = useAppSelector(selectBidder);
-
-  // Transform Redux state to GameBoard props - now using selectors
-  const transformedGameState = {
-    players, // Now comes from selector - no more manual transformation
-    trumpSuit: gameState.gameConfig.trumpSuite,
-    currentBid, // Now comes from selector
-    round: gameState.gameProgress.round,
-    teamScores, // Now comes from selector
-    teammateCard: gameState.gameConfig.teammateCard,
-  };
 
   const handleCardPlay = (card: Card) => {
     const playerHand = playerState.players[FIRST_PLAYER_ID].hand;
@@ -138,12 +132,17 @@ const GameRedux = () => {
 
         if (currentPlayer.hand.length > 0 && botAgent) {
           try {
+            if (!gameConfig) {
+              console.error("Game config is not initialized");
+              return;
+            }
+
             console.log(
               `Bot ${tableState.turn} attempting to choose card with:`,
               {
                 handSize: currentPlayer.hand.length,
                 tableCards: tableState.tableCards.length,
-                trumpSuite: gameState.gameConfig.trumpSuite,
+                trumpSuite: gameConfig.trumpSuite,
                 runningSuite: tableState.runningSuite,
               }
             );
@@ -151,7 +150,7 @@ const GameRedux = () => {
             const cardIndex = botAgent.chooseCardIndex({
               hand: currentPlayer.hand,
               tableCards: tableState.tableCards,
-              trumpSuite: gameState.gameConfig.trumpSuite,
+              trumpSuite: gameConfig.trumpSuite,
               runningSuite: tableState.runningSuite,
               playerIndex: tableState.turn,
             });
@@ -202,9 +201,9 @@ const GameRedux = () => {
     dispatch,
     playerState.players,
     tableState.tableCards,
-    gameState.gameConfig.trumpSuite,
     tableState.runningSuite,
     playerState.playerAgents,
+    gameConfig,
   ]);
 
   // Handle bot bidding
@@ -369,9 +368,11 @@ const GameRedux = () => {
   return (
     <div className="relative">
       <GameBoard
-        gameState={transformedGameState}
+        playersDisplayData={players}
         tableState={tableState}
         playerState={playerState}
+        gameConfig={gameConfig}
+        gameProgress={gameProgress}
         onCardPlay={handleCardPlay}
         onSettingsClick={() => console.log("Settings")}
         isDealing={isDealing}
@@ -386,10 +387,7 @@ const GameRedux = () => {
       {gameState.gameProgress.stage === GameStages.TRUMP_SELECTION_COMPLETE && (
         <BidResultModal
           isOpen={true}
-          bidWinner={bidWinner as number}
-          bidAmount={gameState.gameConfig.bidAmount as number}
-          trumpSuite={gameState.gameConfig.trumpSuite as number}
-          teammateCard={gameState.gameConfig.teammateCard as Card}
+          gameConfig={gameConfig}
           playerNames={playerState.playerNames}
           onClose={handleBidResultClose}
         />

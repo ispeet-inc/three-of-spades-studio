@@ -5,30 +5,28 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Card as GameCard } from "@/types/game";
 import { suitSymbols } from "@/utils/suiteUtils";
 import React from "react";
+import { GameConfig } from "../../types/game";
 import { PlayingCard } from "./PlayingCard";
 
 interface BidResultModalProps {
   isOpen: boolean;
-  bidWinner: number;
-  bidAmount: number | string;
-  trumpSuite: number;
-  teammateCard: GameCard;
+  gameConfig: GameConfig | null;
   playerNames: Record<number, string>;
   onClose: () => void;
 }
 
 export const BidResultModal: React.FC<BidResultModalProps> = ({
   isOpen,
-  bidWinner,
-  bidAmount,
-  trumpSuite,
-  teammateCard,
+  gameConfig,
   playerNames,
   onClose,
 }) => {
+  if (!gameConfig) {
+    return null;
+  }
+  const { bidAmount, bidWinner, trumpSuite, teammateCard } = gameConfig;
   return (
     <Dialog open={isOpen} onOpenChange={() => {}}>
       <DialogContent className="sm:max-w-md bg-gradient-to-br from-felt-green-light to-felt-green-dark border-2 border-gold/40 shadow-elevated backdrop-blur-sm">

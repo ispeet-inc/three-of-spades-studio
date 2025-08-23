@@ -77,10 +77,10 @@ export interface PlayerState {
 }
 
 export interface GameConfig {
-  bidAmount: number | null;
-  bidWinner: number | null;
-  teammateCard: Card | null;
-  trumpSuite: number | null;
+  bidAmount: number;
+  bidWinner: number;
+  teammateCard: Card;
+  trumpSuite: number;
   totalRounds: number;
 }
 
@@ -91,7 +91,7 @@ export interface GameProgress {
 }
 
 export interface GameState {
-  gameConfig: GameConfig;
+  gameConfig: GameConfig | null;
   gameProgress: GameProgress;
   biddingState: BiddingState;
   tableState: TableState;
