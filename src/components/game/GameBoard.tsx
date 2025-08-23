@@ -82,7 +82,7 @@ export const GameBoard = ({
   useEffect(() => {
     const currentPlayer = playersDisplayData.find(p => p.isCurrentPlayer);
     if (currentPlayer) {
-      if (currentPlayer.id === "player-0") {
+      if (currentPlayer.id === `player-${FIRST_PLAYER_ID}`) {
         announceToScreenReader(gameStateAnnouncements.yourTurn);
       } else {
         announceToScreenReader(

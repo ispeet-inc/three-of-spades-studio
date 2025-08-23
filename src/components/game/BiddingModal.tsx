@@ -14,6 +14,7 @@ import {
   selectCurrentBidder,
   selectPassedPlayers,
 } from "@/store/selectors";
+import { FIRST_PLAYER_ID } from "@/utils/constants";
 import { useState } from "react";
 import { Card, PlayingCard } from "./PlayingCard";
 
@@ -49,12 +50,14 @@ export const BiddingModal = () => {
 
   const minIncrement = currentBid < 200 ? 5 : 10;
   const maxBid = 250;
-  const canBid = !passedPlayers.includes(0) && currentBidder === 0;
+  const canBid =
+    !passedPlayers.includes(FIRST_PLAYER_ID) &&
+    currentBidder === FIRST_PLAYER_ID;
 
   const handleBid = (increment: number) => {
     const newBid = currentBid + increment;
     if (newBid <= maxBid) {
-      dispatch(placeBid({ playerIndex: 0, bidAmount: newBid }));
+      dispatch(placeBid({ playerIndex: FIRST_PLAYER_ID, bidAmount: newBid }));
     }
   };
 
@@ -70,7 +73,7 @@ export const BiddingModal = () => {
       alert("Invalid custom bid.");
       return;
     }
-    dispatch(placeBid({ playerIndex: 0, bidAmount: value }));
+    dispatch(placeBid({ playerIndex: FIRST_PLAYER_ID, bidAmount: value }));
     setCustomBid("");
   };
 
@@ -85,7 +88,7 @@ export const BiddingModal = () => {
         </DialogHeader>
 
         {/* Premium Hand Preview */}
-        <HandPreview hand={players[0].hand} />
+        <HandPreview hand={players[FIRST_PLAYER_ID].hand} />
 
         {/* Premium Bidding Information */}
         <div className="bg-gradient-to-r from-gold/10 to-gold/5 rounded-xl p-4 border border-gold/30 mb-6">
@@ -168,7 +171,9 @@ export const BiddingModal = () => {
             <div className="text-center">
               <Button
                 variant="outline"
-                onClick={() => dispatch(passBid({ playerIndex: 0 }))}
+                onClick={() =>
+                  dispatch(passBid({ playerIndex: FIRST_PLAYER_ID }))
+                }
                 className="border-2 border-red-500/60 text-red-300 hover:bg-red-500/20 hover:border-red-400 font-semibold px-8 py-3 transition-all duration-300"
               >
                 Pass

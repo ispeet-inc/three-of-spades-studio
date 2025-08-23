@@ -8,6 +8,7 @@ import {
 import { useAppSelector } from "@/hooks";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { selectTeams } from "@/store/selectors";
+import { FIRST_PLAYER_ID } from "@/utils/constants";
 import { Crown, Sparkles, Trophy } from "lucide-react";
 
 export const GameOverModal = () => {
@@ -22,7 +23,7 @@ export const GameOverModal = () => {
 
   // Determine winner based on bid - updated for new team system (1/2 instead of 0/1)
   const winningTeam = bidAmount !== null && scores.team1 >= bidAmount ? 1 : 2; // Changed from 0/1 to 1/2
-  const firstPlayerWon = teams[winningTeam].includes(0);
+  const firstPlayerWon = teams[winningTeam].includes(FIRST_PLAYER_ID);
 
   // todo - dispatch action to reset state, instead of reloading site.
   const handleNewGame = () => {

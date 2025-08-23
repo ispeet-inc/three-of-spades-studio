@@ -2,6 +2,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { setBidAndTrump } from "@/store/gameSlice";
 import { Card, Suite } from "@/types/game";
+import { FIRST_PLAYER_ID } from "@/utils/constants";
 import { getTeammateOptions } from "@/utils/gameUtils";
 import { SUITES } from "@/utils/suiteUtils";
 import { useState } from "react";
@@ -37,21 +38,24 @@ export const TrumpSelectionModal = () => {
       dispatch(
         setBidAndTrump({
           trumpSuite: trumpSuite as number, // ensure type matches reducer
-          bidder: 0,
+          bidder: FIRST_PLAYER_ID,
           teammateCard: teammateCard as Card, // ensure not null
         })
       );
     }
   };
 
-  const teammateOptions = getTeammateOptions(players[0].hand, teammateSuiteTab);
+  const teammateOptions = getTeammateOptions(
+    players[FIRST_PLAYER_ID].hand,
+    teammateSuiteTab
+  );
 
   return (
     <Dialog open={true}>
       <DialogContent className="max-w-xl w-full bg-felt-green-dark border-0 text-foreground p-0">
         <div className="p-6">
           {/* Player Hand Display */}
-          <HandPreview hand={players[0].hand} />
+          <HandPreview hand={players[FIRST_PLAYER_ID].hand} />
 
           <h2 className="text-xl font-bold mb-6 text-gold text-center">
             Choose Trump & Teammate Card
