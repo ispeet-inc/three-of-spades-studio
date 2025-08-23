@@ -29,7 +29,6 @@ export const playCardOnTable = (
   }
   if (updatedTableCards.length === 4) {
     console.log("GAME: All 4 cards played, determining winner");
-    // @ts-expect-error - runningSuite is not null when this is called
     roundWinner = determineRoundWinner(
       updatedTableCards,
       runningSuite as Suite,

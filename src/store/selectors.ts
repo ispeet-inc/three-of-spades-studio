@@ -7,6 +7,8 @@ import type { GameStage } from "@/store/gameStages";
 import { GameStages } from "@/store/gameStages";
 import type {
   BiddingState,
+  GameConfig,
+  GameProgress,
   GameState,
   PlayerDisplayData,
   Playerv2,
@@ -28,7 +30,17 @@ export const selectPlayerState = (state: RootState) => state.game.playerState;
 /** Returns the current game stage */
 export const selectStage = createSelector(
   selectGame,
-  (g): GameStage => g.stage as GameStage
+  (g): GameStage => g.gameProgress.stage as GameStage
+);
+
+export const selectGameConfig = createSelector(
+  selectGame,
+  (g): GameConfig | null => g.gameConfig
+);
+
+export const selectGameProgress = createSelector(
+  selectGame,
+  (g): GameProgress => g.gameProgress
 );
 
 // ============================================================================
@@ -156,7 +168,7 @@ export const selectBidTimer = createSelector(
 /** Team scores */
 export const selectTeamScores = createSelector(
   selectGame,
-  (g): TeamScores => g.scores
+  (g): TeamScores => g.gameProgress.scores
 );
 
 /** Winner of card collection phase */

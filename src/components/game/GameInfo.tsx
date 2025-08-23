@@ -1,17 +1,19 @@
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { Suite } from "@/types/game";
 import { getSuiteColor, getSuiteIcon } from "@/utils/suiteUtils";
-import { Card, PlayingCard } from "./PlayingCard";
+import { GameConfig } from "../../types/game";
+import { PlayingCard } from "./PlayingCard";
 
 interface GameInfoProps {
-  trumpSuit: Suite | null;
-  bidAmount: number;
+  gameConfig: GameConfig | null;
   round: number;
-  teammateCard: Card | null;
 }
 
 export const GameInfo = (props: GameInfoProps) => {
+  if (!props.gameConfig) {
+    return null;
+  }
+  const { trumpSuite, teammateCard, bidAmount } = props.gameConfig;
   return (
     <div className="bg-secondary/90 backdrop-blur border border-border/50 rounded-lg p-4 shadow-elevated">
       <h2 className="text-lg font-bold text-foreground mb-3">
@@ -20,7 +22,7 @@ export const GameInfo = (props: GameInfoProps) => {
 
       <div className="space-y-2 text-sm">
         {/* Trump Suit */}
-        {props.trumpSuit !== null && (
+        {trumpSuite !== null && (
           <div className="flex items-center gap-2">
             <span className="text-muted-foreground">Trump:</span>
             <div className="flex items-center gap-1">
@@ -28,10 +30,10 @@ export const GameInfo = (props: GameInfoProps) => {
                 <span
                   className={cn(
                     "text-lg",
-                    `text-casino-${getSuiteColor(props.trumpSuit)}`
+                    `text-casino-${getSuiteColor(trumpSuite)}`
                   )}
                 >
-                  {getSuiteIcon(props.trumpSuit)}
+                  {getSuiteIcon(trumpSuite)}
                 </span>
               </Badge>
             </div>
@@ -39,10 +41,10 @@ export const GameInfo = (props: GameInfoProps) => {
         )}
 
         {/* Teammate */}
-        {props.teammateCard && (
+        {teammateCard && (
           <div className="flex items-center gap-2">
             <span className="text-muted-foreground">Teammate:</span>
-            <PlayingCard card={props.teammateCard} mini />
+            <PlayingCard card={teammateCard} mini />
           </div>
         )}
 
@@ -50,7 +52,7 @@ export const GameInfo = (props: GameInfoProps) => {
         <div className="flex items-center gap-2">
           <span className="text-muted-foreground">Bid:</span>
           <Badge className="bg-gold text-casino-black font-bold">
-            {props.bidAmount}
+            {bidAmount}
           </Badge>
         </div>
 

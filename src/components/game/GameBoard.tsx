@@ -1,11 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { useAppSelector } from "@/hooks/useAppSelector";
 import { cn } from "@/lib/utils";
 import {
   Card,
+  GameConfig,
+  GameProgress,
   PlayerDisplayData,
   PlayerState,
-  Suite,
   TableState,
   TeamScores,
 } from "@/types/game";
@@ -15,25 +15,16 @@ import {
 } from "@/utils/accessibility";
 import { Settings } from "lucide-react";
 import { useEffect, useState } from "react";
-import {
-  selectIsCollectingCards,
-  selectShowCardsPhase,
-} from "../../store/selectors";
 import { CenterTable } from "./CenterTable";
 import { GameInfo } from "./GameInfo";
 import { PlayerArea } from "./PlayerArea";
 
 interface GameBoardProps {
-  gameState: {
-    players: PlayerDisplayData[];
-    trumpSuit: Suite | null;
-    currentBid: number;
-    round: number;
-    teamScores: TeamScores;
-    teammateCard: Card | null;
-  };
+  playersDisplayData: PlayerDisplayData[];
   tableState: TableState;
   playerState: PlayerState;
+  gameConfig: GameConfig | null;
+  gameProgress: GameProgress;
   onCardPlay: (card: Card) => void;
   onSettingsClick: () => void;
   isDealing?: boolean;
@@ -41,16 +32,18 @@ interface GameBoardProps {
 }
 
 export const GameBoard = ({
-  gameState,
+  playersDisplayData,
   tableState,
   playerState,
+  gameConfig,
+  gameProgress,
   onCardPlay,
   onSettingsClick,
   isDealing = false,
   botCardsHidden = false,
 }: GameBoardProps) => {
   const [lastScores, setLastScores] = useState<TeamScores>(
-    gameState?.teamScores ?? { team1: 0, team2: 0 }
+    gameProgress.scores ?? { team1: 0, team2: 0 }
   );
   const [animateScore, setAnimateScore] = useState<
     Record<keyof TeamScores, boolean>
@@ -59,42 +52,38 @@ export const GameBoard = ({
     team2: false,
   });
 
-  // Use derived selectors for animation states
-  const isCollectingCards = useAppSelector(selectIsCollectingCards);
-  const showCardsPhase = useAppSelector(selectShowCardsPhase);
-
   // Define players array FIRST before any useEffect that references it
   const players = [
-    gameState.players[0], // bottom
-    gameState.players[1], // left
-    gameState.players[2], // top
-    gameState.players[3], // right
+    playersDisplayData[0], // bottom
+    playersDisplayData[1], // left
+    playersDisplayData[2], // top
+    playersDisplayData[3], // right
   ];
 
   // Score animation effect
   useEffect(() => {
-    if (lastScores.team1 !== gameState.teamScores.team1) {
+    if (lastScores.team1 !== gameProgress.scores.team1) {
       setAnimateScore(prev => ({ ...prev, team1: true }));
       announceToScreenReader(
-        `Team 1 scores updated: ${gameState.teamScores.team1} points`
+        `Team 1 scores updated: ${gameProgress.scores.team1} points`
       );
       setTimeout(
         () => setAnimateScore(prev => ({ ...prev, team1: false })),
         500
       );
     }
-    if (lastScores.team2 !== gameState.teamScores.team2) {
+    if (lastScores.team2 !== gameProgress.scores.team2) {
       setAnimateScore(prev => ({ ...prev, team2: true }));
       announceToScreenReader(
-        `Team 2 scores updated: ${gameState.teamScores.team2} points`
+        `Team 2 scores updated: ${gameProgress.scores.team2} points`
       );
       setTimeout(
         () => setAnimateScore(prev => ({ ...prev, team2: false })),
         500
       );
     }
-    setLastScores(gameState.teamScores);
-  }, [gameState.teamScores, lastScores]);
+    setLastScores(gameProgress.scores);
+  }, [gameProgress.scores, lastScores]);
 
   // Announce current player turn
   useEffect(() => {
@@ -127,12 +116,7 @@ export const GameBoard = ({
       <header className="absolute top-6 left-6 right-6 flex justify-between items-center z-20">
         {/* Game Info */}
         <div className="bg-casino-black/40 backdrop-blur-sm border border-gold/30 rounded-lg shadow-elevated p-4">
-          <GameInfo
-            trumpSuit={gameState.trumpSuit}
-            bidAmount={gameState.currentBid}
-            round={gameState.round}
-            teammateCard={gameState.teammateCard}
-          />
+          <GameInfo gameConfig={gameConfig} round={gameProgress.round} />
         </div>
 
         {/* Settings */}
@@ -163,9 +147,9 @@ export const GameBoard = ({
                 "text-2xl font-bold",
                 animateScore.team1 && "animate-score-update"
               )}
-              aria-label={`Team 1 score: ${gameState.teamScores.team1} points`}
+              aria-label={`Team 1 score: ${gameProgress.scores.team1} points`}
             >
-              {gameState.teamScores.team1}
+              {gameProgress.scores.team1}
             </div>
             <div className="text-sm">Team 1</div>
           </div>
@@ -181,9 +165,9 @@ export const GameBoard = ({
                 "text-2xl font-bold",
                 animateScore.team2 && "animate-score-update"
               )}
-              aria-label={`Team 2 score: ${gameState.teamScores.team2} points`}
+              aria-label={`Team 2 score: ${gameProgress.scores.team2} points`}
             >
-              {gameState.teamScores.team2}
+              {gameProgress.scores.team2}
             </div>
             <div className="text-sm text-muted-foreground">Team 2</div>
           </div>
@@ -200,7 +184,7 @@ export const GameBoard = ({
           currentTrick={tableState.tableCards}
           winner={
             tableState.roundWinner !== null
-              ? gameState.players[tableState.roundWinner.player]?.name
+              ? players[tableState.roundWinner.player]?.name
               : undefined
           }
           roundWinner={tableState.roundWinner?.player ?? null}
