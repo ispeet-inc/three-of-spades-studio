@@ -5,7 +5,7 @@ import {
   selectShowCardsPhase,
 } from "@/store/selectors";
 import { TableCard } from "@/types/game";
-import { TIMINGS } from "@/utils/constants";
+import { FIRST_PLAYER_ID, NUM_PLAYERS, TIMINGS } from "@/utils/constants";
 import { useEffect, useState } from "react";
 import { PlayingCard } from "./PlayingCard";
 
@@ -81,42 +81,39 @@ export const CenterTable = ({
               const playerIndex = playedCard.player;
               const isWinningCard = roundWinner === playerIndex;
 
-              const positions = {
-                0: {
+              const playerPositions = {
+                [FIRST_PLAYER_ID]: {
                   // Bottom player
                   container:
                     "absolute bottom-4 left-1/2 transform -translate-x-1/2",
                   cardClass: "",
+                  collectionTarget: "translate-y-[280px] translate-x-0", // Bottom
                 },
-                1: {
+                [(FIRST_PLAYER_ID + 1) % NUM_PLAYERS]: {
                   // Left player
                   container:
                     "absolute left-4 top-1/2 transform -translate-y-1/2",
                   cardClass: "",
+                  collectionTarget: "translate-x-[-280px] translate-y-0", // Left
                 },
-                2: {
+                [(FIRST_PLAYER_ID + 2) % NUM_PLAYERS]: {
                   // Top player
                   container:
                     "absolute top-4 left-1/2 transform -translate-x-1/2",
                   cardClass: "",
+                  collectionTarget: "translate-y-[-280px] translate-x-0", // Top
                 },
-                3: {
+                [(FIRST_PLAYER_ID + 3) % NUM_PLAYERS]: {
                   // Right player
                   container:
                     "absolute right-4 top-1/2 transform -translate-y-1/2",
                   cardClass: "",
+                  collectionTarget: "translate-x-[280px] translate-y-0", // Right
                 },
               };
 
-              // Target positions for collection animation (winner's area)
-              const collectionTargets = {
-                0: "translate-y-[280px] translate-x-0", // Bottom
-                1: "translate-x-[-280px] translate-y-0", // Left
-                2: "translate-y-[-280px] translate-x-0", // Top
-                3: "translate-x-[280px] translate-y-0", // Right
-              };
-
-              const position = positions[playerIndex as keyof typeof positions];
+              const position =
+                playerPositions[playerIndex as keyof typeof playerPositions];
               const animationDelay = `${playerIndex * TIMINGS.dealingStaggerMs}ms`;
               const collectionDelay = `${playerIndex * 50}ms`;
 
@@ -126,9 +123,9 @@ export const CenterTable = ({
               if (isCollectingCards && collectionWinner !== null) {
                 // Collection animation
                 const targetTransform =
-                  collectionTargets[
-                    collectionWinner as keyof typeof collectionTargets
-                  ];
+                  playerPositions[
+                    collectionWinner as keyof typeof playerPositions
+                  ].collectionTarget;
                 cardClassName += ` transform ${targetTransform} scale-75 opacity-0 duration-[${TIMINGS.collectionAnimationMs}ms]`;
               } else if (showCardsPhase && isWinningCard) {
                 // Highlight winning card during display phase
