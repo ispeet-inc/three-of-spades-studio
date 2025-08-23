@@ -22,17 +22,17 @@ interface GameBoardProps {
     players: Array<{
       id: string;
       name: string;
-      team: 1 | 2;
+      team: number | null;
       cards: Card[];
       isCurrentPlayer?: boolean;
       isTeammate?: boolean;
       isBidder?: boolean;
     }>;
-    trumpSuit: Suite;
+    trumpSuit: Suite | null;
     currentBid: number;
     round: number;
     teamScores: { team1: number; team2: number };
-    teammateCard?: Card;
+    teammateCard: Card | null;
     isCollectingCards?: boolean;
     showCardsPhase?: boolean;
     collectionWinner?: number | null;
@@ -203,8 +203,9 @@ export const GameBoard = ({
         <CenterTable
           currentTrick={tableState.tableCards}
           winner={
-            tableState.roundWinner !== null &&
-            gameState.players[tableState.roundWinner.player]?.name
+            tableState.roundWinner !== null
+              ? gameState.players[tableState.roundWinner.player]?.name
+              : undefined
           }
           isCollectingCards={isCollectingCards}
           showCardsPhase={showCardsPhase}

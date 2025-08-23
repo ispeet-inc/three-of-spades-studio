@@ -5,10 +5,10 @@ import { getSuiteColor, getSuiteIcon } from "@/utils/suiteUtils";
 import { Card, PlayingCard } from "./PlayingCard";
 
 interface GameInfoProps {
-  trumpSuit: Suite;
+  trumpSuit: Suite | null;
   bidAmount: number;
   round: number;
-  teammateCard?: Card;
+  teammateCard: Card | null;
 }
 
 export const GameInfo = (props: GameInfoProps) => {

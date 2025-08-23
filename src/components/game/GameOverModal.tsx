@@ -17,7 +17,7 @@ export const GameOverModal = () => {
   const isMobile = useIsMobile();
 
   // Determine winner based on bid
-  const winningTeam = scores[0] >= bidAmount ? 0 : 1;
+  const winningTeam = bidAmount !== null && scores[0] >= bidAmount ? 0 : 1;
   const firstPlayerWon = teams[winningTeam].includes(0);
 
   // todo - dispatch action to reset state, instead of reloading site.
