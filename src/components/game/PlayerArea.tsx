@@ -12,7 +12,7 @@ interface PlayerAreaProps {
     isTeammate?: boolean;
     isBidder?: boolean;
   };
-  runningSuite?: Suite;
+  runningSuite: Suite | null;
   position: "bottom" | "left" | "top" | "right";
   onCardPlay?: (card: Card) => void;
   isDealing?: boolean;
@@ -99,7 +99,7 @@ export const PlayerArea = ({
   const isCardPlayable = (
     hand: Array<Card>,
     card: Card,
-    runningSuite: Suite
+    runningSuite: Suite | null
   ) => {
     if (runningSuite != null) {
       // Check if player has any cards of the running suite

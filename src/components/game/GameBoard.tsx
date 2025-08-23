@@ -131,7 +131,12 @@ export const GameBoard = ({
       <header className="absolute top-6 left-6 right-6 flex justify-between items-center z-20">
         {/* Game Info */}
         <div className="bg-casino-black/40 backdrop-blur-sm border border-gold/30 rounded-lg shadow-elevated p-4">
-          <GameInfo gameState={gameState} />
+          <GameInfo
+            trumpSuit={gameState.trumpSuit}
+            bidAmount={gameState.currentBid}
+            round={gameState.round}
+            teammateCard={gameState.teammateCard}
+          />
         </div>
 
         {/* Settings */}
