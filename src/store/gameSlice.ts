@@ -23,15 +23,18 @@ const getTeamScoreKey = (team: number): keyof TeamScores => {
 };
 
 const initialState: GameState = {
-  stage: GameStages.INIT,
-  round: 0,
-  trumpSuite: null,
-  bidAmount: null,
-  bidWinner: null, // Changed from bidder to bidWinner
-  scores: { team1: 0, team2: 0 }, // Changed from [0, 0] to object format
-  totalRounds: 0,
-  teammateCard: null,
-  currentBid: 0,
+  gameConfig: {
+    bidAmount: null,
+    bidWinner: null,
+    teammateCard: null,
+    trumpSuite: null,
+    totalRounds: 0,
+  },
+  gameProgress: {
+    stage: GameStages.INIT,
+    round: 0,
+    scores: { team1: 0, team2: 0 },
+  },
   biddingState: initialBiddingState(NUM_PLAYERS, 0, false),
   tableState: initialTableState(0, true),
   playerState: {
@@ -54,11 +57,11 @@ const gameSlice = createSlice({
     setStage: (state, action: PayloadAction<GameStage>) => {
       console.log(
         "GameSlice.setStage: CHANGING STATE: FROM",
-        state.stage,
+        state.gameProgress.stage,
         "TO",
         action.payload
       );
-      state.stage = action.payload;
+      state.gameProgress.stage = action.payload;
     },
 
     startGame: state => {
@@ -89,20 +92,20 @@ const gameSlice = createSlice({
         state.playerState.playerNames[i] = name !== undefined ? name : "";
       }
       // Set total rounds based on cards per player
-      state.totalRounds = distributedHands[0].length;
+      state.gameConfig.totalRounds = distributedHands[0].length;
       // Randomly select starting player
       state.playerState.startingPlayer = Math.floor(
         Math.random() * NUM_PLAYERS
       );
-      state.trumpSuite = null;
-      state.bidAmount = null;
-      state.bidWinner = null;
-      state.round = 0;
+      state.gameConfig.trumpSuite = null;
+      state.gameConfig.bidAmount = null;
+      state.gameConfig.bidWinner = null;
+      state.gameProgress.round = 0;
       state.tableState = initialTableState(
         state.playerState.startingPlayer,
         false
       );
-      state.scores = { team1: 0, team2: 0 };
+      state.gameProgress.scores = { team1: 0, team2: 0 };
     },
 
     playCard: (
@@ -122,7 +125,7 @@ const gameSlice = createSlice({
       state.tableState = playCardOnTable(
         state.tableState,
         tableCard,
-        state.trumpSuite as Suite,
+        state.gameConfig.trumpSuite as Suite,
         NUM_PLAYERS
       );
 
@@ -138,7 +141,7 @@ const gameSlice = createSlice({
           0
         );
 
-        state.scores[getTeamScoreKey(winningTeam)] += roundPoints;
+        state.gameProgress.scores[getTeamScoreKey(winningTeam)] += roundPoints;
         state.playerState.players[roundWinner.player].score += roundPoints;
       }
     },
@@ -149,21 +152,21 @@ const gameSlice = createSlice({
         state.tableState.roundWinner?.player
       );
       state.tableState = newRoundOnTable(state.tableState);
-      state.round = state.round + 1;
+      state.gameProgress.round = state.gameProgress.round + 1;
       console.log(
         "GAME: Setting stage to PLAYING, current turn:",
         state.tableState.turn
       );
-      state.stage = GameStages.PLAYING;
+      state.gameProgress.stage = GameStages.PLAYING;
 
       // Check if game is over
-      if (state.round >= state.totalRounds) {
-        state.stage = GameStages.GAME_OVER;
+      if (state.gameProgress.round >= state.gameConfig.totalRounds) {
+        state.gameProgress.stage = GameStages.GAME_OVER;
       }
     },
 
     startCardCollection: state => {
-      state.stage = GameStages.ROUND_COMPLETE;
+      state.gameProgress.stage = GameStages.ROUND_COMPLETE;
     },
 
     setBidAndTrump: (
@@ -175,13 +178,13 @@ const gameSlice = createSlice({
       }>
     ) => {
       const { trumpSuite, bidder, teammateCard } = action.payload;
-      state.trumpSuite = trumpSuite;
-      state.bidWinner = bidder;
-      state.teammateCard = teammateCard;
+      state.gameConfig.trumpSuite = trumpSuite;
+      state.gameConfig.bidWinner = bidder;
+      state.gameConfig.teammateCard = teammateCard;
       console.log(
-        `Setting trump ${trumpSuite} and teammate: ${state.teammateCard}`
+        `Setting trump ${trumpSuite} and teammate: ${state.gameConfig.teammateCard}`
       );
-      console.log(state.teammateCard);
+      console.log(state.gameConfig.teammateCard);
       // Assign teams based on teammate card
       const updatedPlayers = assignTeamsByTeammateCard(
         state.playerState.players,
@@ -193,11 +196,11 @@ const gameSlice = createSlice({
       // todo - make this happen through setStage too.
       console.log(
         "CHANGING STATE: FROM ",
-        state.stage,
+        state.gameProgress.stage,
         " TO ",
         GameStages.TRUMP_SELECTION_COMPLETE
       );
-      state.stage = GameStages.TRUMP_SELECTION_COMPLETE;
+      state.gameProgress.stage = GameStages.TRUMP_SELECTION_COMPLETE;
     },
 
     startBiddingRound: state => {
@@ -240,21 +243,21 @@ const gameSlice = createSlice({
 
       if (activePlayers.length === 1) {
         state.biddingState.bidWinner = activePlayers[0];
-        state.bidAmount = state.biddingState.currentBid;
+        state.gameConfig.bidAmount = state.biddingState.currentBid;
         console.log(
           "CHANGING STATE: FROM ",
-          state.stage,
+          state.gameProgress.stage,
           " TO ",
           GameStages.BIDDING_COMPLETE
         );
-        state.stage = GameStages.BIDDING_COMPLETE;
+        state.gameProgress.stage = GameStages.BIDDING_COMPLETE;
         console.log(
           "CHANGING STATE: FROM ",
-          state.stage,
+          state.gameProgress.stage,
           " TO ",
           GameStages.TRUMP_SELECTION
         );
-        state.stage = GameStages.TRUMP_SELECTION;
+        state.gameProgress.stage = GameStages.TRUMP_SELECTION;
         console.log("Bid winner is ", state.biddingState.bidWinner);
       } else {
         // Advance to next eligible bidder

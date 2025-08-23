@@ -54,11 +54,11 @@ const GameRedux = () => {
   // Transform Redux state to GameBoard props - now using selectors
   const transformedGameState = {
     players, // Now comes from selector - no more manual transformation
-    trumpSuit: gameState.trumpSuite,
+    trumpSuit: gameState.gameConfig.trumpSuite,
     currentBid, // Now comes from selector
-    round: gameState.round,
+    round: gameState.gameProgress.round,
     teamScores, // Now comes from selector
-    teammateCard: gameState.teammateCard,
+    teammateCard: gameState.gameConfig.teammateCard,
   };
 
   const handleCardPlay = (card: Card) => {
@@ -122,11 +122,11 @@ const GameRedux = () => {
   // Handle bot actions
   useEffect(() => {
     if (
-      gameState.stage === GameStages.PLAYING &&
+      gameState.gameProgress.stage === GameStages.PLAYING &&
       tableState.turn !== FIRST_PLAYER_ID
     ) {
       console.log(
-        `Bot ${tableState.turn} should play now. Stage: ${gameState.stage}, Turn: ${tableState.turn}`
+        `Bot ${tableState.turn} should play now. Stage: ${gameState.gameProgress.stage}, Turn: ${tableState.turn}`
       );
       const timer = setTimeout(() => {
         const currentPlayer = playerState.players[tableState.turn];
@@ -143,7 +143,7 @@ const GameRedux = () => {
               {
                 handSize: currentPlayer.hand.length,
                 tableCards: tableState.tableCards.length,
-                trumpSuite: gameState.trumpSuite,
+                trumpSuite: gameState.gameConfig.trumpSuite,
                 runningSuite: tableState.runningSuite,
               }
             );
@@ -151,7 +151,7 @@ const GameRedux = () => {
             const cardIndex = botAgent.chooseCardIndex({
               hand: currentPlayer.hand,
               tableCards: tableState.tableCards,
-              trumpSuite: gameState.trumpSuite,
+              trumpSuite: gameState.gameConfig.trumpSuite,
               runningSuite: tableState.runningSuite,
               playerIndex: tableState.turn,
             });
@@ -197,12 +197,12 @@ const GameRedux = () => {
       return () => clearTimeout(timer);
     }
   }, [
-    gameState.stage,
+    gameState.gameProgress.stage,
     tableState.turn,
     dispatch,
     playerState.players,
     tableState.tableCards,
-    gameState.trumpSuite,
+    gameState.gameConfig.trumpSuite,
     tableState.runningSuite,
     playerState.playerAgents,
   ]);
@@ -210,7 +210,7 @@ const GameRedux = () => {
   // Handle bot bidding
   useEffect(() => {
     if (
-      gameState.stage === GameStages.BIDDING &&
+      gameState.gameProgress.stage === GameStages.BIDDING &&
       gameState.biddingState.currentBidder !== FIRST_PLAYER_ID &&
       gameState.biddingState.passedPlayers.length < 3 &&
       gameState.biddingState.bidWinner === null
@@ -284,7 +284,7 @@ const GameRedux = () => {
       };
     }
   }, [
-    gameState.stage,
+    gameState.gameProgress.stage,
     gameState.biddingState.currentBidder,
     gameState.biddingState.bidWinner,
     gameState.biddingState.currentBid,
@@ -297,7 +297,7 @@ const GameRedux = () => {
   // Handle bot trump selection
   useEffect(() => {
     if (
-      gameState.stage === GameStages.TRUMP_SELECTION &&
+      gameState.gameProgress.stage === GameStages.TRUMP_SELECTION &&
       gameState.biddingState.bidWinner !== FIRST_PLAYER_ID
     ) {
       const timer = setTimeout(() => {
@@ -340,7 +340,7 @@ const GameRedux = () => {
       return () => clearTimeout(timer);
     }
   }, [
-    gameState.stage,
+    gameState.gameProgress.stage,
     gameState.biddingState.bidWinner,
     playerState.playerAgents,
     playerState.players,
@@ -348,7 +348,7 @@ const GameRedux = () => {
     handleTrumpSelection,
   ]);
 
-  if (gameState.stage === GameStages.INIT) {
+  if (gameState.gameProgress.stage === GameStages.INIT) {
     return (
       <StartScreen
         onStartGame={(playerName: string) => handleStartGame(playerName)}
@@ -357,7 +357,12 @@ const GameRedux = () => {
   }
 
   // Safety check to ensure game state is properly initialized
-  if (!gameState || !playerState.players || !gameState.scores || !tableState) {
+  if (
+    !gameState ||
+    !playerState.players ||
+    !gameState.gameProgress.scores ||
+    !tableState
+  ) {
     return <div>Loading...</div>;
   }
 
@@ -373,24 +378,26 @@ const GameRedux = () => {
       />
 
       {/* Modals */}
-      {gameState.stage === GameStages.BIDDING && <BiddingModal />}
+      {gameState.gameProgress.stage === GameStages.BIDDING && <BiddingModal />}
 
-      {gameState.stage === GameStages.TRUMP_SELECTION &&
+      {gameState.gameProgress.stage === GameStages.TRUMP_SELECTION &&
         gameState.biddingState.bidWinner === 0 && <TrumpSelectionModal />}
 
-      {gameState.stage === GameStages.TRUMP_SELECTION_COMPLETE && (
+      {gameState.gameProgress.stage === GameStages.TRUMP_SELECTION_COMPLETE && (
         <BidResultModal
           isOpen={true}
           bidWinner={bidWinner as number}
-          bidAmount={gameState.bidAmount as number}
-          trumpSuite={gameState.trumpSuite as number}
-          teammateCard={gameState.teammateCard as Card}
+          bidAmount={gameState.gameConfig.bidAmount as number}
+          trumpSuite={gameState.gameConfig.trumpSuite as number}
+          teammateCard={gameState.gameConfig.teammateCard as Card}
           playerNames={playerState.playerNames}
           onClose={handleBidResultClose}
         />
       )}
 
-      {gameState.stage === GameStages.GAME_OVER && <GameOverModal />}
+      {gameState.gameProgress.stage === GameStages.GAME_OVER && (
+        <GameOverModal />
+      )}
     </div>
   );
 };

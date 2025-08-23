@@ -28,7 +28,7 @@ export const selectPlayerState = (state: RootState) => state.game.playerState;
 /** Returns the current game stage */
 export const selectStage = createSelector(
   selectGame,
-  (g): GameStage => g.stage as GameStage
+  (g): GameStage => g.gameProgress.stage as GameStage
 );
 
 // ============================================================================
@@ -156,7 +156,7 @@ export const selectBidTimer = createSelector(
 /** Team scores */
 export const selectTeamScores = createSelector(
   selectGame,
-  (g): TeamScores => g.scores
+  (g): TeamScores => g.gameProgress.scores
 );
 
 /** Winner of card collection phase */

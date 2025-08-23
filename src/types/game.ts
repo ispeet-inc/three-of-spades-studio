@@ -76,17 +76,23 @@ export interface PlayerState {
   playerNames: Record<number, string>;
 }
 
-export interface GameState {
-  stage: GameStage;
-  round: number;
-  trumpSuite: number | null;
+export interface GameConfig {
   bidAmount: number | null;
-  bidWinner: number | null; // Changed from bidder to bidWinner
-  scores: TeamScores; // Updated to use the new type
-  totalRounds: number;
+  bidWinner: number | null;
   teammateCard: Card | null;
-  /** @deprecated Use selectCurrentBid selector instead */
-  currentBid: number;
+  trumpSuite: number | null;
+  totalRounds: number;
+}
+
+export interface GameProgress {
+  round: number;
+  scores: TeamScores;
+  stage: GameStage;
+}
+
+export interface GameState {
+  gameConfig: GameConfig;
+  gameProgress: GameProgress;
   biddingState: BiddingState;
   tableState: TableState;
   playerState: PlayerState;
