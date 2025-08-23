@@ -85,11 +85,10 @@ export interface GameState {
   scores: TeamScores; // Updated to use the new type
   totalRounds: number;
   teammateCard: Card | null;
-  /** @deprecated Use selectIsCollectingCards selector instead */
-  isCollectingCards: boolean;
-  /** @deprecated Use selectShowCardsPhase selector instead */
-  showCardsPhase: boolean;
+  /** @deprecated Use selectCollectionWinner selector instead */
   collectionWinner: number | null;
+  /** @deprecated Use selectCurrentBid selector instead */
+  currentBid: number;
   biddingState: BiddingState;
   tableState: TableState;
   playerState: PlayerState;

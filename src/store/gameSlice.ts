@@ -31,8 +31,6 @@ const initialState: GameState = {
   scores: { team1: 0, team2: 0 }, // Changed from [0, 0] to object format
   totalRounds: 0,
   teammateCard: null,
-  isCollectingCards: false,
-  showCardsPhase: false,
   collectionWinner: null,
   biddingState: initialBiddingState(NUM_PLAYERS, 0, false),
   tableState: initialTableState(0, true),

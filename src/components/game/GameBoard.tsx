@@ -32,8 +32,6 @@ interface GameBoardProps {
     round: number;
     teamScores: TeamScores;
     teammateCard: Card | null;
-    isCollectingCards?: boolean;
-    showCardsPhase?: boolean;
     collectionWinner?: number | null;
   };
   tableState: TableState;
@@ -208,8 +206,6 @@ export const GameBoard = ({
               ? gameState.players[tableState.roundWinner.player]?.name
               : undefined
           }
-          isCollectingCards={isCollectingCards}
-          showCardsPhase={showCardsPhase}
           collectionWinner={collectionWinner}
           roundWinner={tableState.roundWinner?.player ?? null}
           playerNames={playerState.playerNames}
