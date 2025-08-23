@@ -2,7 +2,6 @@ import { BiddingModal } from "@/components/game/BiddingModal";
 import { BidResultModal } from "@/components/game/BidResultModal";
 import { GameBoard } from "@/components/game/GameBoard";
 import { GameOverModal } from "@/components/game/GameOverModal";
-import { RoundSummaryModal } from "@/components/game/RoundSummaryModal";
 import { TrumpSelectionModal } from "@/components/game/TrumpSelectionModal";
 import StartScreen from "@/components/StartScreen";
 import { useAppSelector } from "@/hooks/useAppSelector";
@@ -399,10 +398,6 @@ const GameRedux = () => {
           playerNames={playerState.playerNames}
           onClose={handleBidResultClose}
         />
-      )}
-
-      {gameState.stage === GameStages.ROUND_SUMMARY && (
-        <RoundSummaryModal onClose={handleContinueAfterRound} />
       )}
 
       {gameState.stage === GameStages.GAME_OVER && <GameOverModal />}

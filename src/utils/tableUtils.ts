@@ -1,7 +1,6 @@
-import { Suite, TableState } from "@/types/game";
+import { Suite, TableCard, TableState } from "@/types/game";
 import { generateDeck } from "./cardUtils";
 import { determineRoundWinner } from "./gameUtils";
-import { TableCard } from "./updated_game";
 
 export const initialTableState = (
   startingTurn: number,
@@ -47,6 +46,9 @@ export const playCardOnTable = (
 };
 
 export const newRoundOnTable = (oldState: TableState): TableState => {
+  if (oldState.roundWinner === null) {
+    throw new Error("Round winner cannot be null before start of newRound");
+  }
   return {
     runningSuite: null,
     tableCards: [],

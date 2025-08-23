@@ -12,7 +12,8 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "type-check": "npx tsc --project tsconfig.app.json --noEmit"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",

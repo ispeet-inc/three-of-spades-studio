@@ -12,9 +12,8 @@ import { Crown, Sparkles, Trophy } from "lucide-react";
 
 export const GameOverModal = () => {
   const teams = useAppSelector(selectTeams);
-  const { scores, playerNames, bidAmount, bidder } = useAppSelector(
-    state => state.game
-  );
+  const { scores, bidAmount, bidder } = useAppSelector(state => state.game);
+  const { playerNames } = useAppSelector(state => state.game.playerState);
   const isMobile = useIsMobile();
 
   // Determine winner based on bid

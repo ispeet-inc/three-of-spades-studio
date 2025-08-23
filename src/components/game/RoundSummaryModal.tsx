@@ -14,13 +14,18 @@ interface RoundSummaryModalProps {
 }
 
 export const RoundSummaryModal = ({ onClose }: RoundSummaryModalProps) => {
-  const { tableCards, roundWinner, playerNames, players, scores, round } =
-    useAppSelector(state => state.game);
+  const { tableCards, roundWinner } = useAppSelector(
+    state => state.game.tableState
+  );
+  const { playerNames, players } = useAppSelector(
+    state => state.game.playerState
+  );
+  const { scores, round } = useAppSelector(state => state.game);
 
   // Get the last 4 cards played in this round
   const currentRoundCards = tableCards.slice(-4);
   const winnerName =
-    roundWinner !== null ? playerNames[roundWinner] : "Unknown";
+    roundWinner !== null ? playerNames[roundWinner.player] : "Unknown";
 
   return (
     <Dialog open={true}>
@@ -69,7 +74,7 @@ export const RoundSummaryModal = ({ onClose }: RoundSummaryModalProps) => {
                   key={idx}
                   className={`text-center space-y-3 p-4 rounded-xl border transition-all duration-300 hover:scale-105
                     ${
-                      card.player === roundWinner
+                      card.player === roundWinner.player
                         ? "bg-gradient-gold/20 border-gold shadow-glow"
                         : "bg-felt-green-light/30 border-gold/20 hover:border-gold/40"
                     }`}
@@ -84,11 +89,11 @@ export const RoundSummaryModal = ({ onClose }: RoundSummaryModalProps) => {
                   </div>
                   <div className="space-y-1">
                     <div
-                      className={`text-sm font-bold ${card.player === roundWinner ? "text-gold" : "text-gold/80"}`}
+                      className={`text-sm font-bold ${card.player === roundWinner.player ? "text-gold" : "text-gold/80"}`}
                     >
                       {playerNames[card.player]}
                     </div>
-                    {card.player === roundWinner && (
+                    {card.player === roundWinner.player && (
                       <div className="text-xs text-gold/70 font-medium flex items-center justify-center gap-1">
                         <Crown className="w-3 h-3" />
                         Winner

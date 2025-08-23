@@ -187,40 +187,6 @@ export const selectActiveBidders = createSelector(
   (passedPlayers): number[] =>
     [0, 1, 2, 3].filter(idx => !passedPlayers.includes(idx))
 );
-export const selectBidStatusByPlayer = createSelector(
-  [
-    selectBidHistory,
-    selectPassedPlayers,
-    selectCurrentBidder,
-    selectCurrentBid,
-  ],
-  (
-    bidHistory,
-    passedPlayers,
-    currentBidder,
-    currentBid
-  ): Record<number, string> => {
-    const status: Record<number, string> = {};
-
-    // Initialize all players as "Bidding"
-    for (let i = 0; i < 4; i++) {
-      status[i] = "Bidding";
-    }
-
-    // Mark passed players
-    passedPlayers.forEach(player => {
-      status[player] = "Passed";
-    });
-
-    // Mark current highest bidder
-    const lastBid = bidHistory[bidHistory.length - 1];
-    if (lastBid && !passedPlayers.includes(lastBid.player)) {
-      status[lastBid.player] = `Current Bid: ${lastBid.bid}`;
-    }
-
-    return status;
-  }
-);
 
 // Phase flags (derived from stage and game state)
 export const selectShowCardsPhase = createSelector(
@@ -261,8 +227,4 @@ export const selectBidder = createSelector(
 export const selectTeammateCard = createSelector(
   selectGame,
   (g): Card | null => g.teammateCard
-);
-export const selectPlayerNames = createSelector(
-  selectGame,
-  (g): Record<number, string> => g.playerNames
 );

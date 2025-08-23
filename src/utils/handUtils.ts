@@ -126,11 +126,7 @@ export function printCardHashes(hand: Card[]) {
   }
 }
 
-export function getTeammateInSuite(
-  hand: Card[],
-  suite: Suite,
-  verbose: boolean = false
-) {
+export function getTeammateInSuite(hand: Card[], suite: Suite) {
   if (!hasSuite(hand, suite)) return null;
 
   const suiteCards = hand.filter(card => card.suite === suite);
