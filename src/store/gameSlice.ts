@@ -1,5 +1,5 @@
 import { agentClasses } from "@/agents";
-import { Card, GameState, TeamScores } from "@/types/game";
+import { Card, GameState, Suite, TeamScores } from "@/types/game";
 import { distributeDeck, shuffle } from "@/utils/cardUtils";
 import { FIRST_PLAYER_ID, PLAYER_NAME_POOL } from "@/utils/constants";
 import { initialBiddingState, initPlayerObject } from "@/utils/gameSetupUtils";
@@ -124,7 +124,7 @@ const gameSlice = createSlice({
       state.tableState = playCardOnTable(
         state.tableState,
         tableCard,
-        state.trumpSuite!,
+        state.trumpSuite as Suite,
         NUM_PLAYERS
       );
 
@@ -173,7 +173,7 @@ const gameSlice = createSlice({
     setBidAndTrump: (
       state,
       action: PayloadAction<{
-        trumpSuite: number;
+        trumpSuite: Suite;
         bidder: number;
         teammateCard: Card;
       }>

@@ -29,9 +29,10 @@ export const playCardOnTable = (
   }
   if (updatedTableCards.length === 4) {
     console.log("GAME: All 4 cards played, determining winner");
+    // @ts-expect-error - runningSuite is not null when this is called
     roundWinner = determineRoundWinner(
       updatedTableCards,
-      runningSuite!,
+      runningSuite as Suite,
       trumpSuite
     );
     runningSuite = tableCard.suite;
@@ -46,10 +47,13 @@ export const playCardOnTable = (
 };
 
 export const newRoundOnTable = (oldState: TableState): TableState => {
+  if (!oldState.roundWinner) {
+    throw new Error("Cannot start new round: roundWinner is null");
+  }
   return {
     runningSuite: null,
     tableCards: [],
-    turn: oldState.roundWinner?.player!,
+    turn: oldState.roundWinner.player,
     roundWinner: null,
     discardedCards: oldState.discardedCards.concat(oldState.tableCards),
   };

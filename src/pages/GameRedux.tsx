@@ -25,12 +25,12 @@ import {
   selectPlayerState,
   selectTeamScores,
 } from "@/store/selectors";
-import { Card } from "@/types/game";
+import { Card, Suite } from "@/types/game";
 import { createCard } from "@/utils/cardUtils";
 import { FIRST_PLAYER_ID, TIMINGS } from "@/utils/constants";
 import { useFeedback } from "@/utils/feedbackSystem";
 import { getTeammateOptions } from "@/utils/gameUtils";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 
 const GameRedux = () => {
@@ -99,16 +99,19 @@ const GameRedux = () => {
     dispatch(passBid({ playerIndex: FIRST_PLAYER_ID }));
   };
 
-  const handleTrumpSelection = (trumpSuite: number, teammateCard: Card) => {
-    trigger("trump", { intensity: "strong" });
-    dispatch(
-      setBidAndTrump({
-        trumpSuite,
-        bidder: gameState.biddingState.bidWinner!,
-        teammateCard,
-      })
-    );
-  };
+  const handleTrumpSelection = useCallback(
+    (trumpSuite: Suite, teammateCard: Card) => {
+      trigger("trump", { intensity: "strong" });
+      dispatch(
+        setBidAndTrump({
+          trumpSuite: trumpSuite,
+          bidder: gameState.biddingState.bidWinner as number,
+          teammateCard,
+        })
+      );
+    },
+    [trigger, dispatch, gameState.biddingState.bidWinner]
+  );
 
   const handleBidResultClose = () => {
     dispatch(setStage(GameStages.PLAYING));
@@ -302,9 +305,9 @@ const GameRedux = () => {
     ) {
       const timer = setTimeout(() => {
         const botAgent =
-          playerState.playerAgents[gameState.biddingState.bidWinner!];
+          playerState.playerAgents[gameState.biddingState.bidWinner as number];
         const bidWinner =
-          playerState.players[gameState.biddingState.bidWinner!];
+          playerState.players[gameState.biddingState.bidWinner as number];
 
         if (botAgent && bidWinner) {
           try {
@@ -316,7 +319,7 @@ const GameRedux = () => {
             const choice = botAgent.chooseTrumpAndTeammate({
               hand: bidWinner.hand,
               playerNames: playerState.playerNames,
-              playerIndex: gameState.biddingState.bidWinner!,
+              playerIndex: gameState.biddingState.bidWinner as number,
               teammateOptions: allTeammateOptions,
             });
 
@@ -381,10 +384,10 @@ const GameRedux = () => {
       {gameState.stage === GameStages.TRUMP_SELECTION_COMPLETE && (
         <BidResultModal
           isOpen={true}
-          bidWinner={bidWinner!} // Changed from gameState.bidder to bidWinner from selector
-          bidAmount={gameState.bidAmount!}
-          trumpSuite={gameState.trumpSuite!}
-          teammateCard={gameState.teammateCard!}
+          bidWinner={bidWinner as number}
+          bidAmount={gameState.bidAmount as number}
+          trumpSuite={gameState.trumpSuite as number}
+          teammateCard={gameState.teammateCard as Card}
           playerNames={playerState.playerNames}
           onClose={handleBidResultClose}
         />

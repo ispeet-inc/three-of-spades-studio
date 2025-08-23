@@ -46,7 +46,7 @@ export const CenterTable = ({
       {(winner || (showCardsPhase && roundWinner !== null)) && (
         <div className="absolute -top-16 left-1/2 transform -translate-x-1/2 text-center w-72">
           <div className="text-s text-gold/70 font-medium">
-            {winner || playerNames[roundWinner!] + " won the round!"}
+            {winner || playerNames[roundWinner as number] + " won the round!"}
           </div>
         </div>
       )}
