@@ -1,17 +1,9 @@
 import { cn } from "@/lib/utils";
-import { Card, Suite } from "@/types/game";
+import { Card, PlayerDisplayData, Suite } from "@/types/game";
 import { PlayingCard } from "./PlayingCard";
 
 interface PlayerAreaProps {
-  player: {
-    id: string;
-    name: string;
-    team: 1 | 2 | null; // Changed to allow null for initial game phases
-    cards: Card[];
-    isCurrentPlayer?: boolean;
-    isTeammate?: boolean;
-    isBidWinner?: boolean;
-  };
+  player: PlayerDisplayData;
   runningSuite: Suite | null;
   position: "bottom" | "left" | "top" | "right";
   onCardPlay?: (card: Card) => void;
@@ -149,7 +141,7 @@ export const PlayerArea = ({
           >
             Team {player.team}
           </div>
-          {player.isTeammate && (
+          {player.isFirstPersonTeammate && (
             <div className="text-xs text-green-400 mt-1">★ Teammate</div>
           )}
         </div>

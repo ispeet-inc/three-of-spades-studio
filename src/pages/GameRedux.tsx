@@ -15,17 +15,13 @@ import {
   setStage,
   startBiddingRound,
   startGame,
-  startNewRound,
 } from "@/store/gameSlice";
 import { GameStages } from "@/store/gameStages";
 import {
-  selectBidder,
-  selectCurrentBid,
   selectGameConfig,
   selectGameProgress,
   selectPlayerDisplayData,
   selectPlayerState,
-  selectTeamScores,
 } from "@/store/selectors";
 import { Card, Suite } from "@/types/game";
 import { createCard } from "@/utils/cardUtils";
@@ -51,9 +47,6 @@ const GameRedux = () => {
 
   // Use selectors instead of manual transformations - Phase 2 implementation
   const players = useAppSelector(selectPlayerDisplayData);
-  const teamScores = useAppSelector(selectTeamScores);
-  const currentBid = useAppSelector(selectCurrentBid);
-  const bidWinner = useAppSelector(selectBidder);
 
   const handleCardPlay = (card: Card) => {
     const playerHand = playerState.players[FIRST_PLAYER_ID].hand;
@@ -106,11 +99,6 @@ const GameRedux = () => {
 
   const handleBidResultClose = () => {
     dispatch(setStage(GameStages.PLAYING));
-  };
-
-  const handleContinueAfterRound = () => {
-    trigger("success", { intensity: "medium" });
-    dispatch(startNewRound());
   };
 
   // Handle bot actions
