@@ -6,7 +6,7 @@ interface PlayerAreaProps {
   player: {
     id: string;
     name: string;
-    team: 1 | 2;
+    team: 1 | 2 | null; // Changed to allow null for initial game phases
     cards: Card[];
     isCurrentPlayer?: boolean;
     isTeammate?: boolean;

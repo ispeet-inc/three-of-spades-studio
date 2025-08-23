@@ -18,6 +18,13 @@ import {
   startNewRound,
 } from "@/store/gameSlice";
 import { GameStages } from "@/store/gameStages";
+import {
+  selectBidder,
+  selectCurrentBid,
+  selectPlayerDisplayData,
+  selectPlayerState,
+  selectTeamScores,
+} from "@/store/selectors";
 import { Card } from "@/types/game";
 import { createCard } from "@/utils/cardUtils";
 import { FIRST_PLAYER_ID, TIMINGS } from "@/utils/constants";
@@ -32,42 +39,25 @@ const GameRedux = () => {
   const tableState = useAppSelector(
     (state: RootState) => state.game.tableState
   );
-  const playerState = useAppSelector(
-    (state: RootState) => state.game.playerState
-  );
+  const playerState = useAppSelector(selectPlayerState); // Updated to use focused selector
   const { trigger } = useFeedback();
 
   // Add dealing animation state
   const [isDealing, setIsDealing] = useState(false);
 
-  // Transform Redux state to GameBoard props
+  // Use selectors instead of manual transformations - Phase 2 implementation
+  const players = useAppSelector(selectPlayerDisplayData);
+  const teamScores = useAppSelector(selectTeamScores);
+  const currentBid = useAppSelector(selectCurrentBid);
+  const bidWinner = useAppSelector(selectBidder);
+
+  // Transform Redux state to GameBoard props - now using selectors
   const transformedGameState = {
-    // todo - dismantle this object
-    players: Object.entries(playerState.players).map(([index, player]) => ({
-      id: `player-${index}`,
-      name:
-        playerState.playerNames[parseInt(index)] ||
-        `Player ${parseInt(index) + 1}`,
-      team:
-        player.team === null ? null : ((player.team === 0 ? 1 : 2) as 1 | 2),
-      cards: player.hand,
-      isCurrentPlayer:
-        parseInt(index) === tableState.turn &&
-        gameState.stage === GameStages.PLAYING,
-      isTeammate:
-        player.team !== null &&
-        player.team === playerState.players[FIRST_PLAYER_ID].team &&
-        parseInt(index) !== FIRST_PLAYER_ID,
-      isBidder:
-        gameState.bidder !== null && gameState.bidder === parseInt(index),
-    })),
+    players, // Now comes from selector - no more manual transformation
     trumpSuit: gameState.trumpSuite,
-    currentBid: gameState.bidAmount || 0,
+    currentBid, // Now comes from selector
     round: gameState.round,
-    teamScores: {
-      team1: gameState.scores?.[0] ?? 0,
-      team2: gameState.scores?.[1] ?? 0,
-    },
+    teamScores, // Now comes from selector
     teammateCard: gameState.teammateCard,
     isCollectingCards: gameState.isCollectingCards,
     showCardsPhase: gameState.showCardsPhase,
@@ -391,7 +381,7 @@ const GameRedux = () => {
       {gameState.stage === GameStages.TRUMP_SELECTION_COMPLETE && (
         <BidResultModal
           isOpen={true}
-          bidWinner={gameState.bidder!}
+          bidWinner={bidWinner!} // Changed from gameState.bidder to bidWinner from selector
           bidAmount={gameState.bidAmount!}
           trumpSuite={gameState.trumpSuite!}
           teammateCard={gameState.teammateCard!}

@@ -22,7 +22,7 @@ interface GameBoardProps {
     players: Array<{
       id: string;
       name: string;
-      team: number | null;
+      team: 1 | 2 | null; // Updated to match the new team system
       cards: Card[];
       isCurrentPlayer?: boolean;
       isTeammate?: boolean;

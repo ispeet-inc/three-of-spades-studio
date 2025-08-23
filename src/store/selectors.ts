@@ -17,6 +17,8 @@ import { createSelector } from "@reduxjs/toolkit";
 // Root selectors
 /** Returns the game slice */
 export const selectGame = (state: RootState): GameState => state.game;
+/** Returns the player state slice */
+export const selectPlayerState = (state: RootState) => state.game.playerState;
 /** Returns the current stage */
 export const selectStage = createSelector(
   selectGame,
@@ -99,9 +101,19 @@ export const selectTeamScores = createSelector(
 
 /** Player -> team map */
 export const selectPlayers = createSelector(
-  selectGame,
-  (g): Record<number, Playerv2> | null => g.playerState.players
+  selectPlayerState,
+  (playerState): Record<number, Playerv2> | null => playerState.players
 );
+
+/** Player names mapping */
+export const selectPlayerNames = createSelector(
+  selectPlayerState,
+  (playerState): Record<number, string> => playerState.playerNames
+);
+
+/** Individual player by index */
+export const selectPlayerByIndex = (playerIndex: number) =>
+  createSelector(selectPlayers, players => players?.[playerIndex] || null);
 
 // Derive teams from players - updated for new team system (1/2 instead of 0/1)
 export const selectTeams = createSelector(
@@ -201,6 +213,45 @@ export const selectCurrentPlayerIndex = createSelector(
   (game, stage): number =>
     stage === GameStages.PLAYING ? game.tableState.turn : -1
 );
+
+// Phase 2: Player display data selectors
+/** Transform players for UI consumption - computed on-demand, no state redundancy */
+export const selectPlayerDisplayData = createSelector(
+  [selectPlayers, selectPlayerState, selectCurrentPlayerIndex],
+  (players, playerState, currentPlayerIndex) => {
+    if (!players) return [];
+
+    return Object.entries(players).map(([index, player]) => ({
+      id: `player-${index}`,
+      name:
+        playerState.playerNames[parseInt(index)] ||
+        `Player ${parseInt(index) + 1}`,
+      team: player.team, // Already in 1/2 format from Phase 1
+      cards: player.hand,
+      isCurrentPlayer: parseInt(index) === currentPlayerIndex,
+      isTeammate: player.isTeammate,
+      isBidWinner: player.isBidWinner,
+    }));
+  }
+);
+
+/** Efficiently compute teammate relationships - returns set of teammate indices */
+export const selectTeammates = createSelector([selectPlayers], players => {
+  if (!players) return new Set<number>();
+
+  const firstPlayerTeam = players[0]?.team;
+  if (!firstPlayerTeam) return new Set<number>();
+
+  const teammates = new Set<number>();
+  Object.entries(players).forEach(([index, player]) => {
+    const playerIndex = parseInt(index);
+    if (player.team === firstPlayerTeam && playerIndex !== 0) {
+      teammates.add(playerIndex);
+    }
+  });
+
+  return teammates;
+});
 
 export const selectBidder = createSelector(
   selectGame,
