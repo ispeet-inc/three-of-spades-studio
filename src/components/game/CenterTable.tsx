@@ -1,5 +1,6 @@
 import { useAppSelector } from "@/hooks/useAppSelector";
 import {
+  selectCollectionWinner,
   selectIsCollectingCards,
   selectShowCardsPhase,
 } from "@/store/selectors";
@@ -11,7 +12,6 @@ import { PlayingCard } from "./PlayingCard";
 interface CenterTableProps {
   currentTrick: TableCard[];
   winner?: string;
-  collectionWinner?: number | null;
   roundWinner?: number | null;
   playerNames?: Record<number, string>;
 }
@@ -19,7 +19,6 @@ interface CenterTableProps {
 export const CenterTable = ({
   currentTrick,
   winner,
-  collectionWinner = null,
   roundWinner = null,
   playerNames = {},
 }: CenterTableProps) => {
@@ -28,6 +27,7 @@ export const CenterTable = ({
   // Use selectors directly instead of props
   const isCollectingCards = useAppSelector(selectIsCollectingCards);
   const showCardsPhase = useAppSelector(selectShowCardsPhase);
+  const collectionWinner = useAppSelector(selectCollectionWinner);
 
   useEffect(() => {
     if (isCollectingCards && collectionWinner !== null) {

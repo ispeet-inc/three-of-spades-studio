@@ -162,7 +162,7 @@ export const selectTeamScores = createSelector(
 /** Winner of card collection phase */
 export const selectCollectionWinner = createSelector(
   selectGame,
-  (g): number | null => g.collectionWinner
+  (g): number | null => g.tableState.roundWinner?.player ?? null
 );
 
 // ============================================================================

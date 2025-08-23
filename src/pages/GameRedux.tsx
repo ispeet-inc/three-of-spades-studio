@@ -59,7 +59,6 @@ const GameRedux = () => {
     round: gameState.round,
     teamScores, // Now comes from selector
     teammateCard: gameState.teammateCard,
-    collectionWinner: gameState.collectionWinner,
   };
 
   const handleCardPlay = (card: Card) => {

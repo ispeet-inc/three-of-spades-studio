@@ -31,7 +31,7 @@ const initialState: GameState = {
   scores: { team1: 0, team2: 0 }, // Changed from [0, 0] to object format
   totalRounds: 0,
   teammateCard: null,
-  collectionWinner: null,
+  currentBid: 0,
   biddingState: initialBiddingState(NUM_PLAYERS, 0, false),
   tableState: initialTableState(0, true),
   playerState: {
@@ -150,7 +150,6 @@ const gameSlice = createSlice({
       );
       state.tableState = newRoundOnTable(state.tableState);
       state.round = state.round + 1;
-      state.collectionWinner = null;
       console.log(
         "GAME: Setting stage to PLAYING, current turn:",
         state.tableState.turn
@@ -164,7 +163,6 @@ const gameSlice = createSlice({
     },
 
     startCardCollection: state => {
-      state.collectionWinner = state.tableState.roundWinner?.player ?? null;
       state.stage = GameStages.ROUND_COMPLETE;
     },
 

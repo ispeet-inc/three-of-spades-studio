@@ -2,11 +2,6 @@ import { Button } from "@/components/ui/button";
 import { useAppSelector } from "@/hooks/useAppSelector";
 import { cn } from "@/lib/utils";
 import {
-  selectCollectionWinner,
-  selectIsCollectingCards,
-  selectShowCardsPhase,
-} from "@/store/selectors";
-import {
   Card,
   PlayerDisplayData,
   PlayerState,
@@ -20,6 +15,10 @@ import {
 } from "@/utils/accessibility";
 import { Settings } from "lucide-react";
 import { useEffect, useState } from "react";
+import {
+  selectIsCollectingCards,
+  selectShowCardsPhase,
+} from "../../store/selectors";
 import { CenterTable } from "./CenterTable";
 import { GameInfo } from "./GameInfo";
 import { PlayerArea } from "./PlayerArea";
@@ -32,7 +31,6 @@ interface GameBoardProps {
     round: number;
     teamScores: TeamScores;
     teammateCard: Card | null;
-    collectionWinner?: number | null;
   };
   tableState: TableState;
   playerState: PlayerState;
@@ -64,7 +62,6 @@ export const GameBoard = ({
   // Use derived selectors for animation states
   const isCollectingCards = useAppSelector(selectIsCollectingCards);
   const showCardsPhase = useAppSelector(selectShowCardsPhase);
-  const collectionWinner = useAppSelector(selectCollectionWinner);
 
   // Define players array FIRST before any useEffect that references it
   const players = [
@@ -206,7 +203,6 @@ export const GameBoard = ({
               ? gameState.players[tableState.roundWinner.player]?.name
               : undefined
           }
-          collectionWinner={collectionWinner}
           roundWinner={tableState.roundWinner?.player ?? null}
           playerNames={playerState.playerNames}
         />
