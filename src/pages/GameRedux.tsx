@@ -2,7 +2,6 @@ import { BiddingModal } from "@/components/game/BiddingModal";
 import { BidResultModal } from "@/components/game/BidResultModal";
 import { GameBoard } from "@/components/game/GameBoard";
 import { GameOverModal } from "@/components/game/GameOverModal";
-import { RoundSummaryModal } from "@/components/game/RoundSummaryModal";
 import { TrumpSelectionModal } from "@/components/game/TrumpSelectionModal";
 import StartScreen from "@/components/StartScreen";
 import { useAppSelector } from "@/hooks/useAppSelector";
@@ -33,6 +32,9 @@ const GameRedux = () => {
   const tableState = useAppSelector(
     (state: RootState) => state.game.tableState
   );
+  const playerState = useAppSelector(
+    (state: RootState) => state.game.playerState
+  );
   const { trigger } = useFeedback();
 
   // Add dealing animation state
@@ -40,21 +42,22 @@ const GameRedux = () => {
 
   // Transform Redux state to GameBoard props
   const transformedGameState = {
-    players: Object.entries(gameState.players).map(([index, player]) => ({
+    // todo - dismantle this object
+    players: Object.entries(playerState.players).map(([index, player]) => ({
       id: `player-${index}`,
       name:
-        gameState.playerNames[parseInt(index)] ||
+        playerState.playerNames[parseInt(index)] ||
         `Player ${parseInt(index) + 1}`,
-      team: (gameState.playerTeamMap?.[parseInt(index)] === 0 ? 1 : 2) as 1 | 2,
+      team:
+        player.team === null ? null : ((player.team === 0 ? 1 : 2) as 1 | 2),
       cards: player.hand,
       isCurrentPlayer:
         parseInt(index) === tableState.turn &&
         gameState.stage === GameStages.PLAYING,
       isTeammate:
-        gameState.playerTeamMap &&
-        gameState.playerTeamMap[parseInt(index)] ===
-          gameState.playerTeamMap[0] &&
-        parseInt(index) !== 0,
+        player.team !== null &&
+        player.team === playerState.players[FIRST_PLAYER_ID].team &&
+        parseInt(index) !== FIRST_PLAYER_ID,
       isBidder:
         gameState.bidder !== null && gameState.bidder === parseInt(index),
     })),
@@ -66,14 +69,13 @@ const GameRedux = () => {
       team2: gameState.scores?.[1] ?? 0,
     },
     teammateCard: gameState.teammateCard,
-    playerNames: gameState.playerNames,
     isCollectingCards: gameState.isCollectingCards,
     showCardsPhase: gameState.showCardsPhase,
     collectionWinner: gameState.collectionWinner,
   };
 
   const handleCardPlay = (card: Card) => {
-    const playerHand = gameState.players[FIRST_PLAYER_ID].hand;
+    const playerHand = playerState.players[FIRST_PLAYER_ID].hand;
     const cardIndex = playerHand.findIndex(
       c => c.positionValue === card.positionValue
     );
@@ -137,8 +139,8 @@ const GameRedux = () => {
         `Bot ${tableState.turn} should play now. Stage: ${gameState.stage}, Turn: ${tableState.turn}`
       );
       const timer = setTimeout(() => {
-        const currentPlayer = gameState.players[tableState.turn];
-        const botAgent = gameState.playerAgents[tableState.turn];
+        const currentPlayer = playerState.players[tableState.turn];
+        const botAgent = playerState.playerAgents[tableState.turn];
 
         console.log(
           `Bot ${tableState.turn} - Hand length: ${currentPlayer?.hand?.length}, Agent exists: ${!!botAgent}`
@@ -208,11 +210,11 @@ const GameRedux = () => {
     gameState.stage,
     tableState.turn,
     dispatch,
-    gameState.players,
+    playerState.players,
     tableState.tableCards,
     gameState.trumpSuite,
     tableState.runningSuite,
-    gameState.playerAgents,
+    playerState.playerAgents,
   ]);
 
   // Handle bot bidding
@@ -233,9 +235,9 @@ const GameRedux = () => {
         );
 
         const botAgent =
-          gameState.playerAgents[gameState.biddingState.currentBidder];
+          playerState.playerAgents[gameState.biddingState.currentBidder];
         const currentPlayer =
-          gameState.players[gameState.biddingState.currentBidder];
+          playerState.players[gameState.biddingState.currentBidder];
 
         if (botAgent && currentPlayer) {
           try {
@@ -297,8 +299,8 @@ const GameRedux = () => {
     gameState.biddingState.bidWinner,
     gameState.biddingState.currentBid,
     dispatch,
-    gameState.playerAgents,
-    gameState.players,
+    playerState.playerAgents,
+    playerState.players,
     gameState.biddingState.passedPlayers,
   ]);
 
@@ -310,8 +312,9 @@ const GameRedux = () => {
     ) {
       const timer = setTimeout(() => {
         const botAgent =
-          gameState.playerAgents[gameState.biddingState.bidWinner!];
-        const bidWinner = gameState.players[gameState.biddingState.bidWinner!];
+          playerState.playerAgents[gameState.biddingState.bidWinner!];
+        const bidWinner =
+          playerState.players[gameState.biddingState.bidWinner!];
 
         if (botAgent && bidWinner) {
           try {
@@ -322,7 +325,7 @@ const GameRedux = () => {
 
             const choice = botAgent.chooseTrumpAndTeammate({
               hand: bidWinner.hand,
-              playerNames: gameState.playerNames,
+              playerNames: playerState.playerNames,
               playerIndex: gameState.biddingState.bidWinner!,
               teammateOptions: allTeammateOptions,
             });
@@ -349,9 +352,9 @@ const GameRedux = () => {
   }, [
     gameState.stage,
     gameState.biddingState.bidWinner,
-    gameState.playerAgents,
-    gameState.players,
-    gameState.playerNames,
+    playerState.playerAgents,
+    playerState.players,
+    playerState.playerNames,
     handleTrumpSelection,
   ]);
 
@@ -364,7 +367,7 @@ const GameRedux = () => {
   }
 
   // Safety check to ensure game state is properly initialized
-  if (!gameState || !gameState.players || !gameState.scores || !tableState) {
+  if (!gameState || !playerState.players || !gameState.scores || !tableState) {
     return <div>Loading...</div>;
   }
 
@@ -373,6 +376,7 @@ const GameRedux = () => {
       <GameBoard
         gameState={transformedGameState}
         tableState={tableState}
+        playerState={playerState}
         onCardPlay={handleCardPlay}
         onSettingsClick={() => console.log("Settings")}
         isDealing={isDealing}
@@ -391,13 +395,9 @@ const GameRedux = () => {
           bidAmount={gameState.bidAmount!}
           trumpSuite={gameState.trumpSuite!}
           teammateCard={gameState.teammateCard!}
-          playerNames={gameState.playerNames}
+          playerNames={playerState.playerNames}
           onClose={handleBidResultClose}
         />
-      )}
-
-      {gameState.stage === GameStages.ROUND_SUMMARY && (
-        <RoundSummaryModal onClose={handleContinueAfterRound} />
       )}
 
       {gameState.stage === GameStages.GAME_OVER && <GameOverModal />}

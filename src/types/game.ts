@@ -21,6 +21,14 @@ export interface TableCard extends Card {
   player: number;
 }
 
+export interface Playerv2 {
+  hand: Card[];
+  score: number;
+  isTeammate: boolean;
+  isBidWinner: boolean;
+  team: number | null;
+}
+
 export interface Player {
   hand: Card[];
   score: number;
@@ -47,19 +55,21 @@ export interface TableState {
   discardedCards: Card[];
 }
 
+export interface PlayerState {
+  startingPlayer: number;
+  players: Record<number, Playerv2>;
+  playerAgents: Record<number, any>;
+  playerNames: Record<number, string>;
+}
+
 export interface GameState {
   stage: GameStage;
-  players: Record<number, Player>;
-  startingPlayer: number;
   round: number;
   trumpSuite: number | null;
   bidAmount: number | null;
   bidder: number | null;
   scores: [number, number];
   totalRounds: number;
-  playerTeamMap: Record<number, number> | null;
-  playerAgents: Record<number, any>;
-  playerNames: Record<number, string>;
   teammateCard: Card | null;
   /** @deprecated Use selectIsCollectingCards selector instead */
   isCollectingCards: boolean;
@@ -68,4 +78,5 @@ export interface GameState {
   collectionWinner: number | null;
   biddingState: BiddingState;
   tableState: TableState;
+  playerState: PlayerState;
 }

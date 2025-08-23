@@ -38,7 +38,9 @@ export function HandPreview({ hand }: { hand: Array<Card> }) {
 
 export const BiddingModal = () => {
   const dispatch = useAppDispatch();
-  const { players, playerNames } = useAppSelector(state => state.game);
+  const { players, playerNames } = useAppSelector(
+    state => state.game.playerState
+  );
   const currentBid = useAppSelector(selectCurrentBid);
   const currentBidder = useAppSelector(selectCurrentBidder);
   const passedPlayers = useAppSelector(selectPassedPlayers);

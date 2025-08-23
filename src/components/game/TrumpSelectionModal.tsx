@@ -10,7 +10,7 @@ import { PlayingCard } from "./PlayingCard";
 
 export const TrumpSelectionModal = () => {
   const dispatch = useAppDispatch();
-  const { players } = useAppSelector(state => state.game);
+  const { players } = useAppSelector(state => state.game.playerState);
   const [trumpSuite, setTrumpSuite] = useState<Suite | null>(null);
   const [teammateCard, setTeammateCard] = useState<Card | null>(null);
   const [teammateSuiteTab, setTeammateSuiteTab] = useState<number>(0);

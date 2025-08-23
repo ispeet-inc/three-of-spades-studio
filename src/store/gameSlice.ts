@@ -1,8 +1,8 @@
 import { agentClasses } from "@/agents";
 import { Card, GameState } from "@/types/game";
 import { distributeDeck, shuffle } from "@/utils/cardUtils";
-import { PLAYER_NAME_POOL } from "@/utils/constants";
-import { initialBiddingState } from "@/utils/gameSetupUtils";
+import { FIRST_PLAYER_ID, PLAYER_NAME_POOL } from "@/utils/constants";
+import { initialBiddingState, initPlayerObject } from "@/utils/gameSetupUtils";
 import {
   assignTeamsByTeammateCard,
   selectRandomNames,
@@ -19,32 +19,29 @@ const NUM_PLAYERS = 4;
 
 const initialState: GameState = {
   stage: GameStages.INIT,
-  players: {
-    0: { hand: [], score: 0 },
-    1: { hand: [], score: 0 },
-    2: { hand: [], score: 0 },
-    3: { hand: [], score: 0 },
-  },
-  startingPlayer: 0,
   round: 0,
-  runningSuite: null,
   trumpSuite: null,
   bidAmount: null,
   bidder: null,
-  tableCards: [],
   scores: [0, 0],
-  turn: 0,
-  roundWinner: null,
   totalRounds: 0,
-  playerTeamMap: null,
-  playerAgents: {},
-  playerNames: { 0: "You", 1: "", 2: "", 3: "" },
   teammateCard: null,
   isCollectingCards: false,
   showCardsPhase: false,
   collectionWinner: null,
   biddingState: initialBiddingState(NUM_PLAYERS, 0, false),
   tableState: initialTableState(0, true),
+  playerState: {
+    startingPlayer: 0,
+    playerAgents: {},
+    playerNames: { 0: "You", 1: "", 2: "", 3: "" },
+    players: {
+      0: initPlayerObject([]),
+      1: initPlayerObject([]),
+      2: initPlayerObject([]),
+      3: initPlayerObject([]),
+    },
+  },
 };
 
 const gameSlice = createSlice({
@@ -69,38 +66,39 @@ const gameSlice = createSlice({
 
       // Initialize each player's hand
       for (let i = 0; i < NUM_PLAYERS; i++) {
-        state.players[i].hand = distributedHands[i];
-        state.players[i].score = 0;
+        state.playerState.players[i] = initPlayerObject(distributedHands[i]);
       }
 
       // Randomly assign bot agents to computer players (1, 2, 3)
-      state.playerAgents = {};
+      state.playerState.playerAgents = {};
       const sampledNames = selectRandomNames(
         PLAYER_NAME_POOL,
-        state.playerNames
+        state.playerState.playerNames
       );
 
-      for (let i = 1; i < NUM_PLAYERS; i++) {
+      for (let i = 0; i < NUM_PLAYERS; i++) {
+        if (i == FIRST_PLAYER_ID) continue;
         const AgentClass =
           agentClasses[Math.floor(Math.random() * agentClasses.length)];
-        state.playerAgents[i] = new (AgentClass as any)();
+        state.playerState.playerAgents[i] = new (AgentClass as any)();
         // Use the class name for the bot's display name
-        state.playerNames[i] = sampledNames.pop();
+        state.playerState.playerNames[i] = sampledNames.pop();
       }
-
       // Set total rounds based on cards per player
       state.totalRounds = distributedHands[0].length;
       // Randomly select starting player
-      state.startingPlayer = Math.floor(Math.random() * NUM_PLAYERS);
+      state.playerState.startingPlayer = Math.floor(
+        Math.random() * NUM_PLAYERS
+      );
       state.trumpSuite = null;
       state.bidAmount = null;
       state.bidder = null;
       state.round = 0;
-      state.tableState = initialTableState(state.startingPlayer, false);
+      state.tableState = initialTableState(
+        state.playerState.startingPlayer,
+        false
+      );
       state.scores = [0, 0];
-      state.tableState.turn = state.startingPlayer;
-
-      state.biddingState.currentBidder = state.startingPlayer;
     },
 
     playCard: (
@@ -108,13 +106,13 @@ const gameSlice = createSlice({
       action: PayloadAction<{ playerIndex: number; cardIndex: number }>
     ) => {
       const { playerIndex, cardIndex } = action.payload;
-      const playerHand = [...state.players[playerIndex].hand];
+      const playerHand = [...state.playerState.players[playerIndex].hand];
       const card = playerHand.splice(cardIndex, 1)[0];
 
       // Sort the remaining hand by position value to maintain card order
       playerHand.sort((a, b) => a.positionValue - b.positionValue);
 
-      state.players[playerIndex].hand = playerHand;
+      state.playerState.players[playerIndex].hand = playerHand;
       const tableCard = { ...card, player: playerIndex };
 
       state.tableState = playCardOnTable(
@@ -126,7 +124,7 @@ const gameSlice = createSlice({
 
       const roundWinner = state.tableState.roundWinner;
       if (roundWinner !== null) {
-        const winningTeam = state.playerTeamMap[roundWinner.player];
+        const winningTeam = state.playerState.players[roundWinner.player].team;
 
         // Calculate total points from all cards in the table
         const roundPoints = state.tableState.tableCards.reduce(
@@ -135,14 +133,14 @@ const gameSlice = createSlice({
         );
 
         state.scores[winningTeam] += roundPoints;
-        state.players[roundWinner.player].score += roundPoints;
+        state.playerState.players[roundWinner.player].score += roundPoints;
       }
     },
 
     startNewRound: state => {
       console.log(
         "GAME: Starting new round, previous winner:",
-        state.tableState.roundWinner.player
+        state.tableState.roundWinner?.player
       );
       state.tableState = newRoundOnTable(state.tableState);
       state.round = state.round + 1;
@@ -160,7 +158,7 @@ const gameSlice = createSlice({
     },
 
     startCardCollection: state => {
-      state.collectionWinner = state.tableState.roundWinner.player;
+      state.collectionWinner = state.tableState.roundWinner?.player;
       state.stage = GameStages.ROUND_COMPLETE;
     },
 
@@ -181,13 +179,13 @@ const gameSlice = createSlice({
       );
       console.log(state.teammateCard);
       // Assign teams based on teammate card
-      const playerTeamMap = assignTeamsByTeammateCard(
-        state.players,
+      const updatedPlayers = assignTeamsByTeammateCard(
+        state.playerState.players,
         bidder,
         teammateCard,
         NUM_PLAYERS
       );
-      state.playerTeamMap = playerTeamMap;
+      state.playerState.players = updatedPlayers;
       // todo - make this happen through setStage too.
       console.log(
         "CHANGING STATE: FROM ",
@@ -201,7 +199,7 @@ const gameSlice = createSlice({
     startBiddingRound: state => {
       const newBiddingState = initialBiddingState(
         NUM_PLAYERS,
-        state.startingPlayer,
+        state.tableState.turn,
         true
       );
       state.biddingState = newBiddingState;
@@ -274,7 +272,7 @@ const gameSlice = createSlice({
       action: PayloadAction<{ playerIndex: number; name: string }>
     ) => {
       const { playerIndex, name } = action.payload;
-      state.playerNames[playerIndex] = name;
+      state.playerState.playerNames[playerIndex] = name;
     },
   },
 });

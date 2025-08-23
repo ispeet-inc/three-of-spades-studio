@@ -1,7 +1,6 @@
-import { Suite, TableState } from "@/types/game";
+import { Suite, TableCard, TableState } from "@/types/game";
 import { generateDeck } from "./cardUtils";
 import { determineRoundWinner } from "./gameUtils";
-import { TableCard } from "./updated_game";
 
 export const initialTableState = (
   startingTurn: number,
@@ -50,7 +49,7 @@ export const newRoundOnTable = (oldState: TableState): TableState => {
   return {
     runningSuite: null,
     tableCards: [],
-    turn: oldState.roundWinner.player,
+    turn: oldState.roundWinner?.player,
     roundWinner: null,
     discardedCards: oldState.discardedCards.concat(oldState.tableCards),
   };
