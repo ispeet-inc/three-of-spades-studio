@@ -21,7 +21,7 @@ export default class GreedyBot extends BotAgent {
   static displayName = "Greedy";
 
   // Start a new round by playing the highest card
-  startRound(hand: Card[], trumpSuite: Suite): number {
+  startRound(hand: Card[], trumpSuite: Suite, discardedCards: Card[]): number {
     // @ts-expect-error - hand is not empty when this is called
     return getHighestRankedCardIndex(hand);
   }

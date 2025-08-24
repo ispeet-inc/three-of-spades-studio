@@ -17,6 +17,7 @@ export interface BotChoiceParams {
   trumpSuite: Suite;
   runningSuite: Suite | null;
   playerIndex: number;
+  discardedCards: Card[];
 }
 
 export interface BidParams {
@@ -36,7 +37,11 @@ export interface TrumpTeammateParams {
 }
 
 export default abstract class BotAgent {
-  abstract startRound(hand: Card[], trumpSuite: Suite): number;
+  abstract startRound(
+    hand: Card[],
+    trumpSuite: Suite,
+    discardedCards: Card[]
+  ): number;
 
   abstract pickRunningSuite(
     hand: Card[],
@@ -59,7 +64,14 @@ export default abstract class BotAgent {
   ): TrumpTeammateChoice;
 
   chooseCardIndex(params: BotChoiceParams, verbose = false): number | null {
-    const { hand, tableCards, trumpSuite, runningSuite, playerIndex } = params;
+    const {
+      hand,
+      tableCards,
+      trumpSuite,
+      runningSuite,
+      playerIndex,
+      discardedCards,
+    } = params;
 
     if (verbose) {
       console.log("Current hand:", hand);
@@ -68,7 +80,7 @@ export default abstract class BotAgent {
     if (!hand || hand.length === 0) return null;
 
     if (runningSuite === null) {
-      const pickedCardIndex = this.startRound(hand, trumpSuite);
+      const pickedCardIndex = this.startRound(hand, trumpSuite, discardedCards);
       if (verbose) {
         console.log(`Starting round with card index: ${pickedCardIndex}`);
       }
