@@ -45,7 +45,8 @@ export interface PlayerDisplayData extends BasePlayer {
   id: string;
   name: string;
   cards: Card[];
-  isCurrentPlayer?: boolean;
+  isCurrentPlayer: boolean;
+  isFirstPersonTeammate: boolean;
 }
 
 export interface BiddingState {

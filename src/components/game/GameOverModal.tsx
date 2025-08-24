@@ -5,32 +5,37 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useAppSelector } from "@/hooks";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { selectTeams } from "@/store/selectors";
+import { FIRST_PLAYER_ID } from "@/utils/constants";
 import { Crown, Sparkles, Trophy } from "lucide-react";
+import { TeamScores } from "../../types/game";
 
-export const GameOverModal = () => {
-  const teams = useAppSelector(selectTeams);
-  const { scores, bidAmount, bidWinner } = useAppSelector(state => ({
-    scores: state.game.gameProgress.scores,
-    bidAmount: state.game.gameConfig?.bidAmount ?? 0,
-    bidWinner: state.game.gameConfig?.bidWinner ?? -1,
-  }));
-  const { playerNames } = useAppSelector(state => state.game.playerState);
-  const isMobile = useIsMobile();
+interface GameOverModalProps {
+  isOpen: boolean;
+  teams: Record<number, number[]>;
+  scores: TeamScores;
+  bidAmount: number;
+  bidWinner: number;
+  playerNames: Record<number, string>;
+  isMobile: boolean;
+  onNewGame: () => void;
+}
 
+export const GameOverModal = ({
+  isOpen,
+  teams,
+  scores,
+  bidAmount,
+  bidWinner,
+  playerNames,
+  isMobile,
+  onNewGame,
+}: GameOverModalProps) => {
   // Determine winner based on bid - updated for new team system (1/2 instead of 0/1)
   const winningTeam = bidAmount !== null && scores.team1 >= bidAmount ? 1 : 2; // Changed from 0/1 to 1/2
-  const firstPlayerWon = teams[winningTeam].includes(0);
-
-  // todo - dispatch action to reset state, instead of reloading site.
-  const handleNewGame = () => {
-    window.location.reload();
-  };
+  const firstPlayerWon = teams[winningTeam].includes(FIRST_PLAYER_ID);
 
   return (
-    <Dialog open={true}>
+    <Dialog open={isOpen}>
       <DialogContent
         className={`${isMobile ? "max-w-sm mx-4" : "max-w-lg"} bg-gradient-to-br from-felt-green-light to-felt-green-dark border-2 border-gold/40 shadow-elevated backdrop-blur-sm`}
       >
@@ -132,7 +137,7 @@ export const GameOverModal = () => {
           {/* Play Again Button */}
           <div className="text-center pt-2">
             <Button
-              onClick={handleNewGame}
+              onClick={onNewGame}
               className={`w-full ${isMobile ? "h-12 text-base" : "h-14 text-lg"} font-bold font-casino bg-gradient-gold text-casino-black shadow-glow hover:shadow-glow/80 border-2 border-gold-dark transition-all duration-300 hover:scale-105 group`}
             >
               <div className="flex items-center justify-center gap-2">

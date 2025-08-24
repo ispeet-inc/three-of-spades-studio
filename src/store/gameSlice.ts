@@ -1,8 +1,16 @@
 import { agentClasses } from "@/agents";
 import { Card, GameState, Suite, TeamScores } from "@/types/game";
 import { distributeDeck, shuffle } from "@/utils/cardUtils";
-import { FIRST_PLAYER_ID, PLAYER_NAME_POOL } from "@/utils/constants";
-import { initialBiddingState, initPlayerObject } from "@/utils/gameSetupUtils";
+import {
+  FIRST_PLAYER_ID,
+  NUM_PLAYERS,
+  PLAYER_NAME_POOL,
+} from "@/utils/constants";
+import {
+  initialBiddingState,
+  initPlayerNames,
+  initPlayerObject,
+} from "@/utils/gameSetupUtils";
 import {
   assignTeamsByTeammateCard,
   selectRandomNames,
@@ -14,8 +22,6 @@ import {
 } from "@/utils/tableUtils";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { GameStages, type GameStage } from "./gameStages";
-
-const NUM_PLAYERS = 4;
 
 // Helper function to convert team number to scores key
 const getTeamScoreKey = (team: number): keyof TeamScores => {
@@ -34,7 +40,7 @@ const initialState: GameState = {
   playerState: {
     startingPlayer: 0,
     playerAgents: {},
-    playerNames: { 0: "You", 1: "", 2: "", 3: "" },
+    playerNames: initPlayerNames(NUM_PLAYERS, FIRST_PLAYER_ID, "You"),
     players: {
       0: initPlayerObject([]),
       1: initPlayerObject([]),
@@ -224,9 +230,9 @@ const gameSlice = createSlice({
       });
 
       // Advance to next eligible bidder
-      let nextBidder = (playerIndex + 1) % 4;
+      let nextBidder = (playerIndex + 1) % NUM_PLAYERS;
       while (state.biddingState.passedPlayers.includes(nextBidder)) {
-        nextBidder = (nextBidder + 1) % 4;
+        nextBidder = (nextBidder + 1) % NUM_PLAYERS;
       }
       state.biddingState.currentBidder = nextBidder;
       state.biddingState.bidTimer = 30;
@@ -260,9 +266,9 @@ const gameSlice = createSlice({
         console.log("Bid winner is ", state.biddingState.bidWinner);
       } else {
         // Advance to next eligible bidder
-        let nextBidder = (playerIndex + 1) % 4;
+        let nextBidder = (playerIndex + 1) % NUM_PLAYERS;
         while (state.biddingState.passedPlayers.includes(nextBidder)) {
-          nextBidder = (nextBidder + 1) % 4;
+          nextBidder = (nextBidder + 1) % NUM_PLAYERS;
         }
         state.biddingState.currentBidder = nextBidder;
         state.biddingState.bidTimer = 30;

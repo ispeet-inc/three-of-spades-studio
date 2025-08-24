@@ -123,17 +123,15 @@ export const getRandomSuite = (): number => {
 
 // Function to randomly select 3 names from the pool that are not already in state.playerNames
 export const selectRandomNames = (
-  pool: string[],
-  playerNames: Record<number, string>
+  namePool: string[],
+  existingNames: Record<number, string>
 ): string[] => {
-  // Collect all names currently in use (including player 0)
+  // Collect all names currently in use (including player FIRST_PLAYER_ID)
   const usedNames = new Set(
-    Object.values(playerNames)
-      .map(name => name.trim())
-      .filter(Boolean)
+    Object.values(existingNames).filter(name => name !== "")
   );
   // Filter pool to exclude used names
-  const availableNames = pool.filter(name => !usedNames.has(name));
+  const availableNames = namePool.filter(name => !usedNames.has(name));
   // Shuffle available names
   for (let i = availableNames.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));

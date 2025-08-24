@@ -16,6 +16,7 @@ import type {
   TeamScores,
 } from "@/types/game";
 import { createSelector } from "@reduxjs/toolkit";
+import { FIRST_PLAYER_ID } from "../utils/constants";
 
 // ============================================================================
 // ROOT SELECTORS
@@ -115,6 +116,9 @@ export const selectPlayerDisplayData = createSelector(
       team: player.team,
       cards: player.hand,
       isCurrentPlayer: parseInt(index) === currentPlayerIndex,
+      isFirstPersonTeammate:
+        parseInt(index) !== FIRST_PLAYER_ID &&
+        player.team === players[FIRST_PLAYER_ID].team,
       isTeammate: player.isTeammate,
       isBidWinner: player.isBidWinner,
     }));

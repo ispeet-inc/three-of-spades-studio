@@ -13,6 +13,7 @@ import {
   announceToScreenReader,
   gameStateAnnouncements,
 } from "@/utils/accessibility";
+import { FIRST_PLAYER_ID, NUM_PLAYERS } from "@/utils/constants";
 import { Settings } from "lucide-react";
 import { useEffect, useState } from "react";
 import { CenterTable } from "./CenterTable";
@@ -52,14 +53,6 @@ export const GameBoard = ({
     team2: false,
   });
 
-  // Define players array FIRST before any useEffect that references it
-  const players = [
-    playersDisplayData[0], // bottom
-    playersDisplayData[1], // left
-    playersDisplayData[2], // top
-    playersDisplayData[3], // right
-  ];
-
   // Score animation effect
   useEffect(() => {
     if (lastScores.team1 !== gameProgress.scores.team1) {
@@ -87,9 +80,9 @@ export const GameBoard = ({
 
   // Announce current player turn
   useEffect(() => {
-    const currentPlayer = players.find(p => p.isCurrentPlayer);
+    const currentPlayer = playersDisplayData.find(p => p.isCurrentPlayer);
     if (currentPlayer) {
-      if (currentPlayer.id === "player-0") {
+      if (currentPlayer.id === `player-${FIRST_PLAYER_ID}`) {
         announceToScreenReader(gameStateAnnouncements.yourTurn);
       } else {
         announceToScreenReader(
@@ -97,7 +90,7 @@ export const GameBoard = ({
         );
       }
     }
-  }, [players]);
+  }, [playersDisplayData]);
 
   return (
     <main
@@ -184,7 +177,7 @@ export const GameBoard = ({
           currentTrick={tableState.tableCards}
           winner={
             tableState.roundWinner !== null
-              ? players[tableState.roundWinner.player]?.name
+              ? playersDisplayData[tableState.roundWinner.player]?.name
               : undefined
           }
           roundWinner={tableState.roundWinner?.player ?? null}
@@ -192,54 +185,42 @@ export const GameBoard = ({
         />
 
         {/* Player Areas */}
-
-        {/* Left Player */}
-        <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
-          <PlayerArea
-            player={players[1]}
-            runningSuite={tableState.runningSuite}
-            position="left"
-            onCardPlay={onCardPlay}
-            isDealing={isDealing}
-            botCardsHidden={botCardsHidden}
-          />
-        </div>
-
-        {/* Top Player */}
-        <div className="absolute top-4 left-1/2 transform -translate-x-1/2">
-          <PlayerArea
-            player={players[2]}
-            runningSuite={tableState.runningSuite}
-            position="top"
-            onCardPlay={onCardPlay}
-            isDealing={isDealing}
-            botCardsHidden={botCardsHidden}
-          />
-        </div>
-
-        {/* Right Player */}
-        <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-          <PlayerArea
-            player={players[3]}
-            runningSuite={tableState.runningSuite}
-            position="right"
-            onCardPlay={onCardPlay}
-            isDealing={isDealing}
-            botCardsHidden={botCardsHidden}
-          />
-        </div>
-
-        {/* Bottom Player (Human) */}
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
-          <PlayerArea
-            player={players[0]}
-            runningSuite={tableState.runningSuite}
-            position="bottom"
-            onCardPlay={onCardPlay}
-            isDealing={isDealing}
-            botCardsHidden={botCardsHidden}
-          />
-        </div>
+        {(
+          [
+            {
+              player: playersDisplayData[FIRST_PLAYER_ID], // bottom
+              position: "bottom" as const,
+              className:
+                "absolute bottom-4 left-1/2 transform -translate-x-1/2",
+            },
+            {
+              player: playersDisplayData[(FIRST_PLAYER_ID + 1) % NUM_PLAYERS], // left
+              position: "left" as const,
+              className: "absolute left-4 top-1/2 transform -translate-y-1/2",
+            },
+            {
+              player: playersDisplayData[(FIRST_PLAYER_ID + 2) % NUM_PLAYERS], // top
+              position: "top" as const,
+              className: "absolute top-4 left-1/2 transform -translate-x-1/2",
+            },
+            {
+              player: playersDisplayData[(FIRST_PLAYER_ID + 3) % NUM_PLAYERS], // right
+              position: "right" as const,
+              className: "absolute right-4 top-1/2 transform -translate-y-1/2",
+            },
+          ] as const
+        ).map(({ player, position, className }) => (
+          <div key={position} className={className}>
+            <PlayerArea
+              player={player}
+              runningSuite={tableState.runningSuite}
+              position={position}
+              onCardPlay={onCardPlay}
+              isDealing={isDealing}
+              botCardsHidden={botCardsHidden}
+            />
+          </div>
+        ))}
       </section>
     </main>
   );

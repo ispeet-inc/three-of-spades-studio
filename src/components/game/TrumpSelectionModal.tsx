@@ -1,16 +1,22 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { useAppDispatch, useAppSelector } from "@/hooks";
-import { setBidAndTrump } from "@/store/gameSlice";
 import { Card, Suite } from "@/types/game";
 import { getTeammateOptions } from "@/utils/gameUtils";
 import { SUITES } from "@/utils/suiteUtils";
 import { useState } from "react";
-import { HandPreview } from "./BiddingModal";
+import { HandPreview } from "./HandPreview";
 import { PlayingCard } from "./PlayingCard";
 
-export const TrumpSelectionModal = () => {
-  const dispatch = useAppDispatch();
-  const { players } = useAppSelector(state => state.game.playerState);
+interface TrumpSelectionModalProps {
+  isOpen: boolean;
+  playerHand: Card[];
+  onTrumpSelection: (trumpSuite: Suite, teammateCard: Card) => void;
+}
+
+export const TrumpSelectionModal = ({
+  isOpen,
+  playerHand,
+  onTrumpSelection,
+}: TrumpSelectionModalProps) => {
   const [trumpSuite, setTrumpSuite] = useState<Suite | null>(null);
   const [teammateCard, setTeammateCard] = useState<Card | null>(null);
   const [teammateSuiteTab, setTeammateSuiteTab] = useState<number>(0);
@@ -34,24 +40,20 @@ export const TrumpSelectionModal = () => {
     if (validate() && trumpSuite !== null && teammateCard !== null) {
       console.log("TrumpSelectionModal - trump chosen:  ", trumpSuite);
       console.log("TrumpSelectionModal - teammate chosen: ", teammateCard);
-      dispatch(
-        setBidAndTrump({
-          trumpSuite: trumpSuite as number, // ensure type matches reducer
-          bidder: 0,
-          teammateCard: teammateCard as Card, // ensure not null
-        })
-      );
+      onTrumpSelection(trumpSuite, teammateCard);
     }
   };
 
-  const teammateOptions = getTeammateOptions(players[0].hand, teammateSuiteTab);
+  const teammateOptions = getTeammateOptions(playerHand, teammateSuiteTab);
+
+  if (!isOpen) return null;
 
   return (
-    <Dialog open={true}>
+    <Dialog open={isOpen}>
       <DialogContent className="max-w-xl w-full bg-felt-green-dark border-0 text-foreground p-0">
         <div className="p-6">
           {/* Player Hand Display */}
-          <HandPreview hand={players[0].hand} />
+          <HandPreview hand={playerHand} />
 
           <h2 className="text-xl font-bold mb-6 text-gold text-center">
             Choose Trump & Teammate Card
@@ -116,32 +118,38 @@ export const TrumpSelectionModal = () => {
                 ))}
               </div>
 
-              {/* Teammate Cards Grid */}
-              <div className="flex flex-wrap gap-2 justify-center">
-                {teammateOptions.map(card => {
-                  const isSelected =
-                    teammateCard &&
-                    card.suite === teammateCard.suite &&
-                    card.number === teammateCard.number;
-                  return (
-                    <button
-                      type="button"
-                      key={`${card.suite}-${card.number}`}
-                      className={`
-                        bg-transparent border-2 border-transparent rounded-lg p-1
-                        cursor-pointer transition-all duration-200 flex items-center justify-center
-                        w-20 h-30 hover:border-foreground/30`}
-                      onClick={() => setTeammateCard(card)}
-                    >
-                      <PlayingCard
-                        card={card}
-                        className={`hover:border-foreground/30 ${
-                          isSelected && "border-2 border-gold shadow-glow"
-                        }`}
-                      />
-                    </button>
-                  );
-                })}
+              {/* Teammate Cards Display - Elegant Layout */}
+              <div className="bg-casino-black/20 rounded-xl p-4 border border-gold/20">
+                <div className="flex gap-1 justify-center flex-wrap">
+                  {teammateOptions.map(card => {
+                    const isSelected =
+                      teammateCard &&
+                      card.suite === teammateCard.suite &&
+                      card.number === teammateCard.number;
+                    return (
+                      <div
+                        key={`${card.suite}-${card.number}`}
+                        className={`
+                          transform transition-all duration-200 cursor-pointer
+                          ${isSelected ? "scale-110 z-10" : "hover:scale-105"}
+                        `}
+                        onClick={() => setTeammateCard(card)}
+                      >
+                        <PlayingCard
+                          card={card}
+                          className={`
+                            shadow-card -ml-6
+                            ${
+                              isSelected
+                                ? "border-2 border-gold shadow-glow ring-2 ring-gold/50"
+                                : "hover:border-gold/50"
+                            }
+                          `}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
 

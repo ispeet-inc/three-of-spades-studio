@@ -1,17 +1,9 @@
 import { cn } from "@/lib/utils";
-import { Card, Suite } from "@/types/game";
+import { Card, PlayerDisplayData, Suite } from "@/types/game";
 import { PlayingCard } from "./PlayingCard";
 
 interface PlayerAreaProps {
-  player: {
-    id: string;
-    name: string;
-    team: 1 | 2 | null; // Changed to allow null for initial game phases
-    cards: Card[];
-    isCurrentPlayer?: boolean;
-    isTeammate?: boolean;
-    isBidWinner?: boolean;
-  };
+  player: PlayerDisplayData;
   runningSuite: Suite | null;
   position: "bottom" | "left" | "top" | "right";
   onCardPlay?: (card: Card) => void;
@@ -35,63 +27,43 @@ export const PlayerArea = ({
     ? "animate-turn-indicator border-gold/80 bg-gold/10"
     : "border-casino-green/30";
 
-  const getPositionClasses = () => {
+  const getPositionStyles = () => {
     switch (position) {
       case "bottom":
-        return "flex-col items-center";
+        return {
+          container: "flex-col items-center",
+          cardContainer: "flex-row justify-center",
+          playerInfoOrder: "order-2",
+          cardsOrder: "order-1",
+        };
       case "top":
-        return "flex-col items-center";
+        return {
+          container: "flex-col items-center",
+          cardContainer: "flex-row justify-center",
+          playerInfoOrder: "order-1",
+          cardsOrder: "order-2",
+        };
       case "left":
-        return "flex-row items-center";
+        return {
+          container: "flex-row items-center",
+          cardContainer: "flex-col justify-center",
+          playerInfoOrder: "order-1",
+          cardsOrder: "order-2",
+        };
       case "right":
-        return "flex-row-reverse items-center";
+        return {
+          container: "flex-row-reverse items-center",
+          cardContainer: "flex-col justify-center",
+          playerInfoOrder: "order-2",
+          cardsOrder: "order-1",
+        };
       default:
-        return "flex-col items-center";
-    }
-  };
-
-  const getCardContainerClasses = () => {
-    switch (position) {
-      case "bottom":
-        return "flex-row justify-center";
-      case "top":
-        return "flex-row justify-center";
-      case "left":
-        return "flex-col justify-center";
-      case "right":
-        return "flex-col justify-center";
-      default:
-        return "flex-row justify-center";
-    }
-  };
-
-  const getPlayerInfoOrder = () => {
-    switch (position) {
-      case "bottom":
-        return "order-2";
-      case "top":
-        return "order-1";
-      case "left":
-        return "order-1";
-      case "right":
-        return "order-2";
-      default:
-        return "order-2";
-    }
-  };
-
-  const getCardsOrder = () => {
-    switch (position) {
-      case "bottom":
-        return "order-1";
-      case "top":
-        return "order-2";
-      case "left":
-        return "order-2";
-      case "right":
-        return "order-1";
-      default:
-        return "order-1";
+        return {
+          container: "flex-col items-center",
+          cardContainer: "flex-row justify-center",
+          playerInfoOrder: "order-2",
+          cardsOrder: "order-1",
+        };
     }
   };
 
@@ -114,7 +86,7 @@ export const PlayerArea = ({
   };
 
   return (
-    <div className={cn("flex gap-4", getPositionClasses())}>
+    <div className={cn("flex gap-4", getPositionStyles().container)}>
       {/* Player Info */}
       <div
         className={cn(
@@ -122,7 +94,7 @@ export const PlayerArea = ({
           "bg-casino-green/20 backdrop-blur-sm",
           turnIndicatorClass,
           isVertical ? "min-w-[120px]" : "min-h-[120px]",
-          getPlayerInfoOrder()
+          getPositionStyles().playerInfoOrder
         )}
       >
         <div className="text-center">
@@ -149,7 +121,7 @@ export const PlayerArea = ({
           >
             Team {player.team}
           </div>
-          {player.isTeammate && (
+          {player.isFirstPersonTeammate && (
             <div className="text-xs text-green-400 mt-1">★ Teammate</div>
           )}
         </div>
@@ -157,7 +129,11 @@ export const PlayerArea = ({
 
       {/* Cards */}
       <div
-        className={cn("flex gap-1", getCardContainerClasses(), getCardsOrder())}
+        className={cn(
+          "flex gap-1",
+          getPositionStyles().cardContainer,
+          getPositionStyles().cardsOrder
+        )}
       >
         {isHuman ? (
           // Human player cards (all visible and playable)

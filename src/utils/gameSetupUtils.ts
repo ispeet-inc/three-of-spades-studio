@@ -28,3 +28,15 @@ export const initPlayerObject = (hand: Card[]): Playerv2 => {
     team: null,
   };
 };
+
+export const initPlayerNames = (
+  numPlayers: number,
+  firstPlayerId: number,
+  firstPlayerName: string
+): Record<number, string> => {
+  const playerNames = Object.fromEntries(
+    Array.from({ length: numPlayers }, (_, i) => [i, ""])
+  );
+  playerNames[firstPlayerId] = firstPlayerName;
+  return playerNames;
+};
