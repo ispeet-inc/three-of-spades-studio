@@ -118,32 +118,38 @@ export const TrumpSelectionModal = ({
                 ))}
               </div>
 
-              {/* Teammate Cards Grid */}
-              <div className="flex flex-wrap gap-2 justify-center">
-                {teammateOptions.map(card => {
-                  const isSelected =
-                    teammateCard &&
-                    card.suite === teammateCard.suite &&
-                    card.number === teammateCard.number;
-                  return (
-                    <button
-                      type="button"
-                      key={`${card.suite}-${card.number}`}
-                      className={`
-                        bg-transparent border-2 border-transparent rounded-lg p-1
-                        cursor-pointer transition-all duration-200 flex items-center justify-center
-                        w-20 h-30 hover:border-foreground/30`}
-                      onClick={() => setTeammateCard(card)}
-                    >
-                      <PlayingCard
-                        card={card}
-                        className={`hover:border-foreground/30 ${
-                          isSelected && "border-2 border-gold shadow-glow"
-                        }`}
-                      />
-                    </button>
-                  );
-                })}
+              {/* Teammate Cards Display - Elegant Layout */}
+              <div className="bg-casino-black/20 rounded-xl p-4 border border-gold/20">
+                <div className="flex gap-1 justify-center flex-wrap">
+                  {teammateOptions.map(card => {
+                    const isSelected =
+                      teammateCard &&
+                      card.suite === teammateCard.suite &&
+                      card.number === teammateCard.number;
+                    return (
+                      <div
+                        key={`${card.suite}-${card.number}`}
+                        className={`
+                          transform transition-all duration-200 cursor-pointer
+                          ${isSelected ? "scale-110 z-10" : "hover:scale-105"}
+                        `}
+                        onClick={() => setTeammateCard(card)}
+                      >
+                        <PlayingCard
+                          card={card}
+                          className={`
+                            shadow-card -ml-6
+                            ${
+                              isSelected
+                                ? "border-2 border-gold shadow-glow ring-2 ring-gold/50"
+                                : "hover:border-gold/50"
+                            }
+                          `}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
 
