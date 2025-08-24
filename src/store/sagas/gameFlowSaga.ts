@@ -180,34 +180,6 @@ function* handleGameStageTransition(
   }
 }
 
-// Game flow coordination functions
-function* coordinateGameFlow(): Generator<any, void, any> {
-  try {
-    console.log("Game Flow Saga: Starting game flow coordination");
-
-    // This function can be used to coordinate between different game phases
-    // and ensure proper game flow progression
-
-    yield; // Generator function requires yield
-  } catch (error) {
-    console.error("Game flow coordination error:", error);
-  }
-}
-
-// Game state validation function
-function* validateGameState(): Generator<any, void, any> {
-  try {
-    console.log("Game Flow Saga: Validating game state");
-
-    // This function can be used to validate game state consistency
-    // and trigger recovery actions if needed
-
-    yield; // Generator function requires yield
-  } catch (error) {
-    console.error("Game state validation error:", error);
-  }
-}
-
 // Main game flow saga watcher
 export default function* gameFlowSaga() {
   // Use takeLeading to prevent multiple game instances
