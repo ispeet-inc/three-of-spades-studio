@@ -65,14 +65,18 @@ function* handleStageTransition(action: any) {
 function* watchTrickCompletion() {
   console.log("Saga: watchTrickCompletion started");
   yield takeEvery(playCard.type, function* handleTrickCompletion() {
-    const isTrickComplete: boolean = yield select(selectIsTrickComplete);
-    const stage: GameStage = yield select(selectStage);
+    try {
+      const isTrickComplete: boolean = yield select(selectIsTrickComplete);
+      const stage: GameStage = yield select(selectStage);
 
-    if (isTrickComplete && stage === GameStages.PLAYING) {
-      console.log(
-        "Saga: Trick completed with 4 cards, transitioning to CARDS_DISPLAY"
-      );
-      yield put(setStage(GameStages.CARDS_DISPLAY));
+      if (isTrickComplete && stage === GameStages.PLAYING) {
+        console.log(
+          "Saga: Trick completed with 4 cards, transitioning to CARDS_DISPLAY"
+        );
+        yield put(setStage(GameStages.CARDS_DISPLAY));
+      }
+    } catch (error) {
+      yield call(handleSagaError, error, "handleTrickCompletion");
     }
   });
 }

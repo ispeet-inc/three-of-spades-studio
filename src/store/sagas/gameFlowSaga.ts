@@ -4,7 +4,9 @@ import {
   cancelled,
   delay,
   put,
+  race,
   select,
+  take,
   takeLeading,
 } from "redux-saga/effects";
 import {
@@ -21,7 +23,7 @@ import { GameStages, type GameStage } from "../gameStages";
 import { selectGameProgress } from "../selectors";
 
 function* handleStageTransitionError(
-  error: any,
+  error: unknown,
   stage: GameStage
 ): Generator<any, void, any> {
   try {
@@ -34,7 +36,7 @@ function* handleStageTransitionError(
     yield put(
       setGameError({
         type: "STAGE_TRANSITION",
-        message: `Failed to transition to ${stage}: ${error.message || error}`,
+        message: `Failed to transition to ${stage}: ${(error as Error)?.message || String(error)}`,
         timestamp: Date.now(),
         recoverable: true,
         fallbackAction: "RETRY_TRANSITION",
@@ -67,8 +69,17 @@ function* handleGameInitialization(): Generator<any, void, any> {
   try {
     console.log("Game Flow Saga: Starting game initialization");
 
-    // Wait for dealing animation
-    yield delay(2000);
+    // Use race to allow cancellation of the dealing animation
+    const result = yield race({
+      dealingAnimation: delay(2000),
+      cancelled: take("GAME_INIT_CANCELLED"), // Allow external cancellation
+    });
+
+    // Check if we were cancelled
+    if (result.cancelled) {
+      console.log("Game Flow Saga: Initialization cancelled externally");
+      return;
+    }
 
     // Stop dealing animation
     yield put(setDealingAnimation(false));
@@ -89,20 +100,6 @@ function* handleGameInitialization(): Generator<any, void, any> {
         "Game Flow Saga: Fallback initialization failed:",
         fallbackError
       );
-
-      // Set unrecoverable error state
-      yield put(
-        setGameError({
-          type: "INITIALIZATION",
-          message: `Game initialization failed completely: ${(fallbackError as Error)?.message || String(fallbackError)}`,
-          timestamp: Date.now(),
-          recoverable: false,
-        })
-      );
-    }
-  } finally {
-    if (yield cancelled()) {
-      console.log("Game initialization saga cancelled");
     }
   }
 }
@@ -115,7 +112,7 @@ function* handleGameStageTransition(
     const newStage = action.payload;
     console.log(`Game Flow Saga: Transitioning to stage: ${newStage}`);
 
-    // Handle specific stage transitions with logic directly in each case
+    // Handle different stage transitions
     switch (newStage) {
       case GameStages.BIDDING:
         console.log("Game Flow Saga: Orchestrating bidding stage transition");

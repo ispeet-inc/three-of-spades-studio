@@ -1,8 +1,15 @@
 import { createCard } from "@/utils/cardUtils";
 import { FIRST_PLAYER_ID, TIMINGS } from "@/utils/constants";
 import { getTeammateOptions } from "@/utils/gameUtils";
-import { cancelled, delay, put, select, takeLatest } from "redux-saga/effects";
-import { PlayerState, TableState } from "../../types/game";
+import {
+  cancelled,
+  delay,
+  put,
+  select,
+  takeLatest,
+  takeLeading,
+} from "redux-saga/effects";
+import { BiddingState, PlayerState, TableState } from "../../types/game";
 import {
   botShouldBid,
   botShouldPlayCard,
@@ -84,7 +91,7 @@ function* handleBotCardPlay(): Generator<any, void, any> {
 
 // Bot bidding saga
 function* handleBotBidding(): Generator<any, void, any> {
-  let biddingState: any;
+  let biddingState: BiddingState | undefined;
 
   try {
     // Wait for bot thinking time
@@ -98,6 +105,7 @@ function* handleBotBidding(): Generator<any, void, any> {
     // Check if still in bidding stage and it's bot's turn
     if (
       gameProgress.stage !== GameStages.BIDDING ||
+      !biddingState ||
       biddingState.currentBidder === 0 ||
       biddingState.passedPlayers.length >= 3 ||
       biddingState.bidWinner !== null
@@ -237,12 +245,14 @@ function* handleBotTrumpSelection(): Generator<any, void, any> {
 
 // Main bot AI saga watcher
 export default function* botAISaga(): Generator<any, void, any> {
-  // Watch for bot card play opportunities
-  yield takeLatest(botShouldPlayCard.type, handleBotCardPlay);
+  // Use takeLeading for critical operations to prevent race conditions
+  // Watch for bot card play opportunities - critical operation
+  yield takeLeading(botShouldPlayCard.type, handleBotCardPlay);
 
-  // Watch for bot bidding opportunities
+  // Use takeLatest for non-critical operations that can be cancelled
+  // Watch for bot bidding opportunities - can be cancelled if new bid comes in
   yield takeLatest(botShouldBid.type, handleBotBidding);
 
-  // Watch for bot trump selection opportunities
+  // Watch for bot trump selection opportunities - can be cancelled if stage changes
   yield takeLatest(botShouldSelectTrump.type, handleBotTrumpSelection);
 }

@@ -1,13 +1,5 @@
-import {
-  call,
-  cancelled,
-  put,
-  race,
-  select,
-  take,
-  takeLatest,
-} from "redux-saga/effects";
-import { botShouldPlayCard, setStage } from "../gameSlice";
+import { call, cancelled, put, select, take } from "redux-saga/effects";
+import { botShouldPlayCard } from "../gameSlice";
 import { GameStages } from "../gameStages";
 import {
   selectCurrentPlayerIndex,
@@ -72,6 +64,7 @@ function* coordinateBiddingPhase(): Generator<any, void, any> {
     // Ensure only one bot bidding saga runs at a time
     // This prevents multiple bots from bidding simultaneously
     console.log("Coordination Saga: Coordinating bidding phase");
+    yield; // Generator function requires yield
   } catch (error) {
     console.error("Bidding phase coordination error:", error);
   }
@@ -100,32 +93,26 @@ function* coordinatePlayingPhase(
 function* coordinateTrumpSelectionPhase(): Generator<any, void, any> {
   try {
     console.log("Coordination Saga: Coordinating trump selection phase");
-
-    // This phase needs coordination to ensure only one bot selects trump
-    // and prevents conflicts with user input
+    // Handle trump selection coordination
+    // This could include bot AI coordination and validation
+    yield; // Generator function requires yield
   } catch (error) {
     console.error("Trump selection phase coordination error:", error);
   }
 }
 
-// Watch for specific coordination events
-function* watchCoordinationEvents(): Generator<any, void, any> {
+// Main coordination saga watcher
+export default function* coordinationSaga(): Generator<any, void, any> {
   try {
-    // Watch for stage changes to trigger coordination
-    yield takeLatest(setStage.type, function* (action: any) {
-      const newStage = action.payload;
-      console.log(
-        `Coordination Saga: Stage changed to ${newStage}, coordinating...`
-      );
+    console.log("Coordination Saga: Starting coordination saga");
 
-      // Trigger coordination for the new stage
-      yield call(handleStageCoordination, newStage, -1);
-    });
+    // Start game flow coordination
+    yield call(coordinateGameFlow);
   } catch (error) {
-    console.error("Coordination events watch error:", error);
+    console.error("Coordination saga error:", error);
+  } finally {
+    if (yield cancelled()) {
+      console.log("Coordination saga cancelled");
+    }
   }
-}
-
-export default function* coordinationSaga() {
-  yield race([coordinateGameFlow(), watchCoordinationEvents()]);
 }
