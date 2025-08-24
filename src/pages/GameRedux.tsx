@@ -379,10 +379,8 @@ const GameRedux = () => {
             !gameState.biddingState.passedPlayers.includes(FIRST_PLAYER_ID) &&
             gameState.biddingState.currentBidder === FIRST_PLAYER_ID
           }
-          onBid={(bidAmount: number) =>
-            dispatch(placeBid({ playerIndex: FIRST_PLAYER_ID, bidAmount }))
-          }
-          onPass={() => dispatch(passBid({ playerIndex: FIRST_PLAYER_ID }))}
+          onBid={handleBid}
+          onPass={handlePass}
         />
       )}
 
@@ -391,15 +389,7 @@ const GameRedux = () => {
           <TrumpSelectionModal
             isOpen={true}
             playerHand={playerState.players[FIRST_PLAYER_ID].hand}
-            onTrumpSelection={(trumpSuite, teammateCard) =>
-              dispatch(
-                setBidAndTrump({
-                  trumpSuite: trumpSuite as number,
-                  bidder: FIRST_PLAYER_ID,
-                  teammateCard,
-                })
-              )
-            }
+            onTrumpSelection={handleTrumpSelection}
           />
         )}
 
