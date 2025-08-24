@@ -29,21 +29,35 @@ import {
   selectStage,
 } from "./selectors";
 
-function* handleStageTransition(action: any) {
-  console.log(
-    "Saga: handleStageTransition called with payload:",
-    action.payload
-  );
+// Add this function to handle saga errors
+function handleSagaError(error: any, context: string) {
+  console.error(`Saga error in ${context}:`, error);
 
-  if (action.payload === GameStages.CARDS_DISPLAY) {
-    console.log("Saga: Starting trick display phase");
-    yield delay(TIMINGS.trickDisplayMs);
-    console.log("Saga: Trick display complete, starting collection animation");
-    yield put(startCardCollection());
-    console.log("Saga: Waiting for collection animation to finish");
-    yield delay(TIMINGS.collectionAnimationMs + TIMINGS.collectionBufferMs);
-    console.log("Saga: Animation complete, starting new round");
-    yield put(startNewRound());
+  // Add error recovery logic here
+  // For now, just log the error
+}
+
+function* handleStageTransition(action: any) {
+  try {
+    console.log(
+      "Saga: handleStageTransition called with payload:",
+      action.payload
+    );
+
+    if (action.payload === GameStages.CARDS_DISPLAY) {
+      console.log("Saga: Starting trick display phase");
+      yield delay(TIMINGS.trickDisplayMs);
+      console.log(
+        "Saga: Trick display complete, starting collection animation"
+      );
+      yield put(startCardCollection());
+      console.log("Saga: Waiting for collection animation to finish");
+      yield delay(TIMINGS.collectionAnimationMs + TIMINGS.collectionBufferMs);
+      console.log("Saga: Animation complete, starting new round");
+      yield put(startNewRound());
+    }
+  } catch (error) {
+    yield call(handleSagaError, error, "handleStageTransition");
   }
 }
 
@@ -51,14 +65,18 @@ function* handleStageTransition(action: any) {
 function* watchTrickCompletion() {
   console.log("Saga: watchTrickCompletion started");
   yield takeEvery(playCard.type, function* handleTrickCompletion() {
-    const isTrickComplete: boolean = yield select(selectIsTrickComplete);
-    const stage: GameStage = yield select(selectStage);
+    try {
+      const isTrickComplete: boolean = yield select(selectIsTrickComplete);
+      const stage: GameStage = yield select(selectStage);
 
-    if (isTrickComplete && stage === GameStages.PLAYING) {
-      console.log(
-        "Saga: Trick completed with 4 cards, transitioning to CARDS_DISPLAY"
-      );
-      yield put(setStage(GameStages.CARDS_DISPLAY));
+      if (isTrickComplete && stage === GameStages.PLAYING) {
+        console.log(
+          "Saga: Trick completed with 4 cards, transitioning to CARDS_DISPLAY"
+        );
+        yield put(setStage(GameStages.CARDS_DISPLAY));
+      }
+    } catch (error) {
+      yield call(handleSagaError, error, "handleTrickCompletion");
     }
   });
 }

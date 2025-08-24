@@ -34,6 +34,9 @@ export const selectStage = createSelector(
   (g): GameStage => g.gameProgress.stage as GameStage
 );
 
+/** Returns the current game error state */
+export const selectGameError = createSelector(selectGame, g => g.error);
+
 export const selectGameConfig = createSelector(
   selectGame,
   (g): GameConfig | null => g.gameConfig
@@ -81,6 +84,27 @@ export const selectCurrentPlayerIndex = createSelector(
   [selectGame, selectStage],
   (game, stage): number =>
     stage === GameStages.PLAYING ? game.tableState.turn : -1
+);
+
+/** Returns whether the game is in an active playing state */
+export const selectIsGameActive = createSelector(
+  selectStage,
+  (stage): boolean =>
+    [
+      GameStages.BIDDING,
+      GameStages.TRUMP_SELECTION,
+      GameStages.PLAYING,
+      GameStages.CARDS_DISPLAY,
+    ].includes(stage as any)
+);
+
+/** Returns whether the current player is a bot */
+export const selectIsCurrentPlayerBot = createSelector(
+  [selectCurrentPlayerIndex, selectPlayerState],
+  (currentPlayer, playerState): boolean => {
+    if (currentPlayer <= 0) return false;
+    return !!playerState.playerAgents[currentPlayer];
+  }
 );
 
 /** Teams derived from players (1/2 instead of 0/1) */

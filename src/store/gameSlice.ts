@@ -1,5 +1,5 @@
 import { agentClasses } from "@/agents";
-import { Card, GameState, Suite, TeamScores } from "@/types/game";
+import { Card, GameError, GameState, Suite, TeamScores } from "@/types/game";
 import { distributeDeck, shuffle } from "@/utils/cardUtils";
 import {
   FIRST_PLAYER_ID,
@@ -48,6 +48,7 @@ const initialState: GameState = {
       3: initPlayerObject([]),
     },
   },
+  error: null,
 };
 
 const gameSlice = createSlice({
@@ -286,6 +287,65 @@ const gameSlice = createSlice({
       const { playerIndex, name } = action.payload;
       state.playerState.playerNames[playerIndex] = name;
     },
+
+    // Bot action triggers - these actions trigger the bot AI saga
+    botShouldPlayCard: (
+      state,
+      action: PayloadAction<{ playerIndex: number }>
+    ) => {
+      // This action triggers the bot AI saga
+      // No state changes needed, just a trigger
+    },
+
+    botShouldBid: (state, action: PayloadAction<{ playerIndex: number }>) => {
+      // This action triggers the bot bidding saga
+      // No state changes needed, just a trigger
+    },
+
+    botShouldSelectTrump: (
+      state,
+      action: PayloadAction<{ playerIndex: number }>
+    ) => {
+      // This action triggers the bot trump selection saga
+      // No state changes needed, just a trigger
+    },
+
+    // Game flow action triggers - these actions trigger the game flow saga
+    gameInitialize: state => {
+      // This action triggers the game initialization saga
+      // No state changes needed, just a trigger
+    },
+
+    gameStageTransition: (state, action: PayloadAction<GameStage>) => {
+      // This action triggers the game stage transition saga
+      // No state changes needed, just a trigger
+    },
+
+    // Game flow orchestration actions
+    triggerRoundTransition: state => {
+      // This action triggers automatic round transition logic
+      // No state changes needed, just a trigger
+    },
+
+    triggerGameCompletion: state => {
+      // This action triggers game completion logic
+      // No state changes needed, just a trigger
+    },
+
+    // UI state management
+    setDealingAnimation: (state, action: PayloadAction<boolean>) => {
+      // This action is used by sagas to control the dealing animation state
+      // The actual state is managed in the React component
+    },
+
+    // Error handling actions
+    setGameError: (state, action: PayloadAction<GameError>) => {
+      state.error = action.payload;
+    },
+
+    clearGameError: state => {
+      state.error = null;
+    },
   },
 });
 
@@ -301,6 +361,16 @@ export const {
   updateBidTimer,
   startCardCollection,
   setPlayerName,
+  botShouldPlayCard,
+  botShouldBid,
+  botShouldSelectTrump,
+  gameInitialize,
+  gameStageTransition,
+  triggerRoundTransition,
+  triggerGameCompletion,
+  setDealingAnimation,
+  setGameError,
+  clearGameError,
 } = gameSlice.actions;
 
 export default gameSlice.reducer;
