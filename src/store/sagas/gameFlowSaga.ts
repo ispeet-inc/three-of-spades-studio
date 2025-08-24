@@ -1,5 +1,12 @@
 import type { PayloadAction } from "@reduxjs/toolkit";
-import { call, cancelled, delay, put, takeLeading } from "redux-saga/effects";
+import {
+  call,
+  cancelled,
+  delay,
+  put,
+  select,
+  takeLeading,
+} from "redux-saga/effects";
 import {
   clearGameError,
   gameInitialize,
@@ -7,8 +14,11 @@ import {
   setDealingAnimation,
   setGameError,
   startBiddingRound,
+  triggerGameCompletion,
+  triggerRoundTransition,
 } from "../gameSlice";
 import { GameStages, type GameStage } from "../gameStages";
+import { selectGameProgress } from "../selectors";
 
 function* handleStageTransitionError(
   error: any,
@@ -111,6 +121,7 @@ function* handleGameStageTransition(
         console.log("Game Flow Saga: Orchestrating bidding stage transition");
         // Start bidding round if not already started
         // Additional bidding stage logic can be added here
+        // This could include bot coordination and validation
         break;
 
       case GameStages.TRUMP_SELECTION:
@@ -133,15 +144,24 @@ function* handleGameStageTransition(
         );
         // Handle cards display logic
         // This could include timing and animation coordination
+        // Trigger automatic transition to round completion after display
+        yield put(triggerRoundTransition());
         break;
 
-      case GameStages.ROUND_COMPLETE:
+      case GameStages.ROUND_COMPLETE: {
         console.log(
           "Game Flow Saga: Orchestrating round complete stage transition"
         );
         // Handle round complete logic
         // This could include score calculation and round transition
+        // Check if game should continue or end
+        const gameProgress = yield select(selectGameProgress);
+        if (gameProgress.round >= 10) {
+          // Assuming 10 rounds per game
+          yield put(triggerGameCompletion());
+        }
         break;
+      }
 
       case GameStages.GAME_OVER:
         console.log("Game Flow Saga: Orchestrating game over stage transition");

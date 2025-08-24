@@ -321,6 +321,17 @@ const gameSlice = createSlice({
       // No state changes needed, just a trigger
     },
 
+    // Game flow orchestration actions
+    triggerRoundTransition: state => {
+      // This action triggers automatic round transition logic
+      // No state changes needed, just a trigger
+    },
+
+    triggerGameCompletion: state => {
+      // This action triggers game completion logic
+      // No state changes needed, just a trigger
+    },
+
     // UI state management
     setDealingAnimation: (state, action: PayloadAction<boolean>) => {
       // This action is used by sagas to control the dealing animation state
@@ -355,6 +366,8 @@ export const {
   botShouldSelectTrump,
   gameInitialize,
   gameStageTransition,
+  triggerRoundTransition,
+  triggerGameCompletion,
   setDealingAnimation,
   setGameError,
   clearGameError,
