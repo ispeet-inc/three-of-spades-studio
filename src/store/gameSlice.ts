@@ -286,6 +286,48 @@ const gameSlice = createSlice({
       const { playerIndex, name } = action.payload;
       state.playerState.playerNames[playerIndex] = name;
     },
+
+    // Bot action triggers - these actions trigger the bot AI saga
+    botShouldPlayCard: (
+      state,
+      action: PayloadAction<{ playerIndex: number }>
+    ) => {
+      // This action triggers the bot AI saga
+      // No state changes needed, just a trigger
+    },
+
+    botShouldBid: (state, action: PayloadAction<{ playerIndex: number }>) => {
+      // This action triggers the bot bidding saga
+      // No state changes needed, just a trigger
+    },
+
+    botShouldSelectTrump: (
+      state,
+      action: PayloadAction<{ playerIndex: number }>
+    ) => {
+      // This action triggers the bot trump selection saga
+      // No state changes needed, just a trigger
+    },
+
+    // Game flow action triggers - these actions trigger the game flow saga
+    gameInitialize: state => {
+      // This action triggers the game initialization saga
+      // No state changes needed, just a trigger
+    },
+
+    gameStageTransition: (
+      state,
+      action: PayloadAction<{ stage: GameStage }>
+    ) => {
+      // This action triggers the game stage transition saga
+      // No state changes needed, just a trigger
+    },
+
+    // UI state management
+    setDealingAnimation: (state, action: PayloadAction<boolean>) => {
+      // This action is used by sagas to control the dealing animation state
+      // The actual state is managed in the React component
+    },
   },
 });
 
@@ -301,6 +343,12 @@ export const {
   updateBidTimer,
   startCardCollection,
   setPlayerName,
+  botShouldPlayCard,
+  botShouldBid,
+  botShouldSelectTrump,
+  gameInitialize,
+  gameStageTransition,
+  setDealingAnimation,
 } = gameSlice.actions;
 
 export default gameSlice.reducer;

@@ -8,13 +8,16 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useAppSelector } from "@/hooks/useAppSelector";
 import { RootState } from "@/store";
 import {
+  botShouldBid,
+  botShouldPlayCard,
+  botShouldSelectTrump,
+  gameInitialize,
   passBid,
   placeBid,
   playCard,
   setBidAndTrump,
   setPlayerName,
   setStage,
-  startBiddingRound,
   startGame,
 } from "@/store/gameSlice";
 import { GameStages } from "@/store/gameStages";
@@ -26,10 +29,8 @@ import {
   selectTeams,
 } from "@/store/selectors";
 import { Card, Suite } from "@/types/game";
-import { createCard } from "@/utils/cardUtils";
-import { FIRST_PLAYER_ID, TIMINGS } from "@/utils/constants";
+import { FIRST_PLAYER_ID } from "@/utils/constants";
 import { useFeedback } from "@/utils/feedbackSystem";
-import { getTeammateOptions } from "@/utils/gameUtils";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 
@@ -70,11 +71,8 @@ const GameRedux = () => {
     dispatch(startGame());
     dispatch(setStage(GameStages.BIDDING));
 
-    // Stop dealing animation after cards are dealt
-    setTimeout(() => {
-      setIsDealing(false);
-      dispatch(startBiddingRound());
-    }, 2000);
+    // Trigger game initialization saga instead of setTimeout
+    dispatch(gameInitialize());
   };
 
   const handleBid = (amount: number) => {
@@ -105,100 +103,18 @@ const GameRedux = () => {
     dispatch(setStage(GameStages.PLAYING));
   };
 
-  // Handle bot actions
+  // Handle bot actions - now using saga triggers
   useEffect(() => {
     if (
       gameState.gameProgress.stage === GameStages.PLAYING &&
       tableState.turn !== FIRST_PLAYER_ID
     ) {
-      console.log(
-        `Bot ${tableState.turn} should play now. Stage: ${gameState.gameProgress.stage}, Turn: ${tableState.turn}`
-      );
-      const timer = setTimeout(() => {
-        const currentPlayer = playerState.players[tableState.turn];
-        const botAgent = playerState.playerAgents[tableState.turn];
-
-        console.log(
-          `Bot ${tableState.turn} - Hand length: ${currentPlayer?.hand?.length}, Agent exists: ${!!botAgent}`
-        );
-
-        if (currentPlayer.hand.length > 0 && botAgent) {
-          try {
-            if (!gameConfig) {
-              console.error("Game config is not initialized");
-              return;
-            }
-
-            console.log(
-              `Bot ${tableState.turn} attempting to choose card with:`,
-              {
-                handSize: currentPlayer.hand.length,
-                tableCards: tableState.tableCards.length,
-                trumpSuite: gameConfig.trumpSuite,
-                runningSuite: tableState.runningSuite,
-              }
-            );
-
-            const cardIndex = botAgent.chooseCardIndex({
-              hand: currentPlayer.hand,
-              tableCards: tableState.tableCards,
-              trumpSuite: gameConfig.trumpSuite,
-              runningSuite: tableState.runningSuite,
-              playerIndex: tableState.turn,
-            });
-
-            console.log(
-              `Bot ${tableState.turn} chose card index: ${cardIndex}`
-            );
-
-            const validCardIndex =
-              cardIndex !== null &&
-              cardIndex >= 0 &&
-              cardIndex < currentPlayer.hand.length
-                ? cardIndex
-                : Math.floor(Math.random() * currentPlayer.hand.length);
-
-            console.log(
-              `Bot ${tableState.turn} playing card at index: ${validCardIndex}`
-            );
-            dispatch(
-              playCard({
-                playerIndex: tableState.turn,
-                cardIndex: validCardIndex,
-              })
-            );
-          } catch (error) {
-            console.error(`Bot ${tableState.turn} error:`, error);
-            const fallbackIndex = Math.floor(
-              Math.random() * currentPlayer.hand.length
-            );
-            dispatch(
-              playCard({
-                playerIndex: tableState.turn,
-                cardIndex: fallbackIndex,
-              })
-            );
-          }
-        } else {
-          console.log(
-            `Bot ${tableState.turn} cannot play - no hand or no agent`
-          );
-        }
-      }, TIMINGS.botPlayDelayMs);
-      return () => clearTimeout(timer);
+      // Trigger bot AI saga instead of handling logic here
+      dispatch(botShouldPlayCard({ playerIndex: tableState.turn }));
     }
-  }, [
-    gameState.gameProgress.stage,
-    tableState.turn,
-    dispatch,
-    playerState.players,
-    tableState.tableCards,
-    tableState.runningSuite,
-    playerState.playerAgents,
-    gameConfig,
-  ]);
+  }, [gameState.gameProgress.stage, tableState.turn, dispatch]);
 
-  // Handle bot bidding
+  // Handle bot bidding - now using saga triggers
   useEffect(() => {
     if (
       gameState.gameProgress.stage === GameStages.BIDDING &&
@@ -206,138 +122,48 @@ const GameRedux = () => {
       gameState.biddingState.passedPlayers.length < 3 &&
       gameState.biddingState.bidWinner === null
     ) {
-      console.log(
-        `Bot ${gameState.biddingState.currentBidder} timeout starting...`
+      // Trigger bot bidding saga instead of handling logic here
+      dispatch(
+        botShouldBid({ playerIndex: gameState.biddingState.currentBidder })
       );
-
-      const timer = setTimeout(() => {
-        console.log(
-          `Bot ${gameState.biddingState.currentBidder} timeout executing...`
-        );
-
-        const botAgent =
-          playerState.playerAgents[gameState.biddingState.currentBidder];
-        const currentPlayer =
-          playerState.players[gameState.biddingState.currentBidder];
-
-        if (botAgent && currentPlayer) {
-          try {
-            const bidAction = botAgent.getBidAction({
-              currentBid: gameState.biddingState.currentBid,
-              minIncrement: 5,
-              maxBid: 200,
-              passedPlayers: gameState.biddingState.passedPlayers,
-              hand: currentPlayer.hand,
-              playerIndex: gameState.biddingState.currentBidder,
-            });
-
-            console.log(
-              `Bot ${gameState.biddingState.currentBidder} bid action:`,
-              bidAction
-            );
-
-            if (bidAction.action === "bid" && bidAction.bidAmount) {
-              dispatch(
-                placeBid({
-                  playerIndex: gameState.biddingState.currentBidder,
-                  bidAmount: bidAction.bidAmount,
-                })
-              );
-            } else {
-              dispatch(
-                passBid({ playerIndex: gameState.biddingState.currentBidder })
-              );
-            }
-          } catch (error) {
-            console.error(
-              `Bot ${gameState.biddingState.currentBidder} bidding error:`,
-              error
-            );
-            dispatch(
-              passBid({ playerIndex: gameState.biddingState.currentBidder })
-            );
-          }
-        } else {
-          console.log(
-            `Bot ${gameState.biddingState.currentBidder} missing agent or player`
-          );
-          dispatch(
-            passBid({ playerIndex: gameState.biddingState.currentBidder })
-          );
-        }
-      }, TIMINGS.botBidThinkMs);
-
-      return () => {
-        console.log(
-          `Bot ${gameState.biddingState.currentBidder} timeout cancelled`
-        );
-        clearTimeout(timer);
-      };
     }
   }, [
     gameState.gameProgress.stage,
     gameState.biddingState.currentBidder,
     gameState.biddingState.bidWinner,
-    gameState.biddingState.currentBid,
-    dispatch,
-    playerState.playerAgents,
-    playerState.players,
     gameState.biddingState.passedPlayers,
+    dispatch,
   ]);
 
-  // Handle bot trump selection
+  // Handle bot trump selection - now using saga triggers
   useEffect(() => {
     if (
       gameState.gameProgress.stage === GameStages.TRUMP_SELECTION &&
       gameState.biddingState.bidWinner !== FIRST_PLAYER_ID
     ) {
-      const timer = setTimeout(() => {
-        const botAgent =
-          playerState.playerAgents[gameState.biddingState.bidWinner as number];
-        const bidWinner =
-          playerState.players[gameState.biddingState.bidWinner as number];
-
-        if (botAgent && bidWinner) {
-          try {
-            // Generate teammate options for all suits
-            const allTeammateOptions = [0, 1, 2, 3].flatMap(suite =>
-              getTeammateOptions(bidWinner.hand, suite)
-            );
-
-            const choice = botAgent.chooseTrumpAndTeammate({
-              hand: bidWinner.hand,
-              playerNames: playerState.playerNames,
-              playerIndex: gameState.biddingState.bidWinner as number,
-              teammateOptions: allTeammateOptions,
-            });
-
-            console.log(
-              `Bot ${gameState.biddingState.bidWinner} chose trump and teammate:`,
-              choice
-            );
-            handleTrumpSelection(choice.trumpSuite, choice.teammateCard);
-          } catch (error) {
-            console.error(
-              `Bot ${gameState.biddingState.bidWinner} trump selection error:`,
-              error
-            );
-            // Fallback: random trump and teammate
-            const randomTrump = Math.floor(Math.random() * 4);
-            const randomTeammate = createCard(randomTrump, 1);
-            handleTrumpSelection(randomTrump, randomTeammate);
-          }
-        }
-      }, TIMINGS.botTrumpThinkMs);
-      return () => clearTimeout(timer);
+      // Trigger bot trump selection saga instead of handling logic here
+      dispatch(
+        botShouldSelectTrump({
+          playerIndex: gameState.biddingState.bidWinner as number,
+        })
+      );
     }
   }, [
     gameState.gameProgress.stage,
     gameState.biddingState.bidWinner,
-    playerState.playerAgents,
-    playerState.players,
-    playerState.playerNames,
-    handleTrumpSelection,
+    dispatch,
   ]);
+
+  // Handle dealing animation completion when game initialization saga completes
+  useEffect(() => {
+    if (gameState.gameProgress.stage === GameStages.BIDDING && isDealing) {
+      // Stop dealing animation after game initialization saga completes
+      const timer = setTimeout(() => {
+        setIsDealing(false);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [gameState.gameProgress.stage, isDealing]);
 
   if (gameState.gameProgress.stage === GameStages.INIT) {
     return (
