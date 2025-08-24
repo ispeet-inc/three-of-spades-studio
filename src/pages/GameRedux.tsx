@@ -367,10 +367,41 @@ const GameRedux = () => {
       />
 
       {/* Modals */}
-      {gameState.gameProgress.stage === GameStages.BIDDING && <BiddingModal />}
+      {gameState.gameProgress.stage === GameStages.BIDDING && (
+        <BiddingModal
+          isOpen={true}
+          playerHand={playerState.players[FIRST_PLAYER_ID].hand}
+          currentBid={gameState.biddingState.currentBid}
+          currentBidder={gameState.biddingState.currentBidder}
+          bidTimer={gameState.biddingState.bidTimer}
+          playerNames={playerState.playerNames}
+          canBid={
+            !gameState.biddingState.passedPlayers.includes(FIRST_PLAYER_ID) &&
+            gameState.biddingState.currentBidder === FIRST_PLAYER_ID
+          }
+          onBid={(bidAmount: number) =>
+            dispatch(placeBid({ playerIndex: FIRST_PLAYER_ID, bidAmount }))
+          }
+          onPass={() => dispatch(passBid({ playerIndex: FIRST_PLAYER_ID }))}
+        />
+      )}
 
       {gameState.gameProgress.stage === GameStages.TRUMP_SELECTION &&
-        gameState.biddingState.bidWinner === 0 && <TrumpSelectionModal />}
+        gameState.biddingState.bidWinner === FIRST_PLAYER_ID && (
+          <TrumpSelectionModal
+            isOpen={true}
+            playerHand={playerState.players[FIRST_PLAYER_ID].hand}
+            onTrumpSelection={(trumpSuite, teammateCard) =>
+              dispatch(
+                setBidAndTrump({
+                  trumpSuite: trumpSuite as number,
+                  bidder: FIRST_PLAYER_ID,
+                  teammateCard,
+                })
+              )
+            }
+          />
+        )}
 
       {gameState.gameProgress.stage === GameStages.TRUMP_SELECTION_COMPLETE && (
         <BidResultModal

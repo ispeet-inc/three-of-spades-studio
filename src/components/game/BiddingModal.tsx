@@ -6,58 +6,42 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { useAppDispatch, useAppSelector } from "@/hooks";
-import { passBid, placeBid } from "@/store/gameSlice";
-import {
-  selectBidTimer,
-  selectCurrentBid,
-  selectCurrentBidder,
-  selectPassedPlayers,
-} from "@/store/selectors";
-import { FIRST_PLAYER_ID } from "@/utils/constants";
+import { Card } from "@/types/game";
 import { useState } from "react";
-import { Card, PlayingCard } from "./PlayingCard";
+import { HandPreview } from "./HandPreview";
 
-export function HandPreview({ hand }: { hand: Array<Card> }) {
-  return (
-    <div className="hand-preview">
-      <div className="bg-casino-black/20 rounded-xl p-4 border border-gold/20 mb-6">
-        <div className="flex gap-1 justify-center flex-wrap">
-          {hand.map((card, idx) => (
-            <div
-              key={idx}
-              className="transform hover:scale-105 transition-transform duration-200"
-            >
-              <PlayingCard card={card} className="shadow-card -ml-6" />
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
+interface BiddingModalProps {
+  isOpen: boolean;
+  playerHand: Card[];
+  currentBid: number;
+  currentBidder: number;
+  bidTimer: number;
+  playerNames: Record<number, string>;
+  canBid: boolean;
+  onBid: (bidAmount: number) => void;
+  onPass: () => void;
 }
 
-export const BiddingModal = () => {
-  const dispatch = useAppDispatch();
-  const { players, playerNames } = useAppSelector(
-    state => state.game.playerState
-  );
-  const currentBid = useAppSelector(selectCurrentBid);
-  const currentBidder = useAppSelector(selectCurrentBidder);
-  const passedPlayers = useAppSelector(selectPassedPlayers);
-  const bidTimer = useAppSelector(selectBidTimer);
+export const BiddingModal = ({
+  isOpen,
+  playerHand,
+  currentBid,
+  currentBidder,
+  bidTimer,
+  playerNames,
+  canBid,
+  onBid,
+  onPass,
+}: BiddingModalProps) => {
   const [customBid, setCustomBid] = useState("");
 
   const minIncrement = currentBid < 200 ? 5 : 10;
   const maxBid = 250;
-  const canBid =
-    !passedPlayers.includes(FIRST_PLAYER_ID) &&
-    currentBidder === FIRST_PLAYER_ID;
 
   const handleBid = (increment: number) => {
     const newBid = currentBid + increment;
     if (newBid <= maxBid) {
-      dispatch(placeBid({ playerIndex: FIRST_PLAYER_ID, bidAmount: newBid }));
+      onBid(newBid);
     }
   };
 
@@ -73,12 +57,14 @@ export const BiddingModal = () => {
       alert("Invalid custom bid.");
       return;
     }
-    dispatch(placeBid({ playerIndex: FIRST_PLAYER_ID, bidAmount: value }));
+    onBid(value);
     setCustomBid("");
   };
 
+  if (!isOpen) return null;
+
   return (
-    <Dialog open={true}>
+    <Dialog open={isOpen}>
       <DialogContent className="max-w-xl bg-gradient-to-br from-felt-green-light to-felt-green-dark border-2 border-gold/40 shadow-elevated backdrop-blur-sm">
         <DialogHeader className="text-center">
           <DialogTitle className="text-2xl font-casino text-gold mb-2">
@@ -88,7 +74,7 @@ export const BiddingModal = () => {
         </DialogHeader>
 
         {/* Premium Hand Preview */}
-        <HandPreview hand={players[FIRST_PLAYER_ID].hand} />
+        <HandPreview hand={playerHand} />
 
         {/* Premium Bidding Information */}
         <div className="bg-gradient-to-r from-gold/10 to-gold/5 rounded-xl p-4 border border-gold/30 mb-6">
@@ -171,9 +157,7 @@ export const BiddingModal = () => {
             <div className="text-center">
               <Button
                 variant="outline"
-                onClick={() =>
-                  dispatch(passBid({ playerIndex: FIRST_PLAYER_ID }))
-                }
+                onClick={onPass}
                 className="border-2 border-red-500/60 text-red-300 hover:bg-red-500/20 hover:border-red-400 font-semibold px-8 py-3 transition-all duration-300"
               >
                 Pass
