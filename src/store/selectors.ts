@@ -34,6 +34,9 @@ export const selectStage = createSelector(
   (g): GameStage => g.gameProgress.stage as GameStage
 );
 
+/** Returns the current game error state */
+export const selectGameError = createSelector(selectGame, g => g.error);
+
 export const selectGameConfig = createSelector(
   selectGame,
   (g): GameConfig | null => g.gameConfig

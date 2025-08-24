@@ -91,10 +91,19 @@ export interface GameProgress {
   stage: GameStage;
 }
 
+export interface GameError {
+  type: "STAGE_TRANSITION" | "INITIALIZATION" | "GAME_LOGIC" | "UNKNOWN";
+  message: string;
+  timestamp: number;
+  recoverable: boolean;
+  fallbackAction?: string;
+}
+
 export interface GameState {
   gameConfig: GameConfig | null;
   gameProgress: GameProgress;
   biddingState: BiddingState;
   tableState: TableState;
   playerState: PlayerState;
+  error: GameError | null;
 }

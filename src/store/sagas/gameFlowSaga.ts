@@ -1,11 +1,56 @@
-import { cancelled, delay, put, takeLeading } from "redux-saga/effects";
+import type { PayloadAction } from "@reduxjs/toolkit";
+import { call, cancelled, delay, put, takeLeading } from "redux-saga/effects";
 import {
+  clearGameError,
   gameInitialize,
   gameStageTransition,
   setDealingAnimation,
+  setGameError,
   startBiddingRound,
 } from "../gameSlice";
-import { GameStages } from "../gameStages";
+import { GameStages, type GameStage } from "../gameStages";
+
+function* handleStageTransitionError(
+  error: any,
+  stage: GameStage
+): Generator<any, void, any> {
+  try {
+    console.error(
+      `Game Flow Saga: Error in stage transition to ${stage}:`,
+      error
+    );
+
+    // Set error state for UI feedback
+    yield put(
+      setGameError({
+        type: "STAGE_TRANSITION",
+        message: `Failed to transition to ${stage}: ${error.message || error}`,
+        timestamp: Date.now(),
+        recoverable: true,
+        fallbackAction: "RETRY_TRANSITION",
+      })
+    );
+
+    // Implement error recovery logic here
+    // This could include fallback actions or state rollback
+    yield; // Generator function requires yield
+
+    // Clear error after recovery attempt
+    yield put(clearGameError());
+  } catch (recoveryError) {
+    console.error("Game Flow Saga: Error recovery failed:", recoveryError);
+
+    // Set unrecoverable error
+    yield put(
+      setGameError({
+        type: "STAGE_TRANSITION",
+        message: `Unrecoverable error in stage transition to ${stage}: ${(recoveryError as Error)?.message || String(recoveryError)}`,
+        timestamp: Date.now(),
+        recoverable: false,
+      })
+    );
+  }
+}
 
 // Game initialization saga
 function* handleGameInitialization(): Generator<any, void, any> {
@@ -20,10 +65,31 @@ function* handleGameInitialization(): Generator<any, void, any> {
 
     // Start bidding round
     yield put(startBiddingRound());
+
+    console.log("Game Flow Saga: Game initialization completed successfully");
   } catch (error) {
     console.error("Game initialization error:", error);
-    // Fallback: force start bidding
-    yield put(startBiddingRound());
+    // Enhanced fallback: try to recover gracefully
+    try {
+      console.log("Game Flow Saga: Attempting fallback initialization");
+      yield put(setDealingAnimation(false));
+      yield put(startBiddingRound());
+    } catch (fallbackError) {
+      console.error(
+        "Game Flow Saga: Fallback initialization failed:",
+        fallbackError
+      );
+
+      // Set unrecoverable error state
+      yield put(
+        setGameError({
+          type: "INITIALIZATION",
+          message: `Game initialization failed completely: ${(fallbackError as Error)?.message || String(fallbackError)}`,
+          timestamp: Date.now(),
+          recoverable: false,
+        })
+      );
+    }
   } finally {
     if (yield cancelled()) {
       console.log("Game initialization saga cancelled");
@@ -32,38 +98,96 @@ function* handleGameInitialization(): Generator<any, void, any> {
 }
 
 // Game stage transition saga
-function* handleGameStageTransition(action: any): Generator<any, void, any> {
+function* handleGameStageTransition(
+  action: PayloadAction<GameStage>
+): Generator<any, void, any> {
   try {
     const newStage = action.payload;
     console.log(`Game Flow Saga: Transitioning to stage: ${newStage}`);
 
-    // Handle specific stage transitions
+    // Handle specific stage transitions with logic directly in each case
     switch (newStage) {
       case GameStages.BIDDING:
-        // Bidding stage started, no additional logic needed
+        console.log("Game Flow Saga: Orchestrating bidding stage transition");
+        // Start bidding round if not already started
+        // Additional bidding stage logic can be added here
         break;
 
       case GameStages.TRUMP_SELECTION:
-        // Trump selection stage started, no additional logic needed
+        console.log(
+          "Game Flow Saga: Orchestrating trump selection stage transition"
+        );
+        // Handle trump selection stage logic
+        // This could include bot AI coordination
         break;
 
       case GameStages.PLAYING:
-        // Playing stage started, no additional logic needed
+        console.log("Game Flow Saga: Orchestrating playing stage transition");
+        // Handle playing stage logic
+        // This could include turn management and bot coordination
+        break;
+
+      case GameStages.CARDS_DISPLAY:
+        console.log(
+          "Game Flow Saga: Orchestrating cards display stage transition"
+        );
+        // Handle cards display logic
+        // This could include timing and animation coordination
+        break;
+
+      case GameStages.ROUND_COMPLETE:
+        console.log(
+          "Game Flow Saga: Orchestrating round complete stage transition"
+        );
+        // Handle round complete logic
+        // This could include score calculation and round transition
         break;
 
       case GameStages.GAME_OVER:
-        // Game over, cleanup if needed
+        console.log("Game Flow Saga: Orchestrating game over stage transition");
+        // Handle game over logic
+        // This could include final score calculation and cleanup
         break;
 
       default:
+        console.warn(`Game Flow Saga: Unknown stage transition: ${newStage}`);
         break;
     }
   } catch (error) {
     console.error("Game stage transition error:", error);
+    yield call(handleStageTransitionError, error, action.payload);
   } finally {
     if (yield cancelled()) {
       console.log("Game stage transition saga cancelled");
     }
+  }
+}
+
+// Game flow coordination functions
+function* coordinateGameFlow(): Generator<any, void, any> {
+  try {
+    console.log("Game Flow Saga: Starting game flow coordination");
+
+    // This function can be used to coordinate between different game phases
+    // and ensure proper game flow progression
+
+    yield; // Generator function requires yield
+  } catch (error) {
+    console.error("Game flow coordination error:", error);
+  }
+}
+
+// Game state validation function
+function* validateGameState(): Generator<any, void, any> {
+  try {
+    console.log("Game Flow Saga: Validating game state");
+
+    // This function can be used to validate game state consistency
+    // and trigger recovery actions if needed
+
+    yield; // Generator function requires yield
+  } catch (error) {
+    console.error("Game state validation error:", error);
   }
 }
 

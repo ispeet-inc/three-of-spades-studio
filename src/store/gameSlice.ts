@@ -1,5 +1,5 @@
 import { agentClasses } from "@/agents";
-import { Card, GameState, Suite, TeamScores } from "@/types/game";
+import { Card, GameError, GameState, Suite, TeamScores } from "@/types/game";
 import { distributeDeck, shuffle } from "@/utils/cardUtils";
 import {
   FIRST_PLAYER_ID,
@@ -48,6 +48,7 @@ const initialState: GameState = {
       3: initPlayerObject([]),
     },
   },
+  error: null,
 };
 
 const gameSlice = createSlice({
@@ -315,10 +316,7 @@ const gameSlice = createSlice({
       // No state changes needed, just a trigger
     },
 
-    gameStageTransition: (
-      state,
-      action: PayloadAction<{ stage: GameStage }>
-    ) => {
+    gameStageTransition: (state, action: PayloadAction<GameStage>) => {
       // This action triggers the game stage transition saga
       // No state changes needed, just a trigger
     },
@@ -327,6 +325,15 @@ const gameSlice = createSlice({
     setDealingAnimation: (state, action: PayloadAction<boolean>) => {
       // This action is used by sagas to control the dealing animation state
       // The actual state is managed in the React component
+    },
+
+    // Error handling actions
+    setGameError: (state, action: PayloadAction<GameError>) => {
+      state.error = action.payload;
+    },
+
+    clearGameError: state => {
+      state.error = null;
     },
   },
 });
@@ -349,6 +356,8 @@ export const {
   gameInitialize,
   gameStageTransition,
   setDealingAnimation,
+  setGameError,
+  clearGameError,
 } = gameSlice.actions;
 
 export default gameSlice.reducer;
