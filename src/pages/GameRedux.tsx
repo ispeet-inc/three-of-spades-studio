@@ -4,6 +4,7 @@ import { GameBoard } from "@/components/game/GameBoard";
 import { GameOverModal } from "@/components/game/GameOverModal";
 import { TrumpSelectionModal } from "@/components/game/TrumpSelectionModal";
 import StartScreen from "@/components/StartScreen";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useAppSelector } from "@/hooks/useAppSelector";
 import { RootState } from "@/store";
 import {
@@ -22,6 +23,7 @@ import {
   selectGameProgress,
   selectPlayerDisplayData,
   selectPlayerState,
+  selectTeams,
 } from "@/store/selectors";
 import { Card, Suite } from "@/types/game";
 import { createCard } from "@/utils/cardUtils";
@@ -47,6 +49,8 @@ const GameRedux = () => {
 
   // Use selectors instead of manual transformations - Phase 2 implementation
   const players = useAppSelector(selectPlayerDisplayData);
+  const teams = useAppSelector(selectTeams);
+  const isMobile = useIsMobile();
 
   const handleCardPlay = (card: Card) => {
     const playerHand = playerState.players[FIRST_PLAYER_ID].hand;
@@ -403,7 +407,16 @@ const GameRedux = () => {
       )}
 
       {gameState.gameProgress.stage === GameStages.GAME_OVER && (
-        <GameOverModal />
+        <GameOverModal
+          isOpen={true}
+          teams={teams}
+          scores={gameState.gameProgress.scores}
+          bidAmount={gameState.gameConfig?.bidAmount ?? 0}
+          bidWinner={gameState.gameConfig?.bidWinner ?? -1}
+          playerNames={playerState.playerNames}
+          isMobile={isMobile}
+          onNewGame={() => window.location.reload()}
+        />
       )}
     </div>
   );
