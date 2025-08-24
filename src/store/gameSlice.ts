@@ -6,7 +6,11 @@ import {
   NUM_PLAYERS,
   PLAYER_NAME_POOL,
 } from "@/utils/constants";
-import { initialBiddingState, initPlayerObject } from "@/utils/gameSetupUtils";
+import {
+  initialBiddingState,
+  initPlayerNames,
+  initPlayerObject,
+} from "@/utils/gameSetupUtils";
 import {
   assignTeamsByTeammateCard,
   selectRandomNames,
@@ -36,8 +40,7 @@ const initialState: GameState = {
   playerState: {
     startingPlayer: 0,
     playerAgents: {},
-    // todo - make this dynamic
-    playerNames: { 0: "You", 1: "", 2: "", 3: "" },
+    playerNames: initPlayerNames(NUM_PLAYERS, FIRST_PLAYER_ID, "You"),
     players: {
       0: initPlayerObject([]),
       1: initPlayerObject([]),
