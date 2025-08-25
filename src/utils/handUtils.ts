@@ -1,5 +1,5 @@
 import { Card, Suite } from "@/types/game";
-import { getCardSet, getTopKCardsFromSuite } from "./cardUtils";
+import { generateDeck, getCardSet, getTopKCardsFromSuite } from "./cardUtils";
 
 /**
  * Checks if the given suite is present in the hand.
@@ -200,4 +200,81 @@ export function teammateOptionScore(
   const boostedScore = Math.round(boost * rawScore * 100) / 100;
   console.log(card.hash, rawScore, boostedScore);
   return boostedScore;
+}
+
+export function getRemainingCards(
+  hand: Card[],
+  discardedCards: Card[],
+  tableCards: Card[] = []
+): Card[] {
+  const discardedCardsSet = getCardSet(discardedCards);
+  const handSet = getCardSet(hand);
+  const tableCardsSet = getCardSet(tableCards);
+  const deck = generateDeck();
+  // filter out cards that are in the hand or discarded
+  return deck.filter(
+    card =>
+      !handSet.has(card.hash) &&
+      !discardedCardsSet.has(card.hash) &&
+      !tableCardsSet.has(card.hash)
+  );
+}
+
+export function canBeatAllRemainingCardsInSuite(
+  hand: Card[],
+  discardedCards: Card[],
+  tableCards: Card[],
+  suite: Suite,
+  highestCard: Card
+): boolean {
+  if (highestCard.suite !== suite) {
+    throw new Error("Highest card is not in the suite");
+  }
+
+  const remainingCards = getRemainingCards(hand, discardedCards, tableCards);
+  const highestRemainingCardIndex = getHighestRankedCardIndexInSuite(
+    remainingCards,
+    suite
+  );
+
+  if (highestRemainingCardIndex === null) {
+    return true; // No higher cards remaining
+  }
+
+  const highestRemainingCard = remainingCards[highestRemainingCardIndex];
+  return highestCard.rank > highestRemainingCard.rank;
+}
+
+export function getWinProbability(
+  hand: Card[],
+  discardedCards: Card[],
+  suite: Suite,
+  trumpSuite: Suite
+) {
+  let winProbability = 0;
+  const highestCardIndex = getHighestRankedCardIndexInSuite(hand, suite);
+  if (highestCardIndex === null) return null;
+
+  const highestCard = hand[highestCardIndex];
+
+  if (
+    canBeatAllRemainingCardsInSuite(
+      hand,
+      discardedCards,
+      [],
+      suite,
+      highestCard
+    )
+  ) {
+    winProbability = 1;
+  } else {
+    winProbability = 0;
+  }
+
+  return {
+    highestCardIndex: highestCardIndex,
+    card: highestCard,
+    winProbability: winProbability,
+    numCardsOver: discardedCards.filter(card => card.suite === suite).length,
+  };
 }
