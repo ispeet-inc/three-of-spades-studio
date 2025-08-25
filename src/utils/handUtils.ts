@@ -204,7 +204,7 @@ export function teammateOptionScore(
 
 export function getRemainingCards(
   hand: Card[],
-  discardedCards: Card[],
+  discardedCards: Card[] = [],
   tableCards: Card[] = []
 ): Card[] {
   const discardedCardsSet = getCardSet(discardedCards);

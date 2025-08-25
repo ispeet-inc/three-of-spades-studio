@@ -1,6 +1,5 @@
 import { createCard } from "@/utils/cardUtils";
 import { FIRST_PLAYER_ID, TIMINGS } from "@/utils/constants";
-import { getTeammateOptions } from "@/utils/gameUtils";
 import {
   cancelled,
   delay,
@@ -10,6 +9,7 @@ import {
   takeLeading,
 } from "redux-saga/effects";
 import { BiddingState, PlayerState, TableState } from "../../types/game";
+import { getRemainingCards } from "../../utils/handUtils";
 import {
   botShouldBid,
   botShouldPlayCard,
@@ -44,7 +44,10 @@ function* handleBotCardPlay(): Generator<any, void, any> {
     const gameConfig = yield select(selectGameConfig);
 
     // Check if it's still bot's turn and game is in playing stage
-    if (gameProgress.stage !== GameStages.PLAYING || tableState.turn === 0) {
+    if (
+      gameProgress.stage !== GameStages.PLAYING ||
+      tableState.turn === FIRST_PLAYER_ID
+    ) {
       return;
     }
 
@@ -67,12 +70,16 @@ function* handleBotCardPlay(): Generator<any, void, any> {
     });
 
     // Validate card index and fallback to random if invalid
-    const validCardIndex =
+    let validCardIndex;
+    if (
       cardIndex !== null &&
       cardIndex >= 0 &&
       cardIndex < currentPlayer.hand.length
-        ? cardIndex
-        : Math.floor(Math.random() * currentPlayer.hand.length);
+    ) {
+      validCardIndex = cardIndex;
+    } else {
+      throw new Error("Invalid card index");
+    }
 
     // Dispatch card play action
     yield put(
@@ -107,7 +114,7 @@ function* handleBotBidding(): Generator<any, void, any> {
     if (
       gameProgress.stage !== GameStages.BIDDING ||
       !biddingState ||
-      biddingState.currentBidder === 0 ||
+      biddingState.currentBidder === FIRST_PLAYER_ID ||
       biddingState.passedPlayers.length >= 3 ||
       biddingState.bidWinner !== null
     ) {
@@ -197,9 +204,7 @@ function* handleBotTrumpSelection(): Generator<any, void, any> {
     }
 
     // Generate teammate options for all suits
-    const allTeammateOptions = [0, 1, 2, 3].flatMap(suite =>
-      getTeammateOptions(bidWinner.hand, suite)
-    );
+    const allTeammateOptions = getRemainingCards(bidWinner.hand);
 
     // Bot chooses trump and teammate
     const choice = botAgent.chooseTrumpAndTeammate({
