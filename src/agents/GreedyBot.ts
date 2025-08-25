@@ -1,6 +1,6 @@
 import { Card, Suite, TableCard } from "@/types/game";
 import { getHash } from "@/utils/cardUtils";
-import { DECK_SUITES } from "@/utils/constants";
+import { DECK_SUITES, NUM_PLAYERS } from "@/utils/constants";
 import { determineRoundWinner } from "@/utils/gameUtils";
 import {
   canBeatAllRemainingCardsInSuite,
@@ -86,8 +86,21 @@ export default class GreedyBot extends BotAgent {
 
     const highestCard = hand[highestCardIndex];
 
-    // If round is cut or highest card can't win, play lowest card
+    // Early returns for cases where we can't win
     if (isRoundCut || winningCard.rank > highestCard.rank) {
+      // @ts-expect-error - hand is not empty when this is called
+      return getLeastValueCardIndexInSuite(hand, runningSuite);
+    }
+
+    // If we're the last player, try to win with the lowest possible card
+    if (tableCards.length === NUM_PLAYERS - 1) {
+      const winningCards = hand.filter(
+        card => card.suite === runningSuite && card.rank > winningCard.rank
+      );
+      if (winningCards.length > 0) {
+        // @ts-expect-error - hand is not empty when this is called
+        return getLeastValueCardIndexInSuite(winningCards, runningSuite);
+      }
       // @ts-expect-error - hand is not empty when this is called
       return getLeastValueCardIndexInSuite(hand, runningSuite);
     }
