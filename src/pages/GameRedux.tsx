@@ -34,7 +34,11 @@ import { useFeedback } from "@/utils/feedbackSystem";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 
-const GameRedux = () => {
+interface GameReduxProps {
+  viewerIndex?: number;
+}
+
+const GameRedux = ({ viewerIndex = FIRST_PLAYER_ID }: GameReduxProps) => {
   const dispatch = useDispatch();
   const gameState = useAppSelector((state: RootState) => state.game);
   const tableState = useAppSelector(
