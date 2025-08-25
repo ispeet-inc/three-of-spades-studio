@@ -25,7 +25,6 @@ export default class GreedyBot extends BotAgent {
   // todo - improve this function by taking into account number of cards over & trump suite
   // todo - bot keeps starting trump suite even if others dont have trump
   startRound(hand: Card[], trumpSuite: Suite, discardedCards: Card[]): number {
-    console.log("startRound: ", hand, trumpSuite, discardedCards);
     const winningOptions = DECK_SUITES.map(suite =>
       getWinProbability(hand, discardedCards, suite, trumpSuite)
     ).filter(
@@ -97,9 +96,12 @@ export default class GreedyBot extends BotAgent {
       const winningCards = hand.filter(
         card => card.suite === runningSuite && card.rank > winningCard.rank
       );
-      if (winningCards.length > 0) {
-        // @ts-expect-error - hand is not empty when this is called
-        return getLeastValueCardIndexInSuite(winningCards, runningSuite);
+      const winningCardIndex = getLeastValueCardIndexInSuite(
+        winningCards,
+        runningSuite
+      );
+      if (winningCardIndex !== null) {
+        return hand.indexOf(winningCards[winningCardIndex]);
       }
       // @ts-expect-error - hand is not empty when this is called
       return getLeastValueCardIndexInSuite(hand, runningSuite);
