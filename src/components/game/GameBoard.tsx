@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
   Card,
@@ -14,7 +13,6 @@ import {
   gameStateAnnouncements,
 } from "@/utils/accessibility";
 import { FIRST_PLAYER_ID, NUM_PLAYERS } from "@/utils/constants";
-import { Settings } from "lucide-react";
 import { useEffect, useState } from "react";
 import { CenterTable } from "./CenterTable";
 import { GameInfo } from "./GameInfo";
@@ -113,7 +111,7 @@ export const GameBoard = ({
         </div>
 
         {/* Settings */}
-        <Button
+        {/* <Button
           variant="secondary"
           size="sm"
           onClick={onSettingsClick}
@@ -121,10 +119,11 @@ export const GameBoard = ({
           aria-label="Open game settings"
         >
           <Settings className="w-4 h-4" aria-hidden="true" />
-        </Button>
+        </Button> */}
       </header>
 
       {/* Team Scores */}
+      {/* todo: move this into a new component */}
       <section
         className="absolute top-6 right-6 flex gap-6 z-20"
         aria-label="Team scores"
