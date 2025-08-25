@@ -297,26 +297,29 @@ const GameRedux = ({ viewerIndex = FIRST_PLAYER_ID }: GameReduxProps) => {
         viewerIndex={viewerIndex}
       />
 
-      {/* Modals */}
+      {/* Game Modals - visible to all but interactive only for players */}
       {gameState.gameProgress.stage === GameStages.BIDDING && (
         <BiddingModal
           isOpen={true}
-          playerHand={playerState.players[FIRST_PLAYER_ID].hand}
+          playerHand={playerState.players[viewerIndex].hand}
           currentBid={gameState.biddingState.currentBid}
           currentBidder={gameState.biddingState.currentBidder}
           bidTimer={gameState.biddingState.bidTimer}
           playerNames={playerState.playerNames}
           canBid={
+            !isObserver &&
             !gameState.biddingState.passedPlayers.includes(FIRST_PLAYER_ID) &&
             gameState.biddingState.currentBidder === FIRST_PLAYER_ID
           }
           onBid={handleBid}
           onPass={handlePass}
+          isObserver={isObserver}
         />
       )}
 
       {gameState.gameProgress.stage === GameStages.TRUMP_SELECTION &&
-        gameState.biddingState.bidWinner === FIRST_PLAYER_ID && (
+        gameState.biddingState.bidWinner === FIRST_PLAYER_ID &&
+        !isObserver && (
           <TrumpSelectionModal
             isOpen={true}
             playerHand={playerState.players[FIRST_PLAYER_ID].hand}
@@ -330,6 +333,7 @@ const GameRedux = ({ viewerIndex = FIRST_PLAYER_ID }: GameReduxProps) => {
           gameConfig={gameConfig}
           playerNames={playerState.playerNames}
           onClose={handleBidResultClose}
+          isObserver={isObserver}
         />
       )}
 
@@ -343,6 +347,7 @@ const GameRedux = ({ viewerIndex = FIRST_PLAYER_ID }: GameReduxProps) => {
           playerNames={playerState.playerNames}
           isMobile={isMobile}
           onNewGame={() => window.location.reload()}
+          isObserver={isObserver}
         />
       )}
     </div>

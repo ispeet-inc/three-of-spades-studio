@@ -22,6 +22,7 @@ interface SettingsModalProps {
   onClose: () => void;
   botCardsHidden: boolean;
   onToggleBotCards: () => void;
+  isObserver?: boolean;
 }
 
 export const SettingsModal = ({
@@ -29,6 +30,7 @@ export const SettingsModal = ({
   onClose,
   botCardsHidden,
   onToggleBotCards,
+  isObserver = false,
 }: SettingsModalProps) => {
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [animationsEnabled, setAnimationsEnabled] = useState(true);
@@ -100,6 +102,7 @@ export const SettingsModal = ({
                   id="bot-cards"
                   checked={botCardsHidden}
                   onCheckedChange={onToggleBotCards}
+                  disabled={isObserver}
                 />
               </div>
 
@@ -115,6 +118,7 @@ export const SettingsModal = ({
                   id="animations"
                   checked={animationsEnabled}
                   onCheckedChange={setAnimationsEnabled}
+                  disabled={isObserver}
                 />
               </div>
             </div>
@@ -141,6 +145,7 @@ export const SettingsModal = ({
                 id="sound"
                 checked={soundEnabled}
                 onCheckedChange={setSoundEnabled}
+                disabled={isObserver}
               />
             </div>
           </div>
@@ -162,6 +167,7 @@ export const SettingsModal = ({
                 id="auto-play"
                 checked={autoPlay}
                 onCheckedChange={setAutoPlay}
+                disabled={isObserver}
               />
             </div>
           </div>
@@ -176,12 +182,19 @@ export const SettingsModal = ({
 
           {/* Close Button */}
           <div className="text-center pt-2">
-            <Button
-              onClick={onClose}
-              className="w-full h-12 text-lg font-bold font-casino bg-gradient-gold text-casino-black shadow-glow hover:shadow-glow/80 border-2 border-gold-dark transition-all duration-300"
-            >
-              Apply Settings
-            </Button>
+            {!isObserver && (
+              <Button
+                onClick={onClose}
+                className="w-full h-12 text-lg font-bold font-casino bg-gradient-gold text-casino-black shadow-glow hover:shadow-glow/80 border-2 border-gold-dark transition-all duration-300"
+              >
+                Apply Settings
+              </Button>
+            )}
+            {isObserver && (
+              <div className="w-full text-center text-sm text-muted-foreground py-4">
+                Observer mode - settings cannot be modified
+              </div>
+            )}
           </div>
         </div>
       </DialogContent>

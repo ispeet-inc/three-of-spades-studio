@@ -20,6 +20,7 @@ interface BiddingModalProps {
   canBid: boolean;
   onBid: (bidAmount: number) => void;
   onPass: () => void;
+  isObserver?: boolean;
 }
 
 export const BiddingModal = ({
@@ -32,6 +33,7 @@ export const BiddingModal = ({
   canBid,
   onBid,
   onPass,
+  isObserver = false,
 }: BiddingModalProps) => {
   const [customBid, setCustomBid] = useState("");
 
@@ -104,7 +106,7 @@ export const BiddingModal = ({
           </div>
         </div>
 
-        {canBid ? (
+        {canBid && !isObserver ? (
           <div className="space-y-4">
             {/* Quick Bid Buttons */}
             <div className="flex gap-3 justify-center">
@@ -167,7 +169,9 @@ export const BiddingModal = ({
         ) : (
           <div className="text-center bg-casino-black/20 rounded-xl p-6 border border-gold/20">
             <div className="text-gold/70 text-lg font-medium mb-2">
-              Waiting for other players...
+              {isObserver
+                ? "Observer mode - watching bidding..."
+                : "Waiting for other players..."}
             </div>
             <div className="w-8 h-8 border-2 border-gold/30 border-t-gold rounded-full animate-spin mx-auto"></div>
           </div>

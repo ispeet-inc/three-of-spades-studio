@@ -15,6 +15,7 @@ interface BidResultModalProps {
   gameConfig: GameConfig | null;
   playerNames: Record<number, string>;
   onClose: () => void;
+  isObserver?: boolean;
 }
 
 export const BidResultModal: React.FC<BidResultModalProps> = ({
@@ -22,6 +23,7 @@ export const BidResultModal: React.FC<BidResultModalProps> = ({
   gameConfig,
   playerNames,
   onClose,
+  isObserver = false,
 }) => {
   if (!gameConfig) {
     return null;
@@ -73,12 +75,19 @@ export const BidResultModal: React.FC<BidResultModalProps> = ({
         </div>
 
         <div className="flex justify-center pt-2">
-          <Button
-            onClick={onClose}
-            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
-          >
-            Let's begin!
-          </Button>
+          {!isObserver && (
+            <Button
+              onClick={onClose}
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
+            >
+              Let's begin!
+            </Button>
+          )}
+          {isObserver && (
+            <div className="w-full text-center text-sm text-muted-foreground py-2">
+              Observer mode - waiting for player action...
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>

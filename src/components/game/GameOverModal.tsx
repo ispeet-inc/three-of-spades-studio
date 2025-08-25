@@ -18,6 +18,7 @@ interface GameOverModalProps {
   playerNames: Record<number, string>;
   isMobile: boolean;
   onNewGame: () => void;
+  isObserver?: boolean;
 }
 
 export const GameOverModal = ({
@@ -29,6 +30,7 @@ export const GameOverModal = ({
   playerNames,
   isMobile,
   onNewGame,
+  isObserver = false,
 }: GameOverModalProps) => {
   // Determine winner based on bid - updated for new team system (1/2 instead of 0/1)
   const winningTeam = bidAmount !== null && scores.team1 >= bidAmount ? 1 : 2; // Changed from 0/1 to 1/2
@@ -136,20 +138,27 @@ export const GameOverModal = ({
 
           {/* Play Again Button */}
           <div className="text-center pt-2">
-            <Button
-              onClick={onNewGame}
-              className={`w-full ${isMobile ? "h-12 text-base" : "h-14 text-lg"} font-bold font-casino bg-gradient-gold text-casino-black shadow-glow hover:shadow-glow/80 border-2 border-gold-dark transition-all duration-300 hover:scale-105 group`}
-            >
-              <div className="flex items-center justify-center gap-2">
-                <Sparkles
-                  className={`${isMobile ? "w-4 h-4" : "w-5 h-5"} group-hover:animate-spin`}
-                />
-                🎮 Play Again
-                <Sparkles
-                  className={`${isMobile ? "w-4 h-4" : "w-5 h-5"} group-hover:animate-spin`}
-                />
+            {!isObserver && (
+              <Button
+                onClick={onNewGame}
+                className={`w-full ${isMobile ? "h-12 text-base" : "h-14 text-lg"} font-bold font-casino bg-gradient-gold text-casino-black shadow-glow hover:shadow-glow/80 border-2 border-gold-dark transition-all duration-300 hover:scale-105 group`}
+              >
+                <div className="flex items-center justify-center gap-2">
+                  <Sparkles
+                    className={`${isMobile ? "w-4 h-4" : "w-5 h-5"} group-hover:animate-spin`}
+                  />
+                  🎮 Play Again
+                  <Sparkles
+                    className={`${isMobile ? "w-4 h-4" : "w-5 h-5"} group-hover:animate-spin`}
+                  />
+                </div>
+              </Button>
+            )}
+            {isObserver && (
+              <div className="w-full text-center text-sm text-muted-foreground py-4">
+                Observer mode - waiting for player to start new game...
               </div>
-            </Button>
+            )}
           </div>
         </div>
       </DialogContent>
