@@ -220,6 +220,31 @@ export function getRemainingCards(
   );
 }
 
+export function canBeatAllRemainingCardsInSuite(
+  hand: Card[],
+  discardedCards: Card[],
+  tableCards: Card[],
+  suite: Suite,
+  highestCard: Card
+): boolean {
+  if (highestCard.suite !== suite) {
+    throw new Error("Highest card is not in the suite");
+  }
+
+  const remainingCards = getRemainingCards(hand, discardedCards, tableCards);
+  const highestRemainingCardIndex = getHighestRankedCardIndexInSuite(
+    remainingCards,
+    suite
+  );
+
+  if (highestRemainingCardIndex === null) {
+    return true; // No higher cards remaining
+  }
+
+  const highestRemainingCard = remainingCards[highestRemainingCardIndex];
+  return highestCard.rank > highestRemainingCard.rank;
+}
+
 export function getWinProbability(
   hand: Card[],
   discardedCards: Card[],
@@ -232,26 +257,20 @@ export function getWinProbability(
 
   const highestCard = hand[highestCardIndex];
 
-  const discardedCardsSet = getCardSet(
-    discardedCards.filter(card => card.suite === suite)
-  );
-  const remainingCards = getRemainingCards(hand, discardedCards);
-  const highestRemainingCardIndex = getHighestRankedCardIndexInSuite(
-    remainingCards,
-    suite
-  );
-  if (highestRemainingCardIndex === null) {
-    // all cards in this suite are played. Round can get cut though.
+  if (
+    canBeatAllRemainingCardsInSuite(
+      hand,
+      discardedCards,
+      [],
+      suite,
+      highestCard
+    )
+  ) {
     winProbability = 1;
   } else {
-    const highestRemainingCard = remainingCards[highestRemainingCardIndex];
-    if (highestCard.rank > highestRemainingCard.rank) {
-      // highest card in hand will win.
-      winProbability = 1;
-    } else {
-      winProbability = 0;
-    }
+    winProbability = 0;
   }
+
   return {
     highestCardIndex: highestCardIndex,
     card: highestCard,

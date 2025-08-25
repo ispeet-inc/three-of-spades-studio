@@ -3,10 +3,10 @@ import { getHash } from "@/utils/cardUtils";
 import { DECK_SUITES } from "@/utils/constants";
 import { determineRoundWinner } from "@/utils/gameUtils";
 import {
+  canBeatAllRemainingCardsInSuite,
   getHighestRankedCardIndexInSuite,
   getLeastValueCardIndex,
   getLeastValueCardIndexInSuite,
-  getRemainingCards,
   getTeammateInSuite,
   getWinProbability,
   teammateOptionScore,
@@ -85,37 +85,29 @@ export default class GreedyBot extends BotAgent {
     }
 
     const highestCard = hand[highestCardIndex];
-    // if round is cut or highest card in hand is not winning, play lowest card in suite
+
+    // If round is cut or highest card can't win, play lowest card
     if (isRoundCut || winningCard.rank > highestCard.rank) {
       // @ts-expect-error - hand is not empty when this is called
       return getLeastValueCardIndexInSuite(hand, runningSuite);
-    } else {
-      // checking if higher cards are yet to be played
-      const remainingCards = getRemainingCards(
+    }
+
+    // Check if we can beat all remaining cards in this suite
+    if (
+      canBeatAllRemainingCardsInSuite(
         hand,
         discardedCards,
-        tableCards
-      );
-      const highestRemainingCardIndex = getHighestRankedCardIndexInSuite(
-        remainingCards,
-        runningSuite
-      );
-      // no higher cards remaining in this suite.
-      if (highestRemainingCardIndex === null) {
-        return highestCardIndex;
-      }
-
-      const highestRemainingCard = remainingCards[highestRemainingCardIndex];
-      // can beat all remaining cards in this suite.
-      if (highestCard.rank > highestRemainingCard.rank) {
-        // highest card in hand will win.
-        return highestCardIndex;
-      } else {
-        // highest card in hand will not win.
-        // @ts-expect-error - hand is not empty when this is called
-        return getLeastValueCardIndexInSuite(hand, runningSuite);
-      }
+        tableCards,
+        runningSuite,
+        highestCard
+      )
+    ) {
+      return highestCardIndex;
     }
+
+    // Can't beat all remaining cards, play lowest
+    // @ts-expect-error - hand is not empty when this is called
+    return getLeastValueCardIndexInSuite(hand, runningSuite);
   }
 
   // If player has trump, if P(win) > 0 --> play highest trump card
