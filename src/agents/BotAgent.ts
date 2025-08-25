@@ -83,7 +83,22 @@ export default abstract class BotAgent {
     if (runningSuite === null) {
       const pickedCardIndex = this.startRound(hand, trumpSuite, discardedCards);
       if (verbose) {
-        console.log(`Starting round with card index: ${pickedCardIndex}`);
+        console.log(
+          "BotAgent: ",
+          playerIndex,
+          "Starting round - hand: ",
+          hand,
+          "runningSuite: ",
+          runningSuite,
+          "trumpSuite: ",
+          trumpSuite,
+          "tableCards: ",
+          tableCards,
+          "discardedCards: ",
+          discardedCards,
+          "pickedCard: ",
+          hand[pickedCardIndex]
+        );
       }
       return pickedCardIndex;
     }
@@ -99,7 +114,20 @@ export default abstract class BotAgent {
       );
       if (verbose) {
         console.log(
-          `Playing card from running suite at index: ${pickedCardIndex}`
+          "BotAgent: ",
+          playerIndex,
+          "Playing card from running suite - hand: ",
+          hand,
+          "runningSuite: ",
+          runningSuite,
+          "trumpSuite: ",
+          trumpSuite,
+          "tableCards: ",
+          tableCards,
+          "discardedCards: ",
+          discardedCards,
+          "pickedCard: ",
+          hand[pickedCardIndex]
         );
       }
       return pickedCardIndex;
@@ -113,7 +141,22 @@ export default abstract class BotAgent {
       tableCards
     );
     if (verbose) {
-      console.log(`Playing other card at index: ${pickedCardIndex}`);
+      console.log(
+        "BotAgent: ",
+        playerIndex,
+        "Playing card from other suite - hand: ",
+        hand,
+        "runningSuite: ",
+        runningSuite,
+        "trumpSuite: ",
+        trumpSuite,
+        "tableCards: ",
+        tableCards,
+        "discardedCards: ",
+        discardedCards,
+        "pickedCard: ",
+        hand[pickedCardIndex]
+      );
     }
     return pickedCardIndex;
   }
