@@ -5,7 +5,8 @@ import {
   selectShowCardsPhase,
 } from "@/store/selectors";
 import { TableCard } from "@/types/game";
-import { FIRST_PLAYER_ID, NUM_PLAYERS, TIMINGS } from "@/utils/constants";
+import { TIMINGS } from "@/utils/constants";
+import { getPlayerPosition } from "@/utils/positionUtils";
 import { useEffect, useState } from "react";
 import { PlayingCard } from "./PlayingCard";
 
@@ -14,6 +15,7 @@ interface CenterTableProps {
   winner?: string;
   roundWinner?: number | null;
   playerNames?: Record<number, string>;
+  viewerIndex?: number; // NEW: For dynamic positioning
 }
 
 export const CenterTable = ({
@@ -21,6 +23,7 @@ export const CenterTable = ({
   winner,
   roundWinner = null,
   playerNames = {},
+  viewerIndex = 3, // NEW: Default to FIRST_PLAYER_ID
 }: CenterTableProps) => {
   const [showPoints, setShowPoints] = useState(false);
 
@@ -81,51 +84,19 @@ export const CenterTable = ({
               const playerIndex = playedCard.player;
               const isWinningCard = roundWinner === playerIndex;
 
-              const playerPositions = {
-                [FIRST_PLAYER_ID]: {
-                  // Bottom player
-                  container:
-                    "absolute bottom-4 left-1/2 transform -translate-x-1/2",
-                  cardClass: "",
-                  collectionTarget: "translate-y-[280px] translate-x-0", // Bottom
-                },
-                [(FIRST_PLAYER_ID + 1) % NUM_PLAYERS]: {
-                  // Left player
-                  container:
-                    "absolute left-4 top-1/2 transform -translate-y-1/2",
-                  cardClass: "",
-                  collectionTarget: "translate-x-[-280px] translate-y-0", // Left
-                },
-                [(FIRST_PLAYER_ID + 2) % NUM_PLAYERS]: {
-                  // Top player
-                  container:
-                    "absolute top-4 left-1/2 transform -translate-x-1/2",
-                  cardClass: "",
-                  collectionTarget: "translate-y-[-280px] translate-x-0", // Top
-                },
-                [(FIRST_PLAYER_ID + 3) % NUM_PLAYERS]: {
-                  // Right player
-                  container:
-                    "absolute right-4 top-1/2 transform -translate-y-1/2",
-                  cardClass: "",
-                  collectionTarget: "translate-x-[280px] translate-y-0", // Right
-                },
-              };
-
-              const position =
-                playerPositions[playerIndex as keyof typeof playerPositions];
+              const positionInfo = getPlayerPosition(playerIndex, viewerIndex);
               const animationDelay = `${playerIndex * TIMINGS.dealingStaggerMs}ms`;
               const collectionDelay = `${playerIndex * 50}ms`;
 
               // Determine card styling based on game state
-              let cardClassName = `shadow-elevated transition-all duration-200 ${position.cardClass}`;
+              let cardClassName = `shadow-elevated transition-all duration-200 ${positionInfo.cardClass}`;
 
               if (isCollectingCards && collectionWinner !== null) {
                 // Collection animation
-                const targetTransform =
-                  playerPositions[
-                    collectionWinner as keyof typeof playerPositions
-                  ].collectionTarget;
+                const targetTransform = getPlayerPosition(
+                  collectionWinner as number,
+                  viewerIndex
+                ).collectionTarget;
                 cardClassName += ` transform ${targetTransform} scale-75 opacity-0 duration-[${TIMINGS.collectionAnimationMs}ms]`;
               } else if (showCardsPhase && isWinningCard) {
                 // Highlight winning card during display phase
@@ -137,7 +108,7 @@ export const CenterTable = ({
               return (
                 <div
                   key={playerIndex}
-                  className={`${position.container} animate-fade-in`}
+                  className={`${positionInfo.container} animate-fade-in`}
                   style={{
                     animationDelay: isCollectingCards
                       ? collectionDelay
