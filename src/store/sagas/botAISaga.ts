@@ -63,6 +63,7 @@ function* handleBotCardPlay(): Generator<any, void, any> {
       trumpSuite: gameConfig?.trumpSuite,
       runningSuite: tableState.runningSuite,
       playerIndex: tableState.turn,
+      discardedCards: tableState.discardedCards,
     });
 
     // Validate card index and fallback to random if invalid

@@ -15,7 +15,7 @@ export default class RandomBot extends BotAgent {
   static displayName = "Random";
 
   // Start a new round by playing a random card
-  startRound(hand: Card[], trumpSuite: Suite): number {
+  startRound(hand: Card[], trumpSuite: Suite, discardedCards: Card[]): number {
     if (!hand || hand.length === 0) return -1;
     return getRandomCardIndex(hand);
   }
@@ -25,7 +25,8 @@ export default class RandomBot extends BotAgent {
     hand: Card[],
     runningSuite: Suite,
     trumpSuite: Suite,
-    tableCards: TableCard[]
+    tableCards: TableCard[],
+    discardedCards: Card[]
   ): number {
     return getRandomCardIndexBySuite(hand, runningSuite);
   }

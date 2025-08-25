@@ -90,6 +90,10 @@ export const shuffle = (array: Card[]): Card[] => {
   return shuffled;
 };
 
+export const sortHand = (hand: Card[]): Card[] => {
+  return hand.sort((a, b) => a.positionValue - b.positionValue);
+};
+
 export const distributeDeck = (deck: Card[], numPlayers: number): Card[][] => {
   const hands: Card[][] = Array(numPlayers)
     .fill(null)
