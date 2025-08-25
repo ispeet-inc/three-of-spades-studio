@@ -1,5 +1,7 @@
 import { Card, Suite } from "@/types/game";
+import { generateDeck, getCardSet } from "../utils/cardUtils";
 import { DECK_SUITES } from "../utils/constants";
+import { getWinProbability } from "../utils/handUtils";
 
 /**
  * Analyzes a hand and returns up to 4 cards from each suite along with their scores
@@ -61,24 +63,27 @@ export function perSuiteScoreAndCard(hand: Card[], discardedCards: Card[]) {
     [Suite.Club]: { card: null, score: 0 },
     [Suite.Diamond]: { card: null, score: 0 },
   };
+  const discardedCardsSet = getCardSet(discardedCards);
+  const handSet = getCardSet(hand);
+  const deck = generateDeck();
+  // filter out cards that are in the hand or discarded
+  const remainingCards = deck.filter(
+    card => !handSet.has(card.hash) && !discardedCardsSet.has(card.hash)
+  );
 
   DECK_SUITES.forEach(suite => {
-    const cardsOfSuite = hand.filter(card => card.suite === suite);
-    if (cardsOfSuite.length > 0) {
-      // Pick the card with the highest rank (not id)
-      const highestCard = cardsOfSuite.reduce((max, card) =>
-        card.rank > max.rank ? card : max
-      );
-
-      // Calculate the actual score for this suite
-      const suiteScore = cardsOfSuite.reduce(
-        (sum, card) => sum + card.points,
-        0
-      );
-
-      result[suite] = { card: highestCard, score: suiteScore };
-    } else {
-      result[suite] = { card: null, score: 0 };
+    const trumpSuite = suite;
+    const winProbObj = getWinProbability(
+      hand,
+      discardedCards,
+      suite,
+      trumpSuite
+    );
+    if (winProbObj) {
+      result[suite] = {
+        card: winProbObj.card,
+        score: winProbObj.winProbability,
+      };
     }
   });
   return result;

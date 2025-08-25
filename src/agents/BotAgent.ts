@@ -47,7 +47,8 @@ export default abstract class BotAgent {
     hand: Card[],
     runningSuite: Suite,
     trumpSuite: Suite,
-    tableCards: TableCard[]
+    tableCards: TableCard[],
+    discardedCards: Card[]
   ): number;
 
   abstract toCutOrNotToCut(
@@ -93,7 +94,8 @@ export default abstract class BotAgent {
         hand,
         runningSuite,
         trumpSuite,
-        tableCards
+        tableCards,
+        discardedCards
       );
       if (verbose) {
         console.log(

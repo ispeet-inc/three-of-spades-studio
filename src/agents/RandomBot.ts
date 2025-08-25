@@ -25,7 +25,8 @@ export default class RandomBot extends BotAgent {
     hand: Card[],
     runningSuite: Suite,
     trumpSuite: Suite,
-    tableCards: TableCard[]
+    tableCards: TableCard[],
+    discardedCards: Card[]
   ): number {
     return getRandomCardIndexBySuite(hand, runningSuite);
   }

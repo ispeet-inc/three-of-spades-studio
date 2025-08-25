@@ -3,11 +3,12 @@ import { getHash } from "@/utils/cardUtils";
 import { DECK_SUITES } from "@/utils/constants";
 import { determineRoundWinner } from "@/utils/gameUtils";
 import {
-  getHighestRankedCardIndex,
   getHighestRankedCardIndexInSuite,
   getLeastValueCardIndex,
   getLeastValueCardIndexInSuite,
+  getRemainingCards,
   getTeammateInSuite,
+  getWinProbability,
   teammateOptionScore,
 } from "@/utils/handUtils";
 import BotAgent, {
@@ -21,10 +22,41 @@ export default class GreedyBot extends BotAgent {
   static displayName = "Greedy";
 
   // Start a new round by playing the highest card
+  // todo - improve this function by taking into account number of cards over & trump suite
+  // todo - bot keeps starting trump suite even if others dont have trump
   startRound(hand: Card[], trumpSuite: Suite, discardedCards: Card[]): number {
     console.log("startRound: ", hand, trumpSuite, discardedCards);
-    // @ts-expect-error - hand is not empty when this is called
-    return getHighestRankedCardIndex(hand);
+    const winningOptions = DECK_SUITES.map(suite =>
+      getWinProbability(hand, discardedCards, suite, trumpSuite)
+    ).filter(
+      (option): option is NonNullable<ReturnType<typeof getWinProbability>> =>
+        option !== null && option.winProbability > 0
+    );
+
+    if (winningOptions.length === 0) {
+      // pick lowest card in hand to start the round
+      // @ts-expect-error - hand is not empty when this is called
+      return getLeastValueCardIndex(hand);
+    }
+
+    const bestOption = winningOptions.reduce((best, current) => {
+      if (current.winProbability > best.winProbability) {
+        return current;
+      } else if (current.winProbability === best.winProbability) {
+        return current.numCardsOver < best.numCardsOver ? current : best;
+      } else {
+        return best;
+      }
+    });
+
+    if (bestOption && bestOption.winProbability === 1) {
+      // pick random one of the winning options
+      return bestOption.highestCardIndex;
+    } else {
+      // pick lowest card in hand to start the round
+      // @ts-expect-error - hand is not empty when this is called
+      return getLeastValueCardIndex(hand);
+    }
   }
 
   // if P(win) > 0, pick the highest card from the running suite
@@ -33,7 +65,8 @@ export default class GreedyBot extends BotAgent {
     hand: Card[],
     runningSuite: Suite,
     trumpSuite: Suite,
-    tableCards: TableCard[]
+    tableCards: TableCard[],
+    discardedCards: Card[]
   ): number {
     const winningCard = determineRoundWinner(
       tableCards,
@@ -50,12 +83,38 @@ export default class GreedyBot extends BotAgent {
     if (highestCardIndex === null) {
       throw Error("can't be null");
     }
+
     const highestCard = hand[highestCardIndex];
+    // if round is cut or highest card in hand is not winning, play lowest card in suite
     if (isRoundCut || winningCard.rank > highestCard.rank) {
       // @ts-expect-error - hand is not empty when this is called
       return getLeastValueCardIndexInSuite(hand, runningSuite);
     } else {
-      return highestCardIndex;
+      // checking if higher cards are yet to be played
+      const remainingCards = getRemainingCards(
+        hand,
+        discardedCards,
+        tableCards
+      );
+      const highestRemainingCardIndex = getHighestRankedCardIndexInSuite(
+        remainingCards,
+        runningSuite
+      );
+      // no higher cards remaining in this suite.
+      if (highestRemainingCardIndex === null) {
+        return highestCardIndex;
+      }
+
+      const highestRemainingCard = remainingCards[highestRemainingCardIndex];
+      // can beat all remaining cards in this suite.
+      if (highestCard.rank > highestRemainingCard.rank) {
+        // highest card in hand will win.
+        return highestCardIndex;
+      } else {
+        // highest card in hand will not win.
+        // @ts-expect-error - hand is not empty when this is called
+        return getLeastValueCardIndexInSuite(hand, runningSuite);
+      }
     }
   }
 
