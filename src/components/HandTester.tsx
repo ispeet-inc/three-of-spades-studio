@@ -61,12 +61,12 @@ export function HandTester() {
               id="handSize"
               type="number"
               min="1"
-              max="40"
+              max="10"
               value={handSize}
               onChange={e => {
                 const value = Math.max(
                   1,
-                  Math.min(40, Number(e.target.value) || 1)
+                  Math.min(10, Number(e.target.value) || 1)
                 );
                 setHandSize(value);
               }}
@@ -80,13 +80,13 @@ export function HandTester() {
             <input
               id="discardSize"
               type="number"
-              min="1"
+              min="0"
               max="40"
               value={discardSize}
               onChange={e => {
                 const value = Math.max(
-                  1,
-                  Math.min(40, Number(e.target.value) || 1)
+                  0,
+                  Math.min(40, Number(e.target.value) || 0)
                 );
                 setDiscardSize(value);
               }}
