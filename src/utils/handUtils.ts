@@ -81,6 +81,45 @@ export function getHighestRankedCardIndexInSuite(
 }
 
 /**
+ * Gets the index of the lowest ranked card in a hand.
+ * @param hand - Array of cards to search through
+ * @returns The index of the lowest ranked card, or null if hand is empty
+ */
+export function getLowestRankedCardIndex(hand: Card[]): number | null {
+  if (!hand || hand.length === 0) return null;
+
+  let lowestCardIndex = 0;
+  for (let i = 1; i < hand.length; i++) {
+    if (hand[i].rank < hand[lowestCardIndex].rank) {
+      lowestCardIndex = i;
+    }
+  }
+  return lowestCardIndex;
+}
+
+/**
+ * Gets the index of the lowest ranked card of a specific suite in a hand.
+ * @param hand - Array of cards to search through
+ * @param suite - The suite to filter by
+ * @returns The index of the lowest ranked card in the specified suite, or null if no cards of that suite exist
+ */
+export function getLowestRankedCardIndexInSuite(
+  hand: Card[],
+  suite: Suite
+): number | null {
+  if (!hand || hand.length === 0) return null;
+  const suiteCards = hand.filter(card => card.suite === suite);
+
+  if (suiteCards.length === 0) return null;
+
+  // Use getLowestRankedCardIndex on the filtered suite cards
+  const lowestInSuiteIdx = getLowestRankedCardIndex(suiteCards);
+  if (lowestInSuiteIdx === null) return null;
+  // Map back to the original hand index
+  return hand.indexOf(suiteCards[lowestInSuiteIdx]);
+}
+
+/**
  * Returns the index of the least value card in the hand.
  * @param hand - Array of card objects.
  * @returns The index of the least value card, or null if hand is empty.

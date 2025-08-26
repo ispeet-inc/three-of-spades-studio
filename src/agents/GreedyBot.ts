@@ -7,6 +7,7 @@ import {
   getHighestRankedCardIndexInSuite,
   getLeastValueCardIndex,
   getLeastValueCardIndexInSuite,
+  getLowestRankedCardIndexInSuite,
   getTeammateInSuite,
   getWinProbability,
   teammateOptionScore,
@@ -145,17 +146,32 @@ export default class GreedyBot extends BotAgent {
       hand,
       trumpSuite
     );
+    // user has trump
     if (highestTrumpIndex !== null) {
       const highestTrump = hand[highestTrumpIndex];
-      if (isRoundCut && winningCard.rank > highestTrump.rank) {
+
+      if (!isRoundCut) {
         // @ts-expect-error - hand is not empty when this is called
-        return getLeastValueCardIndex(hand);
+        return getLowestRankedCardIndexInSuite(hand, trumpSuite);
       }
-      return highestTrumpIndex;
-    } else {
-      // @ts-expect-error - hand is not empty when this is called
-      return getLeastValueCardIndex(hand);
+      // round already cut, we have higher trump card.
+      if (highestTrump.rank > winningCard.rank) {
+        // we want to win the round with card just higher than winning card.
+        const winnableTrumpCards = hand.filter(
+          card => card.suite === trumpSuite && card.rank > winningCard.rank
+        );
+        const winningCardIndex = getLeastValueCardIndexInSuite(
+          winnableTrumpCards,
+          trumpSuite
+        );
+        if (winningCardIndex !== null) {
+          return hand.indexOf(winnableTrumpCards[winningCardIndex]);
+        }
+      }
     }
+    // default behavior: play lowest card from hand.
+    // @ts-expect-error - hand is not empty when this is called
+    return getLeastValueCardIndex(hand);
   }
 
   getBidAction(params: BidParams): BidAction {
