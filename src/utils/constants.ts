@@ -29,7 +29,7 @@ export const TIMINGS = {
 export const BIDDING_TEAM = 1; // Changed from 0 to 1
 export const DEFENDING_TEAM = 2; // Changed from 1 to 2
 // todo - use this to set orientation + update hard-coded logic everywhere
-export const FIRST_PLAYER_ID = 0;
+export const FIRST_PLAYER_ID = 3;
 export const NUM_PLAYERS = 4;
 
 export const PLAYER_NAME_POOL = [

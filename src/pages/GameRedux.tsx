@@ -15,6 +15,7 @@ import {
   passBid,
   placeBid,
   playCard,
+  restoreGameState,
   setBidAndTrump,
   setPlayerName,
   setStage,
@@ -34,7 +35,11 @@ import { useFeedback } from "@/utils/feedbackSystem";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 
-const GameRedux = () => {
+interface GameReduxProps {
+  viewerIndex?: number;
+}
+
+const GameRedux = ({ viewerIndex = FIRST_PLAYER_ID }: GameReduxProps) => {
   const dispatch = useDispatch();
   const gameState = useAppSelector((state: RootState) => state.game);
   const tableState = useAppSelector(
@@ -48,12 +53,72 @@ const GameRedux = () => {
   // Add dealing animation state
   const [isDealing, setIsDealing] = useState(false);
 
+  // NEW: Observer mode detection
+  const isObserver = viewerIndex !== FIRST_PLAYER_ID;
+
+  // NEW: Game state sharing via localStorage
+  useEffect(() => {
+    // Save game state to localStorage whenever it changes (only in player mode)
+    if (!isObserver && gameState.gameProgress.stage !== GameStages.INIT) {
+      localStorage.setItem("threeOfSpadesGameState", JSON.stringify(gameState));
+    }
+  }, [gameState, isObserver]);
+
+  // NEW: Load game state from localStorage in observer mode
+  useEffect(() => {
+    if (isObserver) {
+      const savedState = localStorage.getItem("threeOfSpadesGameState");
+      if (savedState) {
+        try {
+          const parsedState = JSON.parse(savedState);
+          // Only load if there's an active game
+          if (parsedState.gameProgress.stage !== GameStages.INIT) {
+            console.log(
+              "Observer mode: Restoring complete game state",
+              parsedState
+            );
+            dispatch(restoreGameState(parsedState));
+          }
+        } catch (error) {
+          console.error("Failed to parse saved game state:", error);
+        }
+      }
+    }
+  }, [isObserver, dispatch]);
+
+  // NEW: Listen for localStorage changes from other tabs (real-time sync)
+  useEffect(() => {
+    if (!isObserver) return;
+
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "threeOfSpadesGameState" && e.newValue) {
+        try {
+          const newState = JSON.parse(e.newValue);
+          // Only update if there's an active game
+          if (newState.gameProgress.stage !== GameStages.INIT) {
+            console.log(
+              "Observer mode: Received real-time state update",
+              newState
+            );
+            dispatch(restoreGameState(newState));
+          }
+        } catch (error) {
+          console.error("Failed to parse updated game state:", error);
+        }
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, [isObserver, dispatch]);
+
   // Use selectors instead of manual transformations - Phase 2 implementation
   const players = useAppSelector(selectPlayerDisplayData);
   const teams = useAppSelector(selectTeams);
   const isMobile = useIsMobile();
 
   const handleCardPlay = (card: Card) => {
+    if (isObserver) return; // BLOCKED in observer mode
     const playerHand = playerState.players[FIRST_PLAYER_ID].hand;
     const cardIndex = playerHand.findIndex(
       c => c.positionValue === card.positionValue
@@ -64,6 +129,7 @@ const GameRedux = () => {
   };
 
   const handleStartGame = (playerName: string = "You") => {
+    if (isObserver) return; // BLOCKED in observer mode
     // Set the player name in the game state
     dispatch(setPlayerName({ playerIndex: FIRST_PLAYER_ID, name: playerName }));
 
@@ -76,17 +142,20 @@ const GameRedux = () => {
   };
 
   const handleBid = (amount: number) => {
+    if (isObserver) return; // BLOCKED in observer mode
     trigger("bid", { intensity: "medium" });
     dispatch(placeBid({ playerIndex: FIRST_PLAYER_ID, bidAmount: amount }));
   };
 
   const handlePass = () => {
+    if (isObserver) return; // BLOCKED in observer mode
     trigger("buttonClick", { intensity: "light" });
     dispatch(passBid({ playerIndex: FIRST_PLAYER_ID }));
   };
 
   const handleTrumpSelection = useCallback(
     (trumpSuite: Suite, teammateCard: Card) => {
+      if (isObserver) return; // BLOCKED in observer mode
       trigger("trump", { intensity: "strong" });
       dispatch(
         setBidAndTrump({
@@ -96,10 +165,11 @@ const GameRedux = () => {
         })
       );
     },
-    [trigger, dispatch, gameState.biddingState.bidWinner]
+    [trigger, dispatch, gameState.biddingState.bidWinner, isObserver]
   );
 
   const handleBidResultClose = () => {
+    if (isObserver) return; // BLOCKED in observer mode
     dispatch(setStage(GameStages.PLAYING));
   };
 
@@ -166,6 +236,35 @@ const GameRedux = () => {
   }, [gameState.gameProgress.stage, isDealing]);
 
   if (gameState.gameProgress.stage === GameStages.INIT) {
+    // NEW: Observer mode can't start games, but can view existing ones
+    if (isObserver) {
+      return (
+        <div className="min-h-screen bg-gradient-felt flex items-center justify-center">
+          <div className="bg-casino-black/40 backdrop-blur-sm border border-gold/30 rounded-lg shadow-elevated p-8 text-center max-w-md">
+            <div className="text-2xl font-bold text-gold mb-4">
+              👁️ Observer Mode
+            </div>
+            <div className="text-casino-white mb-6 space-y-3">
+              <p>No active game found.</p>
+              <p className="text-sm text-casino-white/80">
+                To use observer mode:
+              </p>
+              <ol className="text-sm text-casino-white/80 list-decimal list-inside space-y-1">
+                <li>Start a game in player mode first</li>
+                <li>Then open this observer tab to watch</li>
+              </ol>
+            </div>
+            <button
+              onClick={() => (window.location.href = "/")}
+              className="bg-gold text-casino-black px-6 py-3 rounded-lg font-bold hover:bg-gold/80 transition-colors"
+            >
+              Go to Player Mode
+            </button>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <StartScreen
         onStartGame={(playerName: string) => handleStartGame(playerName)}
@@ -194,28 +293,33 @@ const GameRedux = () => {
         onCardPlay={handleCardPlay}
         onSettingsClick={() => console.log("Settings")}
         isDealing={isDealing}
+        isObserver={isObserver}
+        viewerIndex={viewerIndex}
       />
 
-      {/* Modals */}
+      {/* Game Modals - visible to all but interactive only for players */}
       {gameState.gameProgress.stage === GameStages.BIDDING && (
         <BiddingModal
           isOpen={true}
-          playerHand={playerState.players[FIRST_PLAYER_ID].hand}
+          playerHand={playerState.players[viewerIndex].hand}
           currentBid={gameState.biddingState.currentBid}
           currentBidder={gameState.biddingState.currentBidder}
           bidTimer={gameState.biddingState.bidTimer}
           playerNames={playerState.playerNames}
           canBid={
+            !isObserver &&
             !gameState.biddingState.passedPlayers.includes(FIRST_PLAYER_ID) &&
             gameState.biddingState.currentBidder === FIRST_PLAYER_ID
           }
           onBid={handleBid}
           onPass={handlePass}
+          isObserver={isObserver}
         />
       )}
 
       {gameState.gameProgress.stage === GameStages.TRUMP_SELECTION &&
-        gameState.biddingState.bidWinner === FIRST_PLAYER_ID && (
+        gameState.biddingState.bidWinner === FIRST_PLAYER_ID &&
+        !isObserver && (
           <TrumpSelectionModal
             isOpen={true}
             playerHand={playerState.players[FIRST_PLAYER_ID].hand}
@@ -229,6 +333,7 @@ const GameRedux = () => {
           gameConfig={gameConfig}
           playerNames={playerState.playerNames}
           onClose={handleBidResultClose}
+          isObserver={isObserver}
         />
       )}
 
@@ -242,6 +347,7 @@ const GameRedux = () => {
           playerNames={playerState.playerNames}
           isMobile={isMobile}
           onNewGame={() => window.location.reload()}
+          isObserver={isObserver}
         />
       )}
     </div>

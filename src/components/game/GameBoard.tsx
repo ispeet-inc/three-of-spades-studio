@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
   Card,
@@ -13,8 +12,8 @@ import {
   announceToScreenReader,
   gameStateAnnouncements,
 } from "@/utils/accessibility";
-import { FIRST_PLAYER_ID, NUM_PLAYERS } from "@/utils/constants";
-import { Settings } from "lucide-react";
+import { FIRST_PLAYER_ID } from "@/utils/constants";
+import { getPlayerPositions } from "@/utils/positionUtils";
 import { useEffect, useState } from "react";
 import { CenterTable } from "./CenterTable";
 import { GameInfo } from "./GameInfo";
@@ -30,6 +29,8 @@ interface GameBoardProps {
   onSettingsClick: () => void;
   isDealing?: boolean;
   botCardsHidden?: boolean;
+  isObserver?: boolean;
+  viewerIndex?: number;
 }
 
 export const GameBoard = ({
@@ -42,6 +43,8 @@ export const GameBoard = ({
   onSettingsClick,
   isDealing = false,
   botCardsHidden = false,
+  isObserver = false,
+  viewerIndex = 3,
 }: GameBoardProps) => {
   const [lastScores, setLastScores] = useState<TeamScores>(
     gameProgress.scores ?? { team1: 0, team2: 0 }
@@ -113,7 +116,7 @@ export const GameBoard = ({
         </div>
 
         {/* Settings */}
-        <Button
+        {/* <Button
           variant="secondary"
           size="sm"
           onClick={onSettingsClick}
@@ -121,10 +124,21 @@ export const GameBoard = ({
           aria-label="Open game settings"
         >
           <Settings className="w-4 h-4" aria-hidden="true" />
-        </Button>
+        </Button> */}
       </header>
 
+      {/* Minimal observer mode indicator */}
+      {isObserver && (
+        <div className="absolute top-32 right-6 bg-blue-500/40 backdrop-blur-sm border border-blue-400/40 rounded-md px-4 py-2 z-20">
+          <div className="text-sm text-blue-300 font-medium">
+            👁️{" "}
+            {playersDisplayData[viewerIndex]?.name || `Player ${viewerIndex}`}
+          </div>
+        </div>
+      )}
+
       {/* Team Scores */}
+      {/* todo: move this into a new component */}
       <section
         className="absolute top-6 right-6 flex gap-6 z-20"
         aria-label="Team scores"
@@ -182,45 +196,26 @@ export const GameBoard = ({
           }
           roundWinner={tableState.roundWinner?.player ?? null}
           playerNames={playerState.playerNames}
+          viewerIndex={viewerIndex}
         />
 
         {/* Player Areas */}
-        {(
-          [
-            {
-              player: playersDisplayData[FIRST_PLAYER_ID], // bottom
-              position: "bottom" as const,
-              className:
-                "absolute bottom-4 left-1/2 transform -translate-x-1/2",
-            },
-            {
-              player: playersDisplayData[(FIRST_PLAYER_ID + 1) % NUM_PLAYERS], // left
-              position: "left" as const,
-              className: "absolute left-4 top-1/2 transform -translate-y-1/2",
-            },
-            {
-              player: playersDisplayData[(FIRST_PLAYER_ID + 2) % NUM_PLAYERS], // top
-              position: "top" as const,
-              className: "absolute top-4 left-1/2 transform -translate-x-1/2",
-            },
-            {
-              player: playersDisplayData[(FIRST_PLAYER_ID + 3) % NUM_PLAYERS], // right
-              position: "right" as const,
-              className: "absolute right-4 top-1/2 transform -translate-y-1/2",
-            },
-          ] as const
-        ).map(({ player, position, className }) => (
-          <div key={position} className={className}>
-            <PlayerArea
-              player={player}
-              runningSuite={tableState.runningSuite}
-              position={position}
-              onCardPlay={onCardPlay}
-              isDealing={isDealing}
-              botCardsHidden={botCardsHidden}
-            />
-          </div>
-        ))}
+        {getPlayerPositions(viewerIndex).map(
+          ({ playerIndex, position, className }) => (
+            <div key={position} className={className}>
+              <PlayerArea
+                player={playersDisplayData[playerIndex]}
+                runningSuite={tableState.runningSuite}
+                position={position}
+                onCardPlay={onCardPlay}
+                isDealing={isDealing}
+                botCardsHidden={botCardsHidden}
+                isObserver={isObserver}
+                viewerIndex={viewerIndex}
+              />
+            </div>
+          )
+        )}
       </section>
     </main>
   );

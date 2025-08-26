@@ -1,14 +1,17 @@
 import { cn } from "@/lib/utils";
 import { Card, PlayerDisplayData, Suite } from "@/types/game";
+import { PlayerPosition } from "@/utils/positionUtils";
 import { PlayingCard } from "./PlayingCard";
 
 interface PlayerAreaProps {
   player: PlayerDisplayData;
   runningSuite: Suite | null;
-  position: "bottom" | "left" | "top" | "right";
+  position: PlayerPosition;
   onCardPlay?: (card: Card) => void;
   isDealing?: boolean;
   botCardsHidden?: boolean;
+  isObserver?: boolean;
+  viewerIndex?: number;
 }
 
 export const PlayerArea = ({
@@ -18,8 +21,13 @@ export const PlayerArea = ({
   onCardPlay,
   isDealing = false,
   botCardsHidden = false,
+  isObserver = false,
+  viewerIndex = 3,
 }: PlayerAreaProps) => {
-  const isHuman = position === "bottom";
+  // SIMPLIFIED: Derive values inline where needed
+  const isHuman = position === "bottom" && !isObserver;
+  const isViewerPosition = player.id === `player-${viewerIndex}`;
+
   const isVertical = position === "left" || position === "right";
 
   // Turn indicator animation
@@ -127,7 +135,7 @@ export const PlayerArea = ({
         </div>
       </div>
 
-      {/* Cards */}
+      {/* SIMPLIFIED: Cards with unified logic */}
       <div
         className={cn(
           "flex gap-1",
@@ -135,73 +143,61 @@ export const PlayerArea = ({
           getPositionStyles().cardsOrder
         )}
       >
-        {isHuman ? (
-          // Human player cards (all visible and playable)
-          <>
-            {player.cards.map((card, index) => {
-              const dealDelay = isDealing ? index * 150 : 0; // Staggered dealing animation
+        {player.cards.map((card, index) => {
+          const shouldShowCardsFaceUp =
+            isHuman || (isObserver && isViewerPosition);
+          const isInteractive = isHuman && !isObserver;
+          const dealDelay = isDealing ? index * 150 : 0;
 
-              return (
-                <PlayingCard
-                  key={`${card.id}-${index}`}
-                  card={card}
-                  mini={!isHuman}
-                  isPlayable={isHuman && player.isCurrentPlayer}
-                  onClick={
-                    isHuman &&
-                    player.isCurrentPlayer &&
-                    isCardPlayable(player.cards, card, runningSuite)
-                      ? () => onCardPlay?.(card)
-                      : undefined
-                  }
-                  dealAnimation={isDealing}
-                  dealDelay={dealDelay}
-                  playerPosition={position}
-                  className={cn(
-                    isHuman && index > 0 && "-ml-4", // Fan out human cards
-                    !isHuman && index > 0 && (isVertical ? "-mt-3" : "-ml-3"), // Overlap bot cards
-                    "transition-all duration-300"
-                  )}
-                />
-              );
-            })}
-          </>
-        ) : botCardsHidden ? (
-          // Bot player cards (completely hidden)
-          <div className="text-xs text-casino-white/60 p-2 rounded bg-casino-black/20">
-            Cards Hidden
-          </div>
-        ) : (
-          // Bot player cards (back cards visible)
-          <>
-            {player.cards.map((card, index) => {
-              const dealDelay = isDealing ? index * 150 : 0;
-
-              return (
-                <div
-                  key={`bot-card-${index}`}
-                  className={cn(
-                    "relative bg-gradient-to-br from-accent to-accent-dark rounded-lg shadow-card",
-                    "w-8 h-12", // mini size for bots
-                    index > 0 && (isVertical ? "-mt-3" : "-ml-3"),
-                    "transition-all duration-300",
-                    isDealing &&
-                      "animate-[deal-to-" +
-                        position +
-                        "_0.8s_ease-out_forwards]"
-                  )}
-                  style={{
-                    animationDelay: isDealing ? `${dealDelay}ms` : undefined,
-                  }}
-                >
-                  <div className="absolute inset-1 bg-gradient-to-br from-primary-light to-primary rounded border border-primary-light/20">
-                    <div className="w-full h-full bg-gradient-to-br from-accent-subtle to-accent rounded-sm opacity-80" />
-                  </div>
+          if (shouldShowCardsFaceUp) {
+            // Show face-up card (human player or observed player in observer mode)
+            return (
+              <PlayingCard
+                key={`card-${index}`}
+                card={card}
+                mini={position !== "bottom"}
+                isPlayable={isInteractive && player.isCurrentPlayer}
+                onClick={
+                  isInteractive &&
+                  player.isCurrentPlayer &&
+                  isCardPlayable(player.cards, card, runningSuite)
+                    ? () => onCardPlay?.(card)
+                    : undefined
+                }
+                dealAnimation={isDealing}
+                dealDelay={dealDelay}
+                playerPosition={position}
+                className={cn(
+                  isHuman && index > 0 && "-ml-4", // Fan out human cards
+                  !isHuman && index > 0 && (isVertical ? "-mt-3" : "-ml-3"), // Overlap bot cards
+                  "transition-all duration-300"
+                )}
+              />
+            );
+          } else {
+            // Show card back (bot players or hidden cards)
+            return (
+              <div
+                key={`card-back-${index}`}
+                className={cn(
+                  "relative bg-gradient-to-br from-accent to-accent-dark rounded-lg shadow-card",
+                  "w-8 h-12", // mini size for bots
+                  index > 0 && (isVertical ? "-mt-3" : "-ml-3"),
+                  "transition-all duration-300",
+                  isDealing &&
+                    "animate-[deal-to-" + position + "_0.8s_ease-out_forwards]"
+                )}
+                style={{
+                  animationDelay: isDealing ? `${dealDelay}ms` : undefined,
+                }}
+              >
+                <div className="absolute inset-1 bg-gradient-to-br from-primary-light to-primary rounded border border-primary-light/20">
+                  <div className="w-full h-full bg-gradient-to-br from-accent-subtle to-accent rounded-sm opacity-80" />
                 </div>
-              );
-            })}
-          </>
-        )}
+              </div>
+            );
+          }
+        })}
       </div>
     </div>
   );

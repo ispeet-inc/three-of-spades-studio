@@ -346,6 +346,29 @@ const gameSlice = createSlice({
     clearGameError: state => {
       state.error = null;
     },
+
+    // NEW: State restoration actions for observer mode
+    restoreGameState: (state, action: PayloadAction<GameState>) => {
+      const savedState = action.payload;
+
+      // Restore game progress
+      state.gameProgress = savedState.gameProgress;
+
+      // Restore bidding state
+      state.biddingState = savedState.biddingState;
+
+      // Restore table state
+      state.tableState = savedState.tableState;
+
+      // Restore player state
+      state.playerState = savedState.playerState;
+
+      // Restore game config
+      state.gameConfig = savedState.gameConfig;
+
+      // Clear any errors
+      state.error = null;
+    },
   },
 });
 
@@ -371,6 +394,7 @@ export const {
   setDealingAnimation,
   setGameError,
   clearGameError,
+  restoreGameState,
 } = gameSlice.actions;
 
 export default gameSlice.reducer;
