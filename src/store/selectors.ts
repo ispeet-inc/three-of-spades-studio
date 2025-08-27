@@ -126,29 +126,6 @@ export const selectTeams = createSelector(
   }
 );
 
-/** Transform players for UI consumption */
-export const selectPlayerDisplayData = createSelector(
-  [selectPlayers, selectPlayerState, selectCurrentPlayerIndex],
-  (players, playerState, currentPlayerIndex): PlayerDisplayData[] => {
-    if (!players) return [];
-
-    return Object.entries(players).map(([index, player]) => ({
-      id: `player-${index}`,
-      name:
-        playerState.playerNames[parseInt(index)] ||
-        `Player ${parseInt(index) + 1}`,
-      team: player.team,
-      cards: player.hand,
-      isCurrentPlayer: parseInt(index) === currentPlayerIndex,
-      isFirstPersonTeammate:
-        parseInt(index) !== FIRST_PLAYER_ID &&
-        player.team === players[FIRST_PLAYER_ID].team,
-      isTeammate: player.isTeammate,
-      isBidWinner: player.isBidWinner,
-    }));
-  }
-);
-
 // ============================================================================
 // BIDDING SELECTORS
 // ============================================================================
@@ -160,9 +137,8 @@ export const selectBiddingStateRaw = createSelector(
 );
 
 /** Current bid amount */
-export const selectCurrentBid = createSelector(
-  selectBiddingStateRaw,
-  b => b.currentBid
+export const selectCurrentBid = createSelector(selectBiddingStateRaw, b =>
+  b.biddingActive ? b.currentBid : null
 );
 
 /** Current player whose turn it is to bid */
@@ -187,6 +163,64 @@ export const selectBidder = createSelector(
 export const selectBidTimer = createSelector(
   selectBiddingStateRaw,
   b => b.bidTimer
+);
+
+/** Whether the current player can bid */
+export const selectCanPlayerBid = createSelector(
+  [selectBiddingStateRaw],
+  biddingState => {
+    return (
+      !biddingState.passedPlayers.includes(FIRST_PLAYER_ID) &&
+      biddingState.currentBidder === FIRST_PLAYER_ID
+    );
+  }
+);
+
+/** Transform players for UI consumption */
+export const selectPlayerDisplayData = createSelector(
+  [
+    selectPlayers,
+    selectPlayerState,
+    selectCurrentPlayerIndex,
+    selectCurrentBidder,
+    selectStage,
+  ],
+  (
+    players,
+    playerState,
+    currentPlayerIndex,
+    currentBidder,
+    stage
+  ): PlayerDisplayData[] => {
+    if (!players) return [];
+
+    return Object.entries(players).map(([index, player]) => {
+      const playerIndex = parseInt(index);
+
+      // Determine if this player is the current player based on game stage
+      let isCurrentPlayer = false;
+      if (stage === GameStages.PLAYING) {
+        isCurrentPlayer = playerIndex === currentPlayerIndex;
+      } else if (stage === GameStages.BIDDING) {
+        isCurrentPlayer = playerIndex === currentBidder;
+      }
+
+      return {
+        id: `player-${playerIndex}`,
+        name:
+          playerState.playerNames[playerIndex] || `Player ${playerIndex + 1}`,
+        team: player.team,
+        cards: player.hand,
+        isCurrentPlayer,
+        isFirstPersonTeammate:
+          player.team !== null &&
+          playerIndex !== FIRST_PLAYER_ID &&
+          player.team === players[FIRST_PLAYER_ID].team,
+        isTeammate: player.isTeammate,
+        isBidWinner: player.isBidWinner,
+      };
+    });
+  }
 );
 
 // ============================================================================

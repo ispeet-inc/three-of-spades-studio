@@ -7,10 +7,13 @@ import {
   race,
   select,
   take,
+  takeEvery,
   takeLeading,
 } from "redux-saga/effects";
+import { TIMINGS } from "../../utils/constants";
 import {
   clearGameError,
+  completeBiddingWithDelay,
   gameInitialize,
   gameStageTransition,
   setDealingAnimation,
@@ -20,7 +23,7 @@ import {
   triggerRoundTransition,
 } from "../gameSlice";
 import { GameStages, type GameStage } from "../gameStages";
-import { selectGameProgress } from "../selectors";
+import { selectBiddingStateRaw, selectGameProgress } from "../selectors";
 
 function* handleStageTransitionError(
   error: unknown,
@@ -180,9 +183,47 @@ function* handleGameStageTransition(
   }
 }
 
+// Bidding completion delay saga
+function* handleBiddingCompletionDelay(): Generator<any, void, any> {
+  try {
+    console.log("Game Flow Saga: Bidding completed, starting delay");
+
+    // Wait for 1.5 seconds to allow players to see the final pass
+    yield delay(TIMINGS.biddingResultDelayMs);
+
+    console.log("Game Flow Saga: Delay complete, transitioning to next stage");
+
+    // Complete the bidding stage transition
+    yield put(completeBiddingWithDelay());
+  } catch (error) {
+    console.error("Bidding completion delay error:", error);
+    // Fallback: complete bidding immediately
+    yield put(completeBiddingWithDelay());
+  } finally {
+    if (yield cancelled()) {
+      console.log("Bidding completion delay saga cancelled");
+    }
+  }
+}
+
 // Main game flow saga watcher
 export default function* gameFlowSaga() {
   // Use takeLeading to prevent multiple game instances
   yield takeLeading(gameInitialize.type, handleGameInitialization);
   yield takeLeading(gameStageTransition.type, handleGameStageTransition);
+
+  // Watch for when bidding is complete (bidWinner is set but stage hasn't changed)
+  yield takeEvery(
+    (action: any) =>
+      action.type === "game/passBid" &&
+      action.payload &&
+      action.payload.playerIndex !== undefined,
+    function* (action: any): Generator<any, void, any> {
+      const biddingState = yield select(selectBiddingStateRaw);
+      // If bidding is complete (only one player left), start the delay saga
+      if (biddingState && biddingState.bidWinner !== null) {
+        yield call(handleBiddingCompletionDelay);
+      }
+    }
+  );
 }

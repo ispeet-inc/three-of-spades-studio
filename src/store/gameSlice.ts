@@ -2,6 +2,7 @@ import { agentClasses } from "@/agents";
 import { Card, GameError, GameState, Suite, TeamScores } from "@/types/game";
 import { distributeDeck, shuffle } from "@/utils/cardUtils";
 import {
+  BID_TIMER_DURATION,
   FIRST_PLAYER_ID,
   NUM_PLAYERS,
   PLAYER_NAME_POOL,
@@ -98,6 +99,7 @@ const gameSlice = createSlice({
       state.playerState.startingPlayer = Math.floor(
         Math.random() * NUM_PLAYERS
       );
+      console.log("Starting player is ", state.playerState.startingPlayer);
       state.gameProgress.round = 0;
       state.tableState = initialTableState(
         state.playerState.startingPlayer,
@@ -225,10 +227,7 @@ const gameSlice = createSlice({
     ) => {
       const { playerIndex, bidAmount } = action.payload;
       state.biddingState.currentBid = bidAmount;
-      state.biddingState.bidHistory.push({
-        player: playerIndex,
-        bid: bidAmount,
-      });
+      state.biddingState.bidHistory[playerIndex] = bidAmount;
 
       // Advance to next eligible bidder
       let nextBidder = (playerIndex + 1) % NUM_PLAYERS;
@@ -236,20 +235,39 @@ const gameSlice = createSlice({
         nextBidder = (nextBidder + 1) % NUM_PLAYERS;
       }
       state.biddingState.currentBidder = nextBidder;
-      state.biddingState.bidTimer = 30;
+      state.biddingState.bidTimer = BID_TIMER_DURATION;
     },
 
     passBid: (state, action: PayloadAction<{ playerIndex: number }>) => {
       const { playerIndex } = action.payload;
       state.biddingState.passedPlayers.push(playerIndex);
 
-      // If only one player left, set winner
+      // If only one player left, set winner but don't transition stages yet
       const activePlayers = [0, 1, 2, 3].filter(
         idx => !state.biddingState.passedPlayers.includes(idx)
       );
 
       if (activePlayers.length === 1) {
         state.biddingState.bidWinner = activePlayers[0];
+        // Don't transition stages immediately - let the saga handle the delay
+        console.log(
+          "Bidding complete, winner set. Waiting for delay before stage transition."
+        );
+        console.log("Bid winner is ", state.biddingState.bidWinner);
+      } else {
+        // Advance to next eligible bidder
+        let nextBidder = (playerIndex + 1) % NUM_PLAYERS;
+        while (state.biddingState.passedPlayers.includes(nextBidder)) {
+          nextBidder = (nextBidder + 1) % NUM_PLAYERS;
+        }
+        state.biddingState.currentBidder = nextBidder;
+        state.biddingState.bidTimer = BID_TIMER_DURATION;
+      }
+    },
+
+    completeBiddingWithDelay: state => {
+      // This action is called after a delay to complete the bidding stage transition
+      if (state.biddingState.bidWinner !== null) {
         console.log(
           "CHANGING STATE: FROM ",
           state.gameProgress.stage,
@@ -264,15 +282,6 @@ const gameSlice = createSlice({
           GameStages.TRUMP_SELECTION
         );
         state.gameProgress.stage = GameStages.TRUMP_SELECTION;
-        console.log("Bid winner is ", state.biddingState.bidWinner);
-      } else {
-        // Advance to next eligible bidder
-        let nextBidder = (playerIndex + 1) % NUM_PLAYERS;
-        while (state.biddingState.passedPlayers.includes(nextBidder)) {
-          nextBidder = (nextBidder + 1) % NUM_PLAYERS;
-        }
-        state.biddingState.currentBidder = nextBidder;
-        state.biddingState.bidTimer = 30;
       }
     },
 
@@ -381,6 +390,7 @@ export const {
   startBiddingRound,
   placeBid,
   passBid,
+  completeBiddingWithDelay,
   updateBidTimer,
   startCardCollection,
   setPlayerName,

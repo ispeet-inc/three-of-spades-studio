@@ -16,7 +16,8 @@ export const TIMINGS = {
 
   // Bidding
   biddingTimerStepMs: 1000, // saga decrements timer per second
-  botBidThinkMs: 1500, // bot bidding delay
+  botBidThinkMs: 2000, // bot bidding delay
+  biddingResultDelayMs: 3000, // delay before bidding result is shown
 
   // Playing
   botPlayDelayMs: 1000, // bot play delay
@@ -31,6 +32,12 @@ export const DEFENDING_TEAM = 2; // Changed from 1 to 2
 // todo - use this to set orientation + update hard-coded logic everywhere
 export const FIRST_PLAYER_ID = 3;
 export const NUM_PLAYERS = 4;
+
+// Bidding constants
+export const BID_TIMER_DURATION = 30;
+export const MAX_BID = 250;
+export const MIN_INCREMENT_BELOW_200 = 5;
+export const MIN_INCREMENT_ABOVE_200 = 10;
 
 export const PLAYER_NAME_POOL = [
   "Akash",

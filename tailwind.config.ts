@@ -131,6 +131,7 @@ export default {
         fast: "var(--duration-fast)",
         normal: "var(--duration-normal)",
         slow: "var(--duration-slow)",
+        slower: "var(--duration-slower)",
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -176,6 +177,10 @@ export default {
         float: {
           "0%, 100%": { transform: "translateY(0px)" },
           "50%": { transform: "translateY(-6px)" },
+        },
+        "spin-slow": {
+          "0%": { transform: "rotate(0deg)" },
+          "100%": { transform: "rotate(360deg)" },
         },
         // New Phase 5 animations
         "deal-to-bottom": {
