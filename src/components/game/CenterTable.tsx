@@ -168,30 +168,17 @@ const BiddingDisplay = ({
             >
               <div
                 className={`backdrop-blur-sm border-2 rounded-lg px-3 py-2 text-center transition-all duration-300 ${
-                  isCurrentPlayer && !isBiddingComplete
-                    ? "animate-turn-indicator-slow border-gold/80 bg-gold/10 scale-110 drop-shadow-lg shadow-glow/20"
-                    : hasPassed
-                      ? "border-red-400/60 bg-red-500/20"
-                      : "border-gold/40 bg-felt-green-light/15"
+                  hasPassed
+                    ? "border-red-400/60 bg-red-500/20"
+                    : "border-gold/40 bg-felt-green-light/15"
                 }`}
               >
                 <div
-                  className={`text-xs ${
-                    isCurrentPlayer ? "text-gold" : "text-gold/70"
-                  }`}
-                >
-                  {name}
-                </div>
-                <div
                   className={`text-sm font-bold ${
-                    isCurrentPlayer
-                      ? "text-gold"
-                      : hasPassed
-                        ? "text-red-400"
-                        : "text-gold"
+                    hasPassed ? "text-red-400" : "text-gold"
                   }`}
                 >
-                  {hasPassed ? "Pass" : bid || "-"}
+                  {hasPassed ? "Pass" : bid ? "Bid: " + bid : "-"}
                 </div>
               </div>
             </div>
@@ -248,7 +235,7 @@ export const CenterTable = ({
           collectionWinner as number,
           viewerIndex
         ).collectionTarget;
-        cardClassName += ` transform ${targetTransform} scale-75 opacity-0 duration-[${TIMINGS.collectionAnimationMs}ms]`;
+        cardClassName += ` transform ${targetTransform} scale-75 opacity-0 transition-all duration-1200`;
       } else if (showCardsPhase && isWinningCard) {
         // Highlight winning card during display phase
         cardClassName += ` ring-2 ring-gold/60 shadow-[0_0_20px_rgba(255,215,0,0.4)] scale-105 transition-all duration-200`;
