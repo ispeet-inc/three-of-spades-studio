@@ -1,4 +1,12 @@
+import { useAppSelector } from "@/hooks/useAppSelector";
 import { cn } from "@/lib/utils";
+import { GameStages } from "@/store/gameStages";
+import {
+  selectBidTimer,
+  selectCanPlayerBid,
+  selectCurrentBid,
+  selectCurrentBidder,
+} from "@/store/selectors";
 import {
   Card,
   GameConfig,
@@ -15,6 +23,7 @@ import {
 import { FIRST_PLAYER_ID } from "@/utils/constants";
 import { getPlayerPositions } from "@/utils/positionUtils";
 import { useEffect, useState } from "react";
+import { BiddingControls } from "./BiddingControls";
 import { CenterTable } from "./CenterTable";
 import { GameInfo } from "./GameInfo";
 import { PlayerArea } from "./PlayerArea";
@@ -31,6 +40,9 @@ interface GameBoardProps {
   botCardsHidden?: boolean;
   isObserver?: boolean;
   viewerIndex?: number;
+  // NEW: Add bidding handlers
+  onBid?: (amount: number) => void;
+  onPass?: () => void;
 }
 
 export const GameBoard = ({
@@ -45,6 +57,8 @@ export const GameBoard = ({
   botCardsHidden = false,
   isObserver = false,
   viewerIndex = 3,
+  onBid,
+  onPass,
 }: GameBoardProps) => {
   const [lastScores, setLastScores] = useState<TeamScores>(
     gameProgress.scores ?? { team1: 0, team2: 0 }
@@ -55,6 +69,12 @@ export const GameBoard = ({
     team1: false,
     team2: false,
   });
+
+  // NEW: Get bidding state from store
+  const currentBid = useAppSelector(selectCurrentBid);
+  const currentBidder = useAppSelector(selectCurrentBidder);
+  const bidTimer = useAppSelector(selectBidTimer);
+  const canPlayerBid = useAppSelector(selectCanPlayerBid);
 
   // Score animation effect
   useEffect(() => {
@@ -176,7 +196,7 @@ export const GameBoard = ({
             >
               {gameProgress.scores.team2}
             </div>
-            <div className="text-sm text-muted-foreground">Team 2</div>
+            <div className="text-sm">Team 2</div>
           </div>
         </div>
       </section>
@@ -197,12 +217,13 @@ export const GameBoard = ({
           roundWinner={tableState.roundWinner?.player ?? null}
           playerNames={playerState.playerNames}
           viewerIndex={viewerIndex}
+          gameStage={gameProgress.stage}
         />
 
         {/* Player Areas */}
         {getPlayerPositions(viewerIndex).map(
-          ({ playerIndex, position, className }) => (
-            <div key={position} className={className}>
+          ({ playerIndex, position, playerAreaClassName }) => (
+            <div key={position} className={playerAreaClassName}>
               <PlayerArea
                 player={playersDisplayData[playerIndex]}
                 runningSuite={tableState.runningSuite}
@@ -217,6 +238,19 @@ export const GameBoard = ({
           )
         )}
       </section>
+
+      {/* NEW: Bidding Controls - positioned in bottom-right during bidding */}
+      {gameProgress.stage === GameStages.BIDDING && onBid && onPass && (
+        <BiddingControls
+          currentBid={currentBid}
+          currentBidder={currentBidder}
+          bidTimer={bidTimer}
+          canBid={canPlayerBid}
+          onBid={onBid}
+          onPass={onPass}
+          isObserver={isObserver}
+        />
+      )}
     </main>
   );
 };

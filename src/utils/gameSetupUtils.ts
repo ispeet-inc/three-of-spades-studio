@@ -1,4 +1,5 @@
 import { BiddingState, Card, Playerv2 } from "@/types/game";
+import { BID_TIMER_DURATION } from "@/utils/constants";
 
 export const initialBiddingState = (
   numPlayers: number,
@@ -8,14 +9,11 @@ export const initialBiddingState = (
   return {
     biddingActive: active,
     currentBid: 165,
-    currentBidder: startingPlayer,
+    currentBidder: active ? (startingPlayer + 1) % numPlayers : startingPlayer,
     passedPlayers: [],
-    bidStatusByPlayer: Object.fromEntries(
-      Array.from({ length: numPlayers }, (_, i) => [i, "Bidding"])
-    ),
     bidWinner: null,
-    bidHistory: [],
-    bidTimer: 30,
+    bidHistory: active ? { [startingPlayer]: 165 } : {},
+    bidTimer: BID_TIMER_DURATION,
   };
 };
 

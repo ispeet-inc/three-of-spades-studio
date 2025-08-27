@@ -94,7 +94,7 @@ const Index = () => {
         <div className="flex gap-4 mb-8">
           <Button
             size="lg"
-            onClick={() => navigate("/redux-game")}
+            onClick={() => navigate("/game")}
             className="bg-gradient-gold text-casino-black font-bold text-lg px-8 py-6 rounded-xl shadow-elevated hover:shadow-glow transition-all duration-300 hover:scale-105"
           >
             Start Game!

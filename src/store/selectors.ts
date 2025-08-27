@@ -141,6 +141,7 @@ export const selectPlayerDisplayData = createSelector(
       cards: player.hand,
       isCurrentPlayer: parseInt(index) === currentPlayerIndex,
       isFirstPersonTeammate:
+        player.team !== null &&
         parseInt(index) !== FIRST_PLAYER_ID &&
         player.team === players[FIRST_PLAYER_ID].team,
       isTeammate: player.isTeammate,
@@ -160,9 +161,8 @@ export const selectBiddingStateRaw = createSelector(
 );
 
 /** Current bid amount */
-export const selectCurrentBid = createSelector(
-  selectBiddingStateRaw,
-  b => b.currentBid
+export const selectCurrentBid = createSelector(selectBiddingStateRaw, b =>
+  b.biddingActive ? b.currentBid : null
 );
 
 /** Current player whose turn it is to bid */
@@ -187,6 +187,17 @@ export const selectBidder = createSelector(
 export const selectBidTimer = createSelector(
   selectBiddingStateRaw,
   b => b.bidTimer
+);
+
+/** Whether the current player can bid */
+export const selectCanPlayerBid = createSelector(
+  [selectBiddingStateRaw],
+  biddingState => {
+    return (
+      !biddingState.passedPlayers.includes(FIRST_PLAYER_ID) &&
+      biddingState.currentBidder === FIRST_PLAYER_ID
+    );
+  }
 );
 
 // ============================================================================

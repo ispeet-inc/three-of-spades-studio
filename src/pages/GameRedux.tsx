@@ -1,4 +1,3 @@
-import { BiddingModal } from "@/components/game/BiddingModal";
 import { BidResultModal } from "@/components/game/BidResultModal";
 import { GameBoard } from "@/components/game/GameBoard";
 import { GameOverModal } from "@/components/game/GameOverModal";
@@ -295,27 +294,12 @@ const GameRedux = ({ viewerIndex = FIRST_PLAYER_ID }: GameReduxProps) => {
         isDealing={isDealing}
         isObserver={isObserver}
         viewerIndex={viewerIndex}
+        // NEW: Pass bidding handlers to GameBoard
+        onBid={handleBid}
+        onPass={handlePass}
       />
 
       {/* Game Modals - visible to all but interactive only for players */}
-      {gameState.gameProgress.stage === GameStages.BIDDING && (
-        <BiddingModal
-          isOpen={true}
-          playerHand={playerState.players[viewerIndex].hand}
-          currentBid={gameState.biddingState.currentBid}
-          currentBidder={gameState.biddingState.currentBidder}
-          bidTimer={gameState.biddingState.bidTimer}
-          playerNames={playerState.playerNames}
-          canBid={
-            !isObserver &&
-            !gameState.biddingState.passedPlayers.includes(FIRST_PLAYER_ID) &&
-            gameState.biddingState.currentBidder === FIRST_PLAYER_ID
-          }
-          onBid={handleBid}
-          onPass={handlePass}
-          isObserver={isObserver}
-        />
-      )}
 
       {gameState.gameProgress.stage === GameStages.TRUMP_SELECTION &&
         gameState.biddingState.bidWinner === FIRST_PLAYER_ID &&
