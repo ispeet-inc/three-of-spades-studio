@@ -72,14 +72,11 @@ const BiddingDisplay = ({
     () =>
       Array.from({ length: NUM_PLAYERS }, (_, i) => i).map(playerIndex => ({
         playerIndex,
-        name: getPlayerName(playerIndex, playerNames),
         hasPassed: hasPlayerPassed(playerIndex, passedPlayers),
         bid: getPlayerBid(playerIndex, bidHistory),
         positionInfo: getPlayerPosition(playerIndex, viewerIndex),
-        isCurrentPlayer: playerIndex === currentBidder,
-        isViewer: playerIndex === viewerIndex,
       })),
-    [viewerIndex, currentBidder, bidHistory, passedPlayers, playerNames]
+    [viewerIndex, bidHistory, passedPlayers]
   );
 
   const highestBidPlayerIndex = getPlayerIndexWithHighestBid(bidHistory);
@@ -152,38 +149,28 @@ const BiddingDisplay = ({
 
       {/* Bid History Timeline - Around the circle using proper positioning logic */}
       <div className="absolute inset-0 rounded-full">
-        {players.map(
-          ({
-            playerIndex,
-            name,
-            hasPassed,
-            bid,
-            positionInfo,
-            isCurrentPlayer,
-            isViewer,
-          }) => (
+        {players.map(({ playerIndex, hasPassed, bid, positionInfo }) => (
+          <div
+            key={playerIndex}
+            className={positionInfo.biddingDisplayClassName}
+          >
             <div
-              key={playerIndex}
-              className={positionInfo.biddingDisplayClassName}
+              className={`backdrop-blur-sm border-2 rounded-lg px-3 py-2 text-center transition-all duration-300 ${
+                hasPassed
+                  ? "border-red-400/60 bg-red-500/20"
+                  : "border-gold/40 bg-felt-green-light/15"
+              }`}
             >
               <div
-                className={`backdrop-blur-sm border-2 rounded-lg px-3 py-2 text-center transition-all duration-300 ${
-                  hasPassed
-                    ? "border-red-400/60 bg-red-500/20"
-                    : "border-gold/40 bg-felt-green-light/15"
+                className={`text-sm font-bold ${
+                  hasPassed ? "text-red-400" : "text-gold"
                 }`}
               >
-                <div
-                  className={`text-sm font-bold ${
-                    hasPassed ? "text-red-400" : "text-gold"
-                  }`}
-                >
-                  {hasPassed ? "Pass" : bid ? "Bid: " + bid : "-"}
-                </div>
+                {hasPassed ? "Pass" : bid ? "Bid: " + bid : "-"}
               </div>
             </div>
-          )
-        )}
+          </div>
+        ))}
       </div>
     </div>
   );
