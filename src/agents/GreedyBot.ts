@@ -180,6 +180,7 @@ export default class GreedyBot extends BotAgent {
     if (currentBid >= maxBid) return { action: "pass" };
 
     const ceilingBid = getMaxBid(hand);
+    console.log("Bot Bidding: ceilingBid: ", ceilingBid);
     if (currentBid + minIncrement <= ceilingBid) {
       const bidAmount = currentBid + minIncrement;
       return { action: "bid", bidAmount };
