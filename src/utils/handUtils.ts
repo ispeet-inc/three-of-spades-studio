@@ -1,5 +1,6 @@
 import { Card, Suite } from "@/types/game";
 import { generateDeck, getCardSet, getTopKCardsFromSuite } from "./cardUtils";
+import { DECK_SUITES, MAX_BID } from "./constants";
 
 /**
  * Checks if the given suite is present in the hand.
@@ -259,29 +260,37 @@ export function getRemainingCards(
   );
 }
 
+export function howManyCardsHigherLeftInSuite(
+  hand: Card[],
+  discardedCards: Card[],
+  tableCards: Card[],
+  highestCard: Card
+): number {
+  const remainingCards = getRemainingCards(hand, discardedCards, tableCards);
+  const remainingCardsInSuite = remainingCards.filter(
+    card => card.suite === highestCard.suite
+  );
+
+  const numHigherCardsLeft = remainingCardsInSuite.filter(
+    card => card.rank > highestCard.rank
+  ).length;
+
+  return numHigherCardsLeft;
+}
+
 export function canBeatAllRemainingCardsInSuite(
   hand: Card[],
   discardedCards: Card[],
   tableCards: Card[],
-  suite: Suite,
   highestCard: Card
 ): boolean {
-  if (highestCard.suite !== suite) {
-    throw new Error("Highest card is not in the suite");
-  }
-
-  const remainingCards = getRemainingCards(hand, discardedCards, tableCards);
-  const highestRemainingCardIndex = getHighestRankedCardIndexInSuite(
-    remainingCards,
-    suite
+  const numHigherCardsLeft = howManyCardsHigherLeftInSuite(
+    hand,
+    discardedCards,
+    tableCards,
+    highestCard
   );
-
-  if (highestRemainingCardIndex === null) {
-    return true; // No higher cards remaining
-  }
-
-  const highestRemainingCard = remainingCards[highestRemainingCardIndex];
-  return highestCard.rank > highestRemainingCard.rank;
+  return numHigherCardsLeft === 0;
 }
 
 export function getWinProbability(
@@ -296,15 +305,7 @@ export function getWinProbability(
 
   const highestCard = hand[highestCardIndex];
 
-  if (
-    canBeatAllRemainingCardsInSuite(
-      hand,
-      discardedCards,
-      [],
-      suite,
-      highestCard
-    )
-  ) {
+  if (canBeatAllRemainingCardsInSuite(hand, discardedCards, [], highestCard)) {
     winProbability = 1;
   } else {
     winProbability = 0;
@@ -316,4 +317,39 @@ export function getWinProbability(
     winProbability: winProbability,
     numCardsOver: discardedCards.filter(card => card.suite === suite).length,
   };
+}
+
+export function getWinnableCardCountPerSuite(hand: Card[], suite: Suite) {
+  const suiteCards = hand.filter(card => card.suite === suite);
+  if (suiteCards.length === 0) return 0;
+  const hasAce = suiteCards.some(card => card.rank === 14) ? 1 : 0;
+  const hasKing = suiteCards.some(card => card.rank === 13) ? 1 : 0;
+
+  if (suiteCards.length === 1) {
+    return hasAce ? 1 : 0;
+  } else {
+    // round 2 onwards assume we will win
+    // for first 2 rounds, we need A, K to win.
+    return suiteCards.length - 2 + hasAce + hasKing;
+  }
+}
+
+export function getMaxBid(hand: Card[]) {
+  if (hand.length === 0) return 0;
+  const winningCounts = DECK_SUITES.map(suite =>
+    getWinnableCardCountPerSuite(hand, suite)
+  );
+  const totalWinningCards = winningCounts.reduce((acc, curr) => acc + curr, 0);
+  let losingCards = hand.length - totalWinningCards;
+  // assume teammate will help win won round
+  losingCards -= 1;
+
+  const pointsPerRound = 20;
+  // todo - if bot is feeling lucky, we will reduce pointsPerRound to 15 or 20
+
+  // assume teammate has 1/3 odds to win losing rounds.
+  losingCards = Math.round((losingCards * 2) / 3);
+
+  const maxBid = MAX_BID - losingCards * pointsPerRound;
+  return maxBid;
 }

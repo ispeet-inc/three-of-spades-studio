@@ -9,6 +9,7 @@ import {
 } from "../testing_framework/handAnalysisUtils";
 import { Card } from "../types/game";
 import { sortHand } from "../utils/cardUtils";
+import { getMaxBid } from "../utils/handUtils";
 import { sampleHandAndDiscard } from "../utils/sampleHandGenerator";
 import { SUITE_DATA } from "../utils/suiteUtils";
 import { HandPreview } from "./game/HandPreview";
@@ -215,9 +216,9 @@ export function HandTester() {
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-gold">
-                {getSuiteCount(hand)}
+                {getMaxBid(hand)}
               </div>
-              <div className="text-sm text-foreground/70">Suites</div>
+              <div className="text-sm text-foreground/70">Max Bid</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-gold">

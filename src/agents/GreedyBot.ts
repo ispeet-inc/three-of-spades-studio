@@ -8,6 +8,7 @@ import {
   getLeastValueCardIndex,
   getLeastValueCardIndexInSuite,
   getLowestRankedCardIndexInSuite,
+  getMaxBid,
   getTeammateInSuite,
   getWinProbability,
   teammateOptionScore,
@@ -114,7 +115,6 @@ export default class GreedyBot extends BotAgent {
         hand,
         discardedCards,
         tableCards,
-        runningSuite,
         highestCard
       )
     ) {
@@ -179,24 +179,9 @@ export default class GreedyBot extends BotAgent {
 
     if (currentBid >= maxBid) return { action: "pass" };
 
-    // Count high cards and trump potential
-    const highCards = hand.filter(card => card.rank >= 8).length;
-    const aces = hand.filter(card => card.number === 1).length;
-    const kings = hand.filter(card => card.number === 13).length;
-
-    // Greedy bidding based on hand strength
-    const handStrength = highCards + aces * 2 + kings * 1.5;
-
-    if (handStrength >= 8) {
-      // Strong hand - bid aggressively
-      const bidAmount = Math.min(
-        currentBid + Math.max(minIncrement, 10),
-        maxBid
-      );
-      return { action: "bid", bidAmount };
-    } else if (handStrength >= 5 && currentBid < 200) {
-      // Decent hand - bid conservatively
-      const bidAmount = Math.min(currentBid + minIncrement, maxBid);
+    const ceilingBid = getMaxBid(hand);
+    if (currentBid + minIncrement <= ceilingBid) {
+      const bidAmount = currentBid + minIncrement;
       return { action: "bid", bidAmount };
     }
 
