@@ -6,7 +6,7 @@ export const gameStateAnnouncements = {
   biddingStart: "Bidding phase has begun. It's your turn to bid or pass.",
   trumpSelection: "Bidding complete. Time to select trump suit and teammate.",
   playingStart: "Trump selected. Playing phase has begun.",
-  roundEnd: "Round complete. Calculating scores.",
+  trickEnd: "Trick complete. Calculating scores.",
   gameEnd: "Game finished. Final scores calculated.",
 
   // Player action announcements
@@ -18,8 +18,8 @@ export const gameStateAnnouncements = {
     `Trump suit: ${suit}. Teammate: ${teammate}.`,
 
   // Game events
-  roundWon: (winner: string, points: number) =>
-    `${winner} wins the round and scores ${points} points.`,
+  trickWon: (winner: string, points: number) =>
+    `${winner} wins the trick and scores ${points} points.`,
   teamScores: (team1: number, team2: number) =>
     `Current scores: Team 1 has ${team1} points, Team 2 has ${team2} points.`,
   gameWon: (winner: string) => `Game over! ${winner} wins the game!`,

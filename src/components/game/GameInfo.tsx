@@ -6,7 +6,7 @@ import { PlayingCard } from "./PlayingCard";
 
 interface GameInfoProps {
   gameConfig: GameConfig | null;
-  round: number;
+  trick: number;
 }
 
 export const GameInfo = (props: GameInfoProps) => {
@@ -56,10 +56,10 @@ export const GameInfo = (props: GameInfoProps) => {
           </Badge>
         </div>
 
-        {/* Round */}
+        {/* Trick */}
         <div className="flex items-center gap-2">
-          <span className="text-muted-foreground">Round:</span>
-          <span className="font-semibold">{props.round}</span>
+          <span className="text-muted-foreground">Trick:</span>
+          <span className="font-semibold">{props.trick}</span>
         </div>
       </div>
     </div>

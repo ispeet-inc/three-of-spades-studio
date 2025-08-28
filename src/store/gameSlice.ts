@@ -18,7 +18,7 @@ import {
 } from "@/utils/gameUtils";
 import {
   initialTableState,
-  newRoundOnTable,
+  newTrickOnTable,
   playCardOnTable,
 } from "@/utils/tableUtils";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
@@ -33,7 +33,7 @@ const initialState: GameState = {
   gameConfig: null,
   gameProgress: {
     stage: GameStages.INIT,
-    round: 0,
+    trick: 0,
     scores: { team1: 0, team2: 0 },
   },
   biddingState: initialBiddingState(NUM_PLAYERS, 0, false),
@@ -93,14 +93,13 @@ const gameSlice = createSlice({
         const name = sampledNames.pop();
         state.playerState.playerNames[i] = name !== undefined ? name : "";
       }
-      // Set total rounds based on cards per player
       state.gameConfig = null;
       // Randomly select starting player
       state.playerState.startingPlayer = Math.floor(
         Math.random() * NUM_PLAYERS
       );
       console.log("Starting player is ", state.playerState.startingPlayer);
-      state.gameProgress.round = 0;
+      state.gameProgress.trick = 0;
       state.tableState = initialTableState(
         state.playerState.startingPlayer,
         false
@@ -143,30 +142,30 @@ const gameSlice = createSlice({
         NUM_PLAYERS
       );
 
-      const roundWinner = state.tableState.roundWinner;
-      if (roundWinner !== null) {
-        const winningTeam = state.playerState.players[roundWinner.player].team;
+      const trickWinner = state.tableState.trickWinner;
+      if (trickWinner !== null) {
+        const winningTeam = state.playerState.players[trickWinner.player].team;
         if (winningTeam === null) {
           throw Error("team id is null for player");
         }
         // Calculate total points from all cards in the table
-        const roundPoints = state.tableState.tableCards.reduce(
+        const trickPoints = state.tableState.tableCards.reduce(
           (sum, card) => sum + card.points,
           0
         );
 
-        state.gameProgress.scores[getTeamScoreKey(winningTeam)] += roundPoints;
-        state.playerState.players[roundWinner.player].score += roundPoints;
+        state.gameProgress.scores[getTeamScoreKey(winningTeam)] += trickPoints;
+        state.playerState.players[trickWinner.player].score += trickPoints;
       }
     },
 
-    startNewRound: state => {
+    startNewTrick: state => {
       console.log(
-        "GAME: Starting new round, previous winner:",
-        state.tableState.roundWinner?.player
+        "GAME: Starting new trick, previous winner:",
+        state.tableState.trickWinner?.player
       );
-      state.tableState = newRoundOnTable(state.tableState);
-      state.gameProgress.round = state.gameProgress.round + 1;
+      state.tableState = newTrickOnTable(state.tableState);
+      state.gameProgress.trick = state.gameProgress.trick + 1;
       console.log(
         "GAME: Setting stage to PLAYING, current turn:",
         state.tableState.turn
@@ -176,14 +175,14 @@ const gameSlice = createSlice({
       // Check if game is over
       if (
         state.gameConfig &&
-        state.gameProgress.round >= state.gameConfig.totalRounds
+        state.gameProgress.trick >= state.gameConfig.totalTricks
       ) {
         state.gameProgress.stage = GameStages.GAME_OVER;
       }
     },
 
     startCardCollection: state => {
-      state.gameProgress.stage = GameStages.ROUND_COMPLETE;
+      state.gameProgress.stage = GameStages.TRICK_COMPLETE;
     },
 
     setBidAndTrump: (
@@ -200,10 +199,10 @@ const gameSlice = createSlice({
         bidWinner: bidder,
         teammateCard: teammateCard,
         trumpSuite: trumpSuite,
-        totalRounds: 10,
+        totalTricks: 10,
         isTeammateRevealed: false,
       };
-      // todo - remove hardcoded total rounds
+      // todo - remove hardcoded total tricks
       console.log(`Setting trump ${trumpSuite} and teammate: ${teammateCard}`);
       // Assign teams based on teammate card
       const updatedPlayers = assignTeamsByTeammateCard(
@@ -342,8 +341,8 @@ const gameSlice = createSlice({
     },
 
     // Game flow orchestration actions
-    triggerRoundTransition: state => {
-      // This action triggers automatic round transition logic
+    triggerTrickTransition: state => {
+      // This action triggers automatic trick transition logic
       // No state changes needed, just a trigger
     },
 
@@ -396,7 +395,7 @@ export const {
   setStage,
   startGame,
   playCard,
-  startNewRound,
+  startNewTrick,
   setBidAndTrump,
   startBiddingRound,
   placeBid,
@@ -410,7 +409,7 @@ export const {
   botShouldSelectTrump,
   gameInitialize,
   gameStageTransition,
-  triggerRoundTransition,
+  triggerTrickTransition,
   triggerGameCompletion,
   setDealingAnimation,
   setGameError,

@@ -134,7 +134,7 @@ export const GameBoard = ({
       <header className="absolute top-6 left-6 right-6 flex justify-between items-center z-20">
         {/* Game Info */}
         <div className="bg-casino-black/40 backdrop-blur-sm border border-gold/30 rounded-lg shadow-elevated p-4">
-          <GameInfo gameConfig={gameConfig} round={gameProgress.round} />
+          <GameInfo gameConfig={gameConfig} trick={gameProgress.trick} />
         </div>
 
         {/* Settings */}
@@ -214,11 +214,11 @@ export const GameBoard = ({
         <CenterTable
           currentTrick={tableState.tableCards}
           winner={
-            tableState.roundWinner !== null
-              ? playersDisplayData[tableState.roundWinner.player]?.name
+            tableState.trickWinner !== null
+              ? playersDisplayData[tableState.trickWinner.player]?.name
               : undefined
           }
-          roundWinner={tableState.roundWinner?.player ?? null}
+          trickWinner={tableState.trickWinner?.player ?? null}
           playerNames={playerState.playerNames}
           viewerIndex={viewerIndex}
           gameStage={gameProgress.stage}

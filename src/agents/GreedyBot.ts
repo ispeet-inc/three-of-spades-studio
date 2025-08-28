@@ -1,7 +1,7 @@
 import { Card, Suite, TableCard } from "@/types/game";
 import { getHash } from "@/utils/cardUtils";
 import { DECK_SUITES, NUM_PLAYERS } from "@/utils/constants";
-import { determineRoundWinner } from "@/utils/gameUtils";
+import { determineTrickWinner } from "@/utils/gameUtils";
 import {
   canBeatAllRemainingCardsInSuite,
   getHighestRankedCardIndexInSuite,
@@ -23,10 +23,10 @@ import BotAgent, {
 export default class GreedyBot extends BotAgent {
   static displayName = "Greedy";
 
-  // Start a new round by playing the highest card
+  // Start a new trick by playing the highest card
   // todo - improve this function by taking into account number of cards over & trump suite
   // todo - bot keeps starting trump suite even if others dont have trump
-  startRound(hand: Card[], trumpSuite: Suite, discardedCards: Card[]): number {
+  startTrick(hand: Card[], trumpSuite: Suite, discardedCards: Card[]): number {
     const winningOptions = DECK_SUITES.map(suite =>
       getWinProbability(hand, discardedCards, suite, trumpSuite)
     ).filter(
@@ -35,7 +35,7 @@ export default class GreedyBot extends BotAgent {
     );
 
     if (winningOptions.length === 0) {
-      // pick lowest card in hand to start the round
+      // pick lowest card in hand to start the trick
       // @ts-expect-error - hand is not empty when this is called
       return getLeastValueCardIndex(hand);
     }
@@ -54,7 +54,7 @@ export default class GreedyBot extends BotAgent {
       // pick random one of the winning options
       return bestOption.highestCardIndex;
     } else {
-      // pick lowest card in hand to start the round
+      // pick lowest card in hand to start the trick
       // @ts-expect-error - hand is not empty when this is called
       return getLeastValueCardIndex(hand);
     }
@@ -69,12 +69,12 @@ export default class GreedyBot extends BotAgent {
     tableCards: TableCard[],
     discardedCards: Card[]
   ): number {
-    const winningCard = determineRoundWinner(
+    const winningCard = determineTrickWinner(
       tableCards,
       runningSuite,
       trumpSuite
     );
-    const isRoundCut =
+    const isTrickCut =
       winningCard.suite === trumpSuite && trumpSuite !== runningSuite;
 
     const highestCardIndex = getHighestRankedCardIndexInSuite(
@@ -88,7 +88,7 @@ export default class GreedyBot extends BotAgent {
     const highestCard = hand[highestCardIndex];
 
     // Early returns for cases where we can't win
-    if (isRoundCut || winningCard.rank > highestCard.rank) {
+    if (isTrickCut || winningCard.rank > highestCard.rank) {
       // @ts-expect-error - hand is not empty when this is called
       return getLeastValueCardIndexInSuite(hand, runningSuite);
     }
@@ -134,12 +134,12 @@ export default class GreedyBot extends BotAgent {
     trumpSuite: Suite,
     tableCards: TableCard[]
   ): number {
-    const winningCard = determineRoundWinner(
+    const winningCard = determineTrickWinner(
       tableCards,
       runningSuite,
       trumpSuite
     );
-    const isRoundCut =
+    const isTrickCut =
       winningCard.suite === trumpSuite && trumpSuite !== runningSuite;
 
     const highestTrumpIndex = getHighestRankedCardIndexInSuite(
@@ -150,13 +150,13 @@ export default class GreedyBot extends BotAgent {
     if (highestTrumpIndex !== null) {
       const highestTrump = hand[highestTrumpIndex];
 
-      if (!isRoundCut) {
+      if (!isTrickCut) {
         // @ts-expect-error - hand is not empty when this is called
         return getLowestRankedCardIndexInSuite(hand, trumpSuite);
       }
-      // round already cut, we have higher trump card.
+      // trick already cut, we have higher trump card.
       if (highestTrump.rank > winningCard.rank) {
-        // we want to win the round with card just higher than winning card.
+        // we want to win the trick with card just higher than winning card.
         const winnableTrumpCards = hand.filter(
           card => card.suite === trumpSuite && card.rank > winningCard.rank
         );
