@@ -19,7 +19,7 @@ import {
   setStage,
   startBiddingRound,
   startCardCollection,
-  startNewRound,
+  startNewTrick,
   updateBidTimer,
 } from "./gameSlice";
 import { GameStages, type GameStage } from "./gameStages";
@@ -53,8 +53,8 @@ function* handleStageTransition(action: any) {
       yield put(startCardCollection());
       console.log("Saga: Waiting for collection animation to finish");
       yield delay(TIMINGS.collectionAnimationMs + TIMINGS.collectionBufferMs);
-      console.log("Saga: Animation complete, starting new round");
-      yield put(startNewRound());
+      console.log("Saga: Animation complete, starting new trick");
+      yield put(startNewTrick());
     }
   } catch (error) {
     yield call(handleSagaError, error, "handleStageTransition");

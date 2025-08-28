@@ -20,7 +20,7 @@ import {
   setGameError,
   startBiddingRound,
   triggerGameCompletion,
-  triggerRoundTransition,
+  triggerTrickTransition,
 } from "../gameSlice";
 import { GameStages, type GameStage } from "../gameStages";
 import { selectBiddingStateRaw, selectGameProgress } from "../selectors";
@@ -144,20 +144,20 @@ function* handleGameStageTransition(
         );
         // Handle cards display logic
         // This could include timing and animation coordination
-        // Trigger automatic transition to round completion after display
-        yield put(triggerRoundTransition());
+        // Trigger automatic transition to trick completion after display
+        yield put(triggerTrickTransition());
         break;
 
-      case GameStages.ROUND_COMPLETE: {
+      case GameStages.TRICK_COMPLETE: {
         console.log(
-          "Game Flow Saga: Orchestrating round complete stage transition"
+          "Game Flow Saga: Orchestrating trick complete stage transition"
         );
-        // Handle round complete logic
-        // This could include score calculation and round transition
+        // Handle trick complete logic
+        // This could include score calculation and trick transition
         // Check if game should continue or end
         const gameProgress = yield select(selectGameProgress);
-        if (gameProgress.round >= 10) {
-          // Assuming 10 rounds per game
+        if (gameProgress.trick >= 10) {
+          // Assuming 10 tricks per game
           yield put(triggerGameCompletion());
         }
         break;

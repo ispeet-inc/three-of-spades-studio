@@ -18,7 +18,7 @@ import { PlayingCard } from "./PlayingCard";
 interface CenterTableProps {
   currentTrick: TableCard[];
   winner?: string;
-  roundWinner?: number | null;
+  trickWinner?: number | null;
   playerNames?: Record<number, string>;
   viewerIndex?: number; // NEW: For dynamic positioning
   gameStage?: string; // NEW: For conditional rendering
@@ -179,7 +179,7 @@ const BiddingDisplay = ({
 export const CenterTable = ({
   currentTrick,
   winner,
-  roundWinner = null,
+  trickWinner = null,
   playerNames = {},
   viewerIndex = 3, // NEW: Default to FIRST_PLAYER_ID
   gameStage,
@@ -207,7 +207,7 @@ export const CenterTable = ({
     return currentTrick.map(playedCard => {
       if (!playedCard) return null;
       const playerIndex = playedCard.player;
-      const isWinningCard = roundWinner === playerIndex;
+      const isWinningCard = trickWinner === playerIndex;
 
       const positionInfo = getPlayerPosition(playerIndex, viewerIndex);
       const animationDelay = `${playerIndex * TIMINGS.dealingStaggerMs}ms`;
@@ -246,7 +246,7 @@ export const CenterTable = ({
     });
   }, [
     currentTrick,
-    roundWinner,
+    trickWinner,
     viewerIndex,
     isCollectingCards,
     collectionWinner,
@@ -288,10 +288,10 @@ export const CenterTable = ({
   return (
     <div className="relative">
       {/* Winner Announcement */}
-      {(winner || (showCardsPhase && roundWinner !== null)) && (
+      {(winner || (showCardsPhase && trickWinner !== null)) && (
         <div className="absolute -top-16 left-1/2 transform -translate-x-1/2 text-center w-72">
           <div className="text-s text-gold/70 font-medium">
-            {winner || playerNames[roundWinner as number] + " won the round!"}
+            {winner || playerNames[trickWinner as number] + " won the trick!"}
           </div>
         </div>
       )}
