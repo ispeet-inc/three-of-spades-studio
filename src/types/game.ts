@@ -64,7 +64,7 @@ export interface TableState {
   runningSuite: Suite | null;
   tableCards: TableCard[];
   turn: number;
-  roundWinner: TableCard | null;
+  trickWinner: TableCard | null;
   discardedCards: Card[];
 }
 
@@ -80,11 +80,11 @@ export interface GameConfig {
   bidWinner: number;
   teammateCard: Card;
   trumpSuite: number;
-  totalRounds: number;
+  totalTricks: number;
 }
 
 export interface GameProgress {
-  round: number;
+  trick: number;
   scores: TeamScores;
   stage: GameStage;
 }

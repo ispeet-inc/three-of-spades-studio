@@ -236,7 +236,7 @@ export const selectTeamScores = createSelector(
 /** Winner of card collection phase */
 export const selectCollectionWinner = createSelector(
   selectGame,
-  (g): number | null => g.tableState.roundWinner?.player ?? null
+  (g): number | null => g.tableState.trickWinner?.player ?? null
 );
 
 // ============================================================================
@@ -246,11 +246,11 @@ export const selectCollectionWinner = createSelector(
 /** Whether to show cards phase */
 export const selectShowCardsPhase = createSelector(
   selectStage,
-  (stage): boolean => stage === GameStages.ROUND_COMPLETE
+  (stage): boolean => stage === GameStages.TRICK_COMPLETE
 );
 
 /** Whether currently collecting cards */
 export const selectIsCollectingCards = createSelector(
   selectStage,
-  (stage): boolean => stage === GameStages.ROUND_COMPLETE
+  (stage): boolean => stage === GameStages.TRICK_COMPLETE
 );

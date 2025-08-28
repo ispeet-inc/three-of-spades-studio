@@ -37,7 +37,7 @@ export interface TrumpTeammateParams {
 }
 
 export default abstract class BotAgent {
-  abstract startRound(
+  abstract startTrick(
     hand: Card[],
     trumpSuite: Suite,
     discardedCards: Card[]
@@ -81,12 +81,12 @@ export default abstract class BotAgent {
     if (!hand || hand.length === 0) return null;
 
     if (runningSuite === null) {
-      const pickedCardIndex = this.startRound(hand, trumpSuite, discardedCards);
+      const pickedCardIndex = this.startTrick(hand, trumpSuite, discardedCards);
       if (verbose) {
         console.log(
           "BotAgent: ",
           playerIndex,
-          "Starting round - hand: ",
+          "Starting trick - hand: ",
           hand,
           "runningSuite: ",
           runningSuite,

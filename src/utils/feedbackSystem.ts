@@ -7,7 +7,7 @@ export type FeedbackType =
   | "buttonClick"
   | "bid"
   | "trump"
-  | "roundWin"
+  | "trickWin"
   | "gameWin"
   | "error"
   | "success";
@@ -56,8 +56,8 @@ class FeedbackSystem {
       case "trump":
         this.trumpFeedback(element, intensity);
         break;
-      case "roundWin":
-        this.roundWinFeedback(element, intensity);
+      case "trickWin":
+        this.trickWinFeedback(element, intensity);
         break;
       case "gameWin":
         this.gameWinFeedback(element, intensity);
@@ -71,7 +71,7 @@ class FeedbackSystem {
     }
 
     // Screen flash for important events
-    if (["roundWin", "gameWin", "trump"].includes(type)) {
+    if (["trickWin", "gameWin", "trump"].includes(type)) {
       this.screenFlash(type);
     }
   }
@@ -140,7 +140,7 @@ class FeedbackSystem {
     }, 600);
   }
 
-  private roundWinFeedback(element?: HTMLElement, intensity?: string) {
+  private trickWinFeedback(element?: HTMLElement, intensity?: string) {
     if (!element) return;
 
     // Victory pulse
@@ -235,7 +235,7 @@ class FeedbackSystem {
 
     // Different colors for different events
     switch (type) {
-      case "roundWin":
+      case "trickWin":
         flash.style.background =
           "radial-gradient(circle, rgba(255,215,0,0.3) 0%, transparent 70%)";
         break;

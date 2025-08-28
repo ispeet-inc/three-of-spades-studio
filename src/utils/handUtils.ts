@@ -328,8 +328,8 @@ export function getWinnableCardCountPerSuite(hand: Card[], suite: Suite) {
   if (suiteCards.length === 1) {
     return hasAce ? 1 : 0;
   } else {
-    // round 2 onwards assume we will win
-    // for first 2 rounds, we need A, K to win.
+    // trick 2 onwards assume we will win
+    // for first 2 tricks, we need A, K to win.
     return suiteCards.length - 2 + hasAce + hasKing;
   }
 }
@@ -341,15 +341,15 @@ export function getMaxBid(hand: Card[]) {
   );
   const totalWinningCards = winningCounts.reduce((acc, curr) => acc + curr, 0);
   let losingCards = hand.length - totalWinningCards;
-  // assume teammate will help win won round
+  // assume teammate will help win won trick
   losingCards -= 1;
 
-  const pointsPerRound = 20;
-  // todo - if bot is feeling lucky, we will reduce pointsPerRound to 15 or 20
+  const pointsPerTrick = 20;
+  // todo - if bot is feeling lucky, we will reduce pointsPerTrick to 15 or 20
 
-  // assume teammate has 1/3 odds to win losing rounds.
+  // assume teammate has 1/3 odds to win losing tricks.
   losingCards = Math.round((losingCards * 2) / 3);
 
-  const maxBid = MAX_BID - losingCards * pointsPerRound;
+  const maxBid = MAX_BID - losingCards * pointsPerTrick;
   return maxBid;
 }

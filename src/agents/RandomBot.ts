@@ -14,8 +14,8 @@ import BotAgent, {
 export default class RandomBot extends BotAgent {
   static displayName = "Random";
 
-  // Start a new round by playing a random card
-  startRound(hand: Card[], trumpSuite: Suite, discardedCards: Card[]): number {
+  // Start a new trick by playing a random card
+  startTrick(hand: Card[], trumpSuite: Suite, discardedCards: Card[]): number {
     if (!hand || hand.length === 0) return -1;
     return getRandomCardIndex(hand);
   }

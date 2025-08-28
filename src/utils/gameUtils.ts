@@ -2,7 +2,7 @@ import { Card, Playerv2, Suite, TableCard } from "@/types/game";
 import { createCard } from "./cardUtils";
 import { BIDDING_TEAM, DEFENDING_TEAM } from "./constants";
 
-export const determineRoundWinner = (
+export const determineTrickWinner = (
   tableCards: TableCard[],
   runningSuite: Suite,
   trumpSuite: Suite
