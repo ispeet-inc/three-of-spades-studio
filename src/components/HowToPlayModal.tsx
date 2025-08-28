@@ -4,6 +4,7 @@ import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Separator } from './ui/separator';
+import { X } from 'lucide-react';
 
 interface HowToPlayModalProps {
   isOpen: boolean;
@@ -14,7 +15,14 @@ const HowToPlayModal: React.FC<HowToPlayModalProps> = ({ isOpen, onClose }) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-felt-green-light to-felt-green-dark border-2 border-gold/40 shadow-elevated backdrop-blur-sm">
-        <DialogHeader className="text-center mb-8">
+        <DialogHeader className="text-center mb-8 relative">
+          <Button
+            onClick={onClose}
+            className="absolute top-0 right-0 h-10 w-10 p-0 bg-gradient-gold/20 hover:bg-gradient-gold/30 text-gold border border-gold/30 rounded-full transition-all duration-300 hover:scale-110"
+            aria-label="Close modal"
+          >
+            <X className="h-5 w-5" />
+          </Button>
           <DialogTitle className="text-4xl font-casino text-gold mb-4 flex items-center justify-center gap-4">
             🎮 How to Play Three of Spades
           </DialogTitle>
