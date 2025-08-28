@@ -1,106 +1,26 @@
-// Command to run: npx tsx /Users/sky/Documents/Workspace/three-of-spades-studio/src/test.ts
-import { printCardHashes } from "./utils/handUtils";
+// Command to run:
+// npx tsx /Users/sky/Documents/Workspace/three-of-spades-studio/src/tester.ts
+import { Suite } from "./types/game";
+import { createCard } from "./utils/cardUtils";
+import { getMaxBid, printCardHashes } from "./utils/handUtils";
 
+// 3, 5, 7, Q, A Spade
+// 5, 8, J, K Club
+// A Diamond
 const hand = [
-  {
-    id: "7",
-    suite: 0,
-    number: 7,
-    rank: 7,
-    points: 0,
-    positionValue: 7,
-    hash: "7-of-spade",
-  },
-  // {
-  //   id: 'K',
-  //   suite: 0,
-  //   number: 13,
-  //   rank: 13,
-  //   points: 10,
-  //   positionValue: 13,
-  //   hash: 'K-of-spade'
-  // },
-  {
-    id: "J",
-    suite: 0,
-    number: 11,
-    rank: 11,
-    points: 10,
-    positionValue: 11,
-    hash: "J-of-spade",
-  },
-  {
-    id: "Q",
-    suite: 0,
-    number: 12,
-    rank: 12,
-    points: 10,
-    positionValue: 12,
-    hash: "Q-of-spade",
-  },
-  {
-    id: "A",
-    suite: 0,
-    number: 1,
-    rank: 14,
-    points: 10,
-    positionValue: 14,
-    hash: "A-of-spade",
-  },
-  {
-    id: "10",
-    suite: 1,
-    number: 10,
-    rank: 10,
-    points: 10,
-    positionValue: 110,
-    hash: "10-of-heart",
-  },
-  {
-    id: "10",
-    suite: 2,
-    number: 10,
-    rank: 10,
-    points: 10,
-    positionValue: 210,
-    hash: "10-of-club",
-  },
-  {
-    id: "K",
-    suite: 2,
-    number: 13,
-    rank: 13,
-    points: 10,
-    positionValue: 213,
-    hash: "K-of-club",
-  },
-  {
-    id: "9",
-    suite: 3,
-    number: 9,
-    rank: 9,
-    points: 0,
-    positionValue: 309,
-    hash: "9-of-diamond",
-  },
-  {
-    id: "K",
-    suite: 3,
-    number: 13,
-    rank: 13,
-    points: 10,
-    positionValue: 313,
-    hash: "K-of-diamond",
-  },
-  {
-    id: "A",
-    suite: 3,
-    number: 1,
-    rank: 14,
-    points: 10,
-    positionValue: 314,
-    hash: "A-of-diamond",
-  },
+  createCard(Suite.Spade, 3),
+  createCard(Suite.Spade, 5),
+  createCard(Suite.Spade, 7),
+  createCard(Suite.Spade, 12),
+  createCard(Suite.Spade, 1),
+  createCard(Suite.Club, 5),
+  createCard(Suite.Club, 8),
+  createCard(Suite.Club, 11),
+  createCard(Suite.Club, 13),
+  createCard(Suite.Diamond, 1),
 ];
+
 console.log("User Hand: ");
 printCardHashes(hand);
+
+console.log("Max Bid: ", getMaxBid(hand));

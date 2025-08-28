@@ -1,5 +1,11 @@
 import { createCard } from "@/utils/cardUtils";
-import { FIRST_PLAYER_ID, TIMINGS } from "@/utils/constants";
+import {
+  FIRST_PLAYER_ID,
+  MAX_BID,
+  MIN_INCREMENT_ABOVE_200,
+  MIN_INCREMENT_BELOW_200,
+  TIMINGS,
+} from "@/utils/constants";
 import {
   cancelled,
   delay,
@@ -128,12 +134,19 @@ function* handleBotBidding(): Generator<any, void, any> {
       yield put(passBid({ playerIndex: biddingState.currentBidder }));
       return;
     }
-
+    console.log(
+      "Bot Bidding: Current player: ",
+      playerState.playerNames[biddingState.currentBidder]
+    );
+    const minIncrement =
+      biddingState.currentBid < 200
+        ? MIN_INCREMENT_BELOW_200
+        : MIN_INCREMENT_ABOVE_200;
     // Bot makes bidding decision
     const bidAction = botAgent.getBidAction({
       currentBid: biddingState.currentBid,
-      minIncrement: 5,
-      maxBid: 200,
+      minIncrement: minIncrement,
+      maxBid: MAX_BID,
       passedPlayers: biddingState.passedPlayers,
       hand: currentPlayer.hand,
       playerIndex: biddingState.currentBidder,
