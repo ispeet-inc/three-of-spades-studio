@@ -476,6 +476,11 @@ export const {
   setGameError,
   clearGameError,
   restoreGameState,
+  // NEW: Series management actions
+  setGameMode,
+  startNextGame,
+  completeGame,
+  completeSeries,
 } = gameSlice.actions;
 
 export default gameSlice.reducer;
