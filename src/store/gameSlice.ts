@@ -165,19 +165,6 @@ const gameSlice = createSlice({
       );
       state.tableState = newTrickOnTable(state.tableState);
       state.gameProgress.trick = state.gameProgress.trick + 1;
-      console.log(
-        "GAME: Setting stage to PLAYING, current turn:",
-        state.tableState.turn
-      );
-      state.gameProgress.stage = GameStages.PLAYING;
-
-      // Check if game is over
-      if (
-        state.gameConfig &&
-        state.gameProgress.trick >= state.gameConfig.totalTricks
-      ) {
-        state.gameProgress.stage = GameStages.GAME_OVER;
-      }
     },
 
     setBidAndTrump: (

@@ -67,7 +67,7 @@ function* handleStageSideEffects(
     }
     case GameStages.TRICK_COMPLETE:
       // todo - this is only to fix type error for timebeing
-      yield delay(1000);
+      yield delay(500);
       break;
     default:
       console.log(`Transition: No specific logic for ${newStage}`);
@@ -218,6 +218,7 @@ function* handleGameStageTransition(
     } else {
       // Actually change the stage after all logic is complete
       yield put(setStage(action.payload));
+      yield call(handleStageSideEffects, action.payload);
     }
   }
 }
