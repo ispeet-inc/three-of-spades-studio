@@ -240,17 +240,20 @@ export const GameBoard = ({
       </section>
 
       {/* NEW: Bidding Controls - positioned in bottom-right during bidding */}
-      {gameProgress.stage === GameStages.BIDDING && onBid && onPass && (
-        <BiddingControls
-          currentBid={currentBid}
-          currentBidder={currentBidder}
-          bidTimer={bidTimer}
-          canBid={canPlayerBid}
-          onBid={onBid}
-          onPass={onPass}
-          isObserver={isObserver}
-        />
-      )}
+      {gameProgress.stage === GameStages.BIDDING &&
+        onBid &&
+        onPass &&
+        currentBid !== null && (
+          <BiddingControls
+            currentBid={currentBid}
+            currentBidder={currentBidder}
+            bidTimer={bidTimer}
+            canBid={canPlayerBid}
+            onBid={onBid}
+            onPass={onPass}
+            isObserver={isObserver}
+          />
+        )}
     </main>
   );
 };

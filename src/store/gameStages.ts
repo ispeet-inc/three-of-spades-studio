@@ -10,6 +10,10 @@ export const GameStages = {
   TRICK_COMPLETE: "TRICK_COMPLETE",
   TRICK_SUMMARY: "TRICK_SUMMARY",
   GAME_OVER: "GAME_OVER",
+  // NEW: Multi-game stages
+  GAME_SUMMARY: "GAME_SUMMARY",
+  SERIES_COMPLETE: "SERIES_COMPLETE",
+  SERIES_SUMMARY: "SERIES_SUMMARY",
 } as const;
 
 export type GameStage = (typeof GameStages)[keyof typeof GameStages];

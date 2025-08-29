@@ -1,6 +1,6 @@
-import { Card, Playerv2, Suite, TableCard } from "@/types/game";
+import { Card, Playerv2, Suite, TableCard, TeamScores } from "@/types/game";
 import { createCard } from "./cardUtils";
-import { BIDDING_TEAM, DEFENDING_TEAM } from "./constants";
+import { BIDDING_TEAM, DEFENDING_TEAM, MAX_BID } from "./constants";
 
 export const determineTrickWinner = (
   tableCards: TableCard[],
@@ -142,4 +142,48 @@ export const selectRandomNames = (
   }
   // Return up to 3 names
   return availableNames.slice(0, 3);
+};
+
+// NEW: Starting player rotation logic for multi-game series
+export const rotateStartingPlayer = (
+  currentIndex: number,
+  numPlayers: number
+): number => {
+  return (currentIndex + 1) % numPlayers; // 0 → 1 → 2 → 3 → 0
+};
+
+// NEW: Convert team scores to individual player scores for series accumulation
+export const calculateGameScores = (
+  teamScores: TeamScores,
+  players: Record<number, Playerv2>,
+  bidAmount: number,
+  bidWinner: number
+): Record<number, number> => {
+  const playerScores: Record<number, number> = { 0: 0, 1: 0, 2: 0, 3: 0 };
+
+  // team1 is always bidding team
+  const bidWon = teamScores.team1 >= bidAmount;
+  const whiteWashBonus = bidAmount === MAX_BID ? 50 : 0;
+
+  Object.entries(players).forEach(([playerIndex, player]) => {
+    if (player.team === null) {
+      throw new Error("Player has no team");
+    }
+    if (player.team === BIDDING_TEAM) {
+      if (bidWon) {
+        playerScores[parseInt(playerIndex)] += bidAmount + whiteWashBonus;
+      }
+    } else {
+      if (!bidWon) {
+        playerScores[parseInt(playerIndex)] += bidAmount;
+      }
+    }
+  });
+
+  // Bid winner gets extra 20 points for successfully bidding and winning
+  if (bidWon) {
+    playerScores[bidWinner] += 20;
+  }
+
+  return playerScores;
 };
