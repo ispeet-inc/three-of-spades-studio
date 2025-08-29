@@ -180,10 +180,6 @@ const gameSlice = createSlice({
       }
     },
 
-    startCardCollection: state => {
-      state.gameProgress.stage = GameStages.TRICK_COMPLETE;
-    },
-
     setBidAndTrump: (
       state,
       action: PayloadAction<{
@@ -433,7 +429,6 @@ export const {
   placeBid,
   passBid,
   updateBidTimer,
-  startCardCollection,
   setPlayerName,
   botShouldPlayCard,
   botShouldBid,

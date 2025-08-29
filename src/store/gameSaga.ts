@@ -19,7 +19,6 @@ import {
   playCard,
   setStage,
   startBiddingRound,
-  startCardCollection,
   startNewTrick,
   updateBidTimer,
 } from "./gameSlice";
@@ -49,7 +48,7 @@ function* watchTrickCompletion() {
       if (isTrickComplete && stage === GameStages.PLAYING) {
         yield put(gameStageTransition(GameStages.CARDS_DISPLAY));
         yield delay(TIMINGS.trickDisplayMs);
-        yield put(startCardCollection());
+        yield put(gameStageTransition(GameStages.TRICK_COMPLETE));
         yield delay(TIMINGS.collectionAnimationMs + TIMINGS.collectionBufferMs);
         yield put(startNewTrick());
       }
