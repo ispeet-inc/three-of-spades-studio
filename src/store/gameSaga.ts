@@ -25,6 +25,8 @@ import {
 import { GameStages, type GameStage } from "./gameStages";
 import {
   selectBiddingStateRaw,
+  selectGameConfig,
+  selectGameProgress,
   selectIsTrickComplete,
   selectStage,
 } from "./selectors";
@@ -38,9 +40,13 @@ function handleSagaError(error: any, context: string) {
 }
 
 // Watch for trick completion and automatically transition to CARDS_DISPLAY
-function* watchTrickCompletion() {
+function* watchTrickCompletion(): Generator<any, void, any> {
   console.log("Saga: watchTrickCompletion started");
-  yield takeEvery(playCard.type, function* handleTrickCompletion() {
+  yield takeEvery(playCard.type, function* handleTrickCompletion(): Generator<
+    any,
+    void,
+    any
+  > {
     try {
       const isTrickComplete: boolean = yield select(selectIsTrickComplete);
       const stage: GameStage = yield select(selectStage);
@@ -51,6 +57,15 @@ function* watchTrickCompletion() {
         yield put(gameStageTransition(GameStages.TRICK_COMPLETE));
         yield delay(TIMINGS.collectionAnimationMs + TIMINGS.collectionBufferMs);
         yield put(startNewTrick());
+
+        const gameConfig = yield select(selectGameConfig);
+        const gameProgress = yield select(selectGameProgress);
+        // Check if game is over
+        if (gameConfig && gameProgress.trick >= gameConfig.totalTricks) {
+          yield put(gameStageTransition(GameStages.GAME_OVER));
+        } else {
+          yield put(gameStageTransition(GameStages.PLAYING));
+        }
       }
     } catch (error) {
       yield call(handleSagaError, error, "handleTrickCompletion");
@@ -59,7 +74,7 @@ function* watchTrickCompletion() {
 }
 
 // --- Bidding Timer Saga ---
-function* biddingTimerSaga() {
+function* biddingTimerSaga(): Generator<any, void, any> {
   console.log("Saga: biddingTimerSaga started");
   try {
     while (true) {
@@ -85,7 +100,6 @@ function* biddingTimerSaga() {
       }
     }
   } finally {
-    // @ts-expect-error - cancelled is not typed
     if (yield cancelled()) {
       console.log("Saga: biddingTimerSaga cancelled");
     }
@@ -93,7 +107,7 @@ function* biddingTimerSaga() {
 }
 
 // Watch for bidding round start or bidder change to restart timer
-function* watchBiddingTimerTriggers() {
+function* watchBiddingTimerTriggers(): Generator<any, void, any> {
   console.log("Saga: watchBiddingTimerTriggers started");
   while (true) {
     // Wait for any of these actions
@@ -115,6 +129,6 @@ function* watchBiddingTimerTriggers() {
   }
 }
 
-export default function* gameSaga() {
+export default function* gameSaga(): Generator<any, void, any> {
   yield all([watchBiddingTimerTriggers(), watchTrickCompletion()]);
 }
