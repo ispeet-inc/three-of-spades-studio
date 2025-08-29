@@ -191,17 +191,15 @@ function* handleGameStageTransition(
         break;
       }
 
-      case GameStages.SERIES_COMPLETE: {
+      case GameStages.SERIES_SUMMARY: {
         console.log(
-          "Game Flow Saga: Orchestrating series complete stage transition"
+          "Game Flow Saga: Orchestrating series summary stage transition"
         );
 
         // Determine series winner
         yield put(completeSeries());
 
-        // Show series summary
-        // yield put(gameStageTransition(GameStages.SERIES_SUMMARY));
-        // yield put(setStage(GameStages.SERIES_SUMMARY)); // FIXED: Added missing stage
+        // Show series summary - no further transitions needed
         break;
       }
 
