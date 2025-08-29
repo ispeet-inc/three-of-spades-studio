@@ -11,6 +11,7 @@ import {
   botShouldPlayCard,
   botShouldSelectTrump,
   gameInitialize,
+  gameStageTransition,
   passBid,
   placeBid,
   playCard,
@@ -18,7 +19,6 @@ import {
   restoreGameState,
   setBidAndTrump,
   setPlayerName,
-  setStage,
   startGame,
 } from "@/store/gameSlice";
 import { GameStages } from "@/store/gameStages";
@@ -137,7 +137,7 @@ const GameRedux = ({ viewerIndex = FIRST_PLAYER_ID }: GameReduxProps) => {
     dispatch(playerSetup());
     const startingPlayer = Math.floor(Math.random() * NUM_PLAYERS);
     dispatch(startGame({ startingPlayer }));
-    dispatch(setStage(GameStages.BIDDING));
+    dispatch(gameStageTransition(GameStages.BIDDING));
 
     // Trigger game initialization saga instead of setTimeout
     dispatch(gameInitialize());
@@ -172,7 +172,7 @@ const GameRedux = ({ viewerIndex = FIRST_PLAYER_ID }: GameReduxProps) => {
 
   const handleBidResultClose = () => {
     if (isObserver) return; // BLOCKED in observer mode
-    dispatch(setStage(GameStages.PLAYING));
+    dispatch(gameStageTransition(GameStages.PLAYING));
   };
 
   // Handle bot actions - now using saga triggers

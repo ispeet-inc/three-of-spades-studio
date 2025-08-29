@@ -22,9 +22,9 @@ import {
   setGameError,
   setStage,
   startBiddingRound,
+  startCardCollection,
+  startNewTrick,
   startNextGame,
-  triggerGameCompletion,
-  triggerTrickTransition,
 } from "../gameSlice";
 import { GameStages, type GameStage } from "../gameStages";
 import {
@@ -150,10 +150,16 @@ function* handleGameStageTransition(
         console.log(
           "Game Flow Saga: Orchestrating cards display stage transition"
         );
-        // Handle cards display logic
-        // This could include timing and animation coordination
-        // Trigger automatic transition to trick completion after display
-        yield put(triggerTrickTransition());
+        console.log("Saga: Starting trick display phase");
+        yield delay(TIMINGS.trickDisplayMs);
+        console.log(
+          "Saga: Trick display complete, starting collection animation"
+        );
+        yield put(startCardCollection());
+        console.log("Saga: Waiting for collection animation to finish");
+        yield delay(TIMINGS.collectionAnimationMs + TIMINGS.collectionBufferMs);
+        console.log("Saga: Animation complete, starting new trick");
+        yield put(startNewTrick());
         break;
 
       case GameStages.TRICK_COMPLETE: {
@@ -171,7 +177,7 @@ function* handleGameStageTransition(
           if (gameState.gameMode === "series") {
             yield put(completeGame());
           } else {
-            yield put(triggerGameCompletion()); // VERIFIED: Function exists in gameSlice
+            console.log("Need to trigger game completion");
           }
         }
         break;
@@ -199,7 +205,8 @@ function* handleGameStageTransition(
         yield put(completeSeries());
 
         // Show series summary
-        yield put(setStage(GameStages.SERIES_SUMMARY)); // FIXED: Added missing stage
+        // yield put(gameStageTransition(GameStages.SERIES_SUMMARY));
+        // yield put(setStage(GameStages.SERIES_SUMMARY)); // FIXED: Added missing stage
         break;
       }
 
@@ -219,6 +226,9 @@ function* handleGameStageTransition(
   } finally {
     if (yield cancelled()) {
       console.log("Game stage transition saga cancelled");
+    } else {
+      // Actually change the stage after all logic is complete
+      yield put(setStage(action.payload));
     }
   }
 }
