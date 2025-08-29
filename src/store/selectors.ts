@@ -16,7 +16,7 @@ import type {
   TeamScores,
 } from "@/types/game";
 import { createSelector } from "@reduxjs/toolkit";
-import { FIRST_PLAYER_ID } from "../utils/constants";
+import { FIRST_PLAYER_ID, NUM_PLAYERS } from "../utils/constants";
 
 // ============================================================================
 // ROOT SELECTORS
@@ -194,6 +194,11 @@ export const selectCurrentBidder = createSelector(
 export const selectPassedPlayers = createSelector(
   selectBiddingStateRaw,
   b => b.passedPlayers
+);
+
+export const selectActivePlayersInBidding = createSelector(
+  selectPassedPlayers,
+  passedPlayers => NUM_PLAYERS - passedPlayers.length
 );
 
 /** Winner of the bidding round */

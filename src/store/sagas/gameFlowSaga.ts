@@ -13,7 +13,6 @@ import {
 import { TIMINGS } from "../../utils/constants";
 import {
   clearGameError,
-  completeBiddingWithDelay,
   completeGame,
   completeSeries,
   gameInitialize,
@@ -25,7 +24,7 @@ import {
 } from "../gameSlice";
 import { GameStages, type GameStage } from "../gameStages";
 import {
-  selectBiddingStateRaw,
+  selectActivePlayersInBidding,
   selectGame,
   selectGameProgress,
 } from "../selectors";
@@ -217,19 +216,14 @@ function* handleGameStageTransition(
 // Bidding completion delay saga
 function* handleBiddingCompletionDelay(): Generator<any, void, any> {
   try {
-    console.log("Game Flow Saga: Bidding completed, starting delay");
-
     // Wait for 1.5 seconds to allow players to see the final pass
     yield delay(TIMINGS.biddingResultDelayMs);
 
-    console.log("Game Flow Saga: Delay complete, transitioning to next stage");
-
     // Complete the bidding stage transition
-    yield put(completeBiddingWithDelay());
+    yield put(gameStageTransition(GameStages.BIDDING_COMPLETE));
+    yield put(gameStageTransition(GameStages.TRUMP_SELECTION));
   } catch (error) {
     console.error("Bidding completion delay error:", error);
-    // Fallback: complete bidding immediately
-    yield put(completeBiddingWithDelay());
   } finally {
     if (yield cancelled()) {
       console.log("Bidding completion delay saga cancelled");
@@ -250,9 +244,10 @@ export default function* gameFlowSaga() {
       action.payload &&
       action.payload.playerIndex !== undefined,
     function* (action: any): Generator<any, void, any> {
-      const biddingState = yield select(selectBiddingStateRaw);
+      const numActivePlayers = yield select(selectActivePlayersInBidding);
       // If bidding is complete (only one player left), start the delay saga
-      if (biddingState && biddingState.bidWinner !== null) {
+      if (numActivePlayers === 1) {
+        console.log("Bidding complete, starting delay");
         yield call(handleBiddingCompletionDelay);
       }
     }
