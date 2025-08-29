@@ -38,105 +38,11 @@ This document details the technical implementation plan for the multi-game found
 
 #### **Step 1: Update Type Definitions**
 
-```typescript
-// src/types/game.ts
-export interface TableState {
-  runningSuite: Suite | null;
-  tableCards: TableCard[];
-  turn: number;
-  trickWinner: TableCard | null; // renamed from roundWinner
-  discardedCards: Card[];
-}
-
-export interface GameProgress {
-  trick: number; // renamed from round
-  scores: TeamScores;
-  stage: GameStage;
-}
-```
-
 #### **Step 2: Update Game Stages**
-
-```typescript
-// src/store/gameStages.ts
-export const GameStages = {
-  INIT: "INIT",
-  DISTRIBUTE_CARDS: "DISTRIBUTE_CARDS",
-  BIDDING: "BIDDING",
-  BIDDING_COMPLETE: "BIDDING_COMPLETE",
-  TRUMP_SELECTION: "TRUMP_SELECTION",
-  TRUMP_SELECTION_COMPLETE: "TRUMP_SELECTION_COMPLETE",
-  PLAYING: "PLAYING",
-  CARDS_DISPLAY: "CARDS_DISPLAY",
-  TRICK_COMPLETE: "TRICK_COMPLETE", // renamed from ROUND_COMPLETE
-  TRICK_SUMMARY: "TRICK_SUMMARY", // renamed from ROUND_SUMMARY
-  GAME_OVER: "GAME_OVER",
-  // NEW: Multi-game stages
-  GAME_SUMMARY: "GAME_SUMMARY",
-  SERIES_COMPLETE: "SERIES_COMPLETE",
-  SERIES_SUMMARY: "SERIES_SUMMARY", // ADDED: Missing stage for series completion
-} as const;
-```
 
 #### **Step 3: Update Game Slice**
 
-```typescript
-// src/store/gameSlice.ts
-const initialState: GameState = {
-  // ... existing fields
-  gameProgress: {
-    stage: GameStages.INIT,
-    trick: 0, // renamed from round
-    scores: { team1: 0, team2: 0 },
-  },
-  // ... rest of state
-};
-
-// Update actions
-startNewTrick: state => { // renamed from startNewRound
-  console.log(
-    "GAME: Starting new trick, previous winner:",
-    state.tableState.trickWinner?.player // renamed from roundWinner
-  );
-
-  state.tableState = newTrickOnTable(state.tableState); // renamed function
-  state.gameProgress.trick = state.gameProgress.trick + 1; // renamed from round
-},
-
-// Update game completion logic
-if (state.gameProgress.trick >= state.gameConfig.totalTricks) { // renamed from totalRounds
-  state.gameProgress.stage = GameStages.TRICK_COMPLETE; // renamed from ROUND_COMPLETE
-}
-```
-
 #### **Step 4: Update Utility Functions**
-
-```typescript
-// src/utils/gameUtils.ts
-export const determineTrickWinner = (
-  // renamed from determineRoundWinner
-  tableCards: TableCard[],
-  trumpSuite: number | null
-): TableCard => {
-  // ... existing logic
-};
-
-// src/utils/tableUtils.ts
-export const newTrickOnTable = (oldState: TableState): TableState => {
-  // renamed from newRoundOnTable
-  if (!oldState.trickWinner) {
-    // renamed from roundWinner
-    throw new Error("Cannot start new trick: trickWinner is null"); // updated error message
-  }
-
-  return {
-    ...oldState,
-    tableCards: [],
-    turn: oldState.trickWinner.player, // renamed from roundWinner
-    trickWinner: null, // renamed from roundWinner
-  };
-};
-```
 
 ## 🏗️ Phase 2: Extend GameState for Series Management
 
@@ -153,17 +59,6 @@ export interface SeriesProgress {
   seriesScores: Record<number, number>; // player -> cumulative score
   startingPlayerIndex: number; // Current starting player (0-3)
   seriesWinner: number | null;
-  isActive: boolean; // Whether series is currently active
-}
-
-export interface GameConfig {
-  bidAmount: number;
-  bidWinner: number;
-  teammateCard: Card;
-  trumpSuite: number;
-  totalTricks: number; // renamed from totalRounds
-  totalGames: number; // NEW: number of games in series
-  gameMode: "single" | "series"; // NEW: game mode
 }
 ```
 
@@ -196,7 +91,6 @@ const initialState: GameState = {
     seriesScores: { 0: 0, 1: 0, 2: 0, 3: 0 },
     startingPlayerIndex: 0,
     seriesWinner: null,
-    isActive: false,
   },
   gameMode: "single", // Default to single game
 };
@@ -208,8 +102,6 @@ const initialGameConfig: GameConfig = {
   teammateCard: null,
   trumpSuite: null,
   totalTricks: 10, // renamed from totalRounds
-  totalGames: 4, // NEW
-  gameMode: "single", // NEW
 };
 ```
 
@@ -231,16 +123,14 @@ const gameSlice = createSlice({
     setGameMode: (state, action: PayloadAction<"single" | "series">) => {
       state.gameMode = action.payload;
       if (action.payload === "series") {
-        state.seriesProgress.isActive = true;
         state.seriesProgress.totalGames = 4; // Default for series
       } else {
-        state.seriesProgress.isActive = false;
         state.seriesProgress.totalGames = 1; // Single game
       }
     },
 
     // NEW: Start new game in series
-    startNewGame: state => {
+    startNextGame: state => {
       // 1. Rotate starting player
       state.seriesProgress.startingPlayerIndex = rotateStartingPlayer(
         state.seriesProgress.startingPlayerIndex
@@ -307,10 +197,6 @@ const gameSlice = createSlice({
 // src/utils/gameUtils.ts
 export const rotateStartingPlayer = (currentIndex: number): number => {
   return (currentIndex + 1) % 4; // 0 → 1 → 2 → 3 → 0
-};
-
-export const getNextStartingPlayer = (currentIndex: number): number => {
-  return rotateStartingPlayer(currentIndex);
 };
 ```
 
@@ -538,7 +424,6 @@ const convertTeamScoresToPlayerScores = (
 
 - [ ] Add SeriesProgress interface
 - [ ] Extend GameState with seriesProgress
-- [ ] Update GameConfig with totalGames and gameMode
 - [ ] Implement starting player rotation logic
 
 ### **Week 3: Game Transitions & Logic**

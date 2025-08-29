@@ -1,5 +1,7 @@
-import { BiddingState, Card, Playerv2 } from "@/types/game";
+import { BiddingState, Card, GameState, Playerv2 } from "@/types/game";
 import { BID_TIMER_DURATION } from "@/utils/constants";
+import { distributeDeck, shuffle } from "./cardUtils";
+import { initialTableState } from "./tableUtils";
 
 export const initialBiddingState = (
   numPlayers: number,
@@ -37,4 +39,37 @@ export const initPlayerNames = (
   );
   playerNames[firstPlayerId] = firstPlayerName;
   return playerNames;
+};
+
+export const resetGameStateForNewGame = (
+  state: GameState,
+  numPlayers: number,
+  startingPlayer: number
+): Partial<GameState> => {
+  // todo - make it single shuffle
+  const deck = shuffle(state.tableState.discardedCards);
+  const distributedHands = distributeDeck(deck, numPlayers);
+
+  // Initialize each player's hand
+  const newPlayers: Record<number, Playerv2> = {};
+  for (let i = 0; i < numPlayers; i++) {
+    newPlayers[i] = initPlayerObject(distributedHands[i]);
+  }
+
+  const scores = { team1: 0, team2: 0 };
+  return {
+    tableState: initialTableState(startingPlayer, false),
+    playerState: {
+      ...state.playerState,
+      players: newPlayers,
+      startingPlayer: startingPlayer,
+    },
+    biddingState: initialBiddingState(numPlayers, startingPlayer, false),
+    gameProgress: {
+      ...state.gameProgress,
+      scores: scores,
+      trick: 0,
+    },
+    gameConfig: null,
+  };
 };

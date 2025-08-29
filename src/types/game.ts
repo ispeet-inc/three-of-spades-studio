@@ -83,6 +83,16 @@ export interface GameConfig {
   totalTricks: number;
 }
 
+// NEW: Series progress interface for multi-game series
+export interface SeriesProgress {
+  currentGame: number;
+  totalGames: number;
+  gameScores: Record<number, Record<number, number>>; // game -> player -> score
+  seriesScores: Record<number, number>; // player -> cumulative score
+  startingPlayerIndex: number; // Current starting player (0-3)
+  seriesWinner: number | null;
+}
+
 export interface GameProgress {
   trick: number;
   scores: TeamScores;
@@ -104,4 +114,7 @@ export interface GameState {
   tableState: TableState;
   playerState: PlayerState;
   error: GameError | null;
+  // NEW: Series management
+  seriesProgress: SeriesProgress;
+  gameMode: "single" | "series";
 }
