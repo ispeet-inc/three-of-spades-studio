@@ -342,23 +342,6 @@ const gameSlice = createSlice({
       // No state changes needed, just a trigger
     },
 
-    // Game flow orchestration actions
-    triggerTrickTransition: state => {
-      // This action triggers automatic trick transition logic
-      // No state changes needed, just a trigger
-    },
-
-    triggerGameCompletion: state => {
-      // This action triggers game completion logic
-      // No state changes needed, just a trigger
-    },
-
-    // UI state management
-    setDealingAnimation: (state, action: PayloadAction<boolean>) => {
-      // This action is used by sagas to control the dealing animation state
-      // The actual state is managed in the React component
-    },
-
     // Error handling actions
     setGameError: (state, action: PayloadAction<GameError>) => {
       state.error = action.payload;
@@ -481,9 +464,6 @@ export const {
   botShouldSelectTrump,
   gameInitialize,
   gameStageTransition,
-  triggerTrickTransition,
-  triggerGameCompletion,
-  setDealingAnimation,
   setGameError,
   clearGameError,
   restoreGameState,
