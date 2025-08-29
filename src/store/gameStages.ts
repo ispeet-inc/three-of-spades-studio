@@ -12,7 +12,6 @@ export const GameStages = {
   GAME_OVER: "GAME_OVER",
   // NEW: Multi-game stages
   GAME_SUMMARY: "GAME_SUMMARY",
-  SERIES_COMPLETE: "SERIES_COMPLETE",
   SERIES_SUMMARY: "SERIES_SUMMARY",
 } as const;
 

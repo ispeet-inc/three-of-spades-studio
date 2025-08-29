@@ -403,7 +403,7 @@ const gameSlice = createSlice({
 
       // 4. Check if series complete
       if (state.seriesProgress.currentGame >= state.seriesProgress.totalGames) {
-        state.gameProgress.stage = GameStages.SERIES_COMPLETE;
+        state.gameProgress.stage = GameStages.SERIES_SUMMARY;
       } else {
         state.gameProgress.stage = GameStages.GAME_SUMMARY;
       }

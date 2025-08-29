@@ -52,14 +52,20 @@ export const selectGameProgress = createSelector(
 // ============================================================================
 
 /** Cards currently on the table (current trick) */
-export const selectCurrentTrick = createSelector(
+export const selectCurrentTrickCards = createSelector(
   selectGame,
   (g): TableCard[] => g.tableState.tableCards
 );
 
+/** Current trick number (0-9) */
+export const selectCurrentTrick = createSelector(
+  selectGame,
+  (g): number => g.gameProgress.trick
+);
+
 /** Number of cards in current trick */
 export const selectTrickCount = createSelector(
-  selectCurrentTrick,
+  selectCurrentTrickCards,
   t => t.length
 );
 
