@@ -13,7 +13,6 @@ import {
 import { TIMINGS } from "../../utils/constants";
 import {
   clearGameError,
-  completeGame,
   completeSeries,
   gameInitialize,
   gameStageTransition,
@@ -27,12 +26,7 @@ import {
   isValidStageTransition,
   type GameStage,
 } from "../gameStages";
-import {
-  selectActivePlayersInBidding,
-  selectGame,
-  selectGameProgress,
-  selectStage,
-} from "../selectors";
+import { selectActivePlayersInBidding, selectStage } from "../selectors";
 
 // Simple transition handler - inline everything
 function* handleStageTransition(
@@ -173,16 +167,16 @@ function* handleGameStageTransition(
     switch (newStage) {
       case GameStages.TRICK_COMPLETE: {
         // Check if game should continue or end
-        const gameProgress = yield select(selectGameProgress);
-        if (gameProgress.trick >= 10) {
-          // Game complete, check if series should continue
-          const gameState = yield select(selectGame);
-          if (gameState.gameMode === "series") {
-            yield put(completeGame());
-          } else {
-            console.log("Need to trigger game completion");
-          }
-        }
+        // const gameProgress = yield select(selectGameProgress);
+        // if (gameProgress.trick >= 10) {
+        //   // Game complete, check if series should continue
+        //   const gameState = yield select(selectGame);
+        //   if (gameState.gameMode === "series") {
+        //     yield put(completeGame());
+        //   } else {
+        //     console.log("Need to trigger game completion");
+        //   }
+        // }
         break;
       }
 
