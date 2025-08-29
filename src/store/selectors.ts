@@ -69,6 +69,43 @@ export const selectIsTrickComplete = createSelector(
   c => c === 4
 );
 
+// NEW: Trick management selectors (renamed from round)
+export const selectTrickWinner = createSelector(
+  selectGame,
+  (g): number | null => g.tableState.trickWinner?.player ?? null
+);
+
+export const selectIsTrickCompleteStage = createSelector(
+  selectGame,
+  (g): boolean => g.gameProgress.stage === GameStages.TRICK_COMPLETE
+);
+
+// NEW: Series selectors
+export const selectSeriesProgress = createSelector(
+  selectGame,
+  (g): any => g.seriesProgress
+);
+
+export const selectCurrentGame = createSelector(
+  selectSeriesProgress,
+  (s): number => s.currentGame
+);
+
+export const selectTotalGames = createSelector(
+  selectSeriesProgress,
+  (s): number => s.totalGames
+);
+
+export const selectSeriesScores = createSelector(
+  selectSeriesProgress,
+  (s): Record<number, number> => s.seriesScores
+);
+
+export const selectGameMode = createSelector(
+  selectGame,
+  (g): "single" | "series" => g.gameMode
+);
+
 // ============================================================================
 // PLAYER AND TEAM SELECTORS
 // ============================================================================

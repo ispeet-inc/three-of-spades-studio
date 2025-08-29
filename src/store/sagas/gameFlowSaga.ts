@@ -14,16 +14,24 @@ import { TIMINGS } from "../../utils/constants";
 import {
   clearGameError,
   completeBiddingWithDelay,
+  completeGame,
+  completeSeries,
   gameInitialize,
   gameStageTransition,
   setDealingAnimation,
   setGameError,
+  setStage,
   startBiddingRound,
+  startNextGame,
   triggerGameCompletion,
   triggerTrickTransition,
 } from "../gameSlice";
 import { GameStages, type GameStage } from "../gameStages";
-import { selectBiddingStateRaw, selectGameProgress } from "../selectors";
+import {
+  selectBiddingStateRaw,
+  selectGame,
+  selectGameProgress,
+} from "../selectors";
 
 function* handleStageTransitionError(
   error: unknown,
@@ -157,9 +165,41 @@ function* handleGameStageTransition(
         // Check if game should continue or end
         const gameProgress = yield select(selectGameProgress);
         if (gameProgress.trick >= 10) {
-          // Assuming 10 tricks per game
-          yield put(triggerGameCompletion());
+          // renamed from round
+          // Game complete, check if series should continue
+          const gameState = yield select(selectGame);
+          if (gameState.gameMode === "series") {
+            yield put(completeGame());
+          } else {
+            yield put(triggerGameCompletion()); // VERIFIED: Function exists in gameSlice
+          }
         }
+        break;
+      }
+
+      case GameStages.GAME_SUMMARY: {
+        console.log(
+          "Game Flow Saga: Orchestrating game summary stage transition"
+        );
+
+        // Show game summary for 30 seconds
+        yield delay(30000);
+
+        // Start next game
+        yield put(startNextGame());
+        break;
+      }
+
+      case GameStages.SERIES_COMPLETE: {
+        console.log(
+          "Game Flow Saga: Orchestrating series complete stage transition"
+        );
+
+        // Determine series winner
+        yield put(completeSeries());
+
+        // Show series summary
+        yield put(setStage(GameStages.SERIES_SUMMARY)); // FIXED: Added missing stage
         break;
       }
 
