@@ -19,14 +19,11 @@ import {
   playCard,
   setStage,
   startBiddingRound,
-  startNewTrick,
   updateBidTimer,
 } from "./gameSlice";
 import { GameStages, type GameStage } from "./gameStages";
 import {
   selectBiddingStateRaw,
-  selectGameConfig,
-  selectGameProgress,
   selectIsTrickComplete,
   selectStage,
 } from "./selectors";
@@ -55,17 +52,6 @@ function* watchTrickCompletion(): Generator<any, void, any> {
         yield put(gameStageTransition(GameStages.CARDS_DISPLAY));
         yield delay(TIMINGS.trickDisplayMs);
         yield put(gameStageTransition(GameStages.TRICK_COMPLETE));
-        yield delay(TIMINGS.collectionAnimationMs + TIMINGS.collectionBufferMs);
-        yield put(startNewTrick());
-
-        const gameConfig = yield select(selectGameConfig);
-        const gameProgress = yield select(selectGameProgress);
-        // Check if game is over
-        if (gameConfig && gameProgress.trick >= gameConfig.totalTricks) {
-          yield put(gameStageTransition(GameStages.GAME_OVER));
-        } else {
-          yield put(gameStageTransition(GameStages.PLAYING));
-        }
       }
     } catch (error) {
       yield call(handleSagaError, error, "handleTrickCompletion");
