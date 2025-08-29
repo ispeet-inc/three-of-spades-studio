@@ -266,26 +266,6 @@ const gameSlice = createSlice({
       }
     },
 
-    completeBiddingWithDelay: state => {
-      // This action is called after a delay to complete the bidding stage transition
-      if (state.biddingState.bidWinner !== null) {
-        console.log(
-          "CHANGING STATE: FROM ",
-          state.gameProgress.stage,
-          " TO ",
-          GameStages.BIDDING_COMPLETE
-        );
-        state.gameProgress.stage = GameStages.BIDDING_COMPLETE;
-        console.log(
-          "CHANGING STATE: FROM ",
-          state.gameProgress.stage,
-          " TO ",
-          GameStages.TRUMP_SELECTION
-        );
-        state.gameProgress.stage = GameStages.TRUMP_SELECTION;
-      }
-    },
-
     updateBidTimer: (state, action: PayloadAction<number>) => {
       state.biddingState.bidTimer = action.payload;
     },
@@ -444,7 +424,6 @@ export const {
   startBiddingRound,
   placeBid,
   passBid,
-  completeBiddingWithDelay,
   updateBidTimer,
   startCardCollection,
   setPlayerName,
