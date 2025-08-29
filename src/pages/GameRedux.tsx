@@ -14,6 +14,7 @@ import {
   passBid,
   placeBid,
   playCard,
+  playerSetup,
   restoreGameState,
   setBidAndTrump,
   setPlayerName,
@@ -29,7 +30,7 @@ import {
   selectTeams,
 } from "@/store/selectors";
 import { Card, Suite } from "@/types/game";
-import { FIRST_PLAYER_ID } from "@/utils/constants";
+import { FIRST_PLAYER_ID, NUM_PLAYERS } from "@/utils/constants";
 import { useFeedback } from "@/utils/feedbackSystem";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -133,7 +134,9 @@ const GameRedux = ({ viewerIndex = FIRST_PLAYER_ID }: GameReduxProps) => {
     dispatch(setPlayerName({ playerIndex: FIRST_PLAYER_ID, name: playerName }));
 
     setIsDealing(true);
-    dispatch(startGame());
+    dispatch(playerSetup());
+    const startingPlayer = Math.floor(Math.random() * NUM_PLAYERS);
+    dispatch(startGame({ startingPlayer }));
     dispatch(setStage(GameStages.BIDDING));
 
     // Trigger game initialization saga instead of setTimeout

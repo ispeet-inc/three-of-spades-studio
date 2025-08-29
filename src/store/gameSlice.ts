@@ -1,6 +1,5 @@
 import { agentClasses } from "@/agents";
 import { Card, GameError, GameState, Suite, TeamScores } from "@/types/game";
-import { distributeDeck, shuffle } from "@/utils/cardUtils";
 import {
   BID_TIMER_DURATION,
   FIRST_PLAYER_ID,
@@ -11,9 +10,12 @@ import {
   initialBiddingState,
   initPlayerNames,
   initPlayerObject,
+  resetGameStateForNewGame,
 } from "@/utils/gameSetupUtils";
 import {
   assignTeamsByTeammateCard,
+  calculateGameScores,
+  rotateStartingPlayer,
   selectRandomNames,
 } from "@/utils/gameUtils";
 import {
@@ -49,6 +51,15 @@ const initialState: GameState = {
       3: initPlayerObject([]),
     },
   },
+  seriesProgress: {
+    currentGame: 1,
+    totalGames: 1,
+    gameScores: {},
+    seriesScores: { 0: 0, 1: 0, 2: 0, 3: 0 },
+    startingPlayerIndex: 0,
+    seriesWinner: null,
+  },
+  gameMode: "single",
   error: null,
 };
 
@@ -66,17 +77,7 @@ const gameSlice = createSlice({
       state.gameProgress.stage = action.payload;
     },
 
-    startGame: state => {
-      // todo - make it single shuffle
-      const deck = shuffle(state.tableState.discardedCards);
-      state.tableState.discardedCards = [];
-      const distributedHands = distributeDeck(deck, NUM_PLAYERS);
-
-      // Initialize each player's hand
-      for (let i = 0; i < NUM_PLAYERS; i++) {
-        state.playerState.players[i] = initPlayerObject(distributedHands[i]);
-      }
-
+    playerSetup: state => {
       // Randomly assign bot agents to computer players (1, 2, 3)
       state.playerState.playerAgents = {};
       const sampledNames = selectRandomNames(
@@ -93,18 +94,19 @@ const gameSlice = createSlice({
         const name = sampledNames.pop();
         state.playerState.playerNames[i] = name !== undefined ? name : "";
       }
-      state.gameConfig = null;
-      // Randomly select starting player
-      state.playerState.startingPlayer = Math.floor(
-        Math.random() * NUM_PLAYERS
+    },
+
+    startGame: (state, action: PayloadAction<{ startingPlayer: number }>) => {
+      console.log(
+        "Starting game with starting player: ",
+        action.payload.startingPlayer
       );
-      console.log("Starting player is ", state.playerState.startingPlayer);
-      state.gameProgress.trick = 0;
-      state.tableState = initialTableState(
-        state.playerState.startingPlayer,
-        false
+      const resetState = resetGameStateForNewGame(
+        state,
+        NUM_PLAYERS,
+        action.payload.startingPlayer
       );
-      state.gameProgress.scores = { team1: 0, team2: 0 };
+      Object.assign(state, resetState);
     },
 
     playCard: (
@@ -366,6 +368,75 @@ const gameSlice = createSlice({
       state.error = null;
     },
 
+    // NEW: Series management actions
+    setGameMode: (state, action: PayloadAction<"single" | "series">) => {
+      state.gameMode = action.payload;
+      if (action.payload === "series") {
+        state.seriesProgress.totalGames = 4; // Default for series
+      } else {
+        state.seriesProgress.totalGames = 1; // Single game
+      }
+    },
+
+    startNextGame: state => {
+      // 1. Rotate starting player
+      state.seriesProgress.startingPlayerIndex = rotateStartingPlayer(
+        state.seriesProgress.startingPlayerIndex,
+        NUM_PLAYERS
+      );
+
+      state.seriesProgress.currentGame += 1;
+      state.gameProgress.stage = GameStages.INIT;
+
+      const resetState = resetGameStateForNewGame(
+        state,
+        NUM_PLAYERS,
+        state.seriesProgress.startingPlayerIndex
+      );
+      Object.assign(state, resetState);
+    },
+
+    completeGame: state => {
+      // 1. Calculate final game scores (existing logic)
+      if (state.biddingState.bidWinner === null) {
+        throw new Error("Bid winner is null");
+      }
+      const gameScores = calculateGameScores(
+        state.gameProgress.scores,
+        state.playerState.players,
+        state.biddingState.currentBid,
+        state.biddingState.bidWinner
+      );
+
+      // 2. Update series scores
+      Object.entries(gameScores).forEach(([playerId, score]) => {
+        const playerIndex = parseInt(playerId);
+        state.seriesProgress.seriesScores[playerIndex] += score;
+      });
+
+      // 3. Store game scores for history
+      state.seriesProgress.gameScores[state.seriesProgress.currentGame] =
+        gameScores;
+
+      // 4. Check if series complete
+      if (state.seriesProgress.currentGame >= state.seriesProgress.totalGames) {
+        state.gameProgress.stage = GameStages.SERIES_COMPLETE;
+      } else {
+        state.gameProgress.stage = GameStages.GAME_SUMMARY;
+      }
+    },
+
+    completeSeries: state => {
+      // Determine series winner
+      const winner = Object.entries(state.seriesProgress.seriesScores).reduce(
+        (max, [playerId, score]) =>
+          score > max.score ? { playerId: parseInt(playerId), score } : max,
+        { playerId: 0, score: -1 }
+      );
+
+      state.seriesProgress.seriesWinner = winner.playerId;
+    },
+
     // NEW: State restoration actions for observer mode
     restoreGameState: (state, action: PayloadAction<GameState>) => {
       const savedState = action.payload;
@@ -393,6 +464,7 @@ const gameSlice = createSlice({
 
 export const {
   setStage,
+  playerSetup,
   startGame,
   playCard,
   startNewTrick,
