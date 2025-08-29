@@ -25,6 +25,9 @@ export const TIMINGS = {
 
   // Dealing
   dealingStaggerMs: 150, // dealing stagger between cards
+
+  // Game summary
+  nextGameAutoStartMs: 30000, // delay before next game auto-starts
 } as const;
 
 export const BIDDING_TEAM = 1; // Changed from 0 to 1
