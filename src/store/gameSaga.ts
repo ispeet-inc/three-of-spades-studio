@@ -47,19 +47,10 @@ function* watchTrickCompletion() {
       const stage: GameStage = yield select(selectStage);
 
       if (isTrickComplete && stage === GameStages.PLAYING) {
-        console.log(
-          "Saga: Trick completed with 4 cards, transitioning to CARDS_DISPLAY"
-        );
         yield put(gameStageTransition(GameStages.CARDS_DISPLAY));
-        console.log("Saga: Starting trick display phase");
         yield delay(TIMINGS.trickDisplayMs);
-        console.log(
-          "Saga: Trick display complete, starting collection animation"
-        );
         yield put(startCardCollection());
-        console.log("Saga: Waiting for collection animation to finish");
         yield delay(TIMINGS.collectionAnimationMs + TIMINGS.collectionBufferMs);
-        console.log("Saga: Animation complete, starting new trick");
         yield put(startNewTrick());
       }
     } catch (error) {

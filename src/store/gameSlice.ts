@@ -117,9 +117,6 @@ const gameSlice = createSlice({
       const playerHand = [...state.playerState.players[playerIndex].hand];
       const card = playerHand.splice(cardIndex, 1)[0];
 
-      // Sort the remaining hand by position value to maintain card order
-      playerHand.sort((a, b) => a.positionValue - b.positionValue);
-
       state.playerState.players[playerIndex].hand = playerHand;
       const tableCard = { ...card, player: playerIndex };
 
