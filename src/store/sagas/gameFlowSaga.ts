@@ -18,7 +18,6 @@ import {
   completeSeries,
   gameInitialize,
   gameStageTransition,
-  setDealingAnimation,
   setGameError,
   setStage,
   startBiddingRound,
@@ -92,9 +91,6 @@ function* handleGameInitialization(): Generator<any, void, any> {
       return;
     }
 
-    // Stop dealing animation
-    yield put(setDealingAnimation(false));
-
     // Start bidding round
     yield put(startBiddingRound());
 
@@ -104,7 +100,6 @@ function* handleGameInitialization(): Generator<any, void, any> {
     // Enhanced fallback: try to recover gracefully
     try {
       console.log("Game Flow Saga: Attempting fallback initialization");
-      yield put(setDealingAnimation(false));
       yield put(startBiddingRound());
     } catch (fallbackError) {
       console.error(
