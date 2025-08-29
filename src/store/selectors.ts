@@ -47,6 +47,11 @@ export const selectGameProgress = createSelector(
   (g): GameProgress => g.gameProgress
 );
 
+export const selectIsSeries = createSelector(
+  selectGame,
+  (g): boolean => g.gameMode === "series"
+);
+
 // ============================================================================
 // TRICK MANAGEMENT SELECTORS
 // ============================================================================

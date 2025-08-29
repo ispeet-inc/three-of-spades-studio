@@ -329,7 +329,6 @@ const gameSlice = createSlice({
       );
 
       state.seriesProgress.currentGame += 1;
-      state.gameProgress.stage = GameStages.INIT;
 
       const resetState = resetGameStateForNewGame(
         state,

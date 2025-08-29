@@ -26,7 +26,11 @@ import {
   isValidStageTransition,
   type GameStage,
 } from "../gameStages";
-import { selectActivePlayersInBidding, selectStage } from "../selectors";
+import {
+  selectActivePlayersInBidding,
+  selectIsSeries,
+  selectStage,
+} from "../selectors";
 
 // Simple transition handler - inline everything
 function* handleStageTransition(
@@ -52,6 +56,13 @@ function* handleStageSideEffects(
   newStage: GameStage
 ): Generator<any, void, any> {
   switch (newStage) {
+    case GameStages.INIT: {
+      const isSeries = yield select(selectIsSeries);
+      if (isSeries) {
+        yield put(startNextGame());
+      }
+      break;
+    }
     case GameStages.BIDDING:
       // yield put(startBiddingRound());
       break;
@@ -68,6 +79,11 @@ function* handleStageSideEffects(
     case GameStages.TRICK_COMPLETE:
       // todo - this is only to fix type error for timebeing
       yield delay(500);
+      break;
+    case GameStages.GAME_SUMMARY:
+      // Show game summary for 30 seconds
+      yield delay(TIMINGS.nextGameAutoStartMs);
+      yield put(gameStageTransition(GameStages.INIT));
       break;
     default:
       console.log(`Transition: No specific logic for ${newStage}`);
@@ -177,19 +193,6 @@ function* handleGameStageTransition(
         //     console.log("Need to trigger game completion");
         //   }
         // }
-        break;
-      }
-
-      case GameStages.GAME_SUMMARY: {
-        console.log(
-          "Game Flow Saga: Orchestrating game summary stage transition"
-        );
-
-        // Show game summary for 30 seconds
-        yield delay(30000);
-
-        // Start next game
-        yield put(startNextGame());
         break;
       }
 
