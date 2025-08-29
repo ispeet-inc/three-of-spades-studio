@@ -22,12 +22,63 @@ import {
   startBiddingRound,
   startNextGame,
 } from "../gameSlice";
-import { GameStages, type GameStage } from "../gameStages";
+import {
+  GameStages,
+  isValidStageTransition,
+  type GameStage,
+} from "../gameStages";
 import {
   selectActivePlayersInBidding,
   selectGame,
   selectGameProgress,
+  selectStage,
 } from "../selectors";
+
+// Simple transition handler - inline everything
+function* handleStageTransition(
+  newStage: GameStage
+): Generator<any, void, any> {
+  const currentStage: GameStage = yield select(selectStage);
+
+  // Basic validation
+  if (!isValidStageTransition(currentStage, newStage)) {
+    console.error(`Invalid transition: ${currentStage} -> ${newStage}`);
+    return;
+  }
+
+  // // Change the stage
+  // yield put(setStage(newStage));
+
+  // // Handle any side effects
+  // yield call(handleStageSideEffects, newStage);
+}
+
+// Handle side effects for each stage
+function* handleStageSideEffects(
+  newStage: GameStage
+): Generator<any, void, any> {
+  switch (newStage) {
+    case GameStages.BIDDING:
+      // yield put(startBiddingRound());
+      break;
+    case GameStages.PLAYING: {
+      // Check if it's bot's turn
+      // const tableState = yield select(
+      //   (state: RootState) => state.game.tableState
+      // );
+      // if (tableState.turn !== FIRST_PLAYER_ID) {
+      //   yield put(botShouldPlayCard({ playerIndex: tableState.turn }));
+      // }
+      break;
+    }
+    case GameStages.TRICK_COMPLETE:
+      // todo - this is only to fix type error for timebeing
+      yield delay(1000);
+      break;
+    default:
+      console.log(`Transition: No specific logic for ${newStage}`);
+  }
+}
 
 function* handleStageTransitionError(
   error: unknown,
@@ -107,7 +158,7 @@ function* handleGameInitialization(): Generator<any, void, any> {
   }
 }
 
-// Game stage transition saga
+// Game stage transition saga - simplified with new validation system
 function* handleGameStageTransition(
   action: PayloadAction<GameStage>
 ): Generator<any, void, any> {
@@ -115,45 +166,15 @@ function* handleGameStageTransition(
     const newStage = action.payload;
     console.log(`Game Flow Saga: Transitioning to stage: ${newStage}`);
 
-    // Handle different stage transitions
+    // todo - Use the new centralized transition system
+    yield call(handleStageTransition, newStage);
+
+    // Handle special cases that need additional logic
     switch (newStage) {
-      case GameStages.BIDDING:
-        console.log("Game Flow Saga: Orchestrating bidding stage transition");
-        // Start bidding round if not already started
-        // Additional bidding stage logic can be added here
-        // This could include bot coordination and validation
-        break;
-
-      case GameStages.TRUMP_SELECTION:
-        console.log(
-          "Game Flow Saga: Orchestrating trump selection stage transition"
-        );
-        // Handle trump selection stage logic
-        // This could include bot AI coordination
-        break;
-
-      case GameStages.PLAYING:
-        console.log("Game Flow Saga: Orchestrating playing stage transition");
-        // Handle playing stage logic
-        // This could include turn management and bot coordination
-        break;
-
-      case GameStages.CARDS_DISPLAY:
-        console.log(
-          "Game Flow Saga: Orchestrating cards display stage transition"
-        );
-        break;
-
       case GameStages.TRICK_COMPLETE: {
-        console.log(
-          "Game Flow Saga: Orchestrating trick complete stage transition"
-        );
-        // Handle trick complete logic
-        // This could include score calculation and trick transition
         // Check if game should continue or end
         const gameProgress = yield select(selectGameProgress);
         if (gameProgress.trick >= 10) {
-          // renamed from round
           // Game complete, check if series should continue
           const gameState = yield select(selectGame);
           if (gameState.gameMode === "series") {
@@ -189,12 +210,6 @@ function* handleGameStageTransition(
         // Show series summary - no further transitions needed
         break;
       }
-
-      case GameStages.GAME_OVER:
-        console.log("Game Flow Saga: Orchestrating game over stage transition");
-        // Handle game over logic
-        // This could include final score calculation and cleanup
-        break;
 
       default:
         console.warn(`Game Flow Saga: Unknown stage transition: ${newStage}`);
