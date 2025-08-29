@@ -19,6 +19,7 @@ import {
   setGameError,
   setStage,
   startBiddingRound,
+  startNewTrick,
   startNextGame,
 } from "../gameSlice";
 import {
@@ -28,6 +29,8 @@ import {
 } from "../gameStages";
 import {
   selectActivePlayersInBidding,
+  selectGameConfig,
+  selectGameProgress,
   selectIsSeries,
   selectStage,
 } from "../selectors";
@@ -76,10 +79,23 @@ function* handleStageSideEffects(
       // }
       break;
     }
-    case GameStages.TRICK_COMPLETE:
-      // todo - this is only to fix type error for timebeing
-      yield delay(500);
+    case GameStages.TRICK_COMPLETE: {
+      yield delay(TIMINGS.collectionAnimationMs + TIMINGS.collectionBufferMs);
+      yield put(startNewTrick());
+
+      const gameProgress = yield select(selectGameProgress);
+      const gameConfig = yield select(selectGameConfig);
+
+      // Check if game should continue or end
+      if (gameConfig && gameProgress.trick >= gameConfig.totalTricks) {
+        console.log("Game Flow Saga: All tricks done, Game over");
+        yield put(setStage(GameStages.GAME_OVER));
+      } else {
+        console.log("Game Flow Saga: Game not over, starting next trick");
+        yield put(setStage(GameStages.PLAYING));
+      }
       break;
+    }
     case GameStages.GAME_SUMMARY:
       // Show game summary for 30 seconds
       yield delay(TIMINGS.nextGameAutoStartMs);
@@ -181,21 +197,6 @@ function* handleGameStageTransition(
 
     // Handle special cases that need additional logic
     switch (newStage) {
-      case GameStages.TRICK_COMPLETE: {
-        // Check if game should continue or end
-        // const gameProgress = yield select(selectGameProgress);
-        // if (gameProgress.trick >= 10) {
-        //   // Game complete, check if series should continue
-        //   const gameState = yield select(selectGame);
-        //   if (gameState.gameMode === "series") {
-        //     yield put(completeGame());
-        //   } else {
-        //     console.log("Need to trigger game completion");
-        //   }
-        // }
-        break;
-      }
-
       case GameStages.SERIES_SUMMARY: {
         console.log(
           "Game Flow Saga: Orchestrating series summary stage transition"

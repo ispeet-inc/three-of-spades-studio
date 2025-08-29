@@ -69,7 +69,7 @@ const gameSlice = createSlice({
   reducers: {
     setStage: (state, action: PayloadAction<GameStage>) => {
       console.log(
-        "GameSlice.setStage: CHANGING STATE: FROM",
+        "[Game Flow] GameSlice.setStage: CHANGING STATE: FROM",
         state.gameProgress.stage,
         "TO",
         action.payload
