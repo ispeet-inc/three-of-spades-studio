@@ -27,7 +27,7 @@ const HowToPlayModal: React.FC<HowToPlayModalProps> = ({ isOpen, onClose }) => {
             <X className="h-5 w-5" />
           </Button>
           <DialogTitle className="text-4xl font-casino text-gold mb-4 flex items-center justify-center gap-4">
-            🎮 How to Play Three of Spades
+            🎮 How to Play
           </DialogTitle>
           <div className="w-24 h-1 bg-gradient-gold mx-auto rounded-full"></div>
         </DialogHeader>
