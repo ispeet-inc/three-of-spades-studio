@@ -16,3 +16,27 @@ export const GameStages = {
 } as const;
 
 export type GameStage = (typeof GameStages)[keyof typeof GameStages];
+
+const STAGE_TRANSITIONS: Record<GameStage, GameStage[]> = {
+  INIT: ["DISTRIBUTE_CARDS"],
+  DISTRIBUTE_CARDS: ["BIDDING"],
+  BIDDING: ["BIDDING_COMPLETE"],
+  BIDDING_COMPLETE: ["TRUMP_SELECTION"],
+  TRUMP_SELECTION: ["TRUMP_SELECTION_COMPLETE"],
+  TRUMP_SELECTION_COMPLETE: ["PLAYING"],
+  PLAYING: ["CARDS_DISPLAY", "GAME_OVER"],
+  CARDS_DISPLAY: ["TRICK_COMPLETE"],
+  TRICK_COMPLETE: ["TRICK_SUMMARY"],
+  TRICK_SUMMARY: ["PLAYING", "GAME_OVER"],
+  GAME_OVER: ["GAME_SUMMARY", "INIT"],
+  GAME_SUMMARY: ["SERIES_SUMMARY", "INIT"],
+  SERIES_SUMMARY: ["INIT"],
+};
+
+// Simple inline validation - no separate files needed
+export function isValidStageTransition(
+  from: GameStage,
+  to: GameStage
+): boolean {
+  return STAGE_TRANSITIONS[from]?.includes(to) || false;
+}
