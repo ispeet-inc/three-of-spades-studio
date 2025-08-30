@@ -14,6 +14,7 @@ import { sampleHandAndDiscard } from "../utils/sampleHandGenerator";
 import { SUITE_DATA } from "../utils/suiteUtils";
 import { HandPreview } from "./game/HandPreview";
 import { PlayingCard } from "./game/PlayingCard";
+import { CollapsibleScoreboard } from "./ui/collapsible-scoreboard";
 
 // Testing UI Component
 export function HandTester() {
@@ -260,6 +261,36 @@ export function HandTester() {
               <div className="text-sm text-foreground/70">Point Cards</div>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* CollapsibleScoreboard Test Section */}
+      <div className="mt-8">
+        <h2 className="text-2xl font-bold text-center mb-6 text-gold">
+          CollapsibleScoreboard Component Test
+        </h2>
+
+        <div className="flex justify-center">
+          <CollapsibleScoreboard
+            seriesProgress={{
+              currentGame: 3,
+              totalGames: 4,
+              gameScores: {
+                1: { 1: 220, 2: 0, 3: 200, 4: 0 },
+                2: { 1: 0, 2: 170, 3: 0, 4: 150 },
+                3: { 1: 0, 2: 0, 3: 200, 4: 0 },
+              },
+              seriesScores: { 1: 220, 2: 170, 3: 400, 4: 150 },
+              startingPlayerIndex: 2,
+              seriesWinner: 3,
+            }}
+            playerNames={{
+              1: "Player 1",
+              2: "Player 2",
+              3: "Player 3",
+              4: "Player 4",
+            }}
+          />
         </div>
       </div>
     </div>

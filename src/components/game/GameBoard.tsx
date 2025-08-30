@@ -24,7 +24,9 @@ import {
 } from "@/utils/accessibility";
 import { FIRST_PLAYER_ID } from "@/utils/constants";
 import { getPlayerPositions } from "@/utils/positionUtils";
+import { BarChart3 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { CollapsibleScoreboard } from "../ui/collapsible-scoreboard";
 import { BiddingControls } from "./BiddingControls";
 import { CenterTable } from "./CenterTable";
 import { GameInfo } from "./GameInfo";
@@ -71,6 +73,7 @@ export const GameBoard = ({
     team1: false,
     team2: false,
   });
+  const [showScoreboard, setShowScoreboard] = useState(false);
 
   // NEW: Get bidding state from store
   const currentBid = useAppSelector(selectCurrentBid);
@@ -166,12 +169,34 @@ export const GameBoard = ({
         </div>
       )}
 
-      {/* Team Scores */}
-      {/* todo: move this into a new component */}
+      {/* Top-right controls and info */}
       <section
         className="absolute top-6 right-6 flex gap-6 z-20"
-        aria-label="Team scores"
+        aria-label="Game controls and scores"
       >
+        {/* Series Scoreboard Toggle */}
+        {isSeries && seriesProgress && seriesProgress.totalGames > 1 && (
+          <button
+            onClick={() => setShowScoreboard(!showScoreboard)}
+            className={cn(
+              "p-2 rounded-xl",
+              "bg-secondary/90 backdrop-blur border border-border/50",
+              "text-foreground hover:text-gold",
+              "hover:bg-secondary/80 hover:border-gold/30",
+              "transition-all duration-200",
+              "hover:scale-105",
+              "shadow-elevated",
+              showScoreboard && "bg-gold/10 border-gold/30 text-gold"
+            )}
+            title={
+              showScoreboard ? "Hide scoreboard" : "Show series scoreboard"
+            }
+          >
+            <BarChart3 className="w-5 h-5" />
+          </button>
+        )}
+
+        {/* Team Scores */}
         <div
           className="bg-gradient-gold text-casino-black px-6 py-3 rounded-xl shadow-elevated border border-gold-dark"
           role="status"
@@ -209,6 +234,16 @@ export const GameBoard = ({
           </div>
         </div>
       </section>
+
+      {/* Series Scoreboard - Floating overlay */}
+      {showScoreboard && isSeries && seriesProgress && (
+        <div className="absolute top-24 right-6 z-30">
+          <CollapsibleScoreboard
+            seriesProgress={seriesProgress}
+            playerNames={playerState.playerNames}
+          />
+        </div>
+      )}
 
       {/* Main Game Area */}
       <section

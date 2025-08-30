@@ -115,7 +115,7 @@ export const selectSeriesScores = createSelector(
 
 export const selectGameMode = createSelector(
   selectGame,
-  (g): "single" | "series" => g.gameMode
+  (g): GameMode => g.gameMode
 );
 
 // ============================================================================
