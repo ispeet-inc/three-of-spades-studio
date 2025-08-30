@@ -27,6 +27,11 @@ export interface TeamScores {
   team2: number;
 }
 
+export enum GameMode {
+  Single,
+  Series,
+}
+
 // Base player interface with common properties
 export interface BasePlayer {
   team: 1 | 2 | null;
@@ -116,5 +121,5 @@ export interface GameState {
   error: GameError | null;
   // NEW: Series management
   seriesProgress: SeriesProgress;
-  gameMode: "single" | "series";
+  gameMode: GameMode;
 }

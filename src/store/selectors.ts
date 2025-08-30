@@ -5,15 +5,16 @@
 import type { RootState } from "@/store";
 import type { GameStage } from "@/store/gameStages";
 import { GameStages } from "@/store/gameStages";
-import type {
-  BiddingState,
-  GameConfig,
-  GameProgress,
-  GameState,
-  PlayerDisplayData,
-  Playerv2,
-  TableCard,
-  TeamScores,
+import {
+  GameMode,
+  type BiddingState,
+  type GameConfig,
+  type GameProgress,
+  type GameState,
+  type PlayerDisplayData,
+  type Playerv2,
+  type TableCard,
+  type TeamScores,
 } from "@/types/game";
 import { createSelector } from "@reduxjs/toolkit";
 import { FIRST_PLAYER_ID, NUM_PLAYERS } from "../utils/constants";
@@ -49,7 +50,7 @@ export const selectGameProgress = createSelector(
 
 export const selectIsSeries = createSelector(
   selectGame,
-  (g): boolean => g.gameMode === "series"
+  (g): boolean => g.gameMode === GameMode.Series
 );
 
 // ============================================================================

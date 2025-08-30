@@ -1,5 +1,12 @@
 import { agentClasses } from "@/agents";
-import { Card, GameError, GameState, Suite, TeamScores } from "@/types/game";
+import {
+  Card,
+  GameError,
+  GameMode,
+  GameState,
+  Suite,
+  TeamScores,
+} from "@/types/game";
 import {
   BID_TIMER_DURATION,
   FIRST_PLAYER_ID,
@@ -59,7 +66,7 @@ const initialState: GameState = {
     startingPlayerIndex: 0,
     seriesWinner: null,
   },
-  gameMode: "single",
+  gameMode: GameMode.Single,
   error: null,
 };
 
@@ -292,9 +299,9 @@ const gameSlice = createSlice({
     },
 
     // NEW: Series management actions
-    setGameMode: (state, action: PayloadAction<"single" | "series">) => {
+    setGameMode: (state, action: PayloadAction<GameMode>) => {
       state.gameMode = action.payload;
-      if (action.payload === "series") {
+      if (action.payload === GameMode.Series) {
         state.seriesProgress.totalGames = 4; // Default for series
       } else {
         state.seriesProgress.totalGames = 1; // Single game
