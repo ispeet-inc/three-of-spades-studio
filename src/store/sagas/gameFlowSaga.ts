@@ -33,6 +33,7 @@ import {
   selectActivePlayersInBidding,
   selectGameConfig,
   selectGameProgress,
+  selectIsSeries,
   selectSeriesProgress,
   selectStage,
 } from "../selectors";
@@ -85,11 +86,12 @@ function* handleStageSideEffects(
 
       const gameProgress = yield select(selectGameProgress);
       const gameConfig = yield select(selectGameConfig);
+      const isSeries = yield select(selectIsSeries);
 
       // Check if game should continue or end
       if (gameConfig && gameProgress.trick >= gameConfig.totalTricks) {
         console.log("Game Flow Saga: All tricks done, Game completed");
-        if (gameConfig.gameMode === "series") {
+        if (isSeries) {
           yield put(completeGame());
         } else {
           yield put(setStage(GameStages.GAME_OVER));
