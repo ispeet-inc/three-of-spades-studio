@@ -104,4 +104,5 @@ export interface GameState {
   tableState: TableState;
   playerState: PlayerState;
   error: GameError | null;
+  isTeammateRevealed: boolean;
 }

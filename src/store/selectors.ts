@@ -184,13 +184,15 @@ export const selectPlayerDisplayData = createSelector(
     selectCurrentPlayerIndex,
     selectCurrentBidder,
     selectStage,
+    selectGame,
   ],
   (
     players,
     playerState,
     currentPlayerIndex,
     currentBidder,
-    stage
+    stage,
+    game
   ): PlayerDisplayData[] => {
     if (!players) return [];
 
@@ -213,6 +215,7 @@ export const selectPlayerDisplayData = createSelector(
         cards: player.hand,
         isCurrentPlayer,
         isFirstPersonTeammate:
+          game.isTeammateRevealed &&
           player.team !== null &&
           playerIndex !== FIRST_PLAYER_ID &&
           player.team === players[FIRST_PLAYER_ID].team,
@@ -231,6 +234,12 @@ export const selectPlayerDisplayData = createSelector(
 export const selectTeamScores = createSelector(
   selectGame,
   (g): TeamScores => g.gameProgress.scores
+);
+
+/** Whether the teammate has been revealed */
+export const selectIsTeammateRevealed = createSelector(
+  selectGame,
+  (g): boolean => g.isTeammateRevealed
 );
 
 /** Winner of card collection phase */
