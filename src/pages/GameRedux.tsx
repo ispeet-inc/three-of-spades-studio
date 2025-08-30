@@ -10,7 +10,6 @@ import {
   botShouldBid,
   botShouldPlayCard,
   botShouldSelectTrump,
-  gameInitialize,
   gameStageTransition,
   passBid,
   placeBid,
@@ -137,10 +136,7 @@ const GameRedux = ({ viewerIndex = FIRST_PLAYER_ID }: GameReduxProps) => {
     dispatch(playerSetup());
     const startingPlayer = Math.floor(Math.random() * NUM_PLAYERS);
     dispatch(startGame({ startingPlayer }));
-    dispatch(gameStageTransition(GameStages.BIDDING));
-
-    // Trigger game initialization saga instead of setTimeout
-    dispatch(gameInitialize());
+    dispatch(gameStageTransition(GameStages.DISTRIBUTE_CARDS));
   };
 
   const handleBid = (amount: number) => {
