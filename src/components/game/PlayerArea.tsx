@@ -2,6 +2,8 @@ import { cn } from "@/lib/utils";
 import { Card, PlayerDisplayData, Suite } from "@/types/game";
 import { PlayerPosition } from "@/utils/positionUtils";
 import { PlayingCard } from "./PlayingCard";
+import { useAppSelector } from "@/hooks/useAppSelector";
+import { selectIsTeammateRevealed } from "@/store/selectors";
 
 
 interface PlayerAreaProps {
@@ -25,6 +27,9 @@ export const PlayerArea = ({
   isObserver = false,
   viewerIndex = 3,
 }: PlayerAreaProps) => {
+  // Get teammate reveal state
+  const isTeammateRevealed = useAppSelector(selectIsTeammateRevealed);
+
   // SIMPLIFIED: Derive values inline where needed
   const isHuman = position === "bottom" && !isObserver;
   const isViewerPosition = player.id === `player-${viewerIndex}`;
@@ -120,16 +125,18 @@ export const PlayerArea = ({
               </span>
             )}
           </div>
-          <div
-            className={cn(
-              "text-xs px-2 py-1 rounded-full",
-              player.team === 1
-                ? "bg-gold/20 text-gold"
-                : "bg-blue-500/20 text-blue-300"
-            )}
-          >
-            Team {player.team}
-          </div>
+          {isTeammateRevealed && (
+            <div
+              className={cn(
+                "text-xs px-2 py-1 rounded-full",
+                player.team === 1
+                  ? "bg-gold/20 text-gold"
+                  : "bg-blue-500/20 text-blue-300"
+              )}
+            >
+              Team {player.team}
+            </div>
+          )}
           {player.isFirstPersonTeammate && (
             <div className="text-xs text-green-400 mt-1">★ Teammate</div>
           )}
