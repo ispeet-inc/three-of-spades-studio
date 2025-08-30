@@ -12,6 +12,7 @@ import { sortHand } from "../utils/cardUtils";
 import { getMaxBid } from "../utils/handUtils";
 import { sampleHandAndDiscard } from "../utils/sampleHandGenerator";
 import { SUITE_DATA } from "../utils/suiteUtils";
+import { GameSummaryModal } from "./game/GameSummaryModal";
 import { HandPreview } from "./game/HandPreview";
 import { PlayingCard } from "./game/PlayingCard";
 import { CollapsibleScoreboard } from "./ui/collapsible-scoreboard";
@@ -23,6 +24,9 @@ export function HandTester() {
     useState<Card[]>(sampleDiscardedCards);
   const [handSize, setHandSize] = useState<number>(10);
   const [discardSize, setDiscardSize] = useState<number>(8);
+
+  // GameSummaryModal state
+  const [showGameSummary, setShowGameSummary] = useState(false);
 
   const suiteAnalysis = getSuiteAnalysis(hand);
   const perSuiteData = perSuiteScoreAndCard(hand, discardedCards);
@@ -292,6 +296,50 @@ export function HandTester() {
             }}
           />
         </div>
+      </div>
+
+      {/* GameSummaryModal Test Section */}
+      <div className="mt-8">
+        <h2 className="text-2xl font-bold text-center mb-6 text-gold">
+          GameSummaryModal Component Test
+        </h2>
+
+        <div className="flex justify-center">
+          <button
+            onClick={() => setShowGameSummary(true)}
+            className="bg-gradient-gold text-casino-black px-6 py-3 rounded-lg font-semibold hover:scale-105 transition-all duration-200 shadow-elevated hover:shadow-xl"
+          >
+            🎮 Show Game Summary Modal
+          </button>
+        </div>
+
+        {/* GameSummaryModal with dummy data */}
+        <GameSummaryModal
+          isOpen={showGameSummary}
+          gameNumber={2}
+          gameScores={{
+            0: 200, // Player 1 - Winner
+            1: 0, // Player 2 - Defender
+            2: 0, // Player 3 - Defender
+            3: 220, // Player 4 - Teammate
+          }}
+          seriesScores={{
+            0: 600, // Player 1 - Series Leader
+            1: 200, // Player 2
+            2: 400, // Player 3
+            3: 350, // Player 4
+          }}
+          playerNames={{
+            0: "You",
+            1: "Alice",
+            2: "Bob",
+            3: "Charlie",
+          }}
+          viewerId={0}
+          nextStartingPlayer={2}
+          countdown={30}
+          onClose={() => setShowGameSummary(false)}
+        />
       </div>
     </div>
   );
