@@ -2,6 +2,7 @@ import { BidResultModal } from "@/components/game/BidResultModal";
 import { GameBoard } from "@/components/game/GameBoard";
 import { GameOverModal } from "@/components/game/GameOverModal";
 import { GameSummaryModal } from "@/components/game/GameSummaryModal";
+import { SeriesSummaryModal } from "@/components/game/SeriesSummaryModal";
 import { TrumpSelectionModal } from "@/components/game/TrumpSelectionModal";
 import StartScreen from "@/components/StartScreen";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -179,6 +180,23 @@ const GameRedux = ({ viewerIndex = FIRST_PLAYER_ID }: GameReduxProps) => {
   const handleBidResultClose = () => {
     if (isObserver) return; // BLOCKED in observer mode
     dispatch(gameStageTransition(GameStages.PLAYING));
+  };
+
+  // NEW: Series summary modal callbacks
+  const handleNewSeries = () => {
+    if (isObserver) return; // BLOCKED in observer mode
+    // Reset to INIT stage to start a new series
+    handleStartGame(playerState.playerNames[FIRST_PLAYER_ID], GameMode.Series);
+  };
+
+  const handleNewGame = () => {
+    if (isObserver) return; // BLOCKED in observer mode
+    handleStartGame(playerState.playerNames[FIRST_PLAYER_ID], GameMode.Single);
+  };
+
+  const handleMainMenu = () => {
+    if (isObserver) return; // BLOCKED in observer mode
+    window.location.reload();
   };
 
   // Handle bot actions - now using saga triggers
@@ -363,6 +381,17 @@ const GameRedux = ({ viewerIndex = FIRST_PLAYER_ID }: GameReduxProps) => {
         />
       )}
 
+      {gameState.gameProgress.stage === GameStages.SERIES_SUMMARY && (
+        <SeriesSummaryModal
+          isOpen={true}
+          seriesProgress={gameState.seriesProgress}
+          playerNames={playerState.playerNames}
+          viewerId={viewerIndex}
+          onNewSeries={handleNewSeries}
+          onMainMenu={handleMainMenu}
+        />
+      )}
+
       {gameState.gameProgress.stage === GameStages.GAME_OVER && (
         <GameOverModal
           isOpen={true}
@@ -372,7 +401,7 @@ const GameRedux = ({ viewerIndex = FIRST_PLAYER_ID }: GameReduxProps) => {
           bidWinner={gameState.gameConfig?.bidWinner ?? -1}
           playerNames={playerState.playerNames}
           isMobile={isMobile}
-          onNewGame={() => window.location.reload()}
+          onNewGame={handleNewGame}
           isObserver={isObserver}
         />
       )}

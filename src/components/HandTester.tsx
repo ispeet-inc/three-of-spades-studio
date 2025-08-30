@@ -15,6 +15,7 @@ import { SUITE_DATA } from "../utils/suiteUtils";
 import { GameSummaryModal } from "./game/GameSummaryModal";
 import { HandPreview } from "./game/HandPreview";
 import { PlayingCard } from "./game/PlayingCard";
+import { SeriesSummaryModal } from "./game/SeriesSummaryModal";
 import { CollapsibleScoreboard } from "./ui/collapsible-scoreboard";
 
 // Testing UI Component
@@ -27,6 +28,8 @@ export function HandTester() {
 
   // GameSummaryModal state
   const [showGameSummary, setShowGameSummary] = useState(false);
+  // SeriesSummaryModal state
+  const [showSeriesSummary, setShowSeriesSummary] = useState(false);
 
   const suiteAnalysis = getSuiteAnalysis(hand);
   const perSuiteData = perSuiteScoreAndCard(hand, discardedCards);
@@ -345,6 +348,60 @@ export function HandTester() {
           viewerId={0}
           countdown={30}
           onClose={() => setShowGameSummary(false)}
+        />
+      </div>
+
+      {/* SeriesSummaryModal Test Section */}
+      <div className="mt-8">
+        <h2 className="text-2xl font-bold text-center mb-6 text-gold">
+          SeriesSummaryModal Component Test
+        </h2>
+
+        <div className="flex justify-center">
+          <button
+            onClick={() => setShowSeriesSummary(true)}
+            className="bg-gradient-gold text-casino-black px-6 py-3 rounded-lg font-semibold hover:scale-105 transition-all duration-200 shadow-elevated hover:shadow-xl"
+          >
+            🏆 Show Series Summary Modal
+          </button>
+        </div>
+
+        {/* SeriesSummaryModal with dummy data */}
+        <SeriesSummaryModal
+          isOpen={showSeriesSummary}
+          seriesProgress={{
+            currentGame: 4,
+            totalGames: 4,
+            gameScores: {
+              1: { 0: 220, 1: 0, 2: 200, 3: 0 },
+              2: { 0: 0, 1: 170, 2: 0, 3: 150 },
+              3: { 0: 0, 1: 0, 2: 200, 3: 0 },
+              4: { 0: 200, 1: 0, 2: 0, 3: 0 },
+            },
+            seriesScores: {
+              0: 420, // Player 1 - Series Winner
+              1: 170, // Player 2
+              2: 400, // Player 3
+              3: 150, // Player 4
+            },
+            startingPlayerIndex: 2,
+            seriesWinner: 0,
+          }}
+          playerNames={{
+            0: "You",
+            1: "Alice",
+            2: "Bob",
+            3: "Charlie",
+          }}
+          viewerId={0}
+          onNewSeries={() => {
+            setShowSeriesSummary(false);
+            alert("New Series would start here!");
+          }}
+          onMainMenu={() => {
+            setShowSeriesSummary(false);
+            alert("Would navigate to main menu!");
+          }}
         />
       </div>
     </div>
