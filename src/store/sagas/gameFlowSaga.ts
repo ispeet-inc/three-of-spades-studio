@@ -13,7 +13,6 @@ import {
 import { TIMINGS } from "../../utils/constants";
 import {
   clearGameError,
-  completeSeries,
   gameInitialize,
   gameStageTransition,
   setGameError,
@@ -47,11 +46,11 @@ function* handleStageTransition(
     return;
   }
 
-  // // Change the stage
-  // yield put(setStage(newStage));
+  // Change the stage
+  yield put(setStage(newStage));
 
-  // // Handle any side effects
-  // yield call(handleStageSideEffects, newStage);
+  // Handle any side effects
+  yield call(handleStageSideEffects, newStage);
 }
 
 // Handle side effects for each stage
@@ -66,8 +65,13 @@ function* handleStageSideEffects(
       }
       break;
     }
+    case GameStages.DISTRIBUTE_CARDS: {
+      // Trigger game initialization saga instead of setTimeout
+      yield put(gameInitialize());
+      break;
+    }
     case GameStages.BIDDING:
-      // yield put(startBiddingRound());
+      yield put(startBiddingRound());
       break;
     case GameStages.PLAYING: {
       // Check if it's bot's turn
@@ -165,8 +169,8 @@ function* handleGameInitialization(): Generator<any, void, any> {
       return;
     }
 
-    // Start bidding round
-    yield put(startBiddingRound());
+    // Now transition to BIDDING stage (which will trigger the bidding logic via handleStageSideEffects)
+    yield put(gameStageTransition(GameStages.BIDDING));
 
     console.log("Game Flow Saga: Game initialization completed successfully");
   } catch (error) {
@@ -174,7 +178,7 @@ function* handleGameInitialization(): Generator<any, void, any> {
     // Enhanced fallback: try to recover gracefully
     try {
       console.log("Game Flow Saga: Attempting fallback initialization");
-      yield put(startBiddingRound());
+      yield put(gameStageTransition(GameStages.BIDDING));
     } catch (fallbackError) {
       console.error(
         "Game Flow Saga: Fallback initialization failed:",
@@ -190,39 +194,16 @@ function* handleGameStageTransition(
 ): Generator<any, void, any> {
   try {
     const newStage = action.payload;
-    console.log(`Game Flow Saga: Transitioning to stage: ${newStage}`);
-
-    // todo - Use the new centralized transition system
+    console.log(`Game flow saga: Transitioning to stage: ${newStage}`);
     yield call(handleStageTransition, newStage);
-
-    // Handle special cases that need additional logic
-    switch (newStage) {
-      case GameStages.SERIES_SUMMARY: {
-        console.log(
-          "Game Flow Saga: Orchestrating series summary stage transition"
-        );
-
-        // Determine series winner
-        yield put(completeSeries());
-
-        // Show series summary - no further transitions needed
-        break;
-      }
-
-      default:
-        console.warn(`Game Flow Saga: Unknown stage transition: ${newStage}`);
-        break;
-    }
   } catch (error) {
-    console.error("Game stage transition error:", error);
+    console.error("Game flow saga: stage transition error:", error);
     yield call(handleStageTransitionError, error, action.payload);
   } finally {
     if (yield cancelled()) {
-      console.log("Game stage transition saga cancelled");
+      console.log("Game flow saga: stage transition saga cancelled");
     } else {
-      // Actually change the stage after all logic is complete
-      yield put(setStage(action.payload));
-      yield call(handleStageSideEffects, action.payload);
+      console.log("Game flow saga: stage transition saga completed");
     }
   }
 }
