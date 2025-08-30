@@ -15,6 +15,7 @@ import {
   clearGameError,
   gameInitialize,
   gameStageTransition,
+  setBidAndTrump,
   setGameError,
   setStage,
   startBiddingRound,
@@ -247,4 +248,9 @@ export default function* gameFlowSaga() {
       }
     }
   );
+
+  // Watch for trump selection completion
+  yield takeEvery(setBidAndTrump.type, function* (): Generator<any, void, any> {
+    yield put(gameStageTransition(GameStages.TRUMP_SELECTION_COMPLETE));
+  });
 }
