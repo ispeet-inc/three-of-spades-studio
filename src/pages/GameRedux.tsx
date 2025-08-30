@@ -17,6 +17,7 @@ import {
   playerSetup,
   restoreGameState,
   setBidAndTrump,
+  setGameMode,
   setPlayerName,
   startGame,
 } from "@/store/gameSlice";
@@ -28,7 +29,7 @@ import {
   selectPlayerState,
   selectTeams,
 } from "@/store/selectors";
-import { Card, Suite } from "@/types/game";
+import { Card, GameMode, Suite } from "@/types/game";
 import { FIRST_PLAYER_ID, NUM_PLAYERS } from "@/utils/constants";
 import { useFeedback } from "@/utils/feedbackSystem";
 import { useCallback, useEffect, useState } from "react";
@@ -127,8 +128,15 @@ const GameRedux = ({ viewerIndex = FIRST_PLAYER_ID }: GameReduxProps) => {
     }
   };
 
-  const handleStartGame = (playerName: string = "You") => {
+  const handleStartGame = (
+    playerName: string = "You",
+    gameMode: GameMode = GameMode.Single
+  ) => {
     if (isObserver) return; // BLOCKED in observer mode
+
+    // Set the game mode first
+    dispatch(setGameMode(gameMode));
+
     // Set the player name in the game state
     dispatch(setPlayerName({ playerIndex: FIRST_PLAYER_ID, name: playerName }));
 
@@ -265,7 +273,9 @@ const GameRedux = ({ viewerIndex = FIRST_PLAYER_ID }: GameReduxProps) => {
 
     return (
       <StartScreen
-        onStartGame={(playerName: string) => handleStartGame(playerName)}
+        onStartGame={(playerName: string, gameMode: GameMode) =>
+          handleStartGame(playerName, gameMode)
+        }
       />
     );
   }

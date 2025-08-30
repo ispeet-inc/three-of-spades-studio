@@ -117,7 +117,7 @@ const BiddingDisplay = ({
               </div>
               {highestBidPlayerIndex !== null && (
                 <div className="text-lg text-gold/80">
-                  {getPlayerName(highestBidPlayerIndex, playerNames)} is winning
+                  with {getPlayerName(highestBidPlayerIndex, playerNames)}
                 </div>
               )}
               {highestBidPlayerIndex === null && (

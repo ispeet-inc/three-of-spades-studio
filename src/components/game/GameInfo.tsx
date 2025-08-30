@@ -1,12 +1,15 @@
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { getSuiteColor, getSuiteIcon } from "@/utils/suiteUtils";
-import { GameConfig } from "../../types/game";
+import { GameConfig, SeriesProgress } from "../../types/game";
+import { SeriesProgressBar } from "../ui/series-progress";
 import { PlayingCard } from "./PlayingCard";
 
 interface GameInfoProps {
   gameConfig: GameConfig | null;
   trick: number;
+  isSeries: boolean;
+  seriesProgress: SeriesProgress | null;
 }
 
 export const GameInfo = (props: GameInfoProps) => {
@@ -21,6 +24,16 @@ export const GameInfo = (props: GameInfoProps) => {
       </h2>
 
       <div className="space-y-2 text-sm">
+        {/* Series Progress - Using the new component */}
+        {props.isSeries &&
+          props.seriesProgress &&
+          props.seriesProgress.totalGames > 1 && (
+            <SeriesProgressBar
+              currentGame={props.seriesProgress.currentGame}
+              totalGames={props.seriesProgress.totalGames}
+            />
+          )}
+
         {/* Trump Suit */}
         {trumpSuite !== null && (
           <div className="flex items-center gap-2">
@@ -54,12 +67,6 @@ export const GameInfo = (props: GameInfoProps) => {
           <Badge className="bg-gold text-casino-black font-bold">
             {bidAmount}
           </Badge>
-        </div>
-
-        {/* Trick */}
-        <div className="flex items-center gap-2">
-          <span className="text-muted-foreground">Trick:</span>
-          <span className="font-semibold">{props.trick}</span>
         </div>
       </div>
     </div>

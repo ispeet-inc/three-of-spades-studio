@@ -6,6 +6,8 @@ import {
   selectCanPlayerBid,
   selectCurrentBid,
   selectCurrentBidder,
+  selectIsSeries,
+  selectSeriesProgress,
 } from "@/store/selectors";
 import {
   Card,
@@ -75,6 +77,8 @@ export const GameBoard = ({
   const currentBidder = useAppSelector(selectCurrentBidder);
   const bidTimer = useAppSelector(selectBidTimer);
   const canPlayerBid = useAppSelector(selectCanPlayerBid);
+  const seriesProgress = useAppSelector(selectSeriesProgress);
+  const isSeries = useAppSelector(selectIsSeries);
 
   // Score animation effect
   useEffect(() => {
@@ -132,7 +136,12 @@ export const GameBoard = ({
       <header className="absolute top-6 left-6 right-6 flex justify-between items-center z-20">
         {/* Game Info */}
         <div className="bg-casino-black/40 backdrop-blur-sm border border-gold/30 rounded-lg shadow-elevated p-4">
-          <GameInfo gameConfig={gameConfig} trick={gameProgress.trick} />
+          <GameInfo
+            gameConfig={gameConfig}
+            trick={gameProgress.trick}
+            isSeries={isSeries}
+            seriesProgress={seriesProgress}
+          />
         </div>
 
         {/* Settings */}

@@ -224,6 +224,15 @@ All colors MUST be HSL.
   .animate-fade-in {
     animation: fadeIn 0.3s ease-out;
   }
+
+  /* Animation delays for staggered floating cards */
+  .animation-delay-1000 {
+    animation-delay: 1s;
+  }
+
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
 }
 
 @keyframes spin {
@@ -238,10 +247,10 @@ All colors MUST be HSL.
 @keyframes float {
   0%,
   100% {
-    transform: translateY(0px);
+    transform: translateY(0px) rotate(var(--rotation, 0deg));
   }
   50% {
-    transform: translateY(-10px);
+    transform: translateY(-15px) rotate(calc(var(--rotation, 0deg) + 2deg));
   }
 }
 
