@@ -13,6 +13,8 @@ import {
 import { TIMINGS } from "../../utils/constants";
 import {
   clearGameError,
+  completeGame,
+  completeSeries,
   gameInitialize,
   gameStageTransition,
   setBidAndTrump,
@@ -31,7 +33,7 @@ import {
   selectActivePlayersInBidding,
   selectGameConfig,
   selectGameProgress,
-  selectIsSeries,
+  selectSeriesProgress,
   selectStage,
 } from "../selectors";
 
@@ -59,13 +61,6 @@ function* handleStageSideEffects(
   newStage: GameStage
 ): Generator<any, void, any> {
   switch (newStage) {
-    case GameStages.INIT: {
-      const isSeries = yield select(selectIsSeries);
-      if (isSeries) {
-        yield put(startNextGame());
-      }
-      break;
-    }
     case GameStages.DISTRIBUTE_CARDS: {
       // Trigger game initialization saga instead of setTimeout
       yield put(gameInitialize());
@@ -93,19 +88,31 @@ function* handleStageSideEffects(
 
       // Check if game should continue or end
       if (gameConfig && gameProgress.trick >= gameConfig.totalTricks) {
-        console.log("Game Flow Saga: All tricks done, Game over");
-        yield put(setStage(GameStages.GAME_OVER));
+        console.log("Game Flow Saga: All tricks done, Game completed");
+        if (gameConfig.gameMode === "series") {
+          yield put(completeGame());
+        } else {
+          yield put(setStage(GameStages.GAME_OVER));
+        }
       } else {
         console.log("Game Flow Saga: Game not over, starting next trick");
         yield put(setStage(GameStages.PLAYING));
       }
       break;
     }
-    case GameStages.GAME_SUMMARY:
-      // Show game summary for 30 seconds
-      yield delay(TIMINGS.nextGameAutoStartMs);
-      yield put(gameStageTransition(GameStages.INIT));
+    case GameStages.GAME_SUMMARY: {
+      const seriesProgress = yield select(selectSeriesProgress);
+      if (seriesProgress.currentGame >= seriesProgress.totalGames) {
+        yield put(completeSeries());
+        yield put(setStage(GameStages.SERIES_SUMMARY));
+      } else {
+        // Show game summary for 30 seconds
+        yield delay(TIMINGS.nextGameAutoStartMs);
+        yield put(setStage(GameStages.INIT));
+        yield put(startNextGame());
+      }
       break;
+    }
     default:
       console.log(`Transition: No specific logic for ${newStage}`);
   }
@@ -252,5 +259,10 @@ export default function* gameFlowSaga() {
   // Watch for trump selection completion
   yield takeEvery(setBidAndTrump.type, function* (): Generator<any, void, any> {
     yield put(gameStageTransition(GameStages.TRUMP_SELECTION_COMPLETE));
+  });
+
+  // Watch for game completion
+  yield takeEvery(completeGame.type, function* (): Generator<any, void, any> {
+    yield put(gameStageTransition(GameStages.GAME_SUMMARY));
   });
 }
