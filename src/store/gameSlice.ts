@@ -350,13 +350,6 @@ const gameSlice = createSlice({
       // 3. Store game scores for history
       state.seriesProgress.gameScores[state.seriesProgress.currentGame] =
         gameScores;
-
-      // 4. Check if series complete
-      if (state.seriesProgress.currentGame >= state.seriesProgress.totalGames) {
-        state.gameProgress.stage = GameStages.SERIES_SUMMARY;
-      } else {
-        state.gameProgress.stage = GameStages.GAME_SUMMARY;
-      }
     },
 
     completeSeries: state => {
