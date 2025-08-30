@@ -182,15 +182,6 @@ const gameSlice = createSlice({
         teammateCard,
         NUM_PLAYERS
       );
-      state.playerState.players = updatedPlayers;
-      // todo - make this happen through setStage too.
-      console.log(
-        "CHANGING STATE: FROM ",
-        state.gameProgress.stage,
-        " TO ",
-        GameStages.TRUMP_SELECTION_COMPLETE
-      );
-      state.gameProgress.stage = GameStages.TRUMP_SELECTION_COMPLETE;
     },
 
     startBiddingRound: state => {
