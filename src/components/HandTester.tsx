@@ -316,18 +316,25 @@ export function HandTester() {
         {/* GameSummaryModal with dummy data */}
         <GameSummaryModal
           isOpen={showGameSummary}
-          gameNumber={2}
-          gameScores={{
-            0: 200, // Player 1 - Winner
-            1: 0, // Player 2 - Defender
-            2: 0, // Player 3 - Defender
-            3: 220, // Player 4 - Teammate
-          }}
-          seriesScores={{
-            0: 600, // Player 1 - Series Leader
-            1: 200, // Player 2
-            2: 400, // Player 3
-            3: 350, // Player 4
+          seriesProgress={{
+            currentGame: 2,
+            totalGames: 4,
+            gameScores: {
+              2: {
+                0: 200, // Player 1 - Winner
+                1: 0, // Player 2 - Defender
+                2: 0, // Player 3 - Defender
+                3: 220, // Player 4 - Teammate
+              },
+            },
+            seriesScores: {
+              0: 600, // Player 1 - Series Leader
+              1: 200, // Player 2
+              2: 400, // Player 3
+              3: 350, // Player 4
+            },
+            startingPlayerIndex: 2,
+            seriesWinner: null,
           }}
           playerNames={{
             0: "You",
@@ -336,7 +343,6 @@ export function HandTester() {
             3: "Charlie",
           }}
           viewerId={0}
-          nextStartingPlayer={2}
           countdown={30}
           onClose={() => setShowGameSummary(false)}
         />

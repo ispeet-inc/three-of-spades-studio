@@ -22,7 +22,6 @@ import {
 import {
   assignTeamsByTeammateCard,
   calculateGameScores,
-  rotateStartingPlayer,
   selectRandomNames,
 } from "@/utils/gameUtils";
 import {
@@ -105,7 +104,7 @@ const gameSlice = createSlice({
 
     startGame: (state, action: PayloadAction<{ startingPlayer: number }>) => {
       console.log(
-        "Starting game with starting player: ",
+        "Starting next game with starting player: ",
         action.payload.startingPlayer
       );
       const resetState = resetGameStateForNewGame(
@@ -308,23 +307,6 @@ const gameSlice = createSlice({
       }
     },
 
-    startNextGame: state => {
-      // 1. Rotate starting player
-      state.seriesProgress.startingPlayerIndex = rotateStartingPlayer(
-        state.seriesProgress.startingPlayerIndex,
-        NUM_PLAYERS
-      );
-
-      state.seriesProgress.currentGame += 1;
-
-      const resetState = resetGameStateForNewGame(
-        state,
-        NUM_PLAYERS,
-        state.seriesProgress.startingPlayerIndex
-      );
-      Object.assign(state, resetState);
-    },
-
     completeGame: state => {
       // 1. Calculate final game scores (existing logic)
       if (state.biddingState.bidWinner === null) {
@@ -406,7 +388,6 @@ export const {
   restoreGameState,
   // NEW: Series management actions
   setGameMode,
-  startNextGame,
   completeGame,
   completeSeries,
 } = gameSlice.actions;

@@ -21,8 +21,8 @@ import {
   setGameError,
   setStage,
   startBiddingRound,
+  startGame,
   startNewTrick,
-  startNextGame,
 } from "../gameSlice";
 import {
   GameStages,
@@ -34,7 +34,6 @@ import {
   selectGameConfig,
   selectGameProgress,
   selectIsSeries,
-  selectSeriesProgress,
   selectStage,
 } from "../selectors";
 
@@ -99,19 +98,6 @@ function* handleStageSideEffects(
       } else {
         console.log("Game Flow Saga: Game not over, starting next trick");
         yield put(setStage(GameStages.PLAYING));
-      }
-      break;
-    }
-    case GameStages.GAME_SUMMARY: {
-      const seriesProgress = yield select(selectSeriesProgress);
-      if (seriesProgress.currentGame >= seriesProgress.totalGames) {
-        yield put(completeSeries());
-        yield put(setStage(GameStages.SERIES_SUMMARY));
-      } else {
-        // Show game summary for 30 seconds
-        yield delay(TIMINGS.nextGameAutoStartMs);
-        yield put(setStage(GameStages.INIT));
-        yield put(startNextGame());
       }
       break;
     }
@@ -266,5 +252,15 @@ export default function* gameFlowSaga() {
   // Watch for game completion
   yield takeEvery(completeGame.type, function* (): Generator<any, void, any> {
     yield put(gameStageTransition(GameStages.GAME_SUMMARY));
+  });
+
+  // Watch for game start
+  yield takeEvery(startGame.type, function* (): Generator<any, void, any> {
+    yield put(gameStageTransition(GameStages.DISTRIBUTE_CARDS));
+  });
+
+  // Watch for series completion
+  yield takeEvery(completeSeries.type, function* (): Generator<any, void, any> {
+    yield put(gameStageTransition(GameStages.SERIES_SUMMARY));
   });
 }

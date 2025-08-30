@@ -7,26 +7,21 @@ import {
 import { cn } from "@/lib/utils";
 import { Users } from "lucide-react";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { SeriesProgress } from "../../types/game";
 
 interface GameSummaryModalProps {
-  gameNumber: number;
-  gameScores: Record<number, number>;
-  seriesScores: Record<number, number>;
+  seriesProgress: SeriesProgress;
   playerNames: Record<number, string>;
   viewerId: number;
-  nextStartingPlayer: number;
   isOpen: boolean;
   countdown: number; // seconds remaining
   onClose: () => void;
 }
 
 export const GameSummaryModal: React.FC<GameSummaryModalProps> = ({
-  gameNumber,
-  gameScores,
-  seriesScores,
+  seriesProgress,
   playerNames,
   viewerId,
-  nextStartingPlayer,
   isOpen,
   countdown: initialCountdown,
   onClose,
@@ -35,18 +30,26 @@ export const GameSummaryModal: React.FC<GameSummaryModalProps> = ({
   const [barsVisible, setBarsVisible] = useState(false);
   const [playersVisible, setPlayersVisible] = useState(false);
 
+  const { gameScores, seriesScores, currentGame, startingPlayerIndex } =
+    seriesProgress;
+
+  console.log("currentGame", currentGame);
+
   // Memoized calculations
   const maxTotalScore = useMemo(
     () => Math.max(...Object.values(seriesScores)),
     [seriesScores]
   );
   const maxGameScore = useMemo(
-    () => Math.max(...Object.values(gameScores)),
-    [gameScores]
+    () => Math.max(...Object.values(gameScores[currentGame])),
+    [gameScores, currentGame]
   );
   const minNonZeroScore = useMemo(
-    () => Math.min(...Object.values(gameScores).filter(score => score > 0)),
-    [gameScores]
+    () =>
+      Math.min(
+        ...Object.values(gameScores[currentGame]).filter(score => score > 0)
+      ),
+    [gameScores, currentGame]
   );
 
   // Helper functions
@@ -60,7 +63,7 @@ export const GameSummaryModal: React.FC<GameSummaryModalProps> = ({
   // todo - add more nuance here.
   const getPlayerRole = useCallback(
     (playerId: number): string => {
-      const score = gameScores[playerId];
+      const score = gameScores[currentGame][playerId];
       if (score > 0) {
         return minNonZeroScore === maxGameScore
           ? "Winner"
@@ -70,14 +73,14 @@ export const GameSummaryModal: React.FC<GameSummaryModalProps> = ({
       }
       return "";
     },
-    [gameScores, maxGameScore, minNonZeroScore]
+    [gameScores, maxGameScore, minNonZeroScore, currentGame]
   );
 
   const getGameTitle = useCallback(
     (isWinner: boolean): string => {
-      return `Game ${gameNumber} ${isWinner ? "won!" : "lost!"}`;
+      return `Game ${currentGame} ${isWinner ? "won!" : "lost!"}`;
     },
-    [gameNumber]
+    [currentGame]
   );
 
   const calculateBarWidths = useCallback(
@@ -121,7 +124,7 @@ export const GameSummaryModal: React.FC<GameSummaryModalProps> = ({
 
   if (!isOpen) return null;
 
-  const isViewerWinner = gameScores[viewerId] > 0;
+  const isViewerWinner = gameScores[currentGame][viewerId] > 0;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -148,7 +151,7 @@ export const GameSummaryModal: React.FC<GameSummaryModalProps> = ({
                 .sort(([, a], [, b]) => b - a)
                 .map(([playerId, seriesScore], index) => {
                   const playerIndex = parseInt(playerId);
-                  const gameScore = gameScores[playerIndex] || 0;
+                  const gameScore = gameScores[currentGame][playerIndex] || 0;
                   const isGameWinner = gameScore > 0;
                   const role = getPlayerRole(playerIndex);
                   const { seriesBarWidth, gameBarWidth } = calculateBarWidths(
@@ -260,7 +263,7 @@ export const GameSummaryModal: React.FC<GameSummaryModalProps> = ({
                   <Users className="w-3.5 h-3.5 text-gold/80" />
                 </div>
                 <span className="font-medium text-xs tracking-wide text-gold/80">
-                  {getPlayerName(nextStartingPlayer)} starts next round.
+                  {getPlayerName(startingPlayerIndex)} starts next round.
                 </span>
               </div>
             </div>

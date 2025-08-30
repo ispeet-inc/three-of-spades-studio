@@ -1,6 +1,7 @@
 import { BidResultModal } from "@/components/game/BidResultModal";
 import { GameBoard } from "@/components/game/GameBoard";
 import { GameOverModal } from "@/components/game/GameOverModal";
+import { GameSummaryModal } from "@/components/game/GameSummaryModal";
 import { TrumpSelectionModal } from "@/components/game/TrumpSelectionModal";
 import StartScreen from "@/components/StartScreen";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -10,6 +11,7 @@ import {
   botShouldBid,
   botShouldPlayCard,
   botShouldSelectTrump,
+  completeSeries,
   gameStageTransition,
   passBid,
   placeBid,
@@ -34,6 +36,7 @@ import { FIRST_PLAYER_ID, NUM_PLAYERS } from "@/utils/constants";
 import { useFeedback } from "@/utils/feedbackSystem";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
+import { rotateStartingPlayer } from "../utils/gameUtils";
 
 interface GameReduxProps {
   viewerIndex?: number;
@@ -144,7 +147,6 @@ const GameRedux = ({ viewerIndex = FIRST_PLAYER_ID }: GameReduxProps) => {
     dispatch(playerSetup());
     const startingPlayer = Math.floor(Math.random() * NUM_PLAYERS);
     dispatch(startGame({ startingPlayer }));
-    dispatch(gameStageTransition(GameStages.DISTRIBUTE_CARDS));
   };
 
   const handleBid = (amount: number) => {
@@ -327,6 +329,37 @@ const GameRedux = ({ viewerIndex = FIRST_PLAYER_ID }: GameReduxProps) => {
           playerNames={playerState.playerNames}
           onClose={handleBidResultClose}
           isObserver={isObserver}
+        />
+      )}
+
+      {gameState.gameProgress.stage === GameStages.GAME_SUMMARY && (
+        <GameSummaryModal
+          isOpen={true}
+          seriesProgress={gameState.seriesProgress}
+          playerNames={playerState.playerNames}
+          viewerId={viewerIndex}
+          countdown={30}
+          onClose={() => {
+            // Handle transition to next game or series end
+            if (
+              gameState.seriesProgress.currentGame <
+              gameState.seriesProgress.totalGames
+            ) {
+              // Start next game - you'll need to implement this action
+              console.log("Starting next game...");
+              const nextStartingPlayer = rotateStartingPlayer(
+                gameState.seriesProgress.startingPlayerIndex,
+                NUM_PLAYERS
+              );
+              // Set dealing animation for next game in series
+              setIsDealing(true);
+              dispatch(startGame({ startingPlayer: nextStartingPlayer }));
+            } else {
+              // Series complete - you'll need to implement this action
+              console.log("Series complete!");
+              dispatch(completeSeries());
+            }
+          }}
         />
       )}
 
