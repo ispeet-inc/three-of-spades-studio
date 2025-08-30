@@ -3,6 +3,7 @@ import { Card, PlayerDisplayData, Suite } from "@/types/game";
 import { PlayerPosition } from "@/utils/positionUtils";
 import { PlayingCard } from "./PlayingCard";
 
+
 interface PlayerAreaProps {
   player: PlayerDisplayData;
   runningSuite: Suite | null;

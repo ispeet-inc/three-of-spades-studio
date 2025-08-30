@@ -50,7 +50,6 @@ const initialState: GameState = {
     },
   },
   error: null,
-  isTeammateRevealed: false,
 };
 
 const gameSlice = createSlice({
@@ -107,8 +106,6 @@ const gameSlice = createSlice({
         false
       );
       state.gameProgress.scores = { team1: 0, team2: 0 };
-      // Reset teammate reveal state for new game
-      state.isTeammateRevealed = false;
     },
 
     playCard: (
@@ -128,11 +125,10 @@ const gameSlice = createSlice({
       // Check if this card reveals the teammate
       if (
         state.gameConfig &&
-        !state.isTeammateRevealed &&
-        card.suite === state.gameConfig.teammateCard.suite &&
-        card.number === state.gameConfig.teammateCard.number
+        !state.gameConfig.isTeammateRevealed &&
+        card.hash === state.gameConfig.teammateCard.hash
       ) {
-        state.isTeammateRevealed = true;
+        state.gameConfig.isTeammateRevealed = true;
         console.log("Teammate revealed! Card played:", card);
       }
 
@@ -205,9 +201,8 @@ const gameSlice = createSlice({
         teammateCard: teammateCard,
         trumpSuite: trumpSuite,
         totalRounds: 10,
+        isTeammateRevealed: false,
       };
-      // Reset teammate reveal state for new game
-      state.isTeammateRevealed = false;
       // todo - remove hardcoded total rounds
       console.log(`Setting trump ${trumpSuite} and teammate: ${teammateCard}`);
       // Assign teams based on teammate card
@@ -390,9 +385,6 @@ const gameSlice = createSlice({
 
       // Restore game config
       state.gameConfig = savedState.gameConfig;
-
-      // Restore teammate reveal state
-      state.isTeammateRevealed = savedState.isTeammateRevealed;
 
       // Clear any errors
       state.error = null;

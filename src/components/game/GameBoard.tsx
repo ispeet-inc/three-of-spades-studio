@@ -71,7 +71,7 @@ export const GameBoard = ({
   });
 
   // NEW: Get bidding state from store
-  const currentBid = useAppSelector(selectCurrentBid);
+  const currentBid = useAppSelector(selectCurrentBid) ?? 0;
   const currentBidder = useAppSelector(selectCurrentBidder);
   const bidTimer = useAppSelector(selectBidTimer);
   const canPlayerBid = useAppSelector(selectCanPlayerBid);

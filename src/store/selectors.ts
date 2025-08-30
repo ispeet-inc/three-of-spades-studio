@@ -215,10 +215,8 @@ export const selectPlayerDisplayData = createSelector(
         cards: player.hand,
         isCurrentPlayer,
         isFirstPersonTeammate:
-          game.isTeammateRevealed &&
-          player.team !== null &&
-          playerIndex !== FIRST_PLAYER_ID &&
-          player.team === players[FIRST_PLAYER_ID].team,
+          (game.gameConfig?.isTeammateRevealed ?? false) &&
+          player.isTeammate,
         isTeammate: player.isTeammate,
         isBidWinner: player.isBidWinner,
       };
@@ -239,7 +237,7 @@ export const selectTeamScores = createSelector(
 /** Whether the teammate has been revealed */
 export const selectIsTeammateRevealed = createSelector(
   selectGame,
-  (g): boolean => g.isTeammateRevealed
+  (g): boolean => g.gameConfig?.isTeammateRevealed ?? false
 );
 
 /** Winner of card collection phase */
