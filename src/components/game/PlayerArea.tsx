@@ -12,7 +12,7 @@ interface PlayerAreaProps {
   botCardsHidden?: boolean;
   isObserver?: boolean;
   viewerIndex?: number;
-  isTeammateRevealed?: boolean;
+  isTeammateRevealed: boolean;
 }
 
 export const PlayerArea = ({
@@ -37,7 +37,7 @@ export const PlayerArea = ({
     ? "animate-turn-indicator border-gold/80 bg-gold/10"
     : "border-casino-green/30";
 
-  const getPositionStyles = () => {``
+  const getPositionStyles = () => {
     switch (position) {
       case "bottom":
         return {
