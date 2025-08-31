@@ -14,8 +14,8 @@ export const SeriesProgressBar: React.FC<SeriesProgressBarProps> = ({
   return (
     <div className={cn("space-y-2 pb-2 border-b border-border/30", className)}>
       <div className="flex items-center justify-between">
-        <span className="text-muted-foreground">Series:</span>
-        <span className="text-gold font-semibold">
+        <span className="text-sm text-muted-foreground">Series:</span>
+        <span className="text-sm text-gold font-semibold">
           {currentGame} of {totalGames}
         </span>
       </div>
