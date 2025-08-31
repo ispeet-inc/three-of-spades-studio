@@ -1,14 +1,12 @@
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { Home, Play, Trophy } from "lucide-react";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { SeriesProgress } from "../../types/game";
+import { ModalHeader } from "../ui/ModalHeader";
+import { ProgressBar } from "../ui/ProgressBar";
+import { ProgressBarContainer } from "../ui/ProgressBarContainer";
 
 interface SeriesSummaryModalProps {
   seriesProgress: SeriesProgress;
@@ -98,14 +96,7 @@ export const SeriesSummaryModal: React.FC<SeriesSummaryModalProps> = ({
     <Dialog open={isOpen} onOpenChange={() => {}}>
       <DialogContent className="max-w-xl bg-gradient-to-br from-felt-green-light/95 via-felt-green/95 to-felt-green-dark/95 border border-gold/30 shadow-2xl backdrop-blur-xl overflow-hidden">
         {/* Header */}
-        <DialogHeader className="text-center mb-4 relative">
-          <div className="relative">
-            <DialogTitle className="text-2xl font-casino text-gold mb-2 flex items-center justify-center gap-2">
-              {getSeriesTitle(isViewerWinner)}
-            </DialogTitle>
-          </div>
-          <div className="w-16 h-0.5 bg-gradient-to-r from-transparent via-gold/50 to-transparent mx-auto rounded-full"></div>
-        </DialogHeader>
+        <ModalHeader title={getSeriesTitle(isViewerWinner)} />
 
         <div className="space-y-4 px-2">
           {/* Winner Announcement */}
@@ -202,22 +193,18 @@ export const SeriesSummaryModal: React.FC<SeriesSummaryModalProps> = ({
                       </div>
 
                       {/* Progress Bar Container */}
-                      <div className="relative h-3 bg-gradient-to-r from-casino-black/40 to-casino-black/25 rounded-full overflow-hidden shadow-inner border border-casino-black/35">
-                        {/* Series Total Bar */}
-                        <div
-                          className={cn(
-                            "h-full rounded-full transition-all duration-2000 ease-out shadow-sm",
-                            barsVisible ? "opacity-100" : "opacity-0",
+                      <ProgressBarContainer>
+                        <ProgressBar
+                          width={barWidth}
+                          isVisible={barsVisible}
+                          delay={index * 150 + 300}
+                          className={
                             isWinner
                               ? "bg-gradient-to-r from-gold via-gold/95 to-gold/90"
                               : "bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700"
-                          )}
-                          style={{
-                            width: barsVisible ? `${barWidth}%` : "0%",
-                            transitionDelay: `${index * 150 + 300}ms`,
-                          }}
+                          }
                         />
-                      </div>
+                      </ProgressBarContainer>
                     </div>
                   );
                 })}

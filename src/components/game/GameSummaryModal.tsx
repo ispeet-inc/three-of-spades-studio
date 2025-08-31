@@ -1,13 +1,11 @@
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { Users } from "lucide-react";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { SeriesProgress } from "../../types/game";
+import { ModalHeader } from "../ui/ModalHeader";
+import { DualProgressBar } from "../ui/ProgressBar";
+import { ProgressBarContainer } from "../ui/ProgressBarContainer";
 
 interface GameSummaryModalProps {
   seriesProgress: SeriesProgress;
@@ -130,14 +128,7 @@ export const GameSummaryModal: React.FC<GameSummaryModalProps> = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-xl bg-gradient-to-br from-felt-green-light/95 via-felt-green/95 to-felt-green-dark/95 border border-gold/30 shadow-2xl backdrop-blur-xl overflow-hidden">
         {/* Header */}
-        <DialogHeader className="text-center mb-5 relative">
-          <div className="relative">
-            <DialogTitle className="text-2xl font-casino text-gold mb-2 flex items-center justify-center gap-2">
-              {getGameTitle(isViewerWinner)}
-            </DialogTitle>
-          </div>
-          <div className="w-16 h-0.5 bg-gradient-to-r from-transparent via-gold/50 to-transparent mx-auto rounded-full"></div>
-        </DialogHeader>
+        <ModalHeader title={getGameTitle(isViewerWinner)} className="mb-5" />
 
         <div className="space-y-4 px-2">
           {/* Series Leaderboard */}
@@ -207,34 +198,23 @@ export const GameSummaryModal: React.FC<GameSummaryModalProps> = ({
                       </div>
 
                       {/* Progress Bar Container */}
-                      <div className="relative h-4 bg-gradient-to-r from-casino-black/30 to-casino-black/15 rounded-full overflow-hidden shadow-inner border border-casino-black/25">
-                        {/* Series Total Bar */}
-                        <div
-                          className={cn(
-                            "h-full rounded-full transition-all duration-1500 ease-out shadow-sm",
-                            barsVisible ? "opacity-100" : "opacity-0",
+                      <ProgressBarContainer
+                        height="h-4"
+                        className="from-casino-black/30 to-casino-black/15 border-casino-black/25"
+                      >
+                        <DualProgressBar
+                          seriesWidth={seriesBarWidth}
+                          gameWidth={gameBarWidth}
+                          isVisible={barsVisible}
+                          delay={index * 150 + 300}
+                          seriesClassName={
                             isGameWinner
                               ? "bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700"
                               : "bg-gradient-to-r from-blue-400/90 via-blue-500/80 to-blue-600/70"
-                          )}
-                          style={{
-                            width: barsVisible ? `${seriesBarWidth}%` : "0%",
-                            transitionDelay: `${index * 150 + 300}ms`,
-                          }}
+                          }
+                          gameClassName="bg-gradient-to-r from-gold via-gold/95 to-gold/90"
                         />
-
-                        {/* Game Score Overlay */}
-                        {gameScore > 0 && (
-                          <div
-                            className="absolute top-0 h-full bg-gradient-to-r from-gold via-gold/95 to-gold/90 rounded-full transition-all duration-2000 ease-out shadow-sm"
-                            style={{
-                              width: barsVisible ? `${gameBarWidth}%` : "0%",
-                              left: barsVisible ? `${seriesBarWidth}%` : "0%",
-                              transitionDelay: `${index * 150 + 600}ms`,
-                            }}
-                          />
-                        )}
-                      </div>
+                      </ProgressBarContainer>
                     </div>
                   );
                 })}
