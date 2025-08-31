@@ -5,18 +5,19 @@
 import type { RootState } from "@/store";
 import type { GameStage } from "@/store/gameStages";
 import { GameStages } from "@/store/gameStages";
-import type {
-  BiddingState,
-  GameConfig,
-  GameProgress,
-  GameState,
-  PlayerDisplayData,
-  Playerv2,
-  TableCard,
-  TeamScores,
+import {
+  GameMode,
+  type BiddingState,
+  type GameConfig,
+  type GameProgress,
+  type GameState,
+  type PlayerDisplayData,
+  type Playerv2,
+  type TableCard,
+  type TeamScores,
 } from "@/types/game";
 import { createSelector } from "@reduxjs/toolkit";
-import { FIRST_PLAYER_ID } from "../utils/constants";
+import { FIRST_PLAYER_ID, NUM_PLAYERS } from "../utils/constants";
 
 // ============================================================================
 // ROOT SELECTORS
@@ -47,19 +48,30 @@ export const selectGameProgress = createSelector(
   (g): GameProgress => g.gameProgress
 );
 
+export const selectIsSeries = createSelector(
+  selectGame,
+  (g): boolean => g.gameMode === GameMode.Series
+);
+
 // ============================================================================
 // TRICK MANAGEMENT SELECTORS
 // ============================================================================
 
 /** Cards currently on the table (current trick) */
-export const selectCurrentTrick = createSelector(
+export const selectCurrentTrickCards = createSelector(
   selectGame,
   (g): TableCard[] => g.tableState.tableCards
 );
 
+/** Current trick number (0-9) */
+export const selectCurrentTrick = createSelector(
+  selectGame,
+  (g): number => g.gameProgress.trick
+);
+
 /** Number of cards in current trick */
 export const selectTrickCount = createSelector(
-  selectCurrentTrick,
+  selectCurrentTrickCards,
   t => t.length
 );
 
@@ -67,6 +79,43 @@ export const selectTrickCount = createSelector(
 export const selectIsTrickComplete = createSelector(
   selectTrickCount,
   c => c === 4
+);
+
+// NEW: Trick management selectors (renamed from round)
+export const selectTrickWinner = createSelector(
+  selectGame,
+  (g): number | null => g.tableState.trickWinner?.player ?? null
+);
+
+export const selectIsTrickCompleteStage = createSelector(
+  selectGame,
+  (g): boolean => g.gameProgress.stage === GameStages.TRICK_COMPLETE
+);
+
+// NEW: Series selectors
+export const selectSeriesProgress = createSelector(
+  selectGame,
+  (g): any => g.seriesProgress
+);
+
+export const selectCurrentGame = createSelector(
+  selectSeriesProgress,
+  (s): number => s.currentGame
+);
+
+export const selectTotalGames = createSelector(
+  selectSeriesProgress,
+  (s): number => s.totalGames
+);
+
+export const selectSeriesScores = createSelector(
+  selectSeriesProgress,
+  (s): Record<number, number> => s.seriesScores
+);
+
+export const selectGameMode = createSelector(
+  selectGame,
+  (g): GameMode => g.gameMode
 );
 
 // ============================================================================
@@ -151,6 +200,11 @@ export const selectCurrentBidder = createSelector(
 export const selectPassedPlayers = createSelector(
   selectBiddingStateRaw,
   b => b.passedPlayers
+);
+
+export const selectActivePlayersInBidding = createSelector(
+  selectPassedPlayers,
+  passedPlayers => NUM_PLAYERS - passedPlayers.length
 );
 
 /** Winner of the bidding round */
@@ -245,7 +299,7 @@ export const selectTeamScores = createSelector(
 /** Winner of card collection phase */
 export const selectCollectionWinner = createSelector(
   selectGame,
-  (g): number | null => g.tableState.roundWinner?.player ?? null
+  (g): number | null => g.tableState.trickWinner?.player ?? null
 );
 
 // ============================================================================
@@ -255,11 +309,11 @@ export const selectCollectionWinner = createSelector(
 /** Whether to show cards phase */
 export const selectShowCardsPhase = createSelector(
   selectStage,
-  (stage): boolean => stage === GameStages.ROUND_COMPLETE
+  (stage): boolean => stage === GameStages.TRICK_COMPLETE
 );
 
 /** Whether currently collecting cards */
 export const selectIsCollectingCards = createSelector(
   selectStage,
-  (stage): boolean => stage === GameStages.ROUND_COMPLETE
+  (stage): boolean => stage === GameStages.TRICK_COMPLETE
 );

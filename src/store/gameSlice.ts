@@ -1,6 +1,12 @@
 import { agentClasses } from "@/agents";
-import { Card, GameError, GameState, Suite, TeamScores } from "@/types/game";
-import { distributeDeck, shuffle } from "@/utils/cardUtils";
+import {
+  Card,
+  GameError,
+  GameMode,
+  GameState,
+  Suite,
+  TeamScores,
+} from "@/types/game";
 import {
   BID_TIMER_DURATION,
   FIRST_PLAYER_ID,
@@ -11,14 +17,16 @@ import {
   initialBiddingState,
   initPlayerNames,
   initPlayerObject,
+  resetGameStateForNewGame,
 } from "@/utils/gameSetupUtils";
 import {
   assignTeamsByTeammateCard,
+  calculateGameScores,
   selectRandomNames,
 } from "@/utils/gameUtils";
 import {
   initialTableState,
-  newRoundOnTable,
+  newTrickOnTable,
   playCardOnTable,
 } from "@/utils/tableUtils";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
@@ -33,7 +41,7 @@ const initialState: GameState = {
   gameConfig: null,
   gameProgress: {
     stage: GameStages.INIT,
-    round: 0,
+    trick: 0,
     scores: { team1: 0, team2: 0 },
   },
   biddingState: initialBiddingState(NUM_PLAYERS, 0, false),
@@ -49,6 +57,15 @@ const initialState: GameState = {
       3: initPlayerObject([]),
     },
   },
+  seriesProgress: {
+    currentGame: 0,
+    totalGames: 1,
+    gameScores: {},
+    seriesScores: { 0: 0, 1: 0, 2: 0, 3: 0 },
+    startingPlayerIndex: 0,
+    seriesWinner: null,
+  },
+  gameMode: GameMode.Single,
   error: null,
 };
 
@@ -58,7 +75,7 @@ const gameSlice = createSlice({
   reducers: {
     setStage: (state, action: PayloadAction<GameStage>) => {
       console.log(
-        "GameSlice.setStage: CHANGING STATE: FROM",
+        "[Game Flow] GameSlice.setStage: CHANGING STATE: FROM",
         state.gameProgress.stage,
         "TO",
         action.payload
@@ -66,17 +83,7 @@ const gameSlice = createSlice({
       state.gameProgress.stage = action.payload;
     },
 
-    startGame: state => {
-      // todo - make it single shuffle
-      const deck = shuffle(state.tableState.discardedCards);
-      state.tableState.discardedCards = [];
-      const distributedHands = distributeDeck(deck, NUM_PLAYERS);
-
-      // Initialize each player's hand
-      for (let i = 0; i < NUM_PLAYERS; i++) {
-        state.playerState.players[i] = initPlayerObject(distributedHands[i]);
-      }
-
+    playerSetup: state => {
       // Randomly assign bot agents to computer players (1, 2, 3)
       state.playerState.playerAgents = {};
       const sampledNames = selectRandomNames(
@@ -93,19 +100,25 @@ const gameSlice = createSlice({
         const name = sampledNames.pop();
         state.playerState.playerNames[i] = name !== undefined ? name : "";
       }
-      // Set total rounds based on cards per player
-      state.gameConfig = null;
-      // Randomly select starting player
-      state.playerState.startingPlayer = Math.floor(
-        Math.random() * NUM_PLAYERS
+    },
+
+    startGame: (state, action: PayloadAction<{ startingPlayer: number }>) => {
+      console.log(
+        "Starting next game with starting player: ",
+        action.payload.startingPlayer
       );
-      console.log("Starting player is ", state.playerState.startingPlayer);
-      state.gameProgress.round = 0;
-      state.tableState = initialTableState(
-        state.playerState.startingPlayer,
-        false
+      if (state.gameMode === GameMode.Series) {
+        state.seriesProgress.startingPlayerIndex =
+          action.payload.startingPlayer;
+        state.seriesProgress.currentGame += 1;
+      }
+
+      const resetState = resetGameStateForNewGame(
+        state,
+        NUM_PLAYERS,
+        action.payload.startingPlayer
       );
-      state.gameProgress.scores = { team1: 0, team2: 0 };
+      Object.assign(state, resetState);
     },
 
     playCard: (
@@ -115,9 +128,6 @@ const gameSlice = createSlice({
       const { playerIndex, cardIndex } = action.payload;
       const playerHand = [...state.playerState.players[playerIndex].hand];
       const card = playerHand.splice(cardIndex, 1)[0];
-
-      // Sort the remaining hand by position value to maintain card order
-      playerHand.sort((a, b) => a.positionValue - b.positionValue);
 
       state.playerState.players[playerIndex].hand = playerHand;
       const tableCard = { ...card, player: playerIndex };
@@ -143,47 +153,30 @@ const gameSlice = createSlice({
         NUM_PLAYERS
       );
 
-      const roundWinner = state.tableState.roundWinner;
-      if (roundWinner !== null) {
-        const winningTeam = state.playerState.players[roundWinner.player].team;
+      const trickWinner = state.tableState.trickWinner;
+      if (trickWinner !== null) {
+        const winningTeam = state.playerState.players[trickWinner.player].team;
         if (winningTeam === null) {
           throw Error("team id is null for player");
         }
         // Calculate total points from all cards in the table
-        const roundPoints = state.tableState.tableCards.reduce(
+        const trickPoints = state.tableState.tableCards.reduce(
           (sum, card) => sum + card.points,
           0
         );
 
-        state.gameProgress.scores[getTeamScoreKey(winningTeam)] += roundPoints;
-        state.playerState.players[roundWinner.player].score += roundPoints;
+        state.gameProgress.scores[getTeamScoreKey(winningTeam)] += trickPoints;
+        state.playerState.players[trickWinner.player].score += trickPoints;
       }
     },
 
-    startNewRound: state => {
+    startNewTrick: state => {
       console.log(
-        "GAME: Starting new round, previous winner:",
-        state.tableState.roundWinner?.player
+        "GAME: Starting new trick, previous winner:",
+        state.tableState.trickWinner?.player
       );
-      state.tableState = newRoundOnTable(state.tableState);
-      state.gameProgress.round = state.gameProgress.round + 1;
-      console.log(
-        "GAME: Setting stage to PLAYING, current turn:",
-        state.tableState.turn
-      );
-      state.gameProgress.stage = GameStages.PLAYING;
-
-      // Check if game is over
-      if (
-        state.gameConfig &&
-        state.gameProgress.round >= state.gameConfig.totalRounds
-      ) {
-        state.gameProgress.stage = GameStages.GAME_OVER;
-      }
-    },
-
-    startCardCollection: state => {
-      state.gameProgress.stage = GameStages.ROUND_COMPLETE;
+      state.tableState = newTrickOnTable(state.tableState);
+      state.gameProgress.trick = state.gameProgress.trick + 1;
     },
 
     setBidAndTrump: (
@@ -200,10 +193,10 @@ const gameSlice = createSlice({
         bidWinner: bidder,
         teammateCard: teammateCard,
         trumpSuite: trumpSuite,
-        totalRounds: 10,
+        totalTricks: 10,
         isTeammateRevealed: false,
       };
-      // todo - remove hardcoded total rounds
+      // todo - remove hardcoded total tricks
       console.log(`Setting trump ${trumpSuite} and teammate: ${teammateCard}`);
       // Assign teams based on teammate card
       const updatedPlayers = assignTeamsByTeammateCard(
@@ -212,15 +205,6 @@ const gameSlice = createSlice({
         teammateCard,
         NUM_PLAYERS
       );
-      state.playerState.players = updatedPlayers;
-      // todo - make this happen through setStage too.
-      console.log(
-        "CHANGING STATE: FROM ",
-        state.gameProgress.stage,
-        " TO ",
-        GameStages.TRUMP_SELECTION_COMPLETE
-      );
-      state.gameProgress.stage = GameStages.TRUMP_SELECTION_COMPLETE;
     },
 
     startBiddingRound: state => {
@@ -276,26 +260,6 @@ const gameSlice = createSlice({
       }
     },
 
-    completeBiddingWithDelay: state => {
-      // This action is called after a delay to complete the bidding stage transition
-      if (state.biddingState.bidWinner !== null) {
-        console.log(
-          "CHANGING STATE: FROM ",
-          state.gameProgress.stage,
-          " TO ",
-          GameStages.BIDDING_COMPLETE
-        );
-        state.gameProgress.stage = GameStages.BIDDING_COMPLETE;
-        console.log(
-          "CHANGING STATE: FROM ",
-          state.gameProgress.stage,
-          " TO ",
-          GameStages.TRUMP_SELECTION
-        );
-        state.gameProgress.stage = GameStages.TRUMP_SELECTION;
-      }
-    },
-
     updateBidTimer: (state, action: PayloadAction<number>) => {
       state.biddingState.bidTimer = action.payload;
     },
@@ -341,23 +305,6 @@ const gameSlice = createSlice({
       // No state changes needed, just a trigger
     },
 
-    // Game flow orchestration actions
-    triggerRoundTransition: state => {
-      // This action triggers automatic round transition logic
-      // No state changes needed, just a trigger
-    },
-
-    triggerGameCompletion: state => {
-      // This action triggers game completion logic
-      // No state changes needed, just a trigger
-    },
-
-    // UI state management
-    setDealingAnimation: (state, action: PayloadAction<boolean>) => {
-      // This action is used by sagas to control the dealing animation state
-      // The actual state is managed in the React component
-    },
-
     // Error handling actions
     setGameError: (state, action: PayloadAction<GameError>) => {
       state.error = action.payload;
@@ -365,6 +312,50 @@ const gameSlice = createSlice({
 
     clearGameError: state => {
       state.error = null;
+    },
+
+    // NEW: Series management actions
+    setGameMode: (state, action: PayloadAction<GameMode>) => {
+      state.gameMode = action.payload;
+      if (action.payload === GameMode.Series) {
+        state.seriesProgress.totalGames = 4; // Default for series
+      } else {
+        state.seriesProgress.totalGames = 1; // Single game
+      }
+    },
+
+    completeGame: state => {
+      // 1. Calculate final game scores (existing logic)
+      if (state.biddingState.bidWinner === null) {
+        throw new Error("Bid winner is null");
+      }
+      const gameScores = calculateGameScores(
+        state.gameProgress.scores,
+        state.playerState.players,
+        state.biddingState.currentBid,
+        state.biddingState.bidWinner
+      );
+
+      // 2. Update series scores
+      Object.entries(gameScores).forEach(([playerId, score]) => {
+        const playerIndex = parseInt(playerId);
+        state.seriesProgress.seriesScores[playerIndex] += score;
+      });
+
+      // 3. Store game scores for history
+      state.seriesProgress.gameScores[state.seriesProgress.currentGame] =
+        gameScores;
+    },
+
+    completeSeries: state => {
+      // Determine series winner
+      const winner = Object.entries(state.seriesProgress.seriesScores).reduce(
+        (max, [playerId, score]) =>
+          score > max.score ? { playerId: parseInt(playerId), score } : max,
+        { playerId: 0, score: -1 }
+      );
+
+      state.seriesProgress.seriesWinner = winner.playerId;
     },
 
     // NEW: State restoration actions for observer mode
@@ -394,28 +385,28 @@ const gameSlice = createSlice({
 
 export const {
   setStage,
+  playerSetup,
   startGame,
   playCard,
-  startNewRound,
+  startNewTrick,
   setBidAndTrump,
   startBiddingRound,
   placeBid,
   passBid,
-  completeBiddingWithDelay,
   updateBidTimer,
-  startCardCollection,
   setPlayerName,
   botShouldPlayCard,
   botShouldBid,
   botShouldSelectTrump,
   gameInitialize,
   gameStageTransition,
-  triggerRoundTransition,
-  triggerGameCompletion,
-  setDealingAnimation,
   setGameError,
   clearGameError,
   restoreGameState,
+  // NEW: Series management actions
+  setGameMode,
+  completeGame,
+  completeSeries,
 } = gameSlice.actions;
 
 export default gameSlice.reducer;

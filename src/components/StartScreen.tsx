@@ -1,38 +1,55 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Button } from "./ui/button";
+import { GameMode } from "../types/game";
 import HowToPlayModal from "./HowToPlayModal";
+import { Button } from "./ui/button";
 
 interface StartScreenProps {
-  onStartGame: (playerName: string) => void;
+  onStartGame: (playerName: string, gameMode: GameMode) => void;
 }
 
-const StartScreen: React.FC<StartScreenProps> = ({ onStartGame }) => {
+// Constants
+const GAME_MODES = [
+  {
+    mode: GameMode.Single,
+    title: "Single Game",
+    subtitle: "1 Game • Quick Play",
+    description: null,
+  },
+  {
+    mode: GameMode.Series,
+    title: "Series",
+    subtitle: "4 Games • Epic Battle",
+    description:
+      "Compete across multiple games with cumulative scoring! Build rivalries and climb the leaderboard in this epic card battle arena.",
+  },
+] as const;
+
+// Custom hook for name management
+const usePlayerName = () => {
   const [playerName, setPlayerName] = useState<string>("");
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState("");
-  const [showHowToPlay, setShowHowToPlay] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Load saved name from localStorage on component mount
   useEffect(() => {
     const savedName = localStorage.getItem("threeOfSpades_playerName");
-    if (savedName && savedName.trim()) {
+    if (savedName?.trim()) {
       setPlayerName(savedName.trim());
     } else {
-      // Typewriter effect for "Stranger"
+      // Simple typewriter effect
       let index = 0;
-      const typeInterval = setInterval(() => {
+      const interval = setInterval(() => {
         if (index < "Stranger".length) {
           setPlayerName("Stranger".substring(0, index + 1));
           index++;
         } else {
-          clearInterval(typeInterval);
+          clearInterval(interval);
         }
-      }, 200); // 200ms delay between each letter
+      }, 200);
+      return () => clearInterval(interval);
     }
   }, []);
 
-  // Focus input when editing starts
   useEffect(() => {
     if (isEditing && inputRef.current) {
       inputRef.current.focus();
@@ -40,129 +57,252 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStartGame }) => {
     }
   }, [isEditing]);
 
-  const handleNameClick = () => {
+  const startEditing = () => {
     setIsEditing(true);
     setEditValue(playerName);
   };
 
-  const handleNameSave = () => {
-    const trimmedValue = editValue.trim();
-    if (trimmedValue) {
-      // Validate: only letters and spaces, max 2 words
-      const hasInvalidChars = !/^[A-Za-z\s]+$/.test(trimmedValue);
-      const wordCount = trimmedValue
-        .split(" ")
-        .filter(word => word.length > 0).length;
-      const isTooManyWords = wordCount > 2;
-
-      if (hasInvalidChars || isTooManyWords) {
-        // If validation fails, just close editing without changing the name
-        setEditValue(playerName);
-        setIsEditing(false);
-        return;
-      }
-
-      // Capitalize first letter of each word
-      const formattedName = trimmedValue
+  const saveName = () => {
+    const trimmed = editValue.trim();
+    if (
+      trimmed &&
+      /^[A-Za-z\s]+$/.test(trimmed) &&
+      trimmed.split(" ").filter(w => w.length > 0).length <= 2
+    ) {
+      const formatted = trimmed
         .split(" ")
         .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
         .join(" ");
-
-      setPlayerName(formattedName);
-      localStorage.setItem("threeOfSpades_playerName", formattedName);
-    } else {
-      // If empty, just close editing without changing the name
-      setEditValue(playerName);
+      setPlayerName(formatted);
+      localStorage.setItem("threeOfSpades_playerName", formatted);
     }
     setIsEditing(false);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      handleNameSave();
-    } else if (e.key === "Escape") {
-      setIsEditing(false);
-      setEditValue(playerName);
-    }
+  const cancelEditing = () => {
+    setIsEditing(false);
+    setEditValue(playerName);
   };
 
-  const handleInputBlur = () => {
-    handleNameSave();
+  return {
+    playerName,
+    isEditing,
+    editValue,
+    inputRef,
+    startEditing,
+    saveName,
+    cancelEditing,
+    setEditValue,
+  };
+};
+
+// Reusable components
+const WelcomeSection: React.FC<{
+  playerName: string;
+  isEditing: boolean;
+  editValue: string;
+  inputRef: React.RefObject<HTMLInputElement>;
+  onStartEditing: () => void;
+  onSave: () => void;
+  onCancel: () => void;
+  onEditChange: (value: string) => void;
+  onKeyDown: (e: React.KeyboardEvent) => void;
+}> = ({
+  playerName,
+  isEditing,
+  editValue,
+  inputRef,
+  onStartEditing,
+  onSave,
+  onCancel,
+  onEditChange,
+  onKeyDown,
+}) => (
+  <div className="mb-8">
+    <div className="inline-flex items-center gap-3 bg-black/20 backdrop-blur-sm rounded-full px-6 py-3 border border-gold/30">
+      <span className="text-white/90 text-lg font-light">Welcome</span>
+      {isEditing ? (
+        <input
+          ref={inputRef}
+          type="text"
+          value={editValue}
+          onChange={e => onEditChange(e.target.value)}
+          onKeyDown={onKeyDown}
+          onBlur={onSave}
+          className="text-gold text-lg font-semibold bg-transparent border-none outline-none px-0 py-0 border-b-2 border-gold/60 cursor-text transition-all duration-300 min-w-[120px]"
+          placeholder="Enter your name"
+        />
+      ) : (
+        <span
+          onClick={onStartEditing}
+          className={`text-gold text-lg font-semibold cursor-pointer transition-all duration-300 hover:text-gold-light hover:scale-105 ${
+            playerName === "Stranger" ? "opacity-60" : "opacity-100"
+          }`}
+        >
+          {playerName}
+          {playerName === "Stranger" && (
+            <span className="inline-block w-1 h-5 bg-gold ml-2 animate-pulse"></span>
+          )}
+        </span>
+      )}
+    </div>
+  </div>
+);
+
+const GameModeButton: React.FC<{
+  mode: GameMode;
+  title: string;
+  subtitle: string;
+  isSelected: boolean;
+  onClick: () => void;
+}> = ({ mode, title, subtitle, isSelected, onClick }) => (
+  <button
+    onClick={onClick}
+    className={`group relative p-6 rounded-2xl border-2 transition-all duration-300 hover:scale-105 ${
+      isSelected
+        ? "border-gold bg-gold/10 shadow-glow"
+        : "border-white/20 bg-white/5 hover:border-white/40 hover:bg-white/10"
+    }`}
+  >
+    <div className="text-center space-y-2">
+      <div
+        className={`text-xl font-bold transition-colors duration-300 ${
+          isSelected ? "text-gold" : "text-white"
+        }`}
+      >
+        {title}
+      </div>
+      <div
+        className={`text-sm transition-colors duration-300 ${
+          isSelected ? "text-gold/80" : "text-white/60"
+        }`}
+      >
+        {subtitle}
+      </div>
+    </div>
+  </button>
+);
+
+const StartGameButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
+  <div className="relative">
+    <Button
+      onClick={onClick}
+      className="relative overflow-hidden bg-gradient-to-r from-gold via-gold-light to-gold text-casino-black font-bold text-xl px-12 py-6 rounded-2xl shadow-2xl hover:shadow-glow transition-all duration-300 hover:scale-105 group"
+    >
+      <span className="relative z-10">Start Game</span>
+      <div className="absolute inset-0 bg-gradient-to-r from-gold-light via-gold to-gold-light opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+    </Button>
+    <div className="absolute inset-0 bg-gradient-to-r from-gold via-gold-light to-gold rounded-2xl blur-xl opacity-30 group-hover:opacity-50 transition-opacity duration-300 -z-10"></div>
+  </div>
+);
+
+const StartScreen: React.FC<StartScreenProps> = ({ onStartGame }) => {
+  const [selectedMode, setSelectedMode] = useState<GameMode>(GameMode.Single);
+  const [showHowToPlay, setShowHowToPlay] = useState(false);
+
+  const {
+    playerName,
+    isEditing,
+    editValue,
+    inputRef,
+    startEditing,
+    saveName,
+    cancelEditing,
+    setEditValue,
+  } = usePlayerName();
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") saveName();
+    else if (e.key === "Escape") cancelEditing();
   };
 
   const handleStartGame = () => {
-    // Ensure we have a valid name, fallback to "You" if needed
     const validName =
       playerName && playerName.trim() && playerName !== "Stranger"
         ? playerName.trim()
         : "You";
-
-    // Pass the player name to the parent component
-    onStartGame(validName);
+    onStartGame(validName, selectedMode);
   };
 
+  const selectedGameMode = GAME_MODES.find(mode => mode.mode === selectedMode);
+
   return (
-    <div className="min-h-screen bg-gradient-felt flex items-center justify-center animate-in fade-in duration-500">
-      <div className="text-center max-w-4xl mx-auto px-6">
-        <div className="mb-6 flex items-baseline justify-center gap-3">
-          <span className="font-['Lora'] text-white text-2xl font-normal tracking-wide">
-            Welcome
-          </span>
-          {isEditing ? (
-            <input
-              ref={inputRef}
-              type="text"
-              value={editValue}
-              onChange={e => setEditValue(e.target.value)}
-              onKeyDown={handleKeyDown}
-              onBlur={handleInputBlur}
-              className="font-['Lora'] text-white text-2xl font-normal opacity-90 transition-all duration-300 bg-transparent border-none outline-none px-0 py-0 border-b-2 border-yellow-400 cursor-text"
-              placeholder="Enter your name"
-              style={{ width: `${Math.max(120, editValue.length * 16)}px` }}
-            />
-          ) : (
-            <span
-              onClick={handleNameClick}
-              className={`font-['Lora'] text-white text-2xl font-normal cursor-pointer transition-all duration-300 hover:opacity-100 hover:text-yellow-300 hover:drop-shadow-[0_0_10px_rgba(234,179,8,0.5)] ${
-                playerName === "Stranger" || editValue.length === 0
-                  ? "opacity-50"
-                  : "opacity-90"
-              }`}
+    <div className="min-h-screen bg-gradient-to-br from-felt-green-dark via-felt-green to-felt-green-light relative overflow-hidden">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.15)_1px,transparent_0)] bg-[length:20px_20px]"></div>
+      </div>
+
+      <div className="relative z-10 flex items-center justify-center min-h-screen px-6">
+        <div className="text-center max-w-2xl mx-auto">
+          <WelcomeSection
+            playerName={playerName}
+            isEditing={isEditing}
+            editValue={editValue}
+            inputRef={inputRef}
+            onStartEditing={startEditing}
+            onSave={saveName}
+            onCancel={cancelEditing}
+            onEditChange={setEditValue}
+            onKeyDown={handleKeyDown}
+          />
+
+          {/* Game Title */}
+          <div className="mb-12">
+            <h1 className="text-6xl md:text-7xl font-black text-gold mb-4 tracking-tight leading-none">
+              Three of Spades
+            </h1>
+            <div className="w-24 h-1 bg-gradient-to-r from-transparent via-gold to-transparent mx-auto rounded-full shadow-glow"></div>
+          </div>
+
+          {/* Game Mode Selection */}
+          <div className="mb-10">
+            <div className="text-white/80 text-sm mb-6 font-medium tracking-wide uppercase">
+              Choose Your Game Mode
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-lg mx-auto">
+              {GAME_MODES.map(({ mode, title, subtitle }) => (
+                <GameModeButton
+                  key={mode}
+                  mode={mode}
+                  title={title}
+                  subtitle={subtitle}
+                  isSelected={selectedMode === mode}
+                  onClick={() => setSelectedMode(mode)}
+                />
+              ))}
+            </div>
+
+            {/* Series Description */}
+            {selectedGameMode?.description && (
+              <div className="mt-6 p-4 bg-gold/10 border border-gold/30 rounded-xl backdrop-blur-sm animate-in fade-in duration-500">
+                <div className="text-gold font-medium mb-1">🏆 Series Mode</div>
+                <div className="text-white/80 text-sm leading-relaxed">
+                  {selectedGameMode.description}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Action Buttons */}
+          <div className="space-y-4">
+            <StartGameButton onClick={handleStartGame} />
+
+            <Button
+              onClick={() => setShowHowToPlay(true)}
+              variant="outline"
+              className="bg-white/10 border-white/30 text-white hover:bg-white/20 hover:border-white/50 font-medium px-8 py-3 rounded-xl transition-all duration-300 hover:scale-105"
             >
-              {playerName}
-              {playerName === "Stranger" && (
-                <span
-                  className="inline-block w-2 h-6 bg-yellow-400 ml-1 animate-pulse"
-                  style={{ verticalAlign: "text-bottom" }}
-                ></span>
-              )}
-            </span>
-          )}
-        </div>
-
-        <h1 className="font-['Merriweather'] text-5xl md:text-6xl font-black text-gold mb-8 tracking-wide leading-tight drop-shadow-[0_0_20px_rgba(234,179,8,0.5)]">
-          Three of Spades
-        </h1>
-
-        <div className="flex justify-center gap-4">
-          <Button
-            onClick={handleStartGame}
-            className="font-['Open_Sans'] bg-gradient-gold text-casino-black font-bold text-lg px-10 py-5 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl rounded-lg"
-          >
-            Start
-          </Button>
-          <Button
-            onClick={() => setShowHowToPlay(true)}
-            className="font-['Open_Sans'] bg-gradient-gold text-casino-black font-bold text-lg px-10 py-5 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl rounded-lg"
-          >
-            How to Play
-          </Button>
+              📖 How to Play
+            </Button>
+          </div>
         </div>
       </div>
-      
-      <HowToPlayModal 
-        isOpen={showHowToPlay} 
-        onClose={() => setShowHowToPlay(false)} 
+
+      <HowToPlayModal
+        isOpen={showHowToPlay}
+        onClose={() => setShowHowToPlay(false)}
       />
     </div>
   );

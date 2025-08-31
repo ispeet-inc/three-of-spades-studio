@@ -1,6 +1,8 @@
 import { BidResultModal } from "@/components/game/BidResultModal";
 import { GameBoard } from "@/components/game/GameBoard";
 import { GameOverModal } from "@/components/game/GameOverModal";
+import { GameSummaryModal } from "@/components/game/GameSummaryModal";
+import { SeriesSummaryModal } from "@/components/game/SeriesSummaryModal";
 import { TrumpSelectionModal } from "@/components/game/TrumpSelectionModal";
 import StartScreen from "@/components/StartScreen";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -10,14 +12,16 @@ import {
   botShouldBid,
   botShouldPlayCard,
   botShouldSelectTrump,
-  gameInitialize,
+  completeSeries,
+  gameStageTransition,
   passBid,
   placeBid,
   playCard,
+  playerSetup,
   restoreGameState,
   setBidAndTrump,
+  setGameMode,
   setPlayerName,
-  setStage,
   startGame,
 } from "@/store/gameSlice";
 import { GameStages } from "@/store/gameStages";
@@ -28,11 +32,12 @@ import {
   selectPlayerState,
   selectTeams,
 } from "@/store/selectors";
-import { Card, Suite } from "@/types/game";
-import { FIRST_PLAYER_ID } from "@/utils/constants";
+import { Card, GameMode, Suite } from "@/types/game";
+import { FIRST_PLAYER_ID, NUM_PLAYERS } from "@/utils/constants";
 import { useFeedback } from "@/utils/feedbackSystem";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
+import { rotateStartingPlayer } from "../utils/gameUtils";
 
 interface GameReduxProps {
   viewerIndex?: number;
@@ -127,17 +132,22 @@ const GameRedux = ({ viewerIndex = FIRST_PLAYER_ID }: GameReduxProps) => {
     }
   };
 
-  const handleStartGame = (playerName: string = "You") => {
+  const handleStartGame = (
+    playerName: string = "You",
+    gameMode: GameMode = GameMode.Single
+  ) => {
     if (isObserver) return; // BLOCKED in observer mode
+
+    // Set the game mode first
+    dispatch(setGameMode(gameMode));
+
     // Set the player name in the game state
     dispatch(setPlayerName({ playerIndex: FIRST_PLAYER_ID, name: playerName }));
 
     setIsDealing(true);
-    dispatch(startGame());
-    dispatch(setStage(GameStages.BIDDING));
-
-    // Trigger game initialization saga instead of setTimeout
-    dispatch(gameInitialize());
+    dispatch(playerSetup());
+    const startingPlayer = Math.floor(Math.random() * NUM_PLAYERS);
+    dispatch(startGame({ startingPlayer }));
   };
 
   const handleBid = (amount: number) => {
@@ -169,7 +179,24 @@ const GameRedux = ({ viewerIndex = FIRST_PLAYER_ID }: GameReduxProps) => {
 
   const handleBidResultClose = () => {
     if (isObserver) return; // BLOCKED in observer mode
-    dispatch(setStage(GameStages.PLAYING));
+    dispatch(gameStageTransition(GameStages.PLAYING));
+  };
+
+  // NEW: Series summary modal callbacks
+  const handleNewSeries = () => {
+    if (isObserver) return; // BLOCKED in observer mode
+    // Reset to INIT stage to start a new series
+    handleStartGame(playerState.playerNames[FIRST_PLAYER_ID], GameMode.Series);
+  };
+
+  const handleNewGame = () => {
+    if (isObserver) return; // BLOCKED in observer mode
+    handleStartGame(playerState.playerNames[FIRST_PLAYER_ID], GameMode.Single);
+  };
+
+  const handleMainMenu = () => {
+    if (isObserver) return; // BLOCKED in observer mode
+    window.location.reload();
   };
 
   // Handle bot actions - now using saga triggers
@@ -266,7 +293,9 @@ const GameRedux = ({ viewerIndex = FIRST_PLAYER_ID }: GameReduxProps) => {
 
     return (
       <StartScreen
-        onStartGame={(playerName: string) => handleStartGame(playerName)}
+        onStartGame={(playerName: string, gameMode: GameMode) =>
+          handleStartGame(playerName, gameMode)
+        }
       />
     );
   }
@@ -321,6 +350,48 @@ const GameRedux = ({ viewerIndex = FIRST_PLAYER_ID }: GameReduxProps) => {
         />
       )}
 
+      {gameState.gameProgress.stage === GameStages.GAME_SUMMARY && (
+        <GameSummaryModal
+          isOpen={true}
+          seriesProgress={gameState.seriesProgress}
+          playerNames={playerState.playerNames}
+          viewerId={viewerIndex}
+          countdown={30}
+          onClose={() => {
+            // Handle transition to next game or series end
+            if (
+              gameState.seriesProgress.currentGame <
+              gameState.seriesProgress.totalGames
+            ) {
+              // Start next game - you'll need to implement this action
+              console.log("Starting next game...");
+              const nextStartingPlayer = rotateStartingPlayer(
+                gameState.seriesProgress.startingPlayerIndex,
+                NUM_PLAYERS
+              );
+              // Set dealing animation for next game in series
+              setIsDealing(true);
+              dispatch(startGame({ startingPlayer: nextStartingPlayer }));
+            } else {
+              // Series complete - you'll need to implement this action
+              console.log("Series complete!");
+              dispatch(completeSeries());
+            }
+          }}
+        />
+      )}
+
+      {gameState.gameProgress.stage === GameStages.SERIES_SUMMARY && (
+        <SeriesSummaryModal
+          isOpen={true}
+          seriesProgress={gameState.seriesProgress}
+          playerNames={playerState.playerNames}
+          viewerId={viewerIndex}
+          onNewSeries={handleNewSeries}
+          onMainMenu={handleMainMenu}
+        />
+      )}
+
       {gameState.gameProgress.stage === GameStages.GAME_OVER && (
         <GameOverModal
           isOpen={true}
@@ -330,7 +401,7 @@ const GameRedux = ({ viewerIndex = FIRST_PLAYER_ID }: GameReduxProps) => {
           bidWinner={gameState.gameConfig?.bidWinner ?? -1}
           playerNames={playerState.playerNames}
           isMobile={isMobile}
-          onNewGame={() => window.location.reload()}
+          onNewGame={handleNewGame}
           isObserver={isObserver}
         />
       )}

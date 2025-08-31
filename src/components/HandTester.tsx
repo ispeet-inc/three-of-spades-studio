@@ -12,8 +12,11 @@ import { sortHand } from "../utils/cardUtils";
 import { getMaxBid } from "../utils/handUtils";
 import { sampleHandAndDiscard } from "../utils/sampleHandGenerator";
 import { SUITE_DATA } from "../utils/suiteUtils";
+import { GameSummaryModal } from "./game/GameSummaryModal";
 import { HandPreview } from "./game/HandPreview";
 import { PlayingCard } from "./game/PlayingCard";
+import { SeriesSummaryModal } from "./game/SeriesSummaryModal";
+import { CollapsibleScoreboard } from "./ui/collapsible-scoreboard";
 
 // Testing UI Component
 export function HandTester() {
@@ -22,6 +25,11 @@ export function HandTester() {
     useState<Card[]>(sampleDiscardedCards);
   const [handSize, setHandSize] = useState<number>(10);
   const [discardSize, setDiscardSize] = useState<number>(8);
+
+  // GameSummaryModal state
+  const [showGameSummary, setShowGameSummary] = useState(false);
+  // SeriesSummaryModal state
+  const [showSeriesSummary, setShowSeriesSummary] = useState(false);
 
   const suiteAnalysis = getSuiteAnalysis(hand);
   const perSuiteData = perSuiteScoreAndCard(hand, discardedCards);
@@ -261,6 +269,140 @@ export function HandTester() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* CollapsibleScoreboard Test Section */}
+      <div className="mt-8">
+        <h2 className="text-2xl font-bold text-center mb-6 text-gold">
+          CollapsibleScoreboard Component Test
+        </h2>
+
+        <div className="flex justify-center">
+          <CollapsibleScoreboard
+            seriesProgress={{
+              currentGame: 3,
+              totalGames: 4,
+              gameScores: {
+                1: { 1: 220, 2: 0, 3: 200, 4: 0 },
+                2: { 1: 0, 2: 170, 3: 0, 4: 150 },
+                3: { 1: 0, 2: 0, 3: 200, 4: 0 },
+              },
+              seriesScores: { 1: 220, 2: 170, 3: 400, 4: 150 },
+              startingPlayerIndex: 2,
+              seriesWinner: 3,
+            }}
+            playerNames={{
+              1: "Player 1",
+              2: "Player 2",
+              3: "Player 3",
+              4: "Player 4",
+            }}
+          />
+        </div>
+      </div>
+
+      {/* GameSummaryModal Test Section */}
+      <div className="mt-8">
+        <h2 className="text-2xl font-bold text-center mb-6 text-gold">
+          GameSummaryModal Component Test
+        </h2>
+
+        <div className="flex justify-center">
+          <button
+            onClick={() => setShowGameSummary(true)}
+            className="bg-gradient-gold text-casino-black px-6 py-3 rounded-lg font-semibold hover:scale-105 transition-all duration-200 shadow-elevated hover:shadow-xl"
+          >
+            🎮 Show Game Summary Modal
+          </button>
+        </div>
+
+        {/* GameSummaryModal with dummy data */}
+        <GameSummaryModal
+          isOpen={showGameSummary}
+          seriesProgress={{
+            currentGame: 2,
+            totalGames: 4,
+            gameScores: {
+              2: {
+                0: 200, // Player 1 - Winner
+                1: 0, // Player 2 - Defender
+                2: 0, // Player 3 - Defender
+                3: 220, // Player 4 - Teammate
+              },
+            },
+            seriesScores: {
+              0: 600, // Player 1 - Series Leader
+              1: 200, // Player 2
+              2: 400, // Player 3
+              3: 350, // Player 4
+            },
+            startingPlayerIndex: 2,
+            seriesWinner: null,
+          }}
+          playerNames={{
+            0: "You",
+            1: "Alice",
+            2: "Bob",
+            3: "Charlie",
+          }}
+          viewerId={0}
+          countdown={30}
+          onClose={() => setShowGameSummary(false)}
+        />
+      </div>
+
+      {/* SeriesSummaryModal Test Section */}
+      <div className="mt-8">
+        <h2 className="text-2xl font-bold text-center mb-6 text-gold">
+          SeriesSummaryModal Component Test
+        </h2>
+
+        <div className="flex justify-center">
+          <button
+            onClick={() => setShowSeriesSummary(true)}
+            className="bg-gradient-gold text-casino-black px-6 py-3 rounded-lg font-semibold hover:scale-105 transition-all duration-200 shadow-elevated hover:shadow-xl"
+          >
+            🏆 Show Series Summary Modal
+          </button>
+        </div>
+
+        {/* SeriesSummaryModal with dummy data */}
+        <SeriesSummaryModal
+          isOpen={showSeriesSummary}
+          seriesProgress={{
+            currentGame: 4,
+            totalGames: 4,
+            gameScores: {
+              1: { 0: 220, 1: 0, 2: 200, 3: 0 },
+              2: { 0: 0, 1: 170, 2: 0, 3: 150 },
+              3: { 0: 0, 1: 0, 2: 200, 3: 0 },
+              4: { 0: 200, 1: 0, 2: 0, 3: 0 },
+            },
+            seriesScores: {
+              0: 420, // Player 1 - Series Winner
+              1: 170, // Player 2
+              2: 400, // Player 3
+              3: 150, // Player 4
+            },
+            startingPlayerIndex: 2,
+            seriesWinner: 0,
+          }}
+          playerNames={{
+            0: "You",
+            1: "Alice",
+            2: "Bob",
+            3: "Charlie",
+          }}
+          viewerId={0}
+          onNewSeries={() => {
+            setShowSeriesSummary(false);
+            alert("New Series would start here!");
+          }}
+          onMainMenu={() => {
+            setShowSeriesSummary(false);
+            alert("Would navigate to main menu!");
+          }}
+        />
       </div>
     </div>
   );

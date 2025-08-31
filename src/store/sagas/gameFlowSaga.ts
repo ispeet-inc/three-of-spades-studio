@@ -13,17 +13,98 @@ import {
 import { TIMINGS } from "../../utils/constants";
 import {
   clearGameError,
-  completeBiddingWithDelay,
+  completeGame,
+  completeSeries,
   gameInitialize,
   gameStageTransition,
-  setDealingAnimation,
+  setBidAndTrump,
   setGameError,
+  setStage,
   startBiddingRound,
-  triggerGameCompletion,
-  triggerRoundTransition,
+  startGame,
+  startNewTrick,
 } from "../gameSlice";
-import { GameStages, type GameStage } from "../gameStages";
-import { selectBiddingStateRaw, selectGameProgress } from "../selectors";
+import {
+  GameStages,
+  isValidStageTransition,
+  type GameStage,
+} from "../gameStages";
+import {
+  selectActivePlayersInBidding,
+  selectGameConfig,
+  selectGameProgress,
+  selectIsSeries,
+  selectStage,
+} from "../selectors";
+
+// Simple transition handler - inline everything
+function* handleStageTransition(
+  newStage: GameStage
+): Generator<any, void, any> {
+  const currentStage: GameStage = yield select(selectStage);
+
+  // Basic validation
+  if (!isValidStageTransition(currentStage, newStage)) {
+    console.error(`Invalid transition: ${currentStage} -> ${newStage}`);
+    return;
+  }
+
+  // Change the stage
+  yield put(setStage(newStage));
+
+  // Handle any side effects
+  yield call(handleStageSideEffects, newStage);
+}
+
+// Handle side effects for each stage
+function* handleStageSideEffects(
+  newStage: GameStage
+): Generator<any, void, any> {
+  switch (newStage) {
+    case GameStages.DISTRIBUTE_CARDS: {
+      // Trigger game initialization saga instead of setTimeout
+      yield put(gameInitialize());
+      break;
+    }
+    case GameStages.BIDDING:
+      yield put(startBiddingRound());
+      break;
+    case GameStages.PLAYING: {
+      // Check if it's bot's turn
+      // const tableState = yield select(
+      //   (state: RootState) => state.game.tableState
+      // );
+      // if (tableState.turn !== FIRST_PLAYER_ID) {
+      //   yield put(botShouldPlayCard({ playerIndex: tableState.turn }));
+      // }
+      break;
+    }
+    case GameStages.TRICK_COMPLETE: {
+      yield delay(TIMINGS.collectionAnimationMs + TIMINGS.collectionBufferMs);
+      yield put(startNewTrick());
+
+      const gameProgress = yield select(selectGameProgress);
+      const gameConfig = yield select(selectGameConfig);
+      const isSeries = yield select(selectIsSeries);
+
+      // Check if game should continue or end
+      if (gameConfig && gameProgress.trick >= gameConfig.totalTricks) {
+        console.log("Game Flow Saga: All tricks done, Game completed");
+        if (isSeries) {
+          yield put(completeGame());
+        } else {
+          yield put(setStage(GameStages.GAME_OVER));
+        }
+      } else {
+        console.log("Game Flow Saga: Game not over, starting next trick");
+        yield put(setStage(GameStages.PLAYING));
+      }
+      break;
+    }
+    default:
+      console.log(`Transition: No specific logic for ${newStage}`);
+  }
+}
 
 function* handleStageTransitionError(
   error: unknown,
@@ -84,11 +165,8 @@ function* handleGameInitialization(): Generator<any, void, any> {
       return;
     }
 
-    // Stop dealing animation
-    yield put(setDealingAnimation(false));
-
-    // Start bidding round
-    yield put(startBiddingRound());
+    // Now transition to BIDDING stage (which will trigger the bidding logic via handleStageSideEffects)
+    yield put(gameStageTransition(GameStages.BIDDING));
 
     console.log("Game Flow Saga: Game initialization completed successfully");
   } catch (error) {
@@ -96,8 +174,7 @@ function* handleGameInitialization(): Generator<any, void, any> {
     // Enhanced fallback: try to recover gracefully
     try {
       console.log("Game Flow Saga: Attempting fallback initialization");
-      yield put(setDealingAnimation(false));
-      yield put(startBiddingRound());
+      yield put(gameStageTransition(GameStages.BIDDING));
     } catch (fallbackError) {
       console.error(
         "Game Flow Saga: Fallback initialization failed:",
@@ -107,78 +184,22 @@ function* handleGameInitialization(): Generator<any, void, any> {
   }
 }
 
-// Game stage transition saga
+// Game stage transition saga - simplified with new validation system
 function* handleGameStageTransition(
   action: PayloadAction<GameStage>
 ): Generator<any, void, any> {
   try {
     const newStage = action.payload;
-    console.log(`Game Flow Saga: Transitioning to stage: ${newStage}`);
-
-    // Handle different stage transitions
-    switch (newStage) {
-      case GameStages.BIDDING:
-        console.log("Game Flow Saga: Orchestrating bidding stage transition");
-        // Start bidding round if not already started
-        // Additional bidding stage logic can be added here
-        // This could include bot coordination and validation
-        break;
-
-      case GameStages.TRUMP_SELECTION:
-        console.log(
-          "Game Flow Saga: Orchestrating trump selection stage transition"
-        );
-        // Handle trump selection stage logic
-        // This could include bot AI coordination
-        break;
-
-      case GameStages.PLAYING:
-        console.log("Game Flow Saga: Orchestrating playing stage transition");
-        // Handle playing stage logic
-        // This could include turn management and bot coordination
-        break;
-
-      case GameStages.CARDS_DISPLAY:
-        console.log(
-          "Game Flow Saga: Orchestrating cards display stage transition"
-        );
-        // Handle cards display logic
-        // This could include timing and animation coordination
-        // Trigger automatic transition to round completion after display
-        yield put(triggerRoundTransition());
-        break;
-
-      case GameStages.ROUND_COMPLETE: {
-        console.log(
-          "Game Flow Saga: Orchestrating round complete stage transition"
-        );
-        // Handle round complete logic
-        // This could include score calculation and round transition
-        // Check if game should continue or end
-        const gameProgress = yield select(selectGameProgress);
-        if (gameProgress.round >= 10) {
-          // Assuming 10 rounds per game
-          yield put(triggerGameCompletion());
-        }
-        break;
-      }
-
-      case GameStages.GAME_OVER:
-        console.log("Game Flow Saga: Orchestrating game over stage transition");
-        // Handle game over logic
-        // This could include final score calculation and cleanup
-        break;
-
-      default:
-        console.warn(`Game Flow Saga: Unknown stage transition: ${newStage}`);
-        break;
-    }
+    console.log(`Game flow saga: Transitioning to stage: ${newStage}`);
+    yield call(handleStageTransition, newStage);
   } catch (error) {
-    console.error("Game stage transition error:", error);
+    console.error("Game flow saga: stage transition error:", error);
     yield call(handleStageTransitionError, error, action.payload);
   } finally {
     if (yield cancelled()) {
-      console.log("Game stage transition saga cancelled");
+      console.log("Game flow saga: stage transition saga cancelled");
+    } else {
+      console.log("Game flow saga: stage transition saga completed");
     }
   }
 }
@@ -186,19 +207,14 @@ function* handleGameStageTransition(
 // Bidding completion delay saga
 function* handleBiddingCompletionDelay(): Generator<any, void, any> {
   try {
-    console.log("Game Flow Saga: Bidding completed, starting delay");
-
     // Wait for 1.5 seconds to allow players to see the final pass
     yield delay(TIMINGS.biddingResultDelayMs);
 
-    console.log("Game Flow Saga: Delay complete, transitioning to next stage");
-
     // Complete the bidding stage transition
-    yield put(completeBiddingWithDelay());
+    yield put(gameStageTransition(GameStages.BIDDING_COMPLETE));
+    yield put(gameStageTransition(GameStages.TRUMP_SELECTION));
   } catch (error) {
     console.error("Bidding completion delay error:", error);
-    // Fallback: complete bidding immediately
-    yield put(completeBiddingWithDelay());
   } finally {
     if (yield cancelled()) {
       console.log("Bidding completion delay saga cancelled");
@@ -219,11 +235,32 @@ export default function* gameFlowSaga() {
       action.payload &&
       action.payload.playerIndex !== undefined,
     function* (action: any): Generator<any, void, any> {
-      const biddingState = yield select(selectBiddingStateRaw);
+      const numActivePlayers = yield select(selectActivePlayersInBidding);
       // If bidding is complete (only one player left), start the delay saga
-      if (biddingState && biddingState.bidWinner !== null) {
+      if (numActivePlayers === 1) {
+        console.log("Bidding complete, starting delay");
         yield call(handleBiddingCompletionDelay);
       }
     }
   );
+
+  // Watch for trump selection completion
+  yield takeEvery(setBidAndTrump.type, function* (): Generator<any, void, any> {
+    yield put(gameStageTransition(GameStages.TRUMP_SELECTION_COMPLETE));
+  });
+
+  // Watch for game completion
+  yield takeEvery(completeGame.type, function* (): Generator<any, void, any> {
+    yield put(gameStageTransition(GameStages.GAME_SUMMARY));
+  });
+
+  // Watch for game start
+  yield takeEvery(startGame.type, function* (): Generator<any, void, any> {
+    yield put(gameStageTransition(GameStages.DISTRIBUTE_CARDS));
+  });
+
+  // Watch for series completion
+  yield takeEvery(completeSeries.type, function* (): Generator<any, void, any> {
+    yield put(gameStageTransition(GameStages.SERIES_SUMMARY));
+  });
 }

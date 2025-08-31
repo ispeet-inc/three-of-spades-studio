@@ -27,6 +27,11 @@ export interface TeamScores {
   team2: number;
 }
 
+export enum GameMode {
+  Single,
+  Series,
+}
+
 // Base player interface with common properties
 export interface BasePlayer {
   team: 1 | 2 | null;
@@ -64,7 +69,7 @@ export interface TableState {
   runningSuite: Suite | null;
   tableCards: TableCard[];
   turn: number;
-  roundWinner: TableCard | null;
+  trickWinner: TableCard | null;
   discardedCards: Card[];
 }
 
@@ -80,12 +85,22 @@ export interface GameConfig {
   bidWinner: number;
   teammateCard: Card;
   trumpSuite: number;
-  totalRounds: number;
+  totalTricks: number;
   isTeammateRevealed: boolean;
 }
 
+// NEW: Series progress interface for multi-game series
+export interface SeriesProgress {
+  currentGame: number;
+  totalGames: number;
+  gameScores: Record<number, Record<number, number>>; // game -> player -> score
+  seriesScores: Record<number, number>; // player -> cumulative score
+  startingPlayerIndex: number; // Current starting player (0-3)
+  seriesWinner: number | null;
+}
+
 export interface GameProgress {
-  round: number;
+  trick: number;
   scores: TeamScores;
   stage: GameStage;
 }
@@ -105,4 +120,7 @@ export interface GameState {
   tableState: TableState;
   playerState: PlayerState;
   error: GameError | null;
+  // NEW: Series management
+  seriesProgress: SeriesProgress;
+  gameMode: GameMode;
 }

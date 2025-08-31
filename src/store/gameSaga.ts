@@ -12,14 +12,13 @@ import {
   takeEvery,
 } from "redux-saga/effects";
 import {
+  gameStageTransition,
   passBid,
   passBid as passBidAction,
   placeBid,
   playCard,
   setStage,
   startBiddingRound,
-  startCardCollection,
-  startNewRound,
   updateBidTimer,
 } from "./gameSlice";
 import { GameStages, type GameStage } from "./gameStages";
@@ -37,43 +36,22 @@ function handleSagaError(error: any, context: string) {
   // For now, just log the error
 }
 
-function* handleStageTransition(action: any) {
-  try {
-    console.log(
-      "Saga: handleStageTransition called with payload:",
-      action.payload
-    );
-
-    if (action.payload === GameStages.CARDS_DISPLAY) {
-      console.log("Saga: Starting trick display phase");
-      yield delay(TIMINGS.trickDisplayMs);
-      console.log(
-        "Saga: Trick display complete, starting collection animation"
-      );
-      yield put(startCardCollection());
-      console.log("Saga: Waiting for collection animation to finish");
-      yield delay(TIMINGS.collectionAnimationMs + TIMINGS.collectionBufferMs);
-      console.log("Saga: Animation complete, starting new round");
-      yield put(startNewRound());
-    }
-  } catch (error) {
-    yield call(handleSagaError, error, "handleStageTransition");
-  }
-}
-
 // Watch for trick completion and automatically transition to CARDS_DISPLAY
-function* watchTrickCompletion() {
+function* watchTrickCompletion(): Generator<any, void, any> {
   console.log("Saga: watchTrickCompletion started");
-  yield takeEvery(playCard.type, function* handleTrickCompletion() {
+  yield takeEvery(playCard.type, function* handleTrickCompletion(): Generator<
+    any,
+    void,
+    any
+  > {
     try {
       const isTrickComplete: boolean = yield select(selectIsTrickComplete);
       const stage: GameStage = yield select(selectStage);
 
       if (isTrickComplete && stage === GameStages.PLAYING) {
-        console.log(
-          "Saga: Trick completed with 4 cards, transitioning to CARDS_DISPLAY"
-        );
-        yield put(setStage(GameStages.CARDS_DISPLAY));
+        yield put(gameStageTransition(GameStages.CARDS_DISPLAY));
+        yield delay(TIMINGS.trickDisplayMs);
+        yield put(gameStageTransition(GameStages.TRICK_COMPLETE));
       }
     } catch (error) {
       yield call(handleSagaError, error, "handleTrickCompletion");
@@ -81,13 +59,8 @@ function* watchTrickCompletion() {
   });
 }
 
-function* watchStageTransition() {
-  console.log("Saga: watchStageTransition started");
-  yield takeEvery(setStage.type, handleStageTransition);
-}
-
 // --- Bidding Timer Saga ---
-function* biddingTimerSaga() {
+function* biddingTimerSaga(): Generator<any, void, any> {
   console.log("Saga: biddingTimerSaga started");
   try {
     while (true) {
@@ -113,7 +86,6 @@ function* biddingTimerSaga() {
       }
     }
   } finally {
-    // @ts-expect-error - cancelled is not typed
     if (yield cancelled()) {
       console.log("Saga: biddingTimerSaga cancelled");
     }
@@ -121,13 +93,14 @@ function* biddingTimerSaga() {
 }
 
 // Watch for bidding round start or bidder change to restart timer
-function* watchBiddingTimerTriggers() {
+function* watchBiddingTimerTriggers(): Generator<any, void, any> {
   console.log("Saga: watchBiddingTimerTriggers started");
   while (true) {
     // Wait for any of these actions
     yield take([startBiddingRound.type, placeBid.type, passBidAction.type]);
     console.log("Saga: watchBiddingTimerTriggers received trigger action");
     // Start the timer, cancel if stage changes or another trigger comes in
+    // todo - need to update dependency on setStage here.
     yield race({
       timer: call(biddingTimerSaga),
       cancel: take(
@@ -142,10 +115,6 @@ function* watchBiddingTimerTriggers() {
   }
 }
 
-export default function* gameSaga() {
-  yield all([
-    watchStageTransition(),
-    watchBiddingTimerTriggers(),
-    watchTrickCompletion(),
-  ]);
+export default function* gameSaga(): Generator<any, void, any> {
+  yield all([watchBiddingTimerTriggers(), watchTrickCompletion()]);
 }
