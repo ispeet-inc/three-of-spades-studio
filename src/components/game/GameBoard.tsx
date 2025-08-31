@@ -25,7 +25,9 @@ import {
 } from "@/utils/accessibility";
 import { FIRST_PLAYER_ID } from "@/utils/constants";
 import { getPlayerPositions } from "@/utils/positionUtils";
+import { BarChart3 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { CollapsibleScoreboard } from "../ui/collapsible-scoreboard";
 import { BiddingControls } from "./BiddingControls";
 import { CenterTable } from "./CenterTable";
 import { GameInfo } from "./GameInfo";
