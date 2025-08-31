@@ -18,7 +18,7 @@ export const GameInfo = (props: GameInfoProps) => {
   }
   const { trumpSuite, teammateCard, bidAmount } = props.gameConfig;
   return (
-    <div className="bg-secondary/90 backdrop-blur border border-border/50 rounded-lg p-4 shadow-elevated">
+    <div className="bg-secondary/90 border border-border/50 rounded-lg p-4 shadow-elevated">
       <h2 className="text-lg font-bold text-foreground mb-3">
         Three of Spades
       </h2>
