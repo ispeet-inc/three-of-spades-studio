@@ -6,7 +6,9 @@ import {
   selectCanPlayerBid,
   selectCurrentBid,
   selectCurrentBidder,
+  selectIsSeries,
   selectIsTeammateRevealed,
+  selectSeriesProgress,
 } from "@/store/selectors";
 import {
   Card,
@@ -70,12 +72,15 @@ export const GameBoard = ({
     team1: false,
     team2: false,
   });
+  const [showScoreboard, setShowScoreboard] = useState(false);
 
   // NEW: Get bidding state from store
   const currentBid = useAppSelector(selectCurrentBid);
   const currentBidder = useAppSelector(selectCurrentBidder);
   const bidTimer = useAppSelector(selectBidTimer);
   const canPlayerBid = useAppSelector(selectCanPlayerBid);
+  const seriesProgress = useAppSelector(selectSeriesProgress);
+  const isSeries = useAppSelector(selectIsSeries);
   const isTeammateRevealed = useAppSelector(selectIsTeammateRevealed);
 
   // Score animation effect
@@ -133,9 +138,12 @@ export const GameBoard = ({
       {/* Game Header */}
       <header className="absolute top-6 left-6 right-6 flex justify-between items-center z-20">
         {/* Game Info */}
-        <div className="bg-casino-black/40 backdrop-blur-sm border border-gold/30 rounded-lg shadow-elevated p-4">
-          <GameInfo gameConfig={gameConfig} trick={gameProgress.trick} />
-        </div>
+        <GameInfo
+          gameConfig={gameConfig}
+          isSeries={isSeries}
+          seriesProgress={seriesProgress}
+          playerNames={playerState.playerNames}
+        />
 
         {/* Settings */}
         {/* <Button
@@ -161,48 +169,84 @@ export const GameBoard = ({
 
       {/* Team Scores */}
       {/* todo: move this into a new component */}
-      {isTeammateRevealed && (
-        <section
-          className="absolute top-6 right-6 flex gap-6 z-20"
-          aria-label="Team scores"
-        >
-          <div
-            className="bg-gradient-gold text-casino-black px-6 py-3 rounded-xl shadow-elevated border border-gold-dark"
-            role="status"
-            aria-live="polite"
+
+      <section
+        className="absolute top-6 right-6 flex gap-6 z-20"
+        aria-label="Game controls and scores"
+      >
+        {/* Series Scoreboard Toggle */}
+        {isSeries && seriesProgress && seriesProgress.totalGames > 1 && (
+          <button
+            onClick={() => setShowScoreboard(!showScoreboard)}
+            className={cn(
+              "p-2 rounded-xl",
+              "bg-secondary/90 backdrop-blur border border-border/50",
+              "text-foreground hover:text-gold",
+              "hover:bg-secondary/80 hover:border-gold/30",
+              "transition-all duration-200",
+              "hover:scale-105",
+              "shadow-elevated",
+              showScoreboard && "bg-gold/10 border-gold/30 text-gold"
+            )}
+            title={
+              showScoreboard ? "Hide scoreboard" : "Show series scoreboard"
+            }
           >
-            <div className="text-center">
-              <div
-                className={cn(
-                  "text-2xl font-bold",
-                  animateScore.team1 && "animate-score-update"
-                )}
-                aria-label={`Team 1 score: ${gameProgress.scores.team1} points`}
-              >
-                {gameProgress.scores.team1}
+            <BarChart3 className="w-5 h-5" />
+          </button>
+        )}
+
+        {/* Team Scores */}
+        {isTeammateRevealed && (
+          <>
+            <div
+              className="bg-gradient-gold text-casino-black px-6 py-3 rounded-xl shadow-elevated border border-gold-dark"
+              role="status"
+              aria-live="polite"
+            >
+              <div className="text-center">
+                <div
+                  className={cn(
+                    "text-2xl font-bold",
+                    animateScore.team1 && "animate-score-update"
+                  )}
+                  aria-label={`Team 1 score: ${gameProgress.scores.team1} points`}
+                >
+                  {gameProgress.scores.team1}
+                </div>
+                <div className="text-sm">Team 1</div>
               </div>
-              <div className="text-sm">Team 1</div>
             </div>
-          </div>
-          <div
-            className="bg-blue-500 text-white px-6 py-3 rounded-xl shadow-elevated border border-blue-600"
-            role="status"
-            aria-live="polite"
-          >
-            <div className="text-center">
-              <div
-                className={cn(
-                  "text-2xl font-bold",
-                  animateScore.team2 && "animate-score-update"
-                )}
-                aria-label={`Team 2 score: ${gameProgress.scores.team2} points`}
-              >
-                {gameProgress.scores.team2}
+            <div
+              className="bg-blue-500 text-white px-6 py-3 rounded-xl shadow-elevated border border-blue-600"
+              role="status"
+              aria-live="polite"
+            >
+              <div className="text-center">
+                <div
+                  className={cn(
+                    "text-2xl font-bold",
+                    animateScore.team2 && "animate-score-update"
+                  )}
+                  aria-label={`Team 2 score: ${gameProgress.scores.team2} points`}
+                >
+                  {gameProgress.scores.team2}
+                </div>
+                <div className="text-sm">Team 2</div>
               </div>
-              <div className="text-sm">Team 2</div>
             </div>
-          </div>
-        </section>
+          </>
+        )}
+      </section>
+
+      {/* Series Scoreboard - Floating overlay */}
+      {showScoreboard && isSeries && seriesProgress && (
+        <div className="absolute top-24 right-6 z-30">
+          <CollapsibleScoreboard
+            seriesProgress={seriesProgress}
+            playerNames={playerState.playerNames}
+          />
+        </div>
       )}
 
       {/* Main Game Area */}

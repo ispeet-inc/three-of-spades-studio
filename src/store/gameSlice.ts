@@ -1,5 +1,12 @@
 import { agentClasses } from "@/agents";
-import { Card, GameError, GameState, Suite, TeamScores } from "@/types/game";
+import {
+  Card,
+  GameError,
+  GameMode,
+  GameState,
+  Suite,
+  TeamScores,
+} from "@/types/game";
 import {
   BID_TIMER_DURATION,
   FIRST_PLAYER_ID,
@@ -15,7 +22,6 @@ import {
 import {
   assignTeamsByTeammateCard,
   calculateGameScores,
-  rotateStartingPlayer,
   selectRandomNames,
 } from "@/utils/gameUtils";
 import {
@@ -52,14 +58,14 @@ const initialState: GameState = {
     },
   },
   seriesProgress: {
-    currentGame: 1,
+    currentGame: 0,
     totalGames: 1,
     gameScores: {},
     seriesScores: { 0: 0, 1: 0, 2: 0, 3: 0 },
     startingPlayerIndex: 0,
     seriesWinner: null,
   },
-  gameMode: "single",
+  gameMode: GameMode.Single,
   error: null,
 };
 
@@ -98,9 +104,15 @@ const gameSlice = createSlice({
 
     startGame: (state, action: PayloadAction<{ startingPlayer: number }>) => {
       console.log(
-        "Starting game with starting player: ",
+        "Starting next game with starting player: ",
         action.payload.startingPlayer
       );
+      if (state.gameMode === GameMode.Series) {
+        state.seriesProgress.startingPlayerIndex =
+          action.payload.startingPlayer;
+        state.seriesProgress.currentGame += 1;
+      }
+
       const resetState = resetGameStateForNewGame(
         state,
         NUM_PLAYERS,
@@ -303,30 +315,13 @@ const gameSlice = createSlice({
     },
 
     // NEW: Series management actions
-    setGameMode: (state, action: PayloadAction<"single" | "series">) => {
+    setGameMode: (state, action: PayloadAction<GameMode>) => {
       state.gameMode = action.payload;
-      if (action.payload === "series") {
+      if (action.payload === GameMode.Series) {
         state.seriesProgress.totalGames = 4; // Default for series
       } else {
         state.seriesProgress.totalGames = 1; // Single game
       }
-    },
-
-    startNextGame: state => {
-      // 1. Rotate starting player
-      state.seriesProgress.startingPlayerIndex = rotateStartingPlayer(
-        state.seriesProgress.startingPlayerIndex,
-        NUM_PLAYERS
-      );
-
-      state.seriesProgress.currentGame += 1;
-
-      const resetState = resetGameStateForNewGame(
-        state,
-        NUM_PLAYERS,
-        state.seriesProgress.startingPlayerIndex
-      );
-      Object.assign(state, resetState);
     },
 
     completeGame: state => {
@@ -410,7 +405,6 @@ export const {
   restoreGameState,
   // NEW: Series management actions
   setGameMode,
-  startNextGame,
   completeGame,
   completeSeries,
 } = gameSlice.actions;
