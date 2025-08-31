@@ -72,7 +72,7 @@ export const GameBoard = ({
   });
 
   // NEW: Get bidding state from store
-  const currentBid = useAppSelector(selectCurrentBid) ?? 0;
+  const currentBid = useAppSelector(selectCurrentBid);
   const currentBidder = useAppSelector(selectCurrentBidder);
   const bidTimer = useAppSelector(selectBidTimer);
   const canPlayerBid = useAppSelector(selectCanPlayerBid);
@@ -237,6 +237,7 @@ export const GameBoard = ({
                 botCardsHidden={botCardsHidden}
                 isObserver={isObserver}
                 viewerIndex={viewerIndex}
+                isTeammateRevealed={isTeammateRevealed}
               />
             </div>
           )
@@ -246,7 +247,7 @@ export const GameBoard = ({
       {/* NEW: Bidding Controls - positioned in bottom-right during bidding */}
       {gameProgress.stage === GameStages.BIDDING && onBid && onPass && (
         <BiddingControls
-          currentBid={currentBid}
+          currentBid={currentBid as number}
           currentBidder={currentBidder}
           bidTimer={bidTimer}
           canBid={canPlayerBid}

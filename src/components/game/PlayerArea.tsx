@@ -2,9 +2,6 @@ import { cn } from "@/lib/utils";
 import { Card, PlayerDisplayData, Suite } from "@/types/game";
 import { PlayerPosition } from "@/utils/positionUtils";
 import { PlayingCard } from "./PlayingCard";
-import { useAppSelector } from "@/hooks/useAppSelector";
-import { selectIsTeammateRevealed } from "@/store/selectors";
-
 
 interface PlayerAreaProps {
   player: PlayerDisplayData;
@@ -15,6 +12,7 @@ interface PlayerAreaProps {
   botCardsHidden?: boolean;
   isObserver?: boolean;
   viewerIndex?: number;
+  isTeammateRevealed?: boolean;
 }
 
 export const PlayerArea = ({
@@ -26,10 +24,8 @@ export const PlayerArea = ({
   botCardsHidden = false,
   isObserver = false,
   viewerIndex = 3,
+  isTeammateRevealed = false,
 }: PlayerAreaProps) => {
-  // Get teammate reveal state
-  const isTeammateRevealed = useAppSelector(selectIsTeammateRevealed);
-
   // SIMPLIFIED: Derive values inline where needed
   const isHuman = position === "bottom" && !isObserver;
   const isViewerPosition = player.id === `player-${viewerIndex}`;
@@ -41,7 +37,7 @@ export const PlayerArea = ({
     ? "animate-turn-indicator border-gold/80 bg-gold/10"
     : "border-casino-green/30";
 
-  const getPositionStyles = () => {
+  const getPositionStyles = () => {``
     switch (position) {
       case "bottom":
         return {
