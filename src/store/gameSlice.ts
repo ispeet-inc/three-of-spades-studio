@@ -122,6 +122,16 @@ const gameSlice = createSlice({
       state.playerState.players[playerIndex].hand = playerHand;
       const tableCard = { ...card, player: playerIndex };
 
+      // Check if this card reveals the teammate
+      if (
+        state.gameConfig &&
+        !state.gameConfig.isTeammateRevealed &&
+        card.hash === state.gameConfig.teammateCard.hash
+      ) {
+        state.gameConfig.isTeammateRevealed = true;
+        console.log("Teammate revealed! Card played:", card);
+      }
+
       if (!state.gameConfig) {
         throw new Error("Game config is not initialized");
       }
@@ -191,6 +201,7 @@ const gameSlice = createSlice({
         teammateCard: teammateCard,
         trumpSuite: trumpSuite,
         totalRounds: 10,
+        isTeammateRevealed: false,
       };
       // todo - remove hardcoded total rounds
       console.log(`Setting trump ${trumpSuite} and teammate: ${teammateCard}`);

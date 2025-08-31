@@ -6,6 +6,7 @@ import {
   selectCanPlayerBid,
   selectCurrentBid,
   selectCurrentBidder,
+  selectIsTeammateRevealed,
 } from "@/store/selectors";
 import {
   Card,
@@ -75,6 +76,7 @@ export const GameBoard = ({
   const currentBidder = useAppSelector(selectCurrentBidder);
   const bidTimer = useAppSelector(selectBidTimer);
   const canPlayerBid = useAppSelector(selectCanPlayerBid);
+  const isTeammateRevealed = useAppSelector(selectIsTeammateRevealed);
 
   // Score animation effect
   useEffect(() => {
@@ -159,47 +161,49 @@ export const GameBoard = ({
 
       {/* Team Scores */}
       {/* todo: move this into a new component */}
-      <section
-        className="absolute top-6 right-6 flex gap-6 z-20"
-        aria-label="Team scores"
-      >
-        <div
-          className="bg-gradient-gold text-casino-black px-6 py-3 rounded-xl shadow-elevated border border-gold-dark"
-          role="status"
-          aria-live="polite"
+      {isTeammateRevealed && (
+        <section
+          className="absolute top-6 right-6 flex gap-6 z-20"
+          aria-label="Team scores"
         >
-          <div className="text-center">
-            <div
-              className={cn(
-                "text-2xl font-bold",
-                animateScore.team1 && "animate-score-update"
-              )}
-              aria-label={`Team 1 score: ${gameProgress.scores.team1} points`}
-            >
-              {gameProgress.scores.team1}
+          <div
+            className="bg-gradient-gold text-casino-black px-6 py-3 rounded-xl shadow-elevated border border-gold-dark"
+            role="status"
+            aria-live="polite"
+          >
+            <div className="text-center">
+              <div
+                className={cn(
+                  "text-2xl font-bold",
+                  animateScore.team1 && "animate-score-update"
+                )}
+                aria-label={`Team 1 score: ${gameProgress.scores.team1} points`}
+              >
+                {gameProgress.scores.team1}
+              </div>
+              <div className="text-sm">Team 1</div>
             </div>
-            <div className="text-sm">Team 1</div>
           </div>
-        </div>
-        <div
-          className="bg-blue-500 text-white px-6 py-3 rounded-xl shadow-elevated border border-blue-600"
-          role="status"
-          aria-live="polite"
-        >
-          <div className="text-center">
-            <div
-              className={cn(
-                "text-2xl font-bold",
-                animateScore.team2 && "animate-score-update"
-              )}
-              aria-label={`Team 2 score: ${gameProgress.scores.team2} points`}
-            >
-              {gameProgress.scores.team2}
+          <div
+            className="bg-blue-500 text-white px-6 py-3 rounded-xl shadow-elevated border border-blue-600"
+            role="status"
+            aria-live="polite"
+          >
+            <div className="text-center">
+              <div
+                className={cn(
+                  "text-2xl font-bold",
+                  animateScore.team2 && "animate-score-update"
+                )}
+                aria-label={`Team 2 score: ${gameProgress.scores.team2} points`}
+              >
+                {gameProgress.scores.team2}
+              </div>
+              <div className="text-sm">Team 2</div>
             </div>
-            <div className="text-sm">Team 2</div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Main Game Area */}
       <section
@@ -233,6 +237,7 @@ export const GameBoard = ({
                 botCardsHidden={botCardsHidden}
                 isObserver={isObserver}
                 viewerIndex={viewerIndex}
+                isTeammateRevealed={isTeammateRevealed}
               />
             </div>
           )
@@ -242,7 +247,7 @@ export const GameBoard = ({
       {/* NEW: Bidding Controls - positioned in bottom-right during bidding */}
       {gameProgress.stage === GameStages.BIDDING && onBid && onPass && (
         <BiddingControls
-          currentBid={currentBid}
+          currentBid={currentBid as number}
           currentBidder={currentBidder}
           bidTimer={bidTimer}
           canBid={canPlayerBid}

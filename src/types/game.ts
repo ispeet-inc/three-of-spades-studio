@@ -81,6 +81,7 @@ export interface GameConfig {
   teammateCard: Card;
   trumpSuite: number;
   totalRounds: number;
+  isTeammateRevealed: boolean;
 }
 
 export interface GameProgress {

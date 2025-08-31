@@ -165,6 +165,12 @@ export const selectBidTimer = createSelector(
   b => b.bidTimer
 );
 
+/** Whether the teammate has been revealed */
+export const selectIsTeammateRevealed = createSelector(
+  selectGame,
+  (g): boolean => g.gameConfig?.isTeammateRevealed ?? false
+);
+
 /** Whether the current player can bid */
 export const selectCanPlayerBid = createSelector(
   [selectBiddingStateRaw],
@@ -184,13 +190,15 @@ export const selectPlayerDisplayData = createSelector(
     selectCurrentPlayerIndex,
     selectCurrentBidder,
     selectStage,
+    selectIsTeammateRevealed,
   ],
   (
     players,
     playerState,
     currentPlayerIndex,
     currentBidder,
-    stage
+    stage,
+    isTeammateRevealed
   ): PlayerDisplayData[] => {
     if (!players) return [];
 
@@ -213,10 +221,11 @@ export const selectPlayerDisplayData = createSelector(
         cards: player.hand,
         isCurrentPlayer,
         isFirstPersonTeammate:
+          isTeammateRevealed &&
           player.team !== null &&
           playerIndex !== FIRST_PLAYER_ID &&
           player.team === players[FIRST_PLAYER_ID].team,
-        isTeammate: player.isTeammate,
+        isTeammate: isTeammateRevealed && player.isTeammate,
         isBidWinner: player.isBidWinner,
       };
     });

@@ -12,6 +12,7 @@ interface PlayerAreaProps {
   botCardsHidden?: boolean;
   isObserver?: boolean;
   viewerIndex?: number;
+  isTeammateRevealed: boolean;
 }
 
 export const PlayerArea = ({
@@ -23,6 +24,7 @@ export const PlayerArea = ({
   botCardsHidden = false,
   isObserver = false,
   viewerIndex = 3,
+  isTeammateRevealed = false,
 }: PlayerAreaProps) => {
   // SIMPLIFIED: Derive values inline where needed
   const isHuman = position === "bottom" && !isObserver;
@@ -119,16 +121,18 @@ export const PlayerArea = ({
               </span>
             )}
           </div>
-          <div
-            className={cn(
-              "text-xs px-2 py-1 rounded-full",
-              player.team === 1
-                ? "bg-gold/20 text-gold"
-                : "bg-blue-500/20 text-blue-300"
-            )}
-          >
-            Team {player.team}
-          </div>
+          {isTeammateRevealed && (
+            <div
+              className={cn(
+                "text-xs px-2 py-1 rounded-full",
+                player.team === 1
+                  ? "bg-gold/20 text-gold"
+                  : "bg-blue-500/20 text-blue-300"
+              )}
+            >
+              Team {player.team}
+            </div>
+          )}
           {player.isFirstPersonTeammate && (
             <div className="text-xs text-green-400 mt-1">★ Teammate</div>
           )}
