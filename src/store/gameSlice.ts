@@ -12,12 +12,15 @@ import {
   FIRST_PLAYER_ID,
   NUM_PLAYERS,
   PLAYER_NAME_POOL,
+  SERIES_TOTAL_GAMES,
 } from "@/utils/constants";
 import {
   initialBiddingState,
   initPlayerNames,
   initPlayerObject,
+  initSeriesProgress,
   resetGameStateForNewGame,
+  resetGameStateForNewSeries,
 } from "@/utils/gameSetupUtils";
 import {
   assignTeamsByTeammateCard,
@@ -57,14 +60,7 @@ const initialState: GameState = {
       3: initPlayerObject([]),
     },
   },
-  seriesProgress: {
-    currentGame: 0,
-    totalGames: 1,
-    gameScores: {},
-    seriesScores: { 0: 0, 1: 0, 2: 0, 3: 0 },
-    startingPlayerIndex: 0,
-    seriesWinner: null,
-  },
+  seriesProgress: initSeriesProgress(NUM_PLAYERS, SERIES_TOTAL_GAMES),
   gameMode: GameMode.Single,
   error: null,
 };
@@ -117,6 +113,15 @@ const gameSlice = createSlice({
         state,
         NUM_PLAYERS,
         action.payload.startingPlayer
+      );
+      Object.assign(state, resetState);
+    },
+
+    resetStateForNewSeries: state => {
+      const resetState = resetGameStateForNewSeries(
+        state,
+        NUM_PLAYERS,
+        SERIES_TOTAL_GAMES
       );
       Object.assign(state, resetState);
     },
@@ -318,7 +323,7 @@ const gameSlice = createSlice({
     setGameMode: (state, action: PayloadAction<GameMode>) => {
       state.gameMode = action.payload;
       if (action.payload === GameMode.Series) {
-        state.seriesProgress.totalGames = 4; // Default for series
+        state.seriesProgress.totalGames = SERIES_TOTAL_GAMES; // Default for series
       } else {
         state.seriesProgress.totalGames = 1; // Single game
       }
@@ -403,6 +408,7 @@ export const {
   setGameError,
   clearGameError,
   restoreGameState,
+  resetStateForNewSeries,
   // NEW: Series management actions
   setGameMode,
   completeGame,

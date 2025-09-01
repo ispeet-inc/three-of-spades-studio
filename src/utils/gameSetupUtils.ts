@@ -1,5 +1,12 @@
-import { BiddingState, Card, GameState, Playerv2 } from "@/types/game";
+import {
+  BiddingState,
+  Card,
+  GameState,
+  Playerv2,
+  SeriesProgress,
+} from "@/types/game";
 import { BID_TIMER_DURATION } from "@/utils/constants";
+import { GameStages } from "../store/gameStages";
 import { distributeDeck, shuffle } from "./cardUtils";
 import { initialTableState } from "./tableUtils";
 
@@ -41,6 +48,22 @@ export const initPlayerNames = (
   return playerNames;
 };
 
+export const initSeriesProgress = (
+  numPlayers: number,
+  totalGames: number
+): SeriesProgress => {
+  return {
+    currentGame: 0,
+    totalGames: totalGames,
+    gameScores: {},
+    seriesScores: Object.fromEntries(
+      Array.from({ length: numPlayers }, (_, i) => [i, 0])
+    ),
+    startingPlayerIndex: 0,
+    seriesWinner: null,
+  };
+};
+
 export const resetGameStateForNewGame = (
   state: GameState,
   numPlayers: number,
@@ -71,5 +94,20 @@ export const resetGameStateForNewGame = (
       trick: 0,
     },
     gameConfig: null,
+  };
+};
+
+export const resetGameStateForNewSeries = (
+  state: GameState,
+  numPlayers: number,
+  totalGames: number
+): Partial<GameState> => {
+  return {
+    gameProgress: {
+      stage: GameStages.INIT,
+      trick: 0,
+      scores: { team1: 0, team2: 0 },
+    },
+    seriesProgress: initSeriesProgress(numPlayers, totalGames),
   };
 };
