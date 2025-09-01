@@ -272,6 +272,7 @@ export const selectPlayerDisplayData = createSelector(
         name:
           playerState.playerNames[playerIndex] || `Player ${playerIndex + 1}`,
         team: player.team,
+        hand: player.hand,
         cards: player.hand,
         isCurrentPlayer,
         isFirstPersonTeammate:
@@ -281,6 +282,7 @@ export const selectPlayerDisplayData = createSelector(
           player.team === players[FIRST_PLAYER_ID].team,
         isTeammate: isTeammateRevealed && player.isTeammate,
         isBidWinner: player.isBidWinner,
+        score: player.score,
       };
     });
   }

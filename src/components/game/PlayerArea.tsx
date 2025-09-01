@@ -136,6 +136,14 @@ export const PlayerArea = ({
           {player.isFirstPersonTeammate && (
             <div className="text-xs text-green-400 mt-1">★ Teammate</div>
           )}
+          <div
+            className={cn(
+              "text-xs px-2 py-1 rounded-full",
+              "bg-gold/20 text-gold"
+            )}
+          >
+            Points: {player.score}
+          </div>
         </div>
       </div>
 
@@ -147,7 +155,7 @@ export const PlayerArea = ({
           getPositionStyles().cardsOrder
         )}
       >
-        {player.cards.map((card, index) => {
+        {player.hand.map((card, index) => {
           const shouldShowCardsFaceUp =
             isHuman || (isObserver && isViewerPosition);
           const isInteractive = isHuman && !isObserver;
@@ -164,7 +172,7 @@ export const PlayerArea = ({
                 onClick={
                   isInteractive &&
                   player.isCurrentPlayer &&
-                  isCardPlayable(player.cards, card, runningSuite)
+                  isCardPlayable(player.hand, card, runningSuite)
                     ? () => onCardPlay?.(card)
                     : undefined
                 }

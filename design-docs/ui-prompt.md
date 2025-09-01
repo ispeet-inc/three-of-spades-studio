@@ -4,6 +4,8 @@ High level Instructions: Transform this [component/interface] into a stunning, m
 
 🎨 UI Design Understanding Dump
 
-Visual Hierarchy & Spacing: I prioritize clear information architecture with proper spacing (8px grid system), using margins and padding to create breathing room and guide the user's eye through the interface in logical order.
-Color & Animation System: I leverage the existing design system (gold primary, felt-green backgrounds, casino theme) and extend it consistently, using established animation timing (150ms fast, 300ms normal, 500ms slow) and smooth transitions for all interactive elements.
-Modern UI Patterns: I implement contemporary design elements like backdrop blur, subtle shadows, gradient overlays, floating animations, and responsive hover states while maintaining the established brand aesthetic and ensuring accessibility through proper contrast ratios.
+- Visual Hierarchy & Spacing: I prioritize clear information architecture with proper spacing (8px grid system), using margins and padding to create breathing room and guide the user's eye through the interface in logical order.
+
+- Color & Animation System: I leverage the existing design system (gold primary, felt-green backgrounds, casino theme) and extend it consistently, using established animation timing (150ms fast, 300ms normal, 500ms slow) and smooth transitions for all interactive elements.
+
+- Modern UI Patterns: I implement contemporary design elements like backdrop blur, subtle shadows, gradient overlays, floating animations, and responsive hover states while maintaining the established brand aesthetic and ensuring accessibility through proper contrast ratios.
