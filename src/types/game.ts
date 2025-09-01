@@ -32,24 +32,19 @@ export enum GameMode {
   Series,
 }
 
-// Base player interface with common properties
-export interface BasePlayer {
+// Game state player - extends base with game-specific properties
+export interface Playerv2 {
   team: 1 | 2 | null;
   isTeammate: boolean;
   isBidWinner: boolean;
-}
-
-// Game state player - extends base with game-specific properties
-export interface Playerv2 extends BasePlayer {
   hand: Card[];
   score: number;
 }
 
 // UI display player - extends base with display-specific properties
-export interface PlayerDisplayData extends BasePlayer {
+export interface PlayerDisplayData extends Playerv2 {
   id: string;
   name: string;
-  cards: Card[];
   isCurrentPlayer: boolean;
   isFirstPersonTeammate: boolean;
 }

@@ -3,7 +3,6 @@ import { cn } from "@/lib/utils";
 import { getSuiteColor, getSuiteIcon } from "@/utils/suiteUtils";
 import { GameConfig, SeriesProgress } from "../../types/game";
 import { SeriesProgressBar } from "../ui/series-progress";
-import { PlayingCard } from "./PlayingCard";
 
 interface GameInfoProps {
   gameConfig: GameConfig | null;
@@ -79,7 +78,10 @@ export const GameInfo = ({
           label: "Teammate:",
           show: true,
           renderContent: () => (
-            <PlayingCard card={gameConfig.teammateCard} mini />
+            <Badge className="bg-white text-casino-black">
+              {gameConfig.teammateCard.id}{" "}
+              {getSuiteIcon(gameConfig.teammateCard.suite)}
+            </Badge>
           ),
         });
       }

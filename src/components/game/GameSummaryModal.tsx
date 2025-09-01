@@ -3,6 +3,8 @@ import { cn } from "@/lib/utils";
 import { Users } from "lucide-react";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { SeriesProgress } from "../../types/game";
+import { NUM_PLAYERS } from "../../utils/constants";
+import { rotateStartingPlayer } from "../../utils/gameUtils";
 import { ModalHeader } from "../ui/ModalHeader";
 import { DualProgressBar } from "../ui/ProgressBar";
 import { ProgressBarContainer } from "../ui/ProgressBarContainer";
@@ -243,7 +245,10 @@ export const GameSummaryModal: React.FC<GameSummaryModalProps> = ({
                   <Users className="w-3.5 h-3.5 text-gold/80" />
                 </div>
                 <span className="font-medium text-xs tracking-wide text-gold/80">
-                  {getPlayerName(startingPlayerIndex)} starts next round.
+                  {getPlayerName(
+                    rotateStartingPlayer(startingPlayerIndex, NUM_PLAYERS)
+                  )}{" "}
+                  starts next round.
                 </span>
               </div>
             </div>
