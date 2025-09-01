@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 import { Card, PlayerDisplayData, Suite } from "@/types/game";
 import { PlayerPosition } from "@/utils/positionUtils";
+import { PlayerInfo } from "./PlayerInfo";
 import { PlayingCard } from "./PlayingCard";
 
 interface PlayerAreaProps {
@@ -31,11 +32,6 @@ export const PlayerArea = ({
   const isViewerPosition = player.id === `player-${viewerIndex}`;
 
   const isVertical = position === "left" || position === "right";
-
-  // Turn indicator animation
-  const turnIndicatorClass = player.isCurrentPlayer
-    ? "animate-turn-indicator border-gold/80 bg-gold/10"
-    : "border-casino-green/30";
 
   const getPositionStyles = () => {
     switch (position) {
@@ -98,54 +94,14 @@ export const PlayerArea = ({
   return (
     <div className={cn("flex gap-4", getPositionStyles().container)}>
       {/* Player Info */}
-      <div
+      <PlayerInfo
+        player={player}
+        isTeammateRevealed={isTeammateRevealed}
         className={cn(
-          "relative p-4 rounded-xl border-2 transition-all duration-500",
-          "bg-casino-green/20 backdrop-blur-sm",
-          turnIndicatorClass,
           isVertical ? "min-w-[120px]" : "min-h-[120px]",
           getPositionStyles().playerInfoOrder
         )}
-      >
-        <div className="text-center">
-          <div
-            className={cn(
-              "text-sm font-bold mb-1",
-              player.isCurrentPlayer ? "text-gold" : "text-casino-white"
-            )}
-          >
-            {player.name}{" "}
-            {player.isBidWinner && (
-              <span role="img" aria-label="Bid Winner">
-                👑
-              </span>
-            )}
-          </div>
-          {isTeammateRevealed && (
-            <div
-              className={cn(
-                "text-xs px-2 py-1 rounded-full",
-                player.team === 1
-                  ? "bg-gold/20 text-gold"
-                  : "bg-blue-500/20 text-blue-300"
-              )}
-            >
-              Team {player.team}
-            </div>
-          )}
-          {player.isFirstPersonTeammate && (
-            <div className="text-xs text-green-400 mt-1">★ Teammate</div>
-          )}
-          <div
-            className={cn(
-              "text-xs px-2 py-1 rounded-full",
-              "bg-gold/20 text-gold"
-            )}
-          >
-            Points: {player.score}
-          </div>
-        </div>
-      </div>
+      />
 
       {/* SIMPLIFIED: Cards with unified logic */}
       <div

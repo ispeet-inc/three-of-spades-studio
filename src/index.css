@@ -15,6 +15,22 @@
   }
 }
 
+@keyframes turn-indicator {
+  0%,
+  100% {
+    border-color: hsl(var(--gold) / 0.8);
+    background-color: hsl(var(--gold) / 0.1);
+  }
+  50% {
+    border-color: hsl(var(--gold) / 1);
+    background-color: hsl(var(--gold) / 0.2);
+  }
+}
+
+.animate-turn-indicator {
+  animation: turn-indicator 1s ease-in-out infinite;
+}
+
 .animate-turn-indicator-slow {
   animation: turn-indicator-slow 1.5s ease-in-out infinite;
 }
