@@ -1,4 +1,9 @@
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Card, Suite } from "@/types/game";
 import { getTeammateOptions } from "@/utils/gameUtils";
 import { SUITES } from "@/utils/suiteUtils";
@@ -51,6 +56,12 @@ export const TrumpSelectionModal = ({
   return (
     <Dialog open={isOpen}>
       <DialogContent className="max-w-xl w-full bg-felt-green-dark border-0 text-foreground p-0">
+        <DialogTitle className="sr-only">
+          Choose Trump & Teammate Card
+        </DialogTitle>
+        <DialogDescription className="sr-only">
+          Select a trump suite and teammate card to start the game
+        </DialogDescription>
         <div className="p-6">
           {/* Player Hand Display */}
           <HandPreview hand={playerHand} />

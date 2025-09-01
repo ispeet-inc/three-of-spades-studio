@@ -1,4 +1,9 @@
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { Users } from "lucide-react";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
@@ -129,6 +134,12 @@ export const GameSummaryModal: React.FC<GameSummaryModalProps> = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-xl bg-gradient-to-br from-felt-green-light/95 via-felt-green/95 to-felt-green-dark/95 border border-gold/30 shadow-2xl backdrop-blur-xl overflow-hidden">
+        <DialogTitle className="sr-only">
+          {getGameTitle(isViewerWinner)}
+        </DialogTitle>
+        <DialogDescription className="sr-only">
+          Game summary showing current scores and series leaderboard
+        </DialogDescription>
         {/* Header */}
         <ModalHeader title={getGameTitle(isViewerWinner)} className="mb-5" />
 

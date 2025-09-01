@@ -1,5 +1,10 @@
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { Home, Play, Trophy } from "lucide-react";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
@@ -95,6 +100,12 @@ export const SeriesSummaryModal: React.FC<SeriesSummaryModalProps> = ({
   return (
     <Dialog open={isOpen} onOpenChange={() => {}}>
       <DialogContent className="max-w-xl bg-gradient-to-br from-felt-green-light/95 via-felt-green/95 to-felt-green-dark/95 border border-gold/30 shadow-2xl backdrop-blur-xl overflow-hidden">
+        <DialogTitle className="sr-only">
+          {getSeriesTitle(isViewerWinner)}
+        </DialogTitle>
+        <DialogDescription className="sr-only">
+          Series complete with final standings and winner announcement
+        </DialogDescription>
         {/* Header */}
         <ModalHeader title={getSeriesTitle(isViewerWinner)} />
 
