@@ -13,12 +13,8 @@ export const store = configureStore({
     getDefaultMiddleware({
       thunk: false,
       serializableCheck: {
-        // Ignore these action types
-        ignoredActions: ["game/startGame"],
-        // Ignore these field paths in all actions
-        ignoredActionsPaths: ["payload.playerAgents"],
-        // Ignore these paths in the state
-        ignoredPaths: ["game.playerAgents"],
+        // All state and actions are now fully serializable
+        // No need to ignore any paths
       },
     }).concat(sagaMiddleware),
 });

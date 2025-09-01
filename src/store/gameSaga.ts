@@ -67,14 +67,6 @@ function* biddingTimerSaga(): Generator<any, void, any> {
       // Get current bidding state using selectors
       const biddingState: BiddingState = yield select(selectBiddingStateRaw);
       const stage: GameStage = yield select(selectStage);
-      console.log(
-        "Saga: Timer check - stage:",
-        stage,
-        "biddingActive:",
-        biddingState.biddingActive,
-        "timer:",
-        biddingState.bidTimer
-      );
       if (stage !== GameStages.BIDDING || !biddingState.biddingActive) break;
       if (biddingState.bidTimer > 0) {
         yield delay(TIMINGS.biddingTimerStepMs);

@@ -1,4 +1,4 @@
-import { agentClasses } from "@/agents";
+import { agentClasses, getAgentType } from "@/agents/agentRegistry";
 import {
   Card,
   GameError,
@@ -80,7 +80,7 @@ const gameSlice = createSlice({
     },
 
     playerSetup: state => {
-      // Randomly assign bot agents to computer players (1, 2, 3)
+      // Randomly assign bot agent types to computer players (1, 2, 3)
       state.playerState.playerAgents = {};
       const sampledNames = selectRandomNames(
         PLAYER_NAME_POOL,
@@ -91,7 +91,14 @@ const gameSlice = createSlice({
         if (i == FIRST_PLAYER_ID) continue;
         const AgentClass =
           agentClasses[Math.floor(Math.random() * agentClasses.length)];
-        state.playerState.playerAgents[i] = new (AgentClass as any)();
+        // Store agent type string instead of instance
+        state.playerState.playerAgents[i] = getAgentType(AgentClass);
+        console.log(
+          "Player agent type for Player: ",
+          i,
+          " is ",
+          state.playerState.playerAgents[i]
+        );
         // Use the class name for the bot's display name
         const name = sampledNames.pop();
         state.playerState.playerNames[i] = name !== undefined ? name : "";
