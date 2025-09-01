@@ -71,7 +71,7 @@ export interface TableState {
 export interface PlayerState {
   startingPlayer: number;
   players: Record<number, Playerv2>;
-  playerAgents: Record<number, any>;
+  playerAgents: Record<number, string>;
   playerNames: Record<number, string>;
 }
 

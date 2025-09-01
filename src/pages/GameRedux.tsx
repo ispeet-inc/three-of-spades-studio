@@ -18,6 +18,7 @@ import {
   placeBid,
   playCard,
   playerSetup,
+  resetStateForNewSeries,
   restoreGameState,
   setBidAndTrump,
   setGameMode,
@@ -186,6 +187,7 @@ const GameRedux = ({ viewerIndex = FIRST_PLAYER_ID }: GameReduxProps) => {
   const handleNewSeries = () => {
     if (isObserver) return; // BLOCKED in observer mode
     // Reset to INIT stage to start a new series
+    dispatch(resetStateForNewSeries());
     handleStartGame(playerState.playerNames[FIRST_PLAYER_ID], GameMode.Series);
   };
 

@@ -163,7 +163,7 @@ export const calculateGameScores = (
 
   // team1 is always bidding team
   const bidWon = teamScores.team1 >= bidAmount;
-  const whiteWashBonus = bidAmount === MAX_BID ? 50 : 0;
+  const whiteWashBonus = teamScores.team1 === MAX_BID ? 50 : 0;
 
   Object.entries(players).forEach(([playerIndex, player]) => {
     if (player.team === null) {

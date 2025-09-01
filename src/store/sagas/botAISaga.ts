@@ -14,6 +14,7 @@ import {
   takeLatest,
   takeLeading,
 } from "redux-saga/effects";
+import { agentManager } from "../../agents/agentManager";
 import { BiddingState, PlayerState, TableState } from "../../types/game";
 import { getRemainingCards } from "../../utils/handUtils";
 import {
@@ -58,12 +59,17 @@ function* handleBotCardPlay(): Generator<any, void, any> {
     }
 
     const currentPlayer = playerState.players[tableState.turn];
-    const botAgent = playerState.playerAgents[tableState.turn];
+    const agentType = playerState.playerAgents[tableState.turn];
 
-    if (!currentPlayer?.hand?.length || !botAgent) {
-      console.error(`Bot ${tableState.turn} cannot play - no hand or no agent`);
+    if (!currentPlayer?.hand?.length || !agentType) {
+      console.error(
+        `Bot ${tableState.turn} cannot play - no hand or no agent type`
+      );
       return;
     }
+
+    // Get agent instance from manager
+    const botAgent = agentManager.getAgent(tableState.turn, agentType);
 
     // Bot chooses card
     const cardIndex = botAgent.chooseCardIndex({
@@ -127,13 +133,19 @@ function* handleBotBidding(): Generator<any, void, any> {
       return;
     }
 
-    const botAgent = playerState.playerAgents[biddingState.currentBidder];
+    const agentType = playerState.playerAgents[biddingState.currentBidder];
     const currentPlayer = playerState.players[biddingState.currentBidder];
 
-    if (!botAgent || !currentPlayer) {
+    if (!agentType || !currentPlayer) {
       yield put(passBid({ playerIndex: biddingState.currentBidder }));
       return;
     }
+
+    // Get agent instance from manager
+    const botAgent = agentManager.getAgent(
+      biddingState.currentBidder,
+      agentType
+    );
     console.log(
       "Bot Bidding: Current player: ",
       playerState.playerNames[biddingState.currentBidder]
@@ -199,10 +211,10 @@ function* handleBotTrumpSelection(): Generator<any, void, any> {
       return;
     }
 
-    const botAgent = playerState.playerAgents[biddingState.bidWinner];
+    const agentType = playerState.playerAgents[biddingState.bidWinner];
     const bidWinner = playerState.players[biddingState.bidWinner];
 
-    if (!botAgent || !bidWinner) {
+    if (!agentType || !bidWinner) {
       // Fallback: random trump and teammate
       const randomTrump = Math.floor(Math.random() * 4);
       const randomTeammate = createCard(randomTrump, 1);
@@ -215,6 +227,9 @@ function* handleBotTrumpSelection(): Generator<any, void, any> {
       );
       return;
     }
+
+    // Get agent instance from manager
+    const botAgent = agentManager.getAgent(biddingState.bidWinner, agentType);
 
     // Generate teammate options for all suits
     const allTeammateOptions = getRemainingCards(bidWinner.hand);
