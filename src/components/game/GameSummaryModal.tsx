@@ -38,8 +38,6 @@ export const GameSummaryModal: React.FC<GameSummaryModalProps> = ({
   const { gameScores, seriesScores, currentGame, startingPlayerIndex } =
     seriesProgress;
 
-  console.log("currentGame", currentGame);
-
   // Memoized calculations
   const maxTotalScore = useMemo(
     () => Math.max(...Object.values(seriesScores)),
