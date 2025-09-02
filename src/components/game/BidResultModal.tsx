@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -37,9 +36,9 @@ export const BidResultModal: React.FC<BidResultModalProps> = ({
           <DialogTitle className="text-xl font-bold text-primary text-center">
             Bidding Complete!
           </DialogTitle>
-          <DialogDescription className="text-center text-muted-foreground">
+          {/* <DialogDescription className="text-center text-muted-foreground">
             The bidding phase has ended. Here are the results of the auction.
-          </DialogDescription>
+          </DialogDescription> */}
         </DialogHeader>
 
         <div className="space-y-4 py-4">
