@@ -1,4 +1,4 @@
-import { Card, Suite, TableCard } from "@/types/game";
+import { Suite } from "@/types/game";
 import { getHash } from "@/utils/cardUtils";
 import { DECK_SUITES, NUM_PLAYERS } from "@/utils/constants";
 import { determineTrickWinner } from "@/utils/gameUtils";
@@ -151,13 +151,13 @@ export default class GreedyBot extends BotAgent {
 
   // if P(win) > 0, pick the highest card from the running suite
   // else pick the least value card
-  pickRunningSuite(
-    hand: Card[],
-    runningSuite: Suite,
-    trumpSuite: Suite,
-    tableCards: TableCard[],
-    discardedCards: Card[]
-  ): number {
+  pickRunningSuite(params: BotChoiceParams): number {
+    const { hand, tableCards, runningSuite, trumpSuite, discardedCards } =
+      params;
+    if (runningSuite === null) {
+      throw Error("runningSuite can't be null");
+    }
+
     const winningCard = determineTrickWinner(
       tableCards,
       runningSuite,
@@ -217,12 +217,12 @@ export default class GreedyBot extends BotAgent {
 
   // If player has trump, if P(win) > 0 --> play highest trump card
   // else, play least value card
-  toCutOrNotToCut(
-    hand: Card[],
-    runningSuite: Suite,
-    trumpSuite: Suite,
-    tableCards: TableCard[]
-  ): number {
+  toCutOrNotToCut(params: BotChoiceParams): number {
+    const { hand, tableCards, runningSuite, trumpSuite } = params;
+    if (runningSuite === null) {
+      throw Error("runningSuite can't be null");
+    }
+
     const winningCard = determineTrickWinner(
       tableCards,
       runningSuite,
