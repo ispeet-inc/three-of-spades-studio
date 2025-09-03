@@ -232,7 +232,7 @@ export const CenterTable = ({
 
       return (
         <div
-          key={playedCard.id}
+          key={playedCard.hash}
           className={positionInfo.centerTableContainer}
           style={{
             animationDelay: isCollectingCards
