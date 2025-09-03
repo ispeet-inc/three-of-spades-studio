@@ -2,12 +2,14 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { suitSymbols } from "@/utils/suiteUtils";
 import React from "react";
 import { GameConfig } from "../../types/game";
+import { Badge } from "../ui/badge";
 import { PlayingCard } from "./PlayingCard";
 
 interface BidResultModalProps {
@@ -36,9 +38,9 @@ export const BidResultModal: React.FC<BidResultModalProps> = ({
           <DialogTitle className="text-xl font-bold text-primary text-center">
             Bidding Complete!
           </DialogTitle>
-          {/* <DialogDescription className="text-center text-muted-foreground">
+          <DialogDescription className="sr-only">
             The bidding phase has ended. Here are the results of the auction.
-          </DialogDescription> */}
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
@@ -61,7 +63,12 @@ export const BidResultModal: React.FC<BidResultModalProps> = ({
                   Trump:
                 </span>{" "}
                 <span className="text-lg font-semibold">
-                  {suitSymbols[trumpSuite]}
+                  <Badge
+                    variant="outline"
+                    className="bg-white text-casino-black text-lg"
+                  >
+                    {suitSymbols[trumpSuite]}
+                  </Badge>
                 </span>
               </div>
 
