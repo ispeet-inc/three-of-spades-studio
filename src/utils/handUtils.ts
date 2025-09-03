@@ -296,8 +296,7 @@ export function canBeatAllRemainingCardsInSuite(
 export function getWinProbability(
   hand: Card[],
   discardedCards: Card[],
-  suite: Suite,
-  trumpSuite: Suite
+  suite: Suite
 ) {
   let winProbability = 0;
   const highestCardIndex = getHighestRankedCardIndexInSuite(hand, suite);
