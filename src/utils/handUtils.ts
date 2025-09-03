@@ -160,6 +160,28 @@ export function getLeastValueCardIndexInSuite(
   return hand.indexOf(suiteCards[leastValueIdx]);
 }
 
+/**
+ * Returns the index of the least value card in the hand excluding a specific suite.
+ * @param hand - Array of card objects.
+ * @param suite - The suite to filter by.
+ * @returns The index of the least value card in the suite, or null if none found.
+ */
+export function getLeastValueCardIndexNotInSuite(
+  hand: Card[],
+  suiteToExclude: Suite
+): number | null {
+  if (!hand || hand.length === 0) return null;
+
+  // Filter cards by suite
+  const nonSuiteCards = hand.filter(card => card.suite !== suiteToExclude);
+
+  // Find the least value card in the filtered suite cards
+  const leastValueIdx = getLeastValueCardIndex(nonSuiteCards);
+  if (leastValueIdx === null) return null;
+  // Map back to the original hand index
+  return hand.indexOf(nonSuiteCards[leastValueIdx]);
+}
+
 export function printCardHashes(hand: Card[]) {
   for (const card of hand) {
     console.log(card.hash);

@@ -20,6 +20,7 @@ export interface BotChoiceParams {
   discardedCards: Card[];
   teammateCard: Card;
   isTeammateRevealed: boolean;
+  // teammate index = -1, if not revealed.
   teammateIndex: number;
   isBidWinner: boolean;
   isTeammate: boolean;

@@ -6,9 +6,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { suitSymbols } from "@/utils/suiteUtils";
 import React from "react";
 import { GameConfig } from "../../types/game";
+import { getSuiteColor, getSuiteIcon } from "../../utils/suiteUtils";
 import { Badge } from "../ui/badge";
 import { PlayingCard } from "./PlayingCard";
 
@@ -65,9 +65,9 @@ export const BidResultModal: React.FC<BidResultModalProps> = ({
                 <span className="text-lg font-semibold">
                   <Badge
                     variant="outline"
-                    className="bg-white text-casino-black text-lg"
+                    className={`bg-white text-casino-${getSuiteColor(trumpSuite)} text-lg`}
                   >
-                    {suitSymbols[trumpSuite]}
+                    {getSuiteIcon(trumpSuite)}
                   </Badge>
                 </span>
               </div>
