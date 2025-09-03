@@ -217,6 +217,7 @@ const gameSlice = createSlice({
         teammateCard,
         NUM_PLAYERS
       );
+      state.playerState.players = updatedPlayers;
     },
 
     startBiddingRound: state => {

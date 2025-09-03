@@ -33,7 +33,7 @@ export const assignTeamsByTeammateCard = (
   bidder: number,
   teammateCard: Card,
   numPlayers: number
-) => {
+): Record<number, Playerv2> => {
   // Find who has the teammate card
   let teammateIndex = -1;
   for (let i = 0; i < numPlayers; i++) {
