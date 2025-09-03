@@ -5,19 +5,20 @@ import { determineTrickWinner } from "@/utils/gameUtils";
 import {
   canBeatAllRemainingCardsInSuite,
   getHighestRankedCardIndexInSuite,
-  getHighestValueCardIndex,
   getLeastValueCardIndex,
   getLeastValueCardIndexInSuite,
   getLeastValueCardIndexNotInSuite,
   getLowestRankedCardIndexInSuite,
   getMaxBid,
   getTeammateInSuite,
-  getUnwinnableCardsInSuite,
   getWinProbability,
   hasSuite,
   teammateOptionScore,
 } from "@/utils/handUtils";
-import { doOthersStillHaveTrump } from "../utils/botUtils";
+import {
+  doOthersStillHaveTrump,
+  getHighestUnwinnableCardIndexInSuite,
+} from "../utils/botUtils";
 import BotAgent, {
   BidAction,
   BidParams,
@@ -64,19 +65,11 @@ export default class GreedyBot extends BotAgent {
           numTrumpsDone
         );
         if (teammateCard.suite === trumpSuite || numTrumpsDone >= 4) {
-          const unwinnableCards = getUnwinnableCardsInSuite(
+          return getHighestUnwinnableCardIndexInSuite(
             hand,
             teammateCard.suite,
             discardedCards
           );
-          // get highest value unwinnable card
-          const highestUnwinnableCard =
-            getHighestValueCardIndex(unwinnableCards);
-          if (highestUnwinnableCard !== null) {
-            return hand.indexOf(unwinnableCards[highestUnwinnableCard]);
-          }
-          // @ts-expect-error - hand is not empty when this is called
-          return getLeastValueCardIndexInSuite(hand, teammateCard.suite);
         }
       }
     }

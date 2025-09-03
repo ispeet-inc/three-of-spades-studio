@@ -1,5 +1,10 @@
 import { Card, Suite } from "../types/game";
 import { NUM_PLAYERS, NUM_TRICKS } from "./constants";
+import {
+  getHighestValueCardIndex,
+  getLeastValueCardIndexInSuite,
+  getUnwinnableCardsInSuite,
+} from "./handUtils";
 
 export const doOthersStillHaveTrump = (
   hand: Card[],
@@ -32,4 +37,28 @@ export const doOthersStillHaveTrump = (
   );
   console.info("SuiteMemory: Team indices: ", teamIndices);
   return otherPlayersMissingTrump < NUM_PLAYERS - teamIndices.length;
+};
+
+export const getHighestUnwinnableCardIndexInSuite = (
+  hand: Card[],
+  suite: Suite,
+  discardedCards: Card[],
+  tableCards: Card[] = []
+): number => {
+  if (!hand || hand.length === 0) {
+    throw Error("hand can't be empty");
+  }
+  const unwinnableCards = getUnwinnableCardsInSuite(
+    hand,
+    suite,
+    discardedCards,
+    tableCards
+  );
+  // get highest value unwinnable card
+  const highestUnwinnableCard = getHighestValueCardIndex(unwinnableCards);
+  if (highestUnwinnableCard !== null) {
+    return hand.indexOf(unwinnableCards[highestUnwinnableCard]);
+  }
+  // @ts-expect-error - hand is not empty when this is called
+  return getLeastValueCardIndexInSuite(hand, suite);
 };
