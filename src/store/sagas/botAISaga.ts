@@ -33,6 +33,7 @@ import {
   selectGameConfig,
   selectGameProgress,
   selectPlayerState,
+  selectTeammateIndex,
 } from "../selectors";
 
 // Bot card playing saga
@@ -49,6 +50,7 @@ function* handleBotCardPlay(): Generator<any, void, any> {
     tableState = yield select((state: RootState) => state.game.tableState);
     playerState = yield select(selectPlayerState);
     const gameConfig = yield select(selectGameConfig);
+    const teammateIndex = yield select(selectTeammateIndex);
 
     // Check if it's still bot's turn and game is in playing stage
     if (
@@ -79,6 +81,11 @@ function* handleBotCardPlay(): Generator<any, void, any> {
       runningSuite: tableState.runningSuite,
       playerIndex: tableState.turn,
       discardedCards: tableState.discardedCards,
+      teammateCard: gameConfig?.teammateCard,
+      isTeammateRevealed: gameConfig?.isTeammateRevealed,
+      teammateIndex: teammateIndex,
+      isBidWinner: currentPlayer.isBidWinner,
+      isTeammate: currentPlayer.isTeammate,
     });
 
     // Validate card index and fallback to random if invalid

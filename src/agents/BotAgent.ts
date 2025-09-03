@@ -18,6 +18,11 @@ export interface BotChoiceParams {
   runningSuite: Suite | null;
   playerIndex: number;
   discardedCards: Card[];
+  teammateCard: Card;
+  isTeammateRevealed: boolean;
+  teammateIndex: number;
+  isBidWinner: boolean;
+  isTeammate: boolean;
 }
 
 export interface BidParams {
@@ -37,11 +42,7 @@ export interface TrumpTeammateParams {
 }
 
 export default abstract class BotAgent {
-  abstract startTrick(
-    hand: Card[],
-    trumpSuite: Suite,
-    discardedCards: Card[]
-  ): number;
+  abstract startTrick(params: BotChoiceParams): number;
 
   abstract pickRunningSuite(
     hand: Card[],
@@ -81,7 +82,7 @@ export default abstract class BotAgent {
     if (!hand || hand.length === 0) return null;
 
     if (runningSuite === null) {
-      const pickedCardIndex = this.startTrick(hand, trumpSuite, discardedCards);
+      const pickedCardIndex = this.startTrick(params);
       if (verbose) {
         console.log(
           "BotAgent: ",

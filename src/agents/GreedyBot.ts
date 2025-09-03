@@ -16,6 +16,7 @@ import {
 import BotAgent, {
   BidAction,
   BidParams,
+  BotChoiceParams,
   TrumpTeammateChoice,
   TrumpTeammateParams,
 } from "./BotAgent";
@@ -26,7 +27,8 @@ export default class GreedyBot extends BotAgent {
   // Start a new trick by playing the highest card
   // todo - improve this function by taking into account number of cards over & trump suite
   // todo - bot keeps starting trump suite even if others dont have trump
-  startTrick(hand: Card[], trumpSuite: Suite, discardedCards: Card[]): number {
+  startTrick(params: BotChoiceParams): number {
+    const { hand, trumpSuite, discardedCards } = params;
     const winningOptions = DECK_SUITES.map(suite =>
       getWinProbability(hand, discardedCards, suite, trumpSuite)
     ).filter(
