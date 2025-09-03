@@ -48,7 +48,7 @@ const initialState: GameState = {
     scores: { team1: 0, team2: 0 },
   },
   biddingState: initialBiddingState(NUM_PLAYERS, 0, false),
-  tableState: initialTableState(0, true),
+  tableState: initialTableState(NUM_PLAYERS, 0, true),
   playerState: {
     startingPlayer: 0,
     playerAgents: {},
@@ -217,6 +217,7 @@ const gameSlice = createSlice({
         teammateCard,
         NUM_PLAYERS
       );
+      state.playerState.players = updatedPlayers;
     },
 
     startBiddingRound: state => {

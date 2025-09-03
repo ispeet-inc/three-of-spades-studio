@@ -81,7 +81,7 @@ export const resetGameStateForNewGame = (
 
   const scores = { team1: 0, team2: 0 };
   return {
-    tableState: initialTableState(startingPlayer, false),
+    tableState: initialTableState(numPlayers, startingPlayer, false),
     playerState: {
       ...state.playerState,
       players: newPlayers,

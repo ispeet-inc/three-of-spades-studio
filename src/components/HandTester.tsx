@@ -9,7 +9,7 @@ import {
 } from "../testing_framework/handAnalysisUtils";
 import { Card } from "../types/game";
 import { sortHand } from "../utils/cardUtils";
-import { getMaxBid } from "../utils/handUtils";
+import { getMaxBid, getUnwinnableCardsInSuite } from "../utils/handUtils";
 import { sampleHandAndDiscard } from "../utils/sampleHandGenerator";
 import { SUITE_DATA } from "../utils/suiteUtils";
 import { GameSummaryModal } from "./game/GameSummaryModal";
@@ -199,6 +199,37 @@ export function HandTester() {
                   No cards in this suite
                 </div>
               )}
+
+              {/* Unwinnable Cards Section */}
+              {(() => {
+                const unwinnableCards = getUnwinnableCardsInSuite(
+                  hand,
+                  suiteData.suite,
+                  discardedCards,
+                  [] // Empty table cards for now
+                );
+
+                return unwinnableCards.length > 0 ? (
+                  <div className="mt-3 bg-red-900/20 rounded-lg border border-red-500/30 p-3">
+                    <div className="text-sm text-red-300 mb-2 text-center">
+                      Unwinnable Cards ({unwinnableCards.length})
+                    </div>
+                    <div className="flex gap-1 justify-center flex-wrap">
+                      {unwinnableCards.map((card, idx) => (
+                        <div
+                          key={idx}
+                          className="transform hover:scale-105 transition-transform duration-200"
+                        >
+                          <PlayingCard
+                            card={card}
+                            className="shadow-card opacity-75"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : null;
+              })()}
             </div>
           </div>
         ))}

@@ -72,13 +72,7 @@ export function perSuiteScoreAndCard(hand: Card[], discardedCards: Card[]) {
   );
 
   DECK_SUITES.forEach(suite => {
-    const trumpSuite = suite;
-    const winProbObj = getWinProbability(
-      hand,
-      discardedCards,
-      suite,
-      trumpSuite
-    );
+    const winProbObj = getWinProbability(hand, discardedCards, suite);
     if (winProbObj) {
       result[suite] = {
         card: winProbObj.card,

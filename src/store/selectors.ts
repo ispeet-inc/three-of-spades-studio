@@ -288,6 +288,15 @@ export const selectPlayerDisplayData = createSelector(
   }
 );
 
+export const selectTeammateIndex = createSelector(
+  selectPlayerDisplayData,
+  (playerDisplayData): number => {
+    const teammate = playerDisplayData.find(p => p.isFirstPersonTeammate);
+    const teammateId = typeof teammate?.id === "number" ? teammate.id : -1;
+    return teammateId;
+  }
+);
+
 // ============================================================================
 // SCORE AND COLLECTION SELECTORS
 // ============================================================================

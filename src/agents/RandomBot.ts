@@ -7,6 +7,7 @@ import {
 import BotAgent, {
   BidAction,
   BidParams,
+  BotChoiceParams,
   TrumpTeammateChoice,
   TrumpTeammateParams,
 } from "./BotAgent";
@@ -15,7 +16,8 @@ export default class RandomBot extends BotAgent {
   static displayName = "Random";
 
   // Start a new trick by playing a random card
-  startTrick(hand: Card[], trumpSuite: Suite, discardedCards: Card[]): number {
+  startTrick(params: BotChoiceParams): number {
+    const { hand } = params;
     if (!hand || hand.length === 0) return -1;
     return getRandomCardIndex(hand);
   }

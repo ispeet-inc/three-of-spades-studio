@@ -66,6 +66,8 @@ export interface TableState {
   turn: number;
   trickWinner: TableCard | null;
   discardedCards: Card[];
+  // keep track of who has what suite missing based on not playing the running suite
+  missingSuiteMemory: Record<number, Suite[]>;
 }
 
 export interface PlayerState {
