@@ -3,6 +3,7 @@ import { generateDeck } from "./cardUtils";
 import { determineTrickWinner } from "./gameUtils";
 
 export const initialTableState = (
+  numPlayers: number,
   startingTurn: number,
   fresh_deck: boolean
 ): TableState => {
@@ -12,7 +13,26 @@ export const initialTableState = (
     turn: startingTurn,
     trickWinner: null,
     discardedCards: fresh_deck ? generateDeck() : [],
+    missingSuiteMemory: Object.fromEntries(
+      Array.from({ length: numPlayers }, (_, i) => [i, []])
+    ),
   };
+};
+
+// keep track of who has what suite missing
+export const updateMissingSuiteMemory = (
+  runningSuite: Suite,
+  tableCard: TableCard,
+  missingSuiteMemory: Record<number, Suite[]>
+): Record<number, Suite[]> => {
+  if (tableCard.suite !== runningSuite) {
+    missingSuiteMemory[tableCard.player] = [
+      ...missingSuiteMemory[tableCard.player],
+      runningSuite,
+    ];
+  }
+
+  return missingSuiteMemory;
 };
 
 export const playCardOnTable = (
@@ -24,6 +44,7 @@ export const playCardOnTable = (
   let runningSuite = oldState.runningSuite;
   const updatedTableCards = [...oldState.tableCards, tableCard];
   let trickWinner = null;
+  let missingSuiteMemory = oldState.missingSuiteMemory;
   if (updatedTableCards.length === 1) {
     runningSuite = tableCard.suite;
   }
@@ -34,14 +55,24 @@ export const playCardOnTable = (
       runningSuite as Suite,
       trumpSuite
     );
-    runningSuite = tableCard.suite;
   }
+
+  // if someone played non running suite, update missing suite memory
+  if (tableCard.suite !== runningSuite) {
+    missingSuiteMemory = updateMissingSuiteMemory(
+      runningSuite as Suite,
+      tableCard,
+      missingSuiteMemory
+    );
+  }
+
   return {
     runningSuite: runningSuite,
     tableCards: updatedTableCards,
     turn: (oldState.turn + 1) % numPlayers,
     trickWinner: trickWinner,
     discardedCards: oldState.discardedCards,
+    missingSuiteMemory: missingSuiteMemory,
   };
 };
 
@@ -55,5 +86,6 @@ export const newTrickOnTable = (oldState: TableState): TableState => {
     turn: oldState.trickWinner.player,
     trickWinner: null,
     discardedCards: oldState.discardedCards.concat(oldState.tableCards),
+    missingSuiteMemory: oldState.missingSuiteMemory,
   };
 };
