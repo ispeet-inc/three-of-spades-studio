@@ -138,6 +138,23 @@ export function getLeastValueCardIndex(hand: Card[]): number | null {
 }
 
 /**
+ * Returns the index of the highest value card in the hand
+ * @param hand - Array of card objects.
+ * @returns The index of the highest value card in the hand, or null if none found.
+ */
+export function getHighestValueCardIndex(hand: Card[]): number | null {
+  if (!hand || hand.length === 0) return null;
+
+  let highestValueCardIndex = 0;
+  for (let i = 1; i < hand.length; i++) {
+    if (hand[i].points > hand[highestValueCardIndex].points) {
+      highestValueCardIndex = i;
+    }
+  }
+  return highestValueCardIndex;
+}
+
+/**
  * Returns the index of the least value card in the hand for a specific suite.
  * @param hand - Array of card objects.
  * @param suite - The suite to filter by.
@@ -186,6 +203,41 @@ export function printCardHashes(hand: Card[]) {
   for (const card of hand) {
     console.log(card.hash);
   }
+}
+
+/**
+ * Returns an array of unwinnable cards in the given suite from the player's hand.
+ * A card is considered unwinnable if there are more higher-ranked cards remaining
+ * outside the hand than there are lower-ranked cards in the hand, meaning it cannot
+ * possibly win a trick in that suite.
+ *
+ * @param hand - Array of Card objects representing the player's current hand.
+ * @param suite - The suite to check for unwinnable cards.
+ * @param discardedCards - Array of Card objects that have already been played/discarded.
+ * @param tableCards - (Optional) Array of Card objects currently on the table (default: []).
+ * @returns Array of Card objects from the hand that are unwinnable in the given suite.
+ */
+export function getUnwinnableCardsInSuite(
+  hand: Card[],
+  suite: Suite,
+  discardedCards: Card[],
+  tableCards: Card[] = []
+): Card[] {
+  if (!hasSuite(hand, suite)) return [];
+  const suiteCards = hand.filter(card => card.suite === suite);
+  const remainingCards = getRemainingCards(
+    hand,
+    discardedCards,
+    tableCards
+  ).filter(card => card.suite === suite);
+
+  const unwinnableCards = suiteCards.filter(card => {
+    const lowerCardsInHand = suiteCards.filter(c => c.rank < card.rank);
+    const higherCardsOutside = remainingCards.filter(c => c.rank > card.rank);
+    return higherCardsOutside.length > lowerCardsInHand.length;
+  });
+
+  return unwinnableCards;
 }
 
 export function getTeammateInSuite(hand: Card[], suite: Suite) {
@@ -300,6 +352,7 @@ export function howManyCardsHigherLeftInSuite(
   return numHigherCardsLeft;
 }
 
+// startTrick utils
 export function canBeatAllRemainingCardsInSuite(
   hand: Card[],
   discardedCards: Card[],
@@ -340,6 +393,7 @@ export function getWinProbability(
   };
 }
 
+// bidding utils
 export function getWinnableCardCountPerSuite(hand: Card[], suite: Suite) {
   const suiteCards = hand.filter(card => card.suite === suite);
   if (suiteCards.length === 0) return 0;

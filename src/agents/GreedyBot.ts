@@ -5,12 +5,14 @@ import { determineTrickWinner } from "@/utils/gameUtils";
 import {
   canBeatAllRemainingCardsInSuite,
   getHighestRankedCardIndexInSuite,
+  getHighestValueCardIndex,
   getLeastValueCardIndex,
   getLeastValueCardIndexInSuite,
   getLeastValueCardIndexNotInSuite,
   getLowestRankedCardIndexInSuite,
   getMaxBid,
   getTeammateInSuite,
+  getUnwinnableCardsInSuite,
   getWinProbability,
   hasSuite,
   teammateOptionScore,
@@ -29,7 +31,6 @@ export default class GreedyBot extends BotAgent {
 
   // Start a new trick by playing the highest card
   // todo - improve this function by taking into account number of cards over & trump suite
-  // todo - play unwinnable points if teammate is going to win the trick.
   startTrick(params: BotChoiceParams): number {
     const {
       hand,
@@ -63,7 +64,17 @@ export default class GreedyBot extends BotAgent {
           numTrumpsDone
         );
         if (teammateCard.suite === trumpSuite || numTrumpsDone >= 4) {
-          // todo - need to pick highest value unwinnable card.
+          const unwinnableCards = getUnwinnableCardsInSuite(
+            hand,
+            teammateCard.suite,
+            discardedCards
+          );
+          // get highest value unwinnable card
+          const highestUnwinnableCard =
+            getHighestValueCardIndex(unwinnableCards);
+          if (highestUnwinnableCard !== null) {
+            return hand.indexOf(unwinnableCards[highestUnwinnableCard]);
+          }
           // @ts-expect-error - hand is not empty when this is called
           return getLeastValueCardIndexInSuite(hand, teammateCard.suite);
         }

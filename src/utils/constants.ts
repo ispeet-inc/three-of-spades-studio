@@ -54,5 +54,5 @@ export const PLAYER_NAME_POOL = [
   "Amy Santiago",
   "Chandler Bing",
   "Lewis Hamilton",
-  "Shakespear",
+  "Mufasa",
 ];
