@@ -1,9 +1,8 @@
 import { Suite } from "@/types/game";
 import { getHash } from "@/utils/cardUtils";
-import { DECK_SUITES, NUM_PLAYERS } from "@/utils/constants";
+import { DECK_SUITES } from "@/utils/constants";
 import { determineTrickWinner } from "@/utils/gameUtils";
 import {
-  canBeatAllRemainingCardsInSuite,
   getHighestRankedCardIndexInSuite,
   getLeastValueCardIndex,
   getLeastValueCardIndexInSuite,
@@ -18,6 +17,7 @@ import {
 import {
   doOthersStillHaveTrump,
   getHighestUnwinnableCardIndexInSuite,
+  tryAndWinWithSuite,
 } from "../utils/botUtils";
 import BotAgent, {
   BidAction,
@@ -159,53 +159,23 @@ export default class GreedyBot extends BotAgent {
     const isTrickCut =
       winningCard.suite === trumpSuite && trumpSuite !== runningSuite;
 
-    const highestCardIndex = getHighestRankedCardIndexInSuite(
+    // Round is already cut, can't win with suite
+    if (isTrickCut) {
+      // @ts-expect-error - hand is not empty when this is called
+      return getLeastValueCardIndexInSuite(hand, runningSuite);
+    }
+
+    // todo - make this work based on defender's play + bidder losing
+    const throwPoints = false;
+
+    return tryAndWinWithSuite(
       hand,
-      runningSuite
+      tableCards,
+      discardedCards,
+      runningSuite,
+      winningCard,
+      throwPoints
     );
-    if (highestCardIndex === null) {
-      throw Error("can't be null");
-    }
-
-    const highestCard = hand[highestCardIndex];
-
-    // Early returns for cases where we can't win
-    if (isTrickCut || winningCard.rank > highestCard.rank) {
-      // @ts-expect-error - hand is not empty when this is called
-      return getLeastValueCardIndexInSuite(hand, runningSuite);
-    }
-
-    // If we're the last player, try to win with the lowest possible card
-    if (tableCards.length === NUM_PLAYERS - 1) {
-      const winningCards = hand.filter(
-        card => card.suite === runningSuite && card.rank > winningCard.rank
-      );
-      const winningCardIndex = getLeastValueCardIndexInSuite(
-        winningCards,
-        runningSuite
-      );
-      if (winningCardIndex !== null) {
-        return hand.indexOf(winningCards[winningCardIndex]);
-      }
-      // @ts-expect-error - hand is not empty when this is called
-      return getLeastValueCardIndexInSuite(hand, runningSuite);
-    }
-
-    // Check if we can beat all remaining cards in this suite
-    if (
-      canBeatAllRemainingCardsInSuite(
-        hand,
-        discardedCards,
-        tableCards,
-        highestCard
-      )
-    ) {
-      return highestCardIndex;
-    }
-
-    // Can't beat all remaining cards, play lowest
-    // @ts-expect-error - hand is not empty when this is called
-    return getLeastValueCardIndexInSuite(hand, runningSuite);
   }
 
   // If player has trump, if P(win) > 0 --> play highest trump card
