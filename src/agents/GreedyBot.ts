@@ -1,23 +1,24 @@
-import { Card, Suite, TableCard } from "@/types/game";
+import { Suite } from "@/types/game";
 import { getHash } from "@/utils/cardUtils";
-import { DECK_SUITES, NUM_PLAYERS } from "@/utils/constants";
+import { DECK_SUITES } from "@/utils/constants";
 import { determineTrickWinner } from "@/utils/gameUtils";
 import {
-  canBeatAllRemainingCardsInSuite,
   getHighestRankedCardIndexInSuite,
-  getHighestValueCardIndex,
   getLeastValueCardIndex,
   getLeastValueCardIndexInSuite,
   getLeastValueCardIndexNotInSuite,
   getLowestRankedCardIndexInSuite,
   getMaxBid,
   getTeammateInSuite,
-  getUnwinnableCardsInSuite,
   getWinProbability,
   hasSuite,
   teammateOptionScore,
 } from "@/utils/handUtils";
-import { doOthersStillHaveTrump } from "../utils/botUtils";
+import {
+  doOthersStillHaveTrump,
+  getHighestUnwinnableCardIndexInSuite,
+  tryAndWinWithSuite,
+} from "../utils/botUtils";
 import BotAgent, {
   BidAction,
   BidParams,
@@ -64,19 +65,11 @@ export default class GreedyBot extends BotAgent {
           numTrumpsDone
         );
         if (teammateCard.suite === trumpSuite || numTrumpsDone >= 4) {
-          const unwinnableCards = getUnwinnableCardsInSuite(
+          return getHighestUnwinnableCardIndexInSuite(
             hand,
             teammateCard.suite,
             discardedCards
           );
-          // get highest value unwinnable card
-          const highestUnwinnableCard =
-            getHighestValueCardIndex(unwinnableCards);
-          if (highestUnwinnableCard !== null) {
-            return hand.indexOf(unwinnableCards[highestUnwinnableCard]);
-          }
-          // @ts-expect-error - hand is not empty when this is called
-          return getLeastValueCardIndexInSuite(hand, teammateCard.suite);
         }
       }
     }
@@ -151,13 +144,13 @@ export default class GreedyBot extends BotAgent {
 
   // if P(win) > 0, pick the highest card from the running suite
   // else pick the least value card
-  pickRunningSuite(
-    hand: Card[],
-    runningSuite: Suite,
-    trumpSuite: Suite,
-    tableCards: TableCard[],
-    discardedCards: Card[]
-  ): number {
+  pickRunningSuite(params: BotChoiceParams): number {
+    const { hand, tableCards, runningSuite, trumpSuite, discardedCards } =
+      params;
+    if (runningSuite === null) {
+      throw Error("runningSuite can't be null");
+    }
+
     const winningCard = determineTrickWinner(
       tableCards,
       runningSuite,
@@ -166,63 +159,33 @@ export default class GreedyBot extends BotAgent {
     const isTrickCut =
       winningCard.suite === trumpSuite && trumpSuite !== runningSuite;
 
-    const highestCardIndex = getHighestRankedCardIndexInSuite(
+    // Round is already cut, can't win with suite
+    if (isTrickCut) {
+      // @ts-expect-error - hand is not empty when this is called
+      return getLeastValueCardIndexInSuite(hand, runningSuite);
+    }
+
+    // todo - make this work based on defender's play + bidder losing
+    const throwPoints = false;
+
+    return tryAndWinWithSuite(
       hand,
-      runningSuite
+      tableCards,
+      discardedCards,
+      runningSuite,
+      winningCard,
+      throwPoints
     );
-    if (highestCardIndex === null) {
-      throw Error("can't be null");
-    }
-
-    const highestCard = hand[highestCardIndex];
-
-    // Early returns for cases where we can't win
-    if (isTrickCut || winningCard.rank > highestCard.rank) {
-      // @ts-expect-error - hand is not empty when this is called
-      return getLeastValueCardIndexInSuite(hand, runningSuite);
-    }
-
-    // If we're the last player, try to win with the lowest possible card
-    if (tableCards.length === NUM_PLAYERS - 1) {
-      const winningCards = hand.filter(
-        card => card.suite === runningSuite && card.rank > winningCard.rank
-      );
-      const winningCardIndex = getLeastValueCardIndexInSuite(
-        winningCards,
-        runningSuite
-      );
-      if (winningCardIndex !== null) {
-        return hand.indexOf(winningCards[winningCardIndex]);
-      }
-      // @ts-expect-error - hand is not empty when this is called
-      return getLeastValueCardIndexInSuite(hand, runningSuite);
-    }
-
-    // Check if we can beat all remaining cards in this suite
-    if (
-      canBeatAllRemainingCardsInSuite(
-        hand,
-        discardedCards,
-        tableCards,
-        highestCard
-      )
-    ) {
-      return highestCardIndex;
-    }
-
-    // Can't beat all remaining cards, play lowest
-    // @ts-expect-error - hand is not empty when this is called
-    return getLeastValueCardIndexInSuite(hand, runningSuite);
   }
 
   // If player has trump, if P(win) > 0 --> play highest trump card
   // else, play least value card
-  toCutOrNotToCut(
-    hand: Card[],
-    runningSuite: Suite,
-    trumpSuite: Suite,
-    tableCards: TableCard[]
-  ): number {
+  toCutOrNotToCut(params: BotChoiceParams): number {
+    const { hand, tableCards, runningSuite, trumpSuite } = params;
+    if (runningSuite === null) {
+      throw Error("runningSuite can't be null");
+    }
+
     const winningCard = determineTrickWinner(
       tableCards,
       runningSuite,

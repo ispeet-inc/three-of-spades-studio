@@ -46,20 +46,9 @@ export interface TrumpTeammateParams {
 export default abstract class BotAgent {
   abstract startTrick(params: BotChoiceParams): number;
 
-  abstract pickRunningSuite(
-    hand: Card[],
-    runningSuite: Suite,
-    trumpSuite: Suite,
-    tableCards: TableCard[],
-    discardedCards: Card[]
-  ): number;
+  abstract pickRunningSuite(params: BotChoiceParams): number;
 
-  abstract toCutOrNotToCut(
-    hand: Card[],
-    runningSuite: Suite,
-    trumpSuite: Suite,
-    tableCards: TableCard[]
-  ): number;
+  abstract toCutOrNotToCut(params: BotChoiceParams): number;
 
   abstract getBidAction(params: BidParams): BidAction;
 
@@ -108,13 +97,7 @@ export default abstract class BotAgent {
 
     // Try running suite
     if (hasSuite(hand, runningSuite)) {
-      const pickedCardIndex = this.pickRunningSuite(
-        hand,
-        runningSuite,
-        trumpSuite,
-        tableCards,
-        discardedCards
-      );
+      const pickedCardIndex = this.pickRunningSuite(params);
       if (verbose) {
         console.log(
           "BotAgent: ",
@@ -137,12 +120,7 @@ export default abstract class BotAgent {
     }
 
     // To cut or not?
-    const pickedCardIndex = this.toCutOrNotToCut(
-      hand,
-      runningSuite,
-      trumpSuite,
-      tableCards
-    );
+    const pickedCardIndex = this.toCutOrNotToCut(params);
     if (verbose) {
       console.log(
         "BotAgent: ",

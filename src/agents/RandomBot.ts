@@ -1,4 +1,3 @@
-import { Card, Suite, TableCard } from "@/types/game";
 import {
   getRandomCardIndex,
   getRandomCardIndexBySuite,
@@ -23,23 +22,22 @@ export default class RandomBot extends BotAgent {
   }
 
   // Pick a random card from the running suite
-  pickRunningSuite(
-    hand: Card[],
-    runningSuite: Suite,
-    trumpSuite: Suite,
-    tableCards: TableCard[],
-    discardedCards: Card[]
-  ): number {
+  pickRunningSuite(params: BotChoiceParams): number {
+    const { hand, runningSuite } = params;
+    if (runningSuite === null) {
+      throw Error("runningSuite can't be null");
+    }
+
     return getRandomCardIndexBySuite(hand, runningSuite);
   }
 
   // Randomly decide whether to cut or play a random card
-  toCutOrNotToCut(
-    hand: Card[],
-    runningSuite: Suite,
-    trumpSuite: Suite,
-    tableCards: TableCard[]
-  ): number {
+  toCutOrNotToCut(params: BotChoiceParams): number {
+    const { hand, runningSuite, trumpSuite } = params;
+    if (runningSuite === null) {
+      throw Error("runningSuite can't be null");
+    }
+
     const trumpCards = hand.filter(card => card.suite === trumpSuite);
 
     // 50% chance to cut if we have trump cards
