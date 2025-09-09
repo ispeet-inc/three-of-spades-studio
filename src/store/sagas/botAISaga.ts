@@ -87,6 +87,7 @@ function* handleBotCardPlay(): Generator<any, void, any> {
       isBidWinner: currentPlayer.isBidWinner,
       isTeammate: currentPlayer.isTeammate,
       missingSuiteMemory: tableState.missingSuiteMemory,
+      bidWinner: gameConfig?.bidWinner,
     });
 
     // Validate card index and fallback to random if invalid

@@ -25,6 +25,7 @@ export interface BotChoiceParams {
   isBidWinner: boolean;
   isTeammate: boolean;
   missingSuiteMemory: Record<number, Suite[]>;
+  bidWinner: number;
 }
 
 export interface BidParams {
