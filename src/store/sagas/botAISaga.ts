@@ -73,6 +73,7 @@ function* handleBotCardPlay(): Generator<any, void, any> {
     // Get agent instance from manager
     const botAgent = agentManager.getAgent(tableState.turn, agentType);
 
+    console.log("Player :", playerState.playerNames[tableState.turn], " turn");
     // Bot chooses card
     const cardIndex = botAgent.chooseCardIndex({
       hand: currentPlayer.hand,
