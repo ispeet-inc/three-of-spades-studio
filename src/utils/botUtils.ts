@@ -71,8 +71,7 @@ export const tryAndWinWithSuite = (
   tableCards: Card[],
   discardedCards: Card[],
   suite: Suite,
-  currentWinningCard: Card,
-  throwPoints: boolean = false
+  currentWinningCard: Card
 ): number => {
   if (currentWinningCard.suite !== suite) {
     throw Error("Current winning card is not from suite we're trying to win");

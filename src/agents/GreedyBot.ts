@@ -215,8 +215,9 @@ export default class GreedyBot extends BotAgent {
     const isTrickCut =
       winningCard.suite === trumpSuite && trumpSuite !== runningSuite;
 
-    const throwPoints =
-      !isTeammate && !isBidWinner && winningCard.player !== bidWinner;
+    // todo - need to add functionality to throw points if defender.
+    // const throwPoints =
+    //   !isTeammate && !isBidWinner && winningCard.player !== bidWinner;
 
     // Trick is already cut; cannot win with running suite
     if (isTrickCut) {
@@ -229,8 +230,7 @@ export default class GreedyBot extends BotAgent {
       tableCards,
       discardedCards,
       runningSuite,
-      winningCard,
-      throwPoints
+      winningCard
     );
   }
 
