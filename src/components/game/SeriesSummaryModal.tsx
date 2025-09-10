@@ -43,16 +43,20 @@ export const SeriesSummaryModal: React.FC<SeriesSummaryModalProps> = ({
     [seriesScores]
   );
 
-  const winner = useMemo(() => {
+  const winners = useMemo(() => {
     const entries = Object.entries(seriesScores);
-    return entries.reduce(
-      (max, [playerId, score]) =>
-        score > max.score ? { playerId: parseInt(playerId), score } : max,
-      { playerId: 0, score: 0 }
-    );
+    const maxScore = Math.max(...Object.values(seriesScores));
+
+    return entries
+      .filter(([, score]) => score === maxScore)
+      .map(([playerId, score]) => ({
+        playerId: parseInt(playerId),
+        score,
+      }));
   }, [seriesScores]);
 
-  const isViewerWinner = winner.playerId === viewerId;
+  const isViewerWinner = winners.some(winner => winner.playerId === viewerId);
+  const isTie = winners.length > 1;
 
   // Helper functions
   const getPlayerName = useCallback(
@@ -62,9 +66,15 @@ export const SeriesSummaryModal: React.FC<SeriesSummaryModalProps> = ({
     [playerNames]
   );
 
-  const getSeriesTitle = useCallback((isWinner: boolean): string => {
-    return `Series ${isWinner ? "Won!" : "Complete!"} 🎉`;
-  }, []);
+  const getSeriesTitle = useCallback(
+    (isWinner: boolean, isTie: boolean): string => {
+      if (isTie && isWinner) {
+        return `Series Tied! 🤝`;
+      }
+      return `Series ${isWinner ? "Won!" : "Complete!"} 🎉`;
+    },
+    []
+  );
 
   const calculateBarWidth = useCallback(
     (seriesScore: number) => {
@@ -101,13 +111,13 @@ export const SeriesSummaryModal: React.FC<SeriesSummaryModalProps> = ({
     <Dialog open={isOpen} onOpenChange={() => {}}>
       <DialogContent className="max-w-xl bg-gradient-to-br from-felt-green-light/95 via-felt-green/95 to-felt-green-dark/95 border border-gold/30 shadow-2xl backdrop-blur-xl overflow-hidden">
         <DialogTitle className="sr-only">
-          {getSeriesTitle(isViewerWinner)}
+          {getSeriesTitle(isViewerWinner, isTie)}
         </DialogTitle>
         <DialogDescription className="sr-only">
           Series complete with final standings and winner announcement
         </DialogDescription>
         {/* Header */}
-        <ModalHeader title={getSeriesTitle(isViewerWinner)} />
+        <ModalHeader title={getSeriesTitle(isViewerWinner, isTie)} />
 
         <div className="space-y-4 px-2">
           {/* Winner Announcement */}
@@ -123,10 +133,28 @@ export const SeriesSummaryModal: React.FC<SeriesSummaryModalProps> = ({
                   <Trophy className="w-6 h-6 text-gold animate-pulse" />
                   <div className="text-center">
                     <div className="text-base font-bold text-gold tracking-wide">
-                      Winner: {getPlayerName(winner.playerId)}
+                      {isTie ? (
+                        <div>
+                          <div>Tied Winners:</div>
+                          <div className="text-sm font-medium mt-1">
+                            {winners.map((winner, index) => (
+                              <span key={winner.playerId}>
+                                {getPlayerName(winner.playerId)}
+                                {index < winners.length - 1 && ", "}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      ) : (
+                        <div>
+                          <div>
+                            Winner: {getPlayerName(winners[0].playerId)}
+                          </div>
+                        </div>
+                      )}
                     </div>
                     <div className="text-xs text-gold/80 font-medium">
-                      {winner.score} points
+                      {winners[0].score} points
                     </div>
                   </div>
                 </div>
@@ -145,7 +173,9 @@ export const SeriesSummaryModal: React.FC<SeriesSummaryModalProps> = ({
                 .sort(([, a], [, b]) => b - a)
                 .map(([playerId, seriesScore], index) => {
                   const playerIndex = parseInt(playerId);
-                  const isWinner = playerIndex === winner.playerId;
+                  const isWinner = winners.some(
+                    winner => winner.playerId === playerIndex
+                  );
                   const barWidth = calculateBarWidth(seriesScore);
 
                   return (

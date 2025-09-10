@@ -30,6 +30,9 @@ export function HandTester() {
   const [showGameSummary, setShowGameSummary] = useState(false);
   // SeriesSummaryModal state
   const [showSeriesSummary, setShowSeriesSummary] = useState(false);
+  // SeriesSummaryModal with partial tie state
+  const [showPartialTieSeriesSummary, setShowPartialTieSeriesSummary] =
+    useState(false);
 
   const suiteAnalysis = getSuiteAnalysis(hand);
   const perSuiteData = perSuiteScoreAndCard(hand, discardedCards);
@@ -431,6 +434,60 @@ export function HandTester() {
           }}
           onMainMenu={() => {
             setShowSeriesSummary(false);
+            alert("Would navigate to main menu!");
+          }}
+        />
+      </div>
+
+      {/* SeriesSummaryModal with Partial Tie Test Section */}
+      <div className="mt-8">
+        <h2 className="text-2xl font-bold text-center mb-6 text-gold">
+          SeriesSummaryModal - Partial Tie Test (2 Players Tied)
+        </h2>
+
+        <div className="flex justify-center">
+          <button
+            onClick={() => setShowPartialTieSeriesSummary(true)}
+            className="bg-gradient-to-r from-orange-500 to-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:scale-105 transition-all duration-200 shadow-elevated hover:shadow-xl"
+          >
+            🏆 Show Partial Tie Modal
+          </button>
+        </div>
+
+        {/* SeriesSummaryModal with partial tie data */}
+        <SeriesSummaryModal
+          isOpen={showPartialTieSeriesSummary}
+          seriesProgress={{
+            currentGame: 4,
+            totalGames: 4,
+            gameScores: {
+              1: { 0: 200, 1: 0, 2: 0, 3: 0 },
+              2: { 0: 0, 1: 200, 2: 0, 3: 0 },
+              3: { 0: 0, 1: 0, 2: 200, 3: 0 },
+              4: { 0: 0, 1: 0, 2: 0, 3: 200 },
+            },
+            seriesScores: {
+              0: 180, // Player 1 - Tied Winner
+              1: 200, // Player 2 - Tied Winner
+              2: 200, // Player 3 - Not tied
+              3: 100, // Player 4 - Not tied
+            },
+            startingPlayerIndex: 0,
+            seriesWinner: null, // No single winner due to tie
+          }}
+          playerNames={{
+            0: "You",
+            1: "Alice",
+            2: "Bob",
+            3: "Charlie",
+          }}
+          viewerId={0}
+          onNewSeries={() => {
+            setShowPartialTieSeriesSummary(false);
+            alert("New Series would start here!");
+          }}
+          onMainMenu={() => {
+            setShowPartialTieSeriesSummary(false);
             alert("Would navigate to main menu!");
           }}
         />
