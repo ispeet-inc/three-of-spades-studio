@@ -90,6 +90,17 @@ export const shuffle = (array: Card[]): Card[] => {
   return shuffled;
 };
 
+// split array into two parts, put them back in different order
+export const singleShuffle = (array: Card[]): Card[] => {
+  if (array.length < 2) return [...array];
+  // Pick a random split point (not at the ends)
+  const splitIndex = Math.floor(Math.random() * (array.length - 1)) + 1;
+  const firstPart = array.slice(0, splitIndex);
+  const secondPart = array.slice(splitIndex);
+  // Put the second part first, then the first part
+  return [...secondPart, ...firstPart];
+};
+
 export const sortHand = (hand: Card[]): Card[] => {
   return hand.sort((a, b) => a.positionValue - b.positionValue);
 };
@@ -103,8 +114,18 @@ export const distributeDeck = (deck: Card[], numPlayers: number): Card[][] => {
     throw new Error("Deck size must be divisible by number of players");
   }
 
-  for (let i = 0; i < deck.length; i++) {
-    hands[i % numPlayers].push(deck[i]);
+  // we want to distribute 4 cards at a time, if not enough cards left to distribute 4 each, distribute 2 each.
+  let index = 0;
+  while (index < deck.length) {
+    const remaining = deck.length - index;
+    const perPlayerThisRound =
+      remaining >= 4 * numPlayers ? 4 : remaining >= 2 * numPlayers ? 2 : 1;
+
+    for (let p = 0; p < numPlayers; p++) {
+      for (let c = 0; c < perPlayerThisRound; c++) {
+        hands[p].push(deck[index++]);
+      }
+    }
   }
 
   // Sort each hand by position value
