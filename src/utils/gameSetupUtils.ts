@@ -7,7 +7,7 @@ import {
 } from "@/types/game";
 import { BID_TIMER_DURATION } from "@/utils/constants";
 import { GameStages } from "../store/gameStages";
-import { distributeDeck, shuffle } from "./cardUtils";
+import { distributeDeck, singleShuffle } from "./cardUtils";
 import { initialTableState } from "./tableUtils";
 
 export const initialBiddingState = (
@@ -69,8 +69,7 @@ export const resetGameStateForNewGame = (
   numPlayers: number,
   startingPlayer: number
 ): Partial<GameState> => {
-  // todo - make it single shuffle
-  const deck = shuffle(state.tableState.discardedCards);
+  const deck = singleShuffle(state.tableState.discardedCards);
   const distributedHands = distributeDeck(deck, numPlayers);
 
   // Initialize each player's hand
