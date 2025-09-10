@@ -161,22 +161,18 @@ export default class GreedyBot extends BotAgent {
       teammateIndex,
       isBidWinner,
       bidWinner,
-      playerIndex,
     } = params;
     if (runningSuite === null) {
       throw Error("runningSuite can't be null");
     }
 
-    // Special Case: Teammate about to reveal themselves
+    // Teammate about to reveal themselves
     if (
       !isTeammateRevealed &&
       isTeammate &&
       runningSuite === teammateCard.suite &&
       tableCards.length !== NUM_PLAYERS - 1
     ) {
-      console.log(
-        "[pickRunningSuite]: Special Case: Teammate about to reveal themselves"
-      );
       const teammateCardIndex = hand.findIndex(
         card => card.hash === teammateCard.hash
       );
@@ -186,7 +182,7 @@ export default class GreedyBot extends BotAgent {
       return teammateCardIndex;
     }
 
-    console.log("[pickRunningSuite]: Default flow");
+    // Teammate sure-shot wins: dump unwinnable points in running suite
     if (
       teammateSureShotWin(
         hand,
@@ -208,34 +204,34 @@ export default class GreedyBot extends BotAgent {
         discardedCards,
         tableCards
       );
-    } else {
-      console.log("[pickRunningSuite]: try and win on your own");
-      const winningCard = determineTrickWinner(
-        tableCards,
-        runningSuite,
-        trumpSuite
-      );
-      const isTrickCut =
-        winningCard.suite === trumpSuite && trumpSuite !== runningSuite;
-
-      const throwPoints =
-        !isTeammate && !isBidWinner && winningCard.player !== bidWinner;
-
-      // Round is already cut, can't win with suite
-      if (isTrickCut) {
-        // todo - throw points or least depending on throwPoints
-        // @ts-expect-error - hand is not empty when this is called
-        return getLeastValueCardIndexInSuite(hand, runningSuite);
-      }
-      return tryAndWinWithSuite(
-        hand,
-        tableCards,
-        discardedCards,
-        runningSuite,
-        winningCard,
-        throwPoints
-      );
     }
+
+    // Try to win ourselves
+    const winningCard = determineTrickWinner(
+      tableCards,
+      runningSuite,
+      trumpSuite
+    );
+    const isTrickCut =
+      winningCard.suite === trumpSuite && trumpSuite !== runningSuite;
+
+    const throwPoints =
+      !isTeammate && !isBidWinner && winningCard.player !== bidWinner;
+
+    // Trick is already cut; cannot win with running suite
+    if (isTrickCut) {
+      // @ts-expect-error - hand is not empty when this is called
+      return getLeastValueCardIndexInSuite(hand, runningSuite);
+    }
+
+    return tryAndWinWithSuite(
+      hand,
+      tableCards,
+      discardedCards,
+      runningSuite,
+      winningCard,
+      throwPoints
+    );
   }
 
   // If player has trump, if P(win) > 0 --> play highest trump card
