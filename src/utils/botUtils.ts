@@ -162,7 +162,8 @@ export const teammateSureShotWin = (
   if (
     teammateIndex === -1 &&
     isBidWinner &&
-    runningSuite === teammateCard.suite
+    runningSuite === teammateCard.suite &&
+    tableCards.length !== NUM_PLAYERS - 1
   ) {
     console.log(
       "teammateSureShotWin, Case 2: Teammate is not revealed yet, but might cover the round"
