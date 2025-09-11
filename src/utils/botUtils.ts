@@ -4,7 +4,9 @@ import { determineTrickWinner } from "./gameUtils";
 import {
   canBeatAllRemainingCardsInSuite,
   getHighestValueCardIndex,
+  getLeastValueCardIndex,
   getLeastValueCardIndexInSuite,
+  getLeastValueCardIndexNotInSuite,
   getUnwinnableCardsInSuite,
 } from "./handUtils";
 
@@ -203,4 +205,34 @@ const isTeammateWinningTrick = (
   );
 
   return isLastCard || isTrumpCut || noHigherCardsLeft;
+};
+
+export const throwUnwinnablePoints = (
+  hand: Card[],
+  suites: Suite[],
+  discardedCards: Card[],
+  tableCards: Card[]
+): number | null => {
+  const allUnwinnableCards = suites.flatMap(suite =>
+    getUnwinnableCardsInSuite(hand, suite, discardedCards, tableCards)
+  );
+  const highestValueCardIndex = getHighestValueCardIndex(allUnwinnableCards);
+
+  if (highestValueCardIndex !== null) {
+    return hand.indexOf(allUnwinnableCards[highestValueCardIndex]);
+  }
+  return null;
+};
+
+export const tryAndGetLeastValueCardIndexNotInSuite = (
+  hand: Card[],
+  suiteToExclude: Suite
+): number => {
+  // default behavior: play least non-trump card from hand.
+  const leastCardIndex = getLeastValueCardIndexNotInSuite(hand, suiteToExclude);
+  if (leastCardIndex !== null) {
+    return leastCardIndex;
+  }
+  // @ts-expect-error - hand is not empty when this is called
+  return getLeastValueCardIndex(hand);
 };

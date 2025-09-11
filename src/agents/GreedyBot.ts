@@ -18,6 +18,8 @@ import {
   doOthersStillHaveTrump,
   getHighestUnwinnableCardIndexInSuite,
   teammateSureShotWin,
+  throwUnwinnablePoints,
+  tryAndGetLeastValueCardIndexNotInSuite,
   tryAndWinWithSuite,
 } from "../utils/botUtils";
 import BotAgent, {
@@ -237,9 +239,52 @@ export default class GreedyBot extends BotAgent {
   // If player has trump, if P(win) > 0 --> play highest trump card
   // else, play least value card
   toCutOrNotToCut(params: BotChoiceParams): number {
-    const { hand, tableCards, runningSuite, trumpSuite } = params;
+    const {
+      hand,
+      tableCards,
+      runningSuite,
+      trumpSuite,
+      discardedCards,
+      isBidWinner,
+      teammateIndex,
+      teammateCard,
+    } = params;
     if (runningSuite === null) {
       throw Error("runningSuite can't be null");
+    }
+
+    // Teammate sure-shot wins: dump unwinnable points from other suites
+    // or empty other suites to cut later.
+    if (
+      teammateSureShotWin(
+        hand,
+        runningSuite,
+        trumpSuite,
+        tableCards,
+        discardedCards,
+        isBidWinner,
+        teammateIndex,
+        teammateCard
+      )
+    ) {
+      console.log(
+        "[toCutOrNotToCut]: teammate will sure shot win --> play unwinnable points"
+      );
+      // todo - dump unwinnable points from other suites
+      const filteredSuites = DECK_SUITES.filter(
+        suite => suite !== trumpSuite && suite !== runningSuite
+      );
+      const pointCardIndex = throwUnwinnablePoints(
+        hand,
+        filteredSuites,
+        discardedCards,
+        tableCards
+      );
+      if (pointCardIndex === null) {
+        return tryAndGetLeastValueCardIndexNotInSuite(hand, trumpSuite);
+      } else {
+        return pointCardIndex;
+      }
     }
 
     const winningCard = determineTrickWinner(
@@ -256,6 +301,9 @@ export default class GreedyBot extends BotAgent {
     );
     // user has trump
     if (highestTrumpIndex !== null) {
+      console.log(
+        "[toCutOrNotToCut]: user has trump --> try and win with trump"
+      );
       const highestTrump = hand[highestTrumpIndex];
 
       if (!isTrickCut) {
@@ -277,9 +325,8 @@ export default class GreedyBot extends BotAgent {
         }
       }
     }
-    // default behavior: play lowest card from hand.
-    // @ts-expect-error - hand is not empty when this is called
-    return getLeastValueCardIndex(hand);
+    // default behavior: play least non-trump card from hand.
+    return tryAndGetLeastValueCardIndexNotInSuite(hand, trumpSuite);
   }
 
   getBidAction(params: BidParams): BidAction {
