@@ -11,6 +11,7 @@ import {
   BID_TIMER_DURATION,
   FIRST_PLAYER_ID,
   NUM_PLAYERS,
+  NUM_TRICKS,
   PLAYER_NAME_POOL,
   SERIES_TOTAL_GAMES,
 } from "@/utils/constants";
@@ -70,12 +71,6 @@ const gameSlice = createSlice({
   initialState,
   reducers: {
     setStage: (state, action: PayloadAction<GameStage>) => {
-      console.log(
-        "[Game Flow] GameSlice.setStage: CHANGING STATE: FROM",
-        state.gameProgress.stage,
-        "TO",
-        action.payload
-      );
       state.gameProgress.stage = action.payload;
     },
 
@@ -93,12 +88,6 @@ const gameSlice = createSlice({
           agentClasses[Math.floor(Math.random() * agentClasses.length)];
         // Store agent type string instead of instance
         state.playerState.playerAgents[i] = getAgentType(AgentClass);
-        console.log(
-          "Player agent type for Player: ",
-          i,
-          " is ",
-          state.playerState.playerAgents[i]
-        );
         // Use the class name for the bot's display name
         const name = sampledNames.pop();
         state.playerState.playerNames[i] = name !== undefined ? name : "";
@@ -106,10 +95,6 @@ const gameSlice = createSlice({
     },
 
     startGame: (state, action: PayloadAction<{ startingPlayer: number }>) => {
-      console.log(
-        "Starting next game with starting player: ",
-        action.payload.startingPlayer
-      );
       if (state.gameMode === GameMode.Series) {
         state.seriesProgress.startingPlayerIndex =
           action.payload.startingPlayer;
@@ -183,10 +168,6 @@ const gameSlice = createSlice({
     },
 
     startNewTrick: state => {
-      console.log(
-        "GAME: Starting new trick, previous winner:",
-        state.tableState.trickWinner?.player
-      );
       state.tableState = newTrickOnTable(state.tableState);
       state.gameProgress.trick = state.gameProgress.trick + 1;
     },
@@ -205,11 +186,9 @@ const gameSlice = createSlice({
         bidWinner: bidder,
         teammateCard: teammateCard,
         trumpSuite: trumpSuite,
-        totalTricks: 10,
+        totalTricks: NUM_TRICKS,
         isTeammateRevealed: false,
       };
-      // todo - remove hardcoded total tricks
-      console.log(`Setting trump ${trumpSuite} and teammate: ${teammateCard}`);
       // Assign teams based on teammate card
       const updatedPlayers = assignTeamsByTeammateCard(
         state.playerState.players,
@@ -257,11 +236,6 @@ const gameSlice = createSlice({
 
       if (activePlayers.length === 1) {
         state.biddingState.bidWinner = activePlayers[0];
-        // Don't transition stages immediately - let the saga handle the delay
-        console.log(
-          "Bidding complete, winner set. Waiting for delay before stage transition."
-        );
-        console.log("Bid winner is ", state.biddingState.bidWinner);
       } else {
         // Advance to next eligible bidder
         let nextBidder = (playerIndex + 1) % NUM_PLAYERS;

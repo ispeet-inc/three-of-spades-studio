@@ -125,9 +125,7 @@ const GameRedux = ({ viewerIndex = FIRST_PLAYER_ID }: GameReduxProps) => {
   const handleCardPlay = (card: Card) => {
     if (isObserver) return; // BLOCKED in observer mode
     const playerHand = playerState.players[FIRST_PLAYER_ID].hand;
-    const cardIndex = playerHand.findIndex(
-      c => c.positionValue === card.positionValue
-    );
+    const cardIndex = playerHand.findIndex(c => c.hash === card.hash);
     if (cardIndex !== -1) {
       dispatch(playCard({ playerIndex: FIRST_PLAYER_ID, cardIndex }));
     }
