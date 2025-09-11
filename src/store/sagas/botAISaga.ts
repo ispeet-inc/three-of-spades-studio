@@ -33,7 +33,7 @@ import {
   selectGameConfig,
   selectGameProgress,
   selectPlayerState,
-  selectTeammateIndex,
+  selectTeammateMap,
 } from "../selectors";
 
 // Bot card playing saga
@@ -50,7 +50,7 @@ function* handleBotCardPlay(): Generator<any, void, any> {
     tableState = yield select((state: RootState) => state.game.tableState);
     playerState = yield select(selectPlayerState);
     const gameConfig = yield select(selectGameConfig);
-    const teammateIndex = yield select(selectTeammateIndex);
+    const teammateMap = yield select(selectTeammateMap);
 
     // Check if it's still bot's turn and game is in playing stage
     if (
@@ -73,6 +73,7 @@ function* handleBotCardPlay(): Generator<any, void, any> {
     // Get agent instance from manager
     const botAgent = agentManager.getAgent(tableState.turn, agentType);
 
+    console.log("Player :", playerState.playerNames[tableState.turn], " turn");
     // Bot chooses card
     const cardIndex = botAgent.chooseCardIndex({
       hand: currentPlayer.hand,
@@ -83,10 +84,11 @@ function* handleBotCardPlay(): Generator<any, void, any> {
       discardedCards: tableState.discardedCards,
       teammateCard: gameConfig?.teammateCard,
       isTeammateRevealed: gameConfig?.isTeammateRevealed,
-      teammateIndex: teammateIndex,
+      teammateIndex: teammateMap[tableState.turn],
       isBidWinner: currentPlayer.isBidWinner,
       isTeammate: currentPlayer.isTeammate,
       missingSuiteMemory: tableState.missingSuiteMemory,
+      bidWinner: gameConfig?.bidWinner,
     });
 
     // Validate card index and fallback to random if invalid

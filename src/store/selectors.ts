@@ -288,12 +288,42 @@ export const selectPlayerDisplayData = createSelector(
   }
 );
 
-export const selectTeammateIndex = createSelector(
-  selectPlayerDisplayData,
-  (playerDisplayData): number => {
-    const teammate = playerDisplayData.find(p => p.isFirstPersonTeammate);
-    const teammateId = typeof teammate?.id === "number" ? teammate.id : -1;
-    return teammateId;
+export const selectTeammateMap = createSelector(
+  [selectPlayers, selectIsTeammateRevealed],
+  (players, isTeammateRevealed): Record<number, number | null> => {
+    if (!players) return {};
+
+    // Return a mapping of player index to their teammate's index.
+    // Assumes that the teammate is the only other player with the same team number (excluding self and null).
+    const teammateMap: Record<number, number | null> = {};
+    Object.entries(players).forEach(([index, player]) => {
+      const playerIndex = parseInt(index);
+      if (player.team === null) {
+        throw Error(
+          "player.team can't be null when this is called. Check usage!"
+        );
+      }
+      // Find another player with the same team (not self)
+      const teammateEntry = Object.entries(players).find(
+        ([otherIndex, otherPlayer]) =>
+          parseInt(otherIndex) !== playerIndex &&
+          otherPlayer.team === player.team
+      );
+
+      if (!teammateEntry) {
+        console.log(
+          "selectTeammateIndex: teammate entry missing. Players: ",
+          players
+        );
+        throw Error("Teammate not found, debug this.");
+      }
+
+      const isAwareOfTeammate = isTeammateRevealed || player.isTeammate;
+      teammateMap[playerIndex] = isAwareOfTeammate
+        ? parseInt(teammateEntry[0])
+        : -1;
+    });
+    return teammateMap;
   }
 );
 

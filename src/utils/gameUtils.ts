@@ -38,8 +38,7 @@ export const assignTeamsByTeammateCard = (
   let teammateIndex = -1;
   for (let i = 0; i < numPlayers; i++) {
     const hasCard = players[i].hand.some(
-      card =>
-        card.suite === teammateCard.suite && card.number === teammateCard.number
+      card => card.hash === teammateCard.hash
     );
     if (hasCard) {
       teammateIndex = i;
