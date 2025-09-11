@@ -75,7 +75,7 @@ function* handleBotCardPlay(): Generator<any, void, any> {
 
     console.log("Player :", playerState.playerNames[tableState.turn], " turn");
     // Bot chooses card
-    const cardIndex = botAgent.chooseCardIndex({
+    const chosenCard = botAgent.chooseCard({
       hand: currentPlayer.hand,
       tableCards: tableState.tableCards,
       trumpSuite: gameConfig?.trumpSuite,
@@ -91,16 +91,12 @@ function* handleBotCardPlay(): Generator<any, void, any> {
       bidWinner: gameConfig?.bidWinner,
     });
 
-    // Validate card index and fallback to random if invalid
-    let validCardIndex;
-    if (
-      cardIndex !== null &&
-      cardIndex >= 0 &&
-      cardIndex < currentPlayer.hand.length
-    ) {
-      validCardIndex = cardIndex;
-    } else {
-      throw new Error("Invalid card index");
+    // Map chosen card to index in current hand
+    const validCardIndex = currentPlayer.hand.findIndex(
+      c => c.hash === chosenCard.hash
+    );
+    if (validCardIndex === -1) {
+      throw new Error("Chosen card not found in hand");
     }
 
     // Dispatch card play action
