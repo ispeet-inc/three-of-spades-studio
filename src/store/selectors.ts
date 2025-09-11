@@ -7,6 +7,7 @@ import type { GameStage } from "@/store/gameStages";
 import { GameStages } from "@/store/gameStages";
 import {
   GameMode,
+  SeriesProgress,
   type BiddingState,
   type GameConfig,
   type GameProgress,
@@ -95,7 +96,7 @@ export const selectIsTrickCompleteStage = createSelector(
 // NEW: Series selectors
 export const selectSeriesProgress = createSelector(
   selectGame,
-  (g): any => g.seriesProgress
+  (g): SeriesProgress => g.seriesProgress
 );
 
 export const selectCurrentGame = createSelector(
@@ -145,15 +146,6 @@ export const selectIsGameActive = createSelector(
       GameStages.PLAYING,
       GameStages.CARDS_DISPLAY,
     ].includes(stage as any)
-);
-
-/** Returns whether the current player is a bot */
-export const selectIsCurrentPlayerBot = createSelector(
-  [selectCurrentPlayerIndex, selectPlayerState],
-  (currentPlayer, playerState): boolean => {
-    if (currentPlayer <= 0) return false;
-    return !!playerState.playerAgents[currentPlayer];
-  }
 );
 
 /** Teams derived from players (1/2 instead of 0/1) */
