@@ -1,5 +1,6 @@
 import { Card, Suite, TableCard } from "@/types/game";
 import { hasSuite } from "@/utils/gameUtils";
+import { validateHand } from "../utils/handUtils";
 
 export interface BidAction {
   action: "bid" | "pass";
@@ -45,7 +46,7 @@ export interface TrumpTeammateParams {
 }
 
 export default abstract class BotAgent {
-  abstract startTrick(params: BotChoiceParams): number;
+  abstract startTrick(params: BotChoiceParams): Card;
 
   abstract pickRunningSuite(params: BotChoiceParams): number;
 
@@ -67,20 +68,20 @@ export default abstract class BotAgent {
       discardedCards,
     } = params;
 
+    validateHand(hand);
     if (verbose) {
       console.log("Current hand:", hand);
-    }
-
-    if (!hand || hand.length === 0) {
-      throw new Error("No cards in hand to choose from");
     }
 
     let pickedCardIndex: number;
     let reason: string;
 
     if (runningSuite === null) {
-      pickedCardIndex = this.startTrick(params);
-      reason = "startTrick";
+      const pickedCard = this.startTrick(params);
+      if (!pickedCard) {
+        throw new Error("startTrick returned null/undefined card");
+      }
+      return pickedCard;
     } else if (hasSuite(hand, runningSuite)) {
       pickedCardIndex = this.pickRunningSuite(params);
       reason = "pickRunningSuite";

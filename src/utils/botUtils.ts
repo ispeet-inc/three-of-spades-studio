@@ -6,6 +6,7 @@ import {
   getHighestValueCard,
   getHighestValueCardIndex,
   getLeastValueCardIndex,
+  getLeastValueCardIndexInSuite,
   getLeastValueCardIndexNotInSuite,
   getLeastValueCardInSuite,
   getUnwinnableCardsInSuite,
