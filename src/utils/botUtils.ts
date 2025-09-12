@@ -3,11 +3,13 @@ import { NUM_PLAYERS, NUM_TRICKS } from "./constants";
 import { determineTrickWinner } from "./gameUtils";
 import {
   canBeatAllRemainingCardsInSuite,
+  getHighestValueCard,
   getHighestValueCardIndex,
   getLeastValueCardIndex,
-  getLeastValueCardIndexInSuite,
   getLeastValueCardIndexNotInSuite,
+  getLeastValueCardInSuite,
   getUnwinnableCardsInSuite,
+  validateHandWithSuite,
 } from "./handUtils";
 
 // todo - something wrong with this function
@@ -68,6 +70,36 @@ export const getHighestUnwinnableCardIndexInSuite = (
   return getLeastValueCardIndexInSuite(hand, suite);
 };
 
+/**
+ * Returns the highest value unwinnable card in a specific suite.
+ * @param hand - Array of card objects.
+ * @param suite - The suite to filter by.
+ * @param discardedCards - Array of cards that have been played/discarded.
+ * @param tableCards - Array of cards currently on the table (default: []).
+ * @returns The highest value unwinnable card in the suite, or the least value card in suite if no unwinnable cards.
+ * @throws Error if hand is empty or no cards found in suite.
+ */
+export const getHighestUnwinnableCardInSuite = (
+  hand: Card[],
+  suite: Suite,
+  discardedCards: Card[],
+  tableCards: Card[] = []
+): Card => {
+  validateHandWithSuite(hand, suite);
+
+  const unwinnableCards = getUnwinnableCardsInSuite(
+    hand,
+    suite,
+    discardedCards,
+    tableCards
+  );
+  // get highest value unwinnable card
+  if (unwinnableCards.length > 0) {
+    return getHighestValueCard(unwinnableCards);
+  }
+  return getLeastValueCardInSuite(hand, suite);
+};
+
 export const tryAndWinWithSuite = (
   hand: Card[],
   tableCards: Card[],
@@ -122,6 +154,70 @@ export const tryAndWinWithSuite = (
   // Default: keep options open by playing the least in suite
   console.log("tryAndWinWithSuite: default return");
   return defaultIndex;
+};
+
+/**
+ * Attempts to win a trick with a card from the specified suite.
+ * @param hand - Array of card objects.
+ * @param tableCards - Array of cards currently on the table.
+ * @param discardedCards - Array of cards that have been played/discarded.
+ * @param suite - The suite to try winning with.
+ * @param currentWinningCard - The card currently winning the trick.
+ * @returns The card to play to try winning the trick.
+ * @throws Error if currentWinningCard is not from the specified suite or no cards found in suite.
+ */
+export const tryAndWinWithSuitev2 = (
+  hand: Card[],
+  tableCards: Card[],
+  discardedCards: Card[],
+  suite: Suite,
+  currentWinningCard: Card
+): Card => {
+  validateHandWithSuite(hand, suite);
+  if (currentWinningCard.suite !== suite) {
+    throw Error("Current winning card is not from suite we're trying to win");
+  }
+
+  // Precompute default fallback once
+  // todo - incorporate throw points here
+  const defaultCard = getLeastValueCardInSuite(hand, suite);
+
+  // winning cards are always sorted too.
+  const winningCards = hand.filter(
+    card => card.suite === suite && card.rank > currentWinningCard.rank
+  );
+
+  // If we have no winning cards in the suite, shed the least valuable in suite
+  if (winningCards.length === 0) {
+    console.log("tryAndWinWithSuiteCard: no winnable cards");
+    return defaultCard;
+  }
+
+  const isLastPlayer = tableCards.length === NUM_PLAYERS - 1;
+
+  // Last to act: win with the lowest possible card from the winning set
+  if (isLastPlayer) {
+    console.log("tryAndWinWithSuiteCard: playing lowest winning card");
+    return winningCards[0];
+  }
+
+  // Otherwise, if our highest card in suite can beat all remaining, play it
+  const highestCard = winningCards[winningCards.length - 1];
+  if (
+    canBeatAllRemainingCardsInSuite(
+      hand,
+      discardedCards,
+      tableCards,
+      highestCard
+    )
+  ) {
+    console.log("tryAndWinWithSuiteCard: playing highest card");
+    return highestCard;
+  }
+
+  // Default: keep options open by playing the least in suite
+  console.log("tryAndWinWithSuiteCard: default return");
+  return defaultCard;
 };
 
 /**
