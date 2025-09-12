@@ -48,7 +48,7 @@ export interface TrumpTeammateParams {
 export default abstract class BotAgent {
   abstract startTrick(params: BotChoiceParams): Card;
 
-  abstract pickRunningSuite(params: BotChoiceParams): number;
+  abstract pickRunningSuite(params: BotChoiceParams): Card;
 
   abstract toCutOrNotToCut(params: BotChoiceParams): number;
 
@@ -83,8 +83,11 @@ export default abstract class BotAgent {
       }
       return pickedCard;
     } else if (hasSuite(hand, runningSuite)) {
-      pickedCardIndex = this.pickRunningSuite(params);
-      reason = "pickRunningSuite";
+      const pickedCard = this.pickRunningSuite(params);
+      if (!pickedCard) {
+        throw new Error("pickRunningSuite returned null/undefined card");
+      }
+      return pickedCard;
     } else {
       pickedCardIndex = this.toCutOrNotToCut(params);
       reason = "toCutOrNotToCut";

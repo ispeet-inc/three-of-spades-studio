@@ -4,7 +4,7 @@ import {
   getRandomCardIndexBySuite,
   getRandomSuite,
 } from "@/utils/gameUtils";
-import { getRandomCard } from "@/utils/handUtils";
+import { getRandomCard, getRandomCardInSuite } from "@/utils/handUtils";
 import BotAgent, {
   BidAction,
   BidParams,
@@ -23,13 +23,13 @@ export default class RandomBot extends BotAgent {
   }
 
   // Pick a random card from the running suite
-  pickRunningSuite(params: BotChoiceParams): number {
+  pickRunningSuite(params: BotChoiceParams): Card {
     const { hand, runningSuite } = params;
     if (runningSuite === null) {
       throw Error("runningSuite can't be null");
     }
 
-    return getRandomCardIndexBySuite(hand, runningSuite);
+    return getRandomCardInSuite(hand, runningSuite);
   }
 
   // Randomly decide whether to cut or play a random card

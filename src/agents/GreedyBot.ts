@@ -5,7 +5,6 @@ import { determineTrickWinner } from "@/utils/gameUtils";
 import {
   getHighestRankedCardIndexInSuite,
   getLeastValueCard,
-  getLeastValueCardIndex,
   getLeastValueCardIndexInSuite,
   getLeastValueCardInSuite,
   getLeastValueCardNotInSuite,
@@ -18,12 +17,11 @@ import {
 } from "@/utils/handUtils";
 import {
   doOthersStillHaveTrump,
-  getHighestUnwinnableCardIndexInSuite,
   getHighestUnwinnableCardInSuite,
   teammateSureShotWin,
   throwUnwinnablePoints,
   tryAndGetLeastValueCardIndexNotInSuite,
-  tryAndWinWithSuite,
+  tryAndWinWithSuitev2,
 } from "../utils/botUtils";
 import BotAgent, {
   BidAction,
@@ -151,7 +149,7 @@ export default class GreedyBot extends BotAgent {
 
   // if P(win) > 0, pick the highest card from the running suite
   // else pick the least value card
-  pickRunningSuite(params: BotChoiceParams): number {
+  pickRunningSuite(params: BotChoiceParams): Card {
     const {
       hand,
       tableCards,
@@ -176,13 +174,13 @@ export default class GreedyBot extends BotAgent {
       runningSuite === teammateCard.suite &&
       tableCards.length !== NUM_PLAYERS - 1
     ) {
-      const teammateCardIndex = hand.findIndex(
+      const teammateCardInHand = hand.find(
         card => card.hash === teammateCard.hash
       );
-      if (teammateCardIndex === -1) {
+      if (!teammateCardInHand) {
         throw Error("Teammate card not present in teammate hand. How?");
       }
-      return teammateCardIndex;
+      return teammateCardInHand;
     }
 
     // Teammate sure-shot wins: dump unwinnable points in running suite
@@ -201,7 +199,7 @@ export default class GreedyBot extends BotAgent {
       console.log(
         "[pickRunningSuite]: teammate will sure shot win --> play unwinnable points"
       );
-      return getHighestUnwinnableCardIndexInSuite(
+      return getHighestUnwinnableCardInSuite(
         hand,
         runningSuite,
         discardedCards,
@@ -224,11 +222,10 @@ export default class GreedyBot extends BotAgent {
 
     // Trick is already cut; cannot win with running suite
     if (isTrickCut) {
-      // @ts-expect-error - hand is not empty when this is called
-      return getLeastValueCardIndexInSuite(hand, runningSuite);
+      return getLeastValueCardInSuite(hand, runningSuite);
     }
 
-    return tryAndWinWithSuite(
+    return tryAndWinWithSuitev2(
       hand,
       tableCards,
       discardedCards,
