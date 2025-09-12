@@ -30,7 +30,7 @@ config:
   layout: dagre
 ---
 flowchart LR
-  A[Start tryAndWinWithSuite] --> C[defaultIndex = getLeastValueCardIndexInSuite]
+  A[Start tryAndWinWithSuite] --> C[defaultIndex = getLeastValueCardInSuite]
   C --> D{Any winning cards?}
   D -- No --> E[Return defaultIndex]
   D -- Yes --> F{is last player?}
