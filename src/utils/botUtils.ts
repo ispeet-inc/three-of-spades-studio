@@ -5,10 +5,10 @@ import {
   canBeatAllRemainingCardsInSuite,
   getHighestValueCard,
   getHighestValueCardIndex,
-  getLeastValueCardIndex,
+  getLeastValueCard,
   getLeastValueCardIndexInSuite,
-  getLeastValueCardIndexNotInSuite,
   getLeastValueCardInSuite,
+  getLeastValueCardNotInSuite,
   getUnwinnableCardsInSuite,
   validateHandWithSuite,
 } from "./handUtils";
@@ -309,27 +309,25 @@ export const throwUnwinnablePoints = (
   suites: Suite[],
   discardedCards: Card[],
   tableCards: Card[]
-): number | null => {
+): Card | null => {
   const allUnwinnableCards = suites.flatMap(suite =>
     getUnwinnableCardsInSuite(hand, suite, discardedCards, tableCards)
   );
-  const highestValueCardIndex = getHighestValueCardIndex(allUnwinnableCards);
 
-  if (highestValueCardIndex !== null) {
-    return hand.indexOf(allUnwinnableCards[highestValueCardIndex]);
+  if (allUnwinnableCards.length > 0) {
+    return getHighestValueCard(allUnwinnableCards);
   }
   return null;
 };
 
-export const tryAndGetLeastValueCardIndexNotInSuite = (
+export const tryAndGetLeastValueCardNotInSuite = (
   hand: Card[],
   suiteToExclude: Suite
-): number => {
+): Card => {
   // default behavior: play least non-trump card from hand.
-  const leastCardIndex = getLeastValueCardIndexNotInSuite(hand, suiteToExclude);
-  if (leastCardIndex !== null) {
-    return leastCardIndex;
+  const leastCard = getLeastValueCardNotInSuite(hand, suiteToExclude);
+  if (leastCard !== null) {
+    return leastCard;
   }
-  // @ts-expect-error - hand is not empty when this is called
-  return getLeastValueCardIndex(hand);
+  return getLeastValueCard(hand);
 };

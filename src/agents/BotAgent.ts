@@ -50,7 +50,7 @@ export default abstract class BotAgent {
 
   abstract pickRunningSuite(params: BotChoiceParams): Card;
 
-  abstract toCutOrNotToCut(params: BotChoiceParams): number;
+  abstract toCutOrNotToCut(params: BotChoiceParams): Card;
 
   abstract getBidAction(params: BidParams): BidAction;
 
@@ -73,31 +73,22 @@ export default abstract class BotAgent {
       console.log("Current hand:", hand);
     }
 
-    let pickedCardIndex: number;
+    let pickedCard: Card;
     let reason: string;
 
     if (runningSuite === null) {
-      const pickedCard = this.startTrick(params);
-      if (!pickedCard) {
-        throw new Error("startTrick returned null/undefined card");
-      }
-      return pickedCard;
+      pickedCard = this.startTrick(params);
+      reason = "startTrick";
     } else if (hasSuite(hand, runningSuite)) {
-      const pickedCard = this.pickRunningSuite(params);
-      if (!pickedCard) {
-        throw new Error("pickRunningSuite returned null/undefined card");
-      }
-      return pickedCard;
+      pickedCard = this.pickRunningSuite(params);
+      reason = "pickRunningSuite";
     } else {
-      pickedCardIndex = this.toCutOrNotToCut(params);
+      pickedCard = this.toCutOrNotToCut(params);
       reason = "toCutOrNotToCut";
     }
 
-    const pickedCard = hand[pickedCardIndex];
     if (!pickedCard) {
-      throw new Error(
-        `Invalid card index returned by bot decision (${reason})`
-      );
+      throw new Error(`Invalid card returned by bot decision (${reason})`);
     }
 
     if (verbose) {

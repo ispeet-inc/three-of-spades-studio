@@ -94,6 +94,10 @@ export const getFormattedPlayerName = (
   return getDisplayPlayerName(playerNames, index);
 };
 
+/**
+ * @deprecated This function is deprecated and will be removed in a future version.
+ * Use the newer implementation instead.
+ */
 export const hasSuite = (hand: Card[], suite: number): boolean => {
   return hand.some(card => card.suite === suite);
 };
@@ -102,6 +106,10 @@ export const getRandomCardIndex = (hand: Card[]): number => {
   return Math.floor(Math.random() * hand.length);
 };
 
+/**
+ * @deprecated This function is deprecated and will be removed in a future version.
+ * Use the newer implementation instead.
+ */
 export const getRandomCardIndexBySuite = (
   hand: Card[],
   suite: number
