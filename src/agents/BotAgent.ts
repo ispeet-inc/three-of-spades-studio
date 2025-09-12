@@ -1,6 +1,5 @@
 import { Card, Suite, TableCard } from "@/types/game";
-import { hasSuite } from "@/utils/gameUtils";
-import { validateHand } from "../utils/handUtils";
+import { hasSuite, validateHand } from "@/utils/handUtils";
 
 export interface BidAction {
   action: "bid" | "pass";

@@ -4,9 +4,7 @@ import { determineTrickWinner } from "./gameUtils";
 import {
   canBeatAllRemainingCardsInSuite,
   getHighestValueCard,
-  getHighestValueCardIndex,
   getLeastValueCard,
-  getLeastValueCardIndexInSuite,
   getLeastValueCardInSuite,
   getLeastValueCardNotInSuite,
   getUnwinnableCardsInSuite,
@@ -47,30 +45,6 @@ export const doOthersStillHaveTrump = (
   return otherPlayersMissingTrump < NUM_PLAYERS - teamIndices.length;
 };
 
-export const getHighestUnwinnableCardIndexInSuite = (
-  hand: Card[],
-  suite: Suite,
-  discardedCards: Card[],
-  tableCards: Card[] = []
-): number => {
-  if (!hand || hand.length === 0) {
-    throw Error("hand can't be empty");
-  }
-  const unwinnableCards = getUnwinnableCardsInSuite(
-    hand,
-    suite,
-    discardedCards,
-    tableCards
-  );
-  // get highest value unwinnable card
-  const highestUnwinnableCard = getHighestValueCardIndex(unwinnableCards);
-  if (highestUnwinnableCard !== null) {
-    return hand.indexOf(unwinnableCards[highestUnwinnableCard]);
-  }
-  // @ts-expect-error - hand is not empty when this is called
-  return getLeastValueCardIndexInSuite(hand, suite);
-};
-
 /**
  * Returns the highest value unwinnable card in a specific suite.
  * @param hand - Array of card objects.
@@ -101,62 +75,6 @@ export const getHighestUnwinnableCardInSuite = (
   return getLeastValueCardInSuite(hand, suite);
 };
 
-export const tryAndWinWithSuite = (
-  hand: Card[],
-  tableCards: Card[],
-  discardedCards: Card[],
-  suite: Suite,
-  currentWinningCard: Card
-): number => {
-  if (currentWinningCard.suite !== suite) {
-    throw Error("Current winning card is not from suite we're trying to win");
-  }
-
-  // Precompute default fallback once
-  // todo - incorporate throw points here
-  const defaultIndex = getLeastValueCardIndexInSuite(hand, suite);
-  if (defaultIndex === null) {
-    throw Error("Player has suite cards. Why is the error thrown?");
-  }
-
-  // winning cards are always sorted too.
-  const winningCards = hand.filter(
-    card => card.suite === suite && card.rank > currentWinningCard.rank
-  );
-
-  // If we have no winning cards in the suite, shed the least valuable in suite
-  if (winningCards.length === 0) {
-    console.log("tryAndWinWithSuite: no winnable cards");
-    return defaultIndex;
-  }
-
-  const isLastPlayer = tableCards.length === NUM_PLAYERS - 1;
-
-  // Last to act: win with the lowest possible card from the winning set
-  if (isLastPlayer) {
-    console.log("tryAndWinWithSuite: playing lowest winning card");
-    return hand.indexOf(winningCards[0]);
-  }
-
-  // Otherwise, if our highest card in suite can beat all remaining, play it
-  const highestCard = winningCards[winningCards.length - 1];
-  if (
-    canBeatAllRemainingCardsInSuite(
-      hand,
-      discardedCards,
-      tableCards,
-      highestCard
-    )
-  ) {
-    console.log("tryAndWinWithSuite: playing highest card");
-    return hand.indexOf(highestCard);
-  }
-
-  // Default: keep options open by playing the least in suite
-  console.log("tryAndWinWithSuite: default return");
-  return defaultIndex;
-};
-
 /**
  * Attempts to win a trick with a card from the specified suite.
  * @param hand - Array of card objects.
@@ -167,7 +85,7 @@ export const tryAndWinWithSuite = (
  * @returns The card to play to try winning the trick.
  * @throws Error if currentWinningCard is not from the specified suite or no cards found in suite.
  */
-export const tryAndWinWithSuitev2 = (
+export const tryAndWinWithSuite = (
   hand: Card[],
   tableCards: Card[],
   discardedCards: Card[],

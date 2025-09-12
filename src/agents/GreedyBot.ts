@@ -19,7 +19,7 @@ import {
   teammateSureShotWin,
   throwUnwinnablePoints,
   tryAndGetLeastValueCardNotInSuite,
-  tryAndWinWithSuitev2,
+  tryAndWinWithSuite,
 } from "../utils/botUtils";
 import BotAgent, {
   BidAction,
@@ -223,7 +223,7 @@ export default class GreedyBot extends BotAgent {
       return getLeastValueCardInSuite(hand, runningSuite);
     }
 
-    return tryAndWinWithSuitev2(
+    return tryAndWinWithSuite(
       hand,
       tableCards,
       discardedCards,
