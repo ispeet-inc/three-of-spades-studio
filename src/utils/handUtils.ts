@@ -114,29 +114,43 @@ export function getLowestRankedCardInSuite(hand: Card[], suite: Suite): Card {
 }
 
 /**
- * Returns the least value card in the hand (by points).
+ * Returns the card with the lowest value in the hand, prioritizing cards with the fewest points.
+ * If multiple cards have the same lowest points, the card with the lowest rank is chosen.
  * @param hand - Array of card objects.
- * @returns The least value card.
+ * @returns The least value card in the hand.
  * @throws Error if hand is empty.
  */
 export function getLeastValueCard(hand: Card[]): Card {
   validateHand(hand);
-  return hand.reduce((least, current) =>
-    current.points < least.points ? current : least
-  );
+  return hand.reduce((least, current) => {
+    if (current.points < least.points) {
+      return current;
+    } else if (current.points === least.points) {
+      return current.rank < least.rank ? current : least;
+    } else {
+      return least;
+    }
+  });
 }
 
 /**
- * Returns the highest value card in the hand (by points).
+ * Returns the card with the highest value in the hand, prioritizing cards with the most points.
+ * If multiple cards have the same highest points, the card with the lowest rank is chosen.
  * @param hand - Array of card objects.
- * @returns The highest value card.
+ * @returns The highest value card in the hand.
  * @throws Error if hand is empty.
  */
 export function getHighestValueCard(hand: Card[]): Card {
   validateHand(hand);
-  return hand.reduce((highest, current) =>
-    current.points > highest.points ? current : highest
-  );
+  return hand.reduce((highest, current) => {
+    if (current.points > highest.points) {
+      return current;
+    } else if (current.points === highest.points) {
+      return current.rank < highest.rank ? current : highest;
+    } else {
+      return highest;
+    }
+  });
 }
 
 /**
@@ -170,7 +184,7 @@ export function getLeastValueCardNotInSuite(
   return getLeastValueCard(nonSuiteCards);
 }
 
-export function printCardHashes(hand: Card[]) {
+export function printCardHashes(hand: Card[]): void {
   for (const card of hand) {
     console.log(card.hash);
   }
@@ -380,7 +394,7 @@ export function getWinnableCardCountPerSuite(hand: Card[], suite: Suite) {
   }
 }
 
-export function getMaxBid(hand: Card[]) {
+export function getMaxBid(hand: Card[]): number {
   if (hand.length === 0) return 0;
   const winningCounts = DECK_SUITES.map(suite =>
     getWinnableCardCountPerSuite(hand, suite)

@@ -61,7 +61,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           "active:animate-button-press"
         )}
         ref={node => {
-          // @ts-ignore
+          // @ts-expect-error - not sure why
           buttonRef.current = node;
           if (typeof ref === "function") ref(node);
           else if (ref) ref.current = node;
