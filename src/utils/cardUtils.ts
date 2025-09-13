@@ -90,15 +90,19 @@ export const shuffle = (array: Card[]): Card[] => {
   return shuffled;
 };
 
-// split array into two parts, put them back in different order
-export const singleShuffle = (array: Card[]): Card[] => {
+// split array into two parts, put them back in different order, do this N times
+export const splitShuffle = (array: Card[], N: number = 1): Card[] => {
   if (array.length < 2) return [...array];
-  // Pick a random split point (not at the ends)
-  const splitIndex = Math.floor(Math.random() * (array.length - 1)) + 1;
-  const firstPart = array.slice(0, splitIndex);
-  const secondPart = array.slice(splitIndex);
-  // Put the second part first, then the first part
-  return [...secondPart, ...firstPart];
+  let shuffled = [...array];
+  for (let i = 0; i < N; i++) {
+    // Pick a random split point (not at the ends)
+    const splitIndex = Math.floor(Math.random() * (shuffled.length - 1)) + 1;
+    const firstPart = shuffled.slice(0, splitIndex);
+    const secondPart = shuffled.slice(splitIndex);
+    // Put the second part first, then the first part
+    shuffled = [...secondPart, ...firstPart];
+  }
+  return shuffled;
 };
 
 export const sortHand = (hand: Card[]): Card[] => {
