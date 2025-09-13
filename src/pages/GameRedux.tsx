@@ -191,6 +191,7 @@ const GameRedux = ({ viewerIndex = FIRST_PLAYER_ID }: GameReduxProps) => {
 
   const handleNewGame = () => {
     if (isObserver) return; // BLOCKED in observer mode
+    dispatch(resetStateForNewSeries());
     handleStartGame(playerState.playerNames[FIRST_PLAYER_ID], GameMode.Single);
   };
 
