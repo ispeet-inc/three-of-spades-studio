@@ -222,18 +222,18 @@ export const generateStatsDisplay = (
         description: "Total series",
       },
       {
-        label: "Highest Score",
-        value: seriesStats.highestSeriesScore,
-        icon: "🏆",
-        description: "Best score",
-      },
-      {
         label: "Win Rate",
         value: `${safeRound((seriesStats.seriesWon / Math.max(seriesStats.totalSeries, 1)) * 100)}%`,
         percentage:
           (seriesStats.seriesWon / Math.max(seriesStats.totalSeries, 1)) * 100,
         icon: "🎯",
         description: "Percentage of wins",
+      },
+      {
+        label: "Highest Score",
+        value: seriesStats.highestSeriesScore,
+        icon: "🥇",
+        description: "Best score",
       },
       {
         label: "Current Streak",
@@ -263,32 +263,26 @@ export const generateStatsDisplay = (
         description: "Total games",
       },
       {
-        label: "Highest Score",
-        value: gameStats.highestScore,
-        icon: "🏆",
-        description: "Best score",
-      },
-      {
         label: "Win Rate",
         value: `${safeRound((gameStats.gamesWon / Math.max(gameStats.totalGames, 1)) * 100)}%`,
         percentage:
           (gameStats.gamesWon / Math.max(gameStats.totalGames, 1)) * 100,
-        icon: "🎮",
+        icon: "🎯",
         description: "Percentage of wins",
       },
+      // {
+      //   label: "Highest Score",
+      //   value: gameStats.highestScore,
+      //   icon: "🥇",
+      //   description: "Best score",
+      // },
       {
         label: "Bid & Win Rate",
         value: `${safeRound((gameStats.bidsWon / Math.max(gameStats.bidsPlaced, 1)) * 100)}%`,
         percentage:
           (gameStats.bidsWon / Math.max(gameStats.bidsPlaced, 1)) * 100,
-        icon: "💎",
+        icon: "👑",
         description: "Percentage of bids won",
-      },
-      {
-        label: "Whitewashes",
-        value: gameStats.whitewash,
-        icon: "❄️",
-        description: "Number of times won all tricks",
       },
       {
         label: "Current Streak",
@@ -301,6 +295,12 @@ export const generateStatsDisplay = (
         value: gameStats.bestStreak,
         icon: "⭐",
         description: "Longest winning streak",
+      },
+      {
+        label: "Whitewashes",
+        value: gameStats.whitewash,
+        icon: "❄️",
+        description: "Number of times won all tricks",
       },
     ];
   }
