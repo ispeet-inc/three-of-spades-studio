@@ -8,6 +8,7 @@ import GameRedux from "./pages/GameRedux";
 import HandTesterPage from "./pages/HandTesterPage";
 import NotFound from "./pages/NotFound";
 import Palettes from "./pages/Palettes";
+import StatsDemo from "./pages/StatsDemo";
 import { store } from "./store";
 
 const queryClient = new QueryClient();
@@ -35,6 +36,7 @@ const App = () => (
             <Route path="/:viewerIndex" element={<GameReduxWrapper />} />
             <Route path="/tester" element={<HandTesterPage />} />
             <Route path="/palettes" element={<Palettes />} />
+            <Route path="/stats-demo" element={<StatsDemo />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
