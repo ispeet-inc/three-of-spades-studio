@@ -256,13 +256,6 @@ export default function* gameFlowSaga() {
 
   // Watch for game start
   yield takeEvery(startGame.type, function* (): Generator<any, void, any> {
-    // If we're at GAME_OVER (single-player end), route via INIT first
-    const currentStage: GameStage = yield select(selectStage);
-    if (currentStage === GameStages.GAME_OVER) {
-      yield put(gameStageTransition(GameStages.INIT));
-      // Yield a micro-delay to avoid takeLeading dropping the next transition
-      yield delay(0);
-    }
     yield put(gameStageTransition(GameStages.DISTRIBUTE_CARDS));
   });
 
