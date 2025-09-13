@@ -108,7 +108,7 @@ export const tryAndWinWithSuite = (
 
   // If we have no winning cards in the suite, shed the least valuable in suite
   if (winningCards.length === 0) {
-    console.log("tryAndWinWithSuiteCard: no winnable cards");
+    console.log("tryAndWinWithSuite: no winnable cards");
     return defaultCard;
   }
 
@@ -116,7 +116,7 @@ export const tryAndWinWithSuite = (
 
   // Last to act: win with the lowest possible card from the winning set
   if (isLastPlayer) {
-    console.log("tryAndWinWithSuiteCard: playing lowest winning card");
+    console.log("tryAndWinWithSuite: playing lowest winning card");
     return winningCards[0];
   }
 
@@ -130,12 +130,12 @@ export const tryAndWinWithSuite = (
       highestCard
     )
   ) {
-    console.log("tryAndWinWithSuiteCard: playing highest card");
+    console.log("tryAndWinWithSuite: playing highest card");
     return highestCard;
   }
 
   // Default: keep options open by playing the least in suite
-  console.log("tryAndWinWithSuiteCard: default return");
+  console.log("tryAndWinWithSuite: default return");
   return defaultCard;
 };
 
