@@ -389,9 +389,7 @@ const GameRedux = ({ viewerIndex = FIRST_PLAYER_ID }: GameReduxProps) => {
           teams={teams}
           scores={gameState.gameProgress.scores}
           bidAmount={gameState.gameConfig?.bidAmount ?? 0}
-          bidWinner={gameState.gameConfig?.bidWinner ?? -1}
           playerNames={playerState.playerNames}
-          isMobile={isMobile}
           onNewGame={handleNewGame}
           isObserver={isObserver}
         />
