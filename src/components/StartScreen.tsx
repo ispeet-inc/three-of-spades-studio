@@ -1,7 +1,10 @@
+import { BarChart3 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
+import { useStats } from "../hooks/useStats";
 import { GameMode } from "../types/game";
 import HowToPlayModal from "./HowToPlayModal";
 import { Button } from "./ui/button";
+import { StatsModal } from "./ui/StatsModal";
 
 interface StartScreenProps {
   onStartGame: (playerName: string, gameMode: GameMode) => void;
@@ -199,6 +202,8 @@ const StartGameButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
 const StartScreen: React.FC<StartScreenProps> = ({ onStartGame }) => {
   const [selectedMode, setSelectedMode] = useState<GameMode>(GameMode.Single);
   const [showHowToPlay, setShowHowToPlay] = useState(false);
+  const [showStats, setShowStats] = useState(false);
+  const { stats, resetAllStats } = useStats();
 
   const {
     playerName,
@@ -288,21 +293,50 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStartGame }) => {
           {/* Action Buttons */}
           <div className="space-y-4">
             <StartGameButton onClick={handleStartGame} />
-
-            <Button
-              onClick={() => setShowHowToPlay(true)}
-              variant="outline"
-              className="bg-white/10 border-white/30 text-white hover:bg-white/20 hover:border-white/50 font-medium px-8 py-3 rounded-xl transition-all duration-300 hover:scale-105"
-            >
-              📖 How to Play
-            </Button>
           </div>
         </div>
+      </div>
+
+      {/* Floating Action Buttons */}
+      <div className="fixed top-6 right-6 z-50 flex gap-3">
+        {/* How to Play Button */}
+        <Button
+          onClick={() => setShowHowToPlay(true)}
+          className="group relative bg-gradient-gold text-casino-black font-bold px-4 py-3 rounded-xl shadow-elevated hover:shadow-glow transition-all duration-300 hover:scale-105"
+          size="sm"
+        >
+          <span className="text-lg mr-2 group-hover:rotate-12 transition-transform duration-300">
+            📖
+          </span>
+          <span className="hidden sm:inline">How to Play</span>
+
+          {/* Glow effect */}
+          <div className="absolute inset-0 rounded-xl bg-gold/20 blur-xl opacity-0 group-hover:opacity-50 transition-opacity duration-300 -z-10" />
+        </Button>
+
+        {/* Statistics Button */}
+        <Button
+          onClick={() => setShowStats(true)}
+          className="group relative bg-gradient-gold text-casino-black font-bold px-4 py-3 rounded-xl shadow-elevated hover:shadow-glow transition-all duration-300 hover:scale-105"
+          size="sm"
+        >
+          <BarChart3 className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform duration-300" />
+          <span className="hidden sm:inline">Stats</span>
+
+          {/* Glow effect */}
+          <div className="absolute inset-0 rounded-xl bg-gold/20 blur-xl opacity-0 group-hover:opacity-50 transition-opacity duration-300 -z-10" />
+        </Button>
       </div>
 
       <HowToPlayModal
         isOpen={showHowToPlay}
         onClose={() => setShowHowToPlay(false)}
+      />
+
+      <StatsModal
+        isOpen={showStats}
+        onClose={() => setShowStats(false)}
+        stats={stats}
       />
     </div>
   );

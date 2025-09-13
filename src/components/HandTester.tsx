@@ -321,6 +321,7 @@ export function HandTester() {
                 2: { 1: 0, 2: 170, 3: 0, 4: 150 },
                 3: { 1: 0, 2: 0, 3: 200, 4: 0 },
               },
+              gameResults: [],
               seriesScores: { 1: 220, 2: 170, 3: 400, 4: 150 },
               startingPlayerIndex: 2,
               seriesWinner: 3,
@@ -364,6 +365,7 @@ export function HandTester() {
                 3: 220, // Player 4 - Teammate
               },
             },
+            gameResults: [],
             seriesScores: {
               0: 600, // Player 1 - Series Leader
               1: 200, // Player 2
@@ -418,6 +420,7 @@ export function HandTester() {
               2: 400, // Player 3 (won Game 1 + Game 3)
               3: 440, // Player 4 - Tied Winner (won Game 2 + Game 4 - last game!)
             },
+            gameResults: [],
             startingPlayerIndex: 2,
             seriesWinner: 1, // You won the series
           }}
@@ -466,6 +469,7 @@ export function HandTester() {
               3: { 0: 180, 1: 0, 2: 200, 3: 0 }, // Game 3: Bob (Winner) + You (Teammate)
               4: { 0: 0, 1: 220, 2: 0, 3: 240 }, // Game 4: Charlie (Winner) + Alice (Teammate) - Last Game!
             },
+            gameResults: [],
             seriesScores: {
               0: 380, // Player 1 - Tied Winner (won Game 1 + Game 3)
               1: 420, // Player 2 - Tied Winner (won Game 2 + Game 4)

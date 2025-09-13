@@ -86,10 +86,18 @@ export interface GameConfig {
   isTeammateRevealed: boolean;
 }
 
+export interface GameResult {
+  gameScores: Record<number, number>; // player -> score
+  margin: number; // points won by defending team
+  whitewash: boolean; // whitewash
+}
+
 // NEW: Series progress interface for multi-game series
 export interface SeriesProgress {
   currentGame: number;
   totalGames: number;
+  gameResults: Record<number, GameResult>; // game -> game result
+  /** @deprecated Use gameResults instead */
   gameScores: Record<number, Record<number, number>>; // game -> player -> score
   seriesScores: Record<number, number>; // player -> cumulative score
   startingPlayerIndex: number; // Current starting player (0-3)
