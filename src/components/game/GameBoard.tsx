@@ -263,8 +263,6 @@ export const GameBoard = ({
         currentBid !== null && (
           <BiddingControls
             currentBid={currentBid as number}
-            currentBidder={currentBidder}
-            bidTimer={bidTimer}
             canBid={canPlayerBid}
             onBid={onBid}
             onPass={onPass}

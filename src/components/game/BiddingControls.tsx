@@ -9,8 +9,6 @@ import { useState } from "react";
 
 interface BiddingControlsProps {
   currentBid: number;
-  currentBidder: number;
-  bidTimer: number;
   canBid: boolean;
   onBid: (amount: number) => void;
   onPass: () => void;
@@ -19,8 +17,6 @@ interface BiddingControlsProps {
 
 export const BiddingControls = ({
   currentBid,
-  currentBidder,
-  bidTimer,
   canBid,
   onBid,
   onPass,
@@ -45,8 +41,8 @@ export const BiddingControls = ({
       isNaN(amount) ||
       amount <= currentBid ||
       amount > maxBid ||
-      (currentBid < 200 && (amount - currentBid) % 5 !== 0) ||
-      (currentBid >= 200 && (amount - currentBid) % 10 !== 0)
+      (amount <= 200 && amount % MIN_INCREMENT_BELOW_200 !== 0) ||
+      (amount > 200 && amount % MIN_INCREMENT_ABOVE_200 !== 0)
     ) {
       toast({
         title: "Invalid Bid",
