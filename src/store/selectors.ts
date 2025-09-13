@@ -18,6 +18,7 @@ import {
   type TeamScores,
 } from "@/types/game";
 import { createSelector } from "@reduxjs/toolkit";
+import { GameLogEntry, SeriesLogEntry } from "../types/stats";
 import { FIRST_PLAYER_ID, NUM_PLAYERS } from "../utils/constants";
 
 // ============================================================================
@@ -349,4 +350,47 @@ export const selectShowCardsPhase = createSelector(
 export const selectIsCollectingCards = createSelector(
   selectStage,
   (stage): boolean => stage === GameStages.TRICK_COMPLETE
+);
+
+// ============================================================================
+// STATS SELECTORS
+// ============================================================================
+
+export const selectGameLogEntry = createSelector(
+  [selectGameMode, selectGameConfig, selectSeriesProgress],
+  (gameMode, gameConfig, seriesProgress): GameLogEntry => {
+    if (!gameConfig) {
+      throw new Error("Game config is null");
+    }
+    const playerId = FIRST_PLAYER_ID;
+    const gameResult = seriesProgress.gameResults[seriesProgress.currentGame];
+    if (!gameResult) {
+      throw new Error("Game result is null");
+    }
+    const playerScore = gameResult.gameScores[playerId];
+    const bidPlaced = gameConfig.bidWinner === playerId;
+    const isWon = playerScore > 0;
+
+    return {
+      mode: gameMode,
+      isWon,
+      score: playerScore,
+      bidPlaced,
+      whitewash: isWon && gameResult.whitewash,
+      timestamp: new Date().toISOString(),
+    };
+  }
+);
+
+export const selectSeriesLogEntry = createSelector(
+  [selectSeriesProgress],
+  (seriesProgress): SeriesLogEntry => {
+    const playerId = FIRST_PLAYER_ID;
+
+    return {
+      isWon: seriesProgress.seriesWinner === playerId,
+      score: seriesProgress.seriesScores[playerId],
+      timestamp: new Date().toISOString(),
+    };
+  }
 );
