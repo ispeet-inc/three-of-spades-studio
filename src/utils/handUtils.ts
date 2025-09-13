@@ -9,197 +9,182 @@ import { DECK_SUITES, MAX_BID } from "./constants";
  * @returns True if the suite is present, false otherwise.
  */
 export function hasSuite(hand: Card[], suite: Suite): boolean {
-  const suiteCards = hand.filter(card => card.suite === suite);
-  return suiteCards.length > 0;
+  return hand.some(card => card.suite === suite);
 }
 
 /**
- * Returns a random valid index from the hand array.
- * @param hand - Array of card objects.
- * @returns A random index, or null if hand is empty or not an array.
+ * Validates if a hand is valid (non-empty array).
+ * @param hand - Array of card objects to validate.
+ * @throws Error if the hand is invalid (empty or not an array).
  */
-export function getRandomCardIndex(hand: Card[]): number | null {
-  if (!Array.isArray(hand) || hand.length === 0) return null;
-  return Math.floor(Math.random() * hand.length);
+export function validateHand(hand: Card[]): void {
+  if (!Array.isArray(hand) || hand.length === 0) {
+    throw new Error("Hand must be a non-empty array");
+  }
 }
 
 /**
- * Returns a random card index from hand for a given suite.
+ * Validates if a hand is valid (non-empty array).
+ * @param hand - Array of card objects to validate.
+ * @throws Error if the hand is invalid (empty or not an array) or if no cards are found in the specified suite.
+ */
+export function validateHandWithSuite(hand: Card[], suite: Suite): void {
+  validateHand(hand);
+  if (!hasSuite(hand, suite)) {
+    throw new Error("No cards found in suite ${suite}");
+  }
+}
+
+/**
+ * Returns a random card from the hand.
+ * @param hand - Array of card objects.
+ * @returns A random card.
+ * @throws Error if hand is empty or not an array.
+ */
+export function getRandomCard(hand: Card[]): Card {
+  validateHand(hand);
+  const randomIndex = Math.floor(Math.random() * hand.length);
+  return hand[randomIndex];
+}
+
+/**
+ * Returns a random card from the hand for a given suite.
  * @param hand - Array of card objects.
  * @param suite - The suite to filter by.
- * @returns The index of a random card in the suite, or null if none found.
+ * @returns A random card from the specified suite.
+ * @throws Error if no cards of the specified suite are found.
  */
-export function getRandomCardIndexBySuite(
-  hand: Card[],
-  suite: Suite
-): number | null {
+export function getRandomCardInSuite(hand: Card[], suite: Suite): Card {
+  validateHandWithSuite(hand, suite);
   const suiteCards = hand.filter(card => card.suite === suite);
-  if (suiteCards.length > 0) {
-    const randomIndex = getRandomCardIndex(suiteCards);
-    if (randomIndex === null) return null;
-    return hand.indexOf(suiteCards[randomIndex]);
-  }
-  return null;
+  const randomIndex = Math.floor(Math.random() * suiteCards.length);
+  return suiteCards[randomIndex];
 }
 
 /**
- * Returns the index of the highest ranked card in the hand.
+ * Returns the highest ranked card in the hand.
  * @param hand - Array of card objects.
- * @returns The index of the highest ranked card, or null if hand is empty.
+ * @returns The highest ranked card.
+ * @throws Error if hand is empty.
  */
-export function getHighestRankedCardIndex(hand: Card[]): number | null {
-  if (!hand || hand.length === 0) return null;
-
-  let highestCardIndex = 0;
-  for (let i = 1; i < hand.length; i++) {
-    if (hand[i].rank > hand[highestCardIndex].rank) {
-      highestCardIndex = i;
-    }
-  }
-  return highestCardIndex;
+export function getHighestRankedCard(hand: Card[]): Card {
+  validateHand(hand);
+  return hand.reduce((highest, current) =>
+    current.rank > highest.rank ? current : highest
+  );
 }
 
 /**
- * Returns the index of the highest ranked card in a specific suite.
+ * Returns the highest ranked card in a specific suite.
  * @param hand - Array of card objects.
  * @param suite - The suite to filter by.
- * @returns The index of the highest ranked card in the suite, or null if none found.
+ * @returns The highest ranked card in the specified suite.
+ * @throws Error if no cards of the specified suite are found.
  */
-export function getHighestRankedCardIndexInSuite(
-  hand: Card[],
-  suite: Suite
-): number | null {
-  if (!hand || hand.length === 0) return null;
-
+export function getHighestRankedCardInSuite(hand: Card[], suite: Suite): Card {
+  validateHandWithSuite(hand, suite);
   const suiteCards = hand.filter(card => card.suite === suite);
-  if (suiteCards.length === 0) return null;
-
-  // Use getHighestRankedCardIndex on the filtered suite cards
-  const highestInSuiteIdx = getHighestRankedCardIndex(suiteCards);
-  if (highestInSuiteIdx === null) return null;
-  // Map back to the original hand index
-  return hand.indexOf(suiteCards[highestInSuiteIdx]);
+  return getHighestRankedCard(suiteCards);
 }
 
 /**
- * Gets the index of the lowest ranked card in a hand.
- * @param hand - Array of cards to search through
- * @returns The index of the lowest ranked card, or null if hand is empty
- */
-export function getLowestRankedCardIndex(hand: Card[]): number | null {
-  if (!hand || hand.length === 0) return null;
-
-  let lowestCardIndex = 0;
-  for (let i = 1; i < hand.length; i++) {
-    if (hand[i].rank < hand[lowestCardIndex].rank) {
-      lowestCardIndex = i;
-    }
-  }
-  return lowestCardIndex;
-}
-
-/**
- * Gets the index of the lowest ranked card of a specific suite in a hand.
- * @param hand - Array of cards to search through
- * @param suite - The suite to filter by
- * @returns The index of the lowest ranked card in the specified suite, or null if no cards of that suite exist
- */
-export function getLowestRankedCardIndexInSuite(
-  hand: Card[],
-  suite: Suite
-): number | null {
-  if (!hand || hand.length === 0) return null;
-  const suiteCards = hand.filter(card => card.suite === suite);
-
-  if (suiteCards.length === 0) return null;
-
-  // Use getLowestRankedCardIndex on the filtered suite cards
-  const lowestInSuiteIdx = getLowestRankedCardIndex(suiteCards);
-  if (lowestInSuiteIdx === null) return null;
-  // Map back to the original hand index
-  return hand.indexOf(suiteCards[lowestInSuiteIdx]);
-}
-
-/**
- * Returns the index of the least value card in the hand.
+ * Returns the lowest ranked card in the hand.
  * @param hand - Array of card objects.
- * @returns The index of the least value card, or null if hand is empty.
+ * @returns The lowest ranked card.
+ * @throws Error if hand is empty.
  */
-export function getLeastValueCardIndex(hand: Card[]): number | null {
-  if (!hand || hand.length === 0) return null;
-
-  let leastValueCardIndex = 0;
-  for (let i = 1; i < hand.length; i++) {
-    if (hand[i].points < hand[leastValueCardIndex].points) {
-      leastValueCardIndex = i;
-    }
-  }
-  return leastValueCardIndex;
+export function getLowestRankedCard(hand: Card[]): Card {
+  validateHand(hand);
+  return hand.reduce((lowest, current) =>
+    current.rank < lowest.rank ? current : lowest
+  );
 }
 
 /**
- * Returns the index of the highest value card in the hand
- * @param hand - Array of card objects.
- * @returns The index of the highest value card in the hand, or null if none found.
- */
-export function getHighestValueCardIndex(hand: Card[]): number | null {
-  if (!hand || hand.length === 0) return null;
-
-  let highestValueCardIndex = 0;
-  for (let i = 1; i < hand.length; i++) {
-    if (hand[i].points > hand[highestValueCardIndex].points) {
-      highestValueCardIndex = i;
-    }
-  }
-  return highestValueCardIndex;
-}
-
-/**
- * Returns the index of the least value card in the hand for a specific suite.
+ * Returns the lowest ranked card in a specific suite.
  * @param hand - Array of card objects.
  * @param suite - The suite to filter by.
- * @returns The index of the least value card in the suite, or null if none found.
+ * @returns The lowest ranked card in the specified suite.
+ * @throws Error if no cards of the specified suite are found.
  */
-export function getLeastValueCardIndexInSuite(
-  hand: Card[],
-  suite: Suite
-): number | null {
-  if (!hand || hand.length === 0) return null;
-
-  // Filter cards by suite
+export function getLowestRankedCardInSuite(hand: Card[], suite: Suite): Card {
+  validateHandWithSuite(hand, suite);
   const suiteCards = hand.filter(card => card.suite === suite);
-  if (suiteCards.length === 0) return null;
-
-  // Find the least value card in the filtered suite cards
-  const leastValueIdx = getLeastValueCardIndex(suiteCards);
-  if (leastValueIdx === null) return null;
-  // Map back to the original hand index
-  return hand.indexOf(suiteCards[leastValueIdx]);
+  return getLowestRankedCard(suiteCards);
 }
 
 /**
- * Returns the index of the least value card in the hand excluding a specific suite.
+ * Returns the card with the lowest value in the hand, prioritizing cards with the fewest points.
+ * If multiple cards have the same lowest points, the card with the lowest rank is chosen.
+ * @param hand - Array of card objects.
+ * @returns The least value card in the hand.
+ * @throws Error if hand is empty.
+ */
+export function getLeastValueCard(hand: Card[]): Card {
+  validateHand(hand);
+  return hand.reduce((least, current) => {
+    if (current.points < least.points) {
+      return current;
+    } else if (current.points === least.points) {
+      return current.rank < least.rank ? current : least;
+    } else {
+      return least;
+    }
+  });
+}
+
+/**
+ * Returns the card with the highest value in the hand, prioritizing cards with the most points.
+ * If multiple cards have the same highest points, the card with the lowest rank is chosen.
+ * @param hand - Array of card objects.
+ * @returns The highest value card in the hand.
+ * @throws Error if hand is empty.
+ */
+export function getHighestValueCard(hand: Card[]): Card {
+  validateHand(hand);
+  return hand.reduce((highest, current) => {
+    if (current.points > highest.points) {
+      return current;
+    } else if (current.points === highest.points) {
+      return current.rank < highest.rank ? current : highest;
+    } else {
+      return highest;
+    }
+  });
+}
+
+/**
+ * Returns the least value card in a specific suite (by points).
  * @param hand - Array of card objects.
  * @param suite - The suite to filter by.
- * @returns The index of the least value card in the suite, or null if none found.
+ * @returns The least value card in the specified suite.
+ * @throws Error if no cards of the specified suite are found.
  */
-export function getLeastValueCardIndexNotInSuite(
+export function getLeastValueCardInSuite(hand: Card[], suite: Suite): Card {
+  validateHandWithSuite(hand, suite);
+  const suiteCards = hand.filter(card => card.suite === suite);
+  return getLeastValueCard(suiteCards);
+}
+
+/**
+ * Returns the least value card excluding a specific suite (by points).
+ * @param hand - Array of card objects.
+ * @param suiteToExclude - The suite to exclude from selection.
+ * @returns The least value card not in the specified suite, or null if no cards exist outside the suite.
+ */
+export function getLeastValueCardNotInSuite(
   hand: Card[],
   suiteToExclude: Suite
-): number | null {
-  if (!hand || hand.length === 0) return null;
-
-  // Filter cards by suite
+): Card | null {
+  validateHand(hand);
   const nonSuiteCards = hand.filter(card => card.suite !== suiteToExclude);
-
-  // Find the least value card in the filtered suite cards
-  const leastValueIdx = getLeastValueCardIndex(nonSuiteCards);
-  if (leastValueIdx === null) return null;
-  // Map back to the original hand index
-  return hand.indexOf(nonSuiteCards[leastValueIdx]);
+  if (nonSuiteCards.length === 0) {
+    return null;
+  }
+  return getLeastValueCard(nonSuiteCards);
 }
 
-export function printCardHashes(hand: Card[]) {
+export function printCardHashes(hand: Card[]): void {
   for (const card of hand) {
     console.log(card.hash);
   }
@@ -373,11 +358,12 @@ export function getWinProbability(
   discardedCards: Card[],
   suite: Suite
 ) {
+  validateHand(hand);
+  if (!hasSuite(hand, suite)) {
+    return null;
+  }
   let winProbability = 0;
-  const highestCardIndex = getHighestRankedCardIndexInSuite(hand, suite);
-  if (highestCardIndex === null) return null;
-
-  const highestCard = hand[highestCardIndex];
+  const highestCard = getHighestRankedCardInSuite(hand, suite);
 
   if (canBeatAllRemainingCardsInSuite(hand, discardedCards, [], highestCard)) {
     winProbability = 1;
@@ -386,7 +372,6 @@ export function getWinProbability(
   }
 
   return {
-    highestCardIndex: highestCardIndex,
     card: highestCard,
     winProbability: winProbability,
     numCardsOver: discardedCards.filter(card => card.suite === suite).length,
@@ -409,7 +394,7 @@ export function getWinnableCardCountPerSuite(hand: Card[], suite: Suite) {
   }
 }
 
-export function getMaxBid(hand: Card[]) {
+export function getMaxBid(hand: Card[]): number {
   if (hand.length === 0) return 0;
   const winningCounts = DECK_SUITES.map(suite =>
     getWinnableCardCountPerSuite(hand, suite)

@@ -94,28 +94,6 @@ export const getFormattedPlayerName = (
   return getDisplayPlayerName(playerNames, index);
 };
 
-export const hasSuite = (hand: Card[], suite: number): boolean => {
-  return hand.some(card => card.suite === suite);
-};
-
-export const getRandomCardIndex = (hand: Card[]): number => {
-  return Math.floor(Math.random() * hand.length);
-};
-
-export const getRandomCardIndexBySuite = (
-  hand: Card[],
-  suite: number
-): number => {
-  const suiteCards = hand
-    .map((card, index) => ({ card, index }))
-    .filter(({ card }) => card.suite === suite);
-
-  if (suiteCards.length === 0) return -1;
-
-  const randomIndex = Math.floor(Math.random() * suiteCards.length);
-  return suiteCards[randomIndex].index;
-};
-
 export const getRandomSuite = (): number => {
   return Math.floor(Math.random() * 4);
 };

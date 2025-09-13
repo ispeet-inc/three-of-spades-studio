@@ -1,5 +1,5 @@
 import { Card, Suite, TableCard } from "@/types/game";
-import { hasSuite } from "@/utils/gameUtils";
+import { hasSuite, validateHand } from "@/utils/handUtils";
 
 export interface BidAction {
   action: "bid" | "pass";
@@ -45,11 +45,11 @@ export interface TrumpTeammateParams {
 }
 
 export default abstract class BotAgent {
-  abstract startTrick(params: BotChoiceParams): number;
+  abstract startTrick(params: BotChoiceParams): Card;
 
-  abstract pickRunningSuite(params: BotChoiceParams): number;
+  abstract pickRunningSuite(params: BotChoiceParams): Card;
 
-  abstract toCutOrNotToCut(params: BotChoiceParams): number;
+  abstract toCutOrNotToCut(params: BotChoiceParams): Card;
 
   abstract getBidAction(params: BidParams): BidAction;
 
@@ -57,7 +57,7 @@ export default abstract class BotAgent {
     params: TrumpTeammateParams
   ): TrumpTeammateChoice;
 
-  chooseCardIndex(params: BotChoiceParams, verbose = false): number | null {
+  chooseCard(params: BotChoiceParams, verbose = false): Card {
     const {
       hand,
       tableCards,
@@ -67,79 +67,49 @@ export default abstract class BotAgent {
       discardedCards,
     } = params;
 
+    validateHand(hand);
     if (verbose) {
       console.log("Current hand:", hand);
     }
 
-    if (!hand || hand.length === 0) return null;
+    let pickedCard: Card;
+    let reason: string;
 
     if (runningSuite === null) {
-      const pickedCardIndex = this.startTrick(params);
-      if (verbose) {
-        console.log(
-          "BotAgent: ",
-          playerIndex,
-          "Starting trick - hand: ",
-          hand,
-          "runningSuite: ",
-          runningSuite,
-          "trumpSuite: ",
-          trumpSuite,
-          "tableCards: ",
-          tableCards,
-          "discardedCards: ",
-          discardedCards,
-          "pickedCard: ",
-          hand[pickedCardIndex]
-        );
-      }
-      return pickedCardIndex;
+      pickedCard = this.startTrick(params);
+      reason = "startTrick";
+    } else if (hasSuite(hand, runningSuite)) {
+      pickedCard = this.pickRunningSuite(params);
+      reason = "pickRunningSuite";
+    } else {
+      pickedCard = this.toCutOrNotToCut(params);
+      reason = "toCutOrNotToCut";
     }
 
-    // Try running suite
-    if (hasSuite(hand, runningSuite)) {
-      const pickedCardIndex = this.pickRunningSuite(params);
-      if (verbose) {
-        console.log(
-          "BotAgent: ",
-          playerIndex,
-          "Playing card from running suite - hand: ",
-          hand,
-          "runningSuite: ",
-          runningSuite,
-          "trumpSuite: ",
-          trumpSuite,
-          "tableCards: ",
-          tableCards,
-          "discardedCards: ",
-          discardedCards,
-          "pickedCard: ",
-          hand[pickedCardIndex]
-        );
-      }
-      return pickedCardIndex;
+    if (!pickedCard) {
+      throw new Error(`Invalid card returned by bot decision (${reason})`);
     }
 
-    // To cut or not?
-    const pickedCardIndex = this.toCutOrNotToCut(params);
     if (verbose) {
       console.log(
-        "BotAgent: ",
+        "BotAgent:",
         playerIndex,
-        "Playing card from other suite - hand: ",
+        reason,
+        "- hand:",
         hand,
-        "runningSuite: ",
+        "runningSuite:",
         runningSuite,
-        "trumpSuite: ",
+        "trumpSuite:",
         trumpSuite,
-        "tableCards: ",
+        "tableCards:",
         tableCards,
-        "discardedCards: ",
+        "discardedCards:",
         discardedCards,
-        "pickedCard: ",
-        hand[pickedCardIndex]
+        "pickedCard:",
+        pickedCard
       );
     }
-    return pickedCardIndex;
+
+    return pickedCard;
   }
 }

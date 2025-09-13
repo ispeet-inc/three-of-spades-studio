@@ -1,13 +1,12 @@
-import { Suite } from "@/types/game";
+import { Card, Suite } from "@/types/game";
 import { getHash } from "@/utils/cardUtils";
 import { DECK_SUITES, NUM_PLAYERS } from "@/utils/constants";
 import { determineTrickWinner } from "@/utils/gameUtils";
 import {
-  getHighestRankedCardIndexInSuite,
-  getLeastValueCardIndex,
-  getLeastValueCardIndexInSuite,
-  getLeastValueCardIndexNotInSuite,
-  getLowestRankedCardIndexInSuite,
+  getLeastValueCard,
+  getLeastValueCardInSuite,
+  getLeastValueCardNotInSuite,
+  getLowestRankedCardInSuite,
   getMaxBid,
   getTeammateInSuite,
   getWinProbability,
@@ -16,10 +15,10 @@ import {
 } from "@/utils/handUtils";
 import {
   doOthersStillHaveTrump,
-  getHighestUnwinnableCardIndexInSuite,
+  getHighestUnwinnableCardInSuite,
   teammateSureShotWin,
   throwUnwinnablePoints,
-  tryAndGetLeastValueCardIndexNotInSuite,
+  tryAndGetLeastValueCardNotInSuite,
   tryAndWinWithSuite,
 } from "../utils/botUtils";
 import BotAgent, {
@@ -35,7 +34,7 @@ export default class GreedyBot extends BotAgent {
 
   // Start a new trick by playing the highest card
   // todo - improve this function by taking into account number of cards over & trump suite
-  startTrick(params: BotChoiceParams): number {
+  startTrick(params: BotChoiceParams): Card {
     const {
       hand,
       trumpSuite,
@@ -69,7 +68,7 @@ export default class GreedyBot extends BotAgent {
         );
         if (teammateCard.suite === trumpSuite || numTrumpsDone >= 4) {
           console.log("[startTrick]: Safe to make teammate reveal themselves");
-          return getHighestUnwinnableCardIndexInSuite(
+          return getHighestUnwinnableCardInSuite(
             hand,
             teammateCard.suite,
             discardedCards
@@ -107,10 +106,9 @@ export default class GreedyBot extends BotAgent {
         // for trump suite, if P(win) == 1, play highest card
         const winProbObj = getWinProbability(hand, discardedCards, trumpSuite);
         if (winProbObj?.winProbability === 1) {
-          return winProbObj.highestCardIndex;
+          return winProbObj.card;
         } else {
-          // @ts-expect-error - hand is not empty when this is called
-          return getLeastValueCardIndexInSuite(hand, trumpSuite);
+          return getLeastValueCardInSuite(hand, trumpSuite);
         }
       }
     }
@@ -126,12 +124,11 @@ export default class GreedyBot extends BotAgent {
     if (winningOptions.length === 0) {
       console.log("[startTrick]: No winning options, playing least card");
       // pick lowest card in hand to start the trick
-      const leastCardIndex = getLeastValueCardIndexNotInSuite(hand, trumpSuite);
-      if (leastCardIndex !== null) {
-        return leastCardIndex;
+      const leastCard = getLeastValueCardNotInSuite(hand, trumpSuite);
+      if (leastCard !== null) {
+        return leastCard;
       }
-      // @ts-expect-error - hand is not empty when this is called
-      return getLeastValueCardIndex(hand);
+      return getLeastValueCard(hand);
     }
 
     const bestOption = winningOptions.reduce((best, current) => {
@@ -145,12 +142,12 @@ export default class GreedyBot extends BotAgent {
     });
 
     console.log("[startTrick]: Best option: ", bestOption);
-    return bestOption.highestCardIndex;
+    return bestOption.card;
   }
 
   // if P(win) > 0, pick the highest card from the running suite
   // else pick the least value card
-  pickRunningSuite(params: BotChoiceParams): number {
+  pickRunningSuite(params: BotChoiceParams): Card {
     const {
       hand,
       tableCards,
@@ -175,13 +172,13 @@ export default class GreedyBot extends BotAgent {
       runningSuite === teammateCard.suite &&
       tableCards.length !== NUM_PLAYERS - 1
     ) {
-      const teammateCardIndex = hand.findIndex(
+      const teammateCardInHand = hand.find(
         card => card.hash === teammateCard.hash
       );
-      if (teammateCardIndex === -1) {
+      if (!teammateCardInHand) {
         throw Error("Teammate card not present in teammate hand. How?");
       }
-      return teammateCardIndex;
+      return teammateCardInHand;
     }
 
     // Teammate sure-shot wins: dump unwinnable points in running suite
@@ -200,7 +197,7 @@ export default class GreedyBot extends BotAgent {
       console.log(
         "[pickRunningSuite]: teammate will sure shot win --> play unwinnable points"
       );
-      return getHighestUnwinnableCardIndexInSuite(
+      return getHighestUnwinnableCardInSuite(
         hand,
         runningSuite,
         discardedCards,
@@ -223,8 +220,7 @@ export default class GreedyBot extends BotAgent {
 
     // Trick is already cut; cannot win with running suite
     if (isTrickCut) {
-      // @ts-expect-error - hand is not empty when this is called
-      return getLeastValueCardIndexInSuite(hand, runningSuite);
+      return getLeastValueCardInSuite(hand, runningSuite);
     }
 
     return tryAndWinWithSuite(
@@ -238,7 +234,7 @@ export default class GreedyBot extends BotAgent {
 
   // If player has trump, if P(win) > 0 --> play highest trump card
   // else, play least value card
-  toCutOrNotToCut(params: BotChoiceParams): number {
+  toCutOrNotToCut(params: BotChoiceParams): Card {
     const {
       hand,
       tableCards,
@@ -274,17 +270,16 @@ export default class GreedyBot extends BotAgent {
       const filteredSuites = DECK_SUITES.filter(
         suite => suite !== trumpSuite && suite !== runningSuite
       );
-      const pointCardIndex = throwUnwinnablePoints(
+      const pointCard = throwUnwinnablePoints(
         hand,
         filteredSuites,
         discardedCards,
         tableCards
       );
-      if (pointCardIndex === null) {
-        return tryAndGetLeastValueCardIndexNotInSuite(hand, trumpSuite);
-      } else {
-        return pointCardIndex;
+      if (pointCard !== null) {
+        return pointCard;
       }
+      return tryAndGetLeastValueCardNotInSuite(hand, trumpSuite);
     }
 
     const winningCard = determineTrickWinner(
@@ -295,38 +290,25 @@ export default class GreedyBot extends BotAgent {
     const isTrickCut =
       winningCard.suite === trumpSuite && trumpSuite !== runningSuite;
 
-    const highestTrumpIndex = getHighestRankedCardIndexInSuite(
-      hand,
-      trumpSuite
-    );
     // user has trump
-    if (highestTrumpIndex !== null) {
+    if (hasSuite(hand, trumpSuite)) {
       console.log(
         "[toCutOrNotToCut]: user has trump --> try and win with trump"
       );
-      const highestTrump = hand[highestTrumpIndex];
-
       if (!isTrickCut) {
-        // @ts-expect-error - hand is not empty when this is called
-        return getLowestRankedCardIndexInSuite(hand, trumpSuite);
+        return getLowestRankedCardInSuite(hand, trumpSuite);
       }
+      const winnableTrumpCards = hand.filter(
+        card => card.suite === trumpSuite && card.rank > winningCard.rank
+      );
       // trick already cut, we have higher trump card.
-      if (highestTrump.rank > winningCard.rank) {
+      if (winnableTrumpCards.length > 0) {
         // we want to win the trick with card just higher than winning card.
-        const winnableTrumpCards = hand.filter(
-          card => card.suite === trumpSuite && card.rank > winningCard.rank
-        );
-        const winningCardIndex = getLeastValueCardIndexInSuite(
-          winnableTrumpCards,
-          trumpSuite
-        );
-        if (winningCardIndex !== null) {
-          return hand.indexOf(winnableTrumpCards[winningCardIndex]);
-        }
+        return winnableTrumpCards[0];
       }
     }
     // default behavior: play least non-trump card from hand.
-    return tryAndGetLeastValueCardIndexNotInSuite(hand, trumpSuite);
+    return tryAndGetLeastValueCardNotInSuite(hand, trumpSuite);
   }
 
   getBidAction(params: BidParams): BidAction {
