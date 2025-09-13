@@ -1,6 +1,11 @@
 import { Card, Playerv2, Suite, TableCard, TeamScores } from "@/types/game";
 import { createCard } from "./cardUtils";
-import { BIDDING_TEAM, DEFENDING_TEAM, MAX_BID } from "./constants";
+import {
+  BIDDING_TEAM,
+  DEFENDING_TEAM,
+  MAX_BID,
+  WHITE_WASH_BONUS,
+} from "./constants";
 
 export const determineTrickWinner = (
   tableCards: TableCard[],
@@ -129,6 +134,14 @@ export const rotateStartingPlayer = (
   return (currentIndex + 1) % numPlayers; // 0 → 1 → 2 → 3 → 0
 };
 
+export const isWhiteWash = (teamScores: TeamScores): boolean => {
+  return teamScores.team1 === MAX_BID;
+};
+
+export const getMargin = (teamScores: TeamScores): number => {
+  return teamScores.team2;
+};
+
 // NEW: Convert team scores to individual player scores for series accumulation
 export const calculateGameScores = (
   teamScores: TeamScores,
@@ -140,7 +153,7 @@ export const calculateGameScores = (
 
   // team1 is always bidding team
   const bidWon = teamScores.team1 >= bidAmount;
-  const whiteWashBonus = teamScores.team1 === MAX_BID ? 50 : 0;
+  const whiteWashBonus = isWhiteWash(teamScores) ? WHITE_WASH_BONUS : 0;
 
   Object.entries(players).forEach(([playerIndex, player]) => {
     if (player.team === null) {

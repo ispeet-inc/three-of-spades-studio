@@ -3,6 +3,7 @@ import {
   Card,
   GameError,
   GameMode,
+  GameResult,
   GameState,
   Suite,
   TeamScores,
@@ -26,6 +27,8 @@ import {
 import {
   assignTeamsByTeammateCard,
   calculateGameScores,
+  getMargin,
+  isWhiteWash,
   selectRandomNames,
 } from "@/utils/gameUtils";
 import {
@@ -313,15 +316,20 @@ const gameSlice = createSlice({
 
     completeGame: state => {
       // 1. Calculate final game scores (existing logic)
-      if (state.biddingState.bidWinner === null) {
+      if (!state.gameConfig) {
         throw new Error("Bid winner is null");
       }
       const gameScores = calculateGameScores(
         state.gameProgress.scores,
         state.playerState.players,
-        state.biddingState.currentBid,
-        state.biddingState.bidWinner
+        state.gameConfig.bidAmount,
+        state.gameConfig.bidWinner
       );
+      const gameResult: GameResult = {
+        gameScores: gameScores,
+        margin: getMargin(state.gameProgress.scores),
+        whitewash: isWhiteWash(state.gameProgress.scores),
+      };
 
       // 2. Update series scores
       Object.entries(gameScores).forEach(([playerId, score]) => {
@@ -330,12 +338,15 @@ const gameSlice = createSlice({
       });
 
       // 3. Store game scores for history
+      state.seriesProgress.gameResults[state.seriesProgress.currentGame] =
+        gameResult;
       state.seriesProgress.gameScores[state.seriesProgress.currentGame] =
         gameScores;
     },
 
     completeSeries: state => {
       // Determine series winner
+      // todo - find all winners and store them in an array
       const winner = Object.entries(state.seriesProgress.seriesScores).reduce(
         (max, [playerId, score]) =>
           score > max.score ? { playerId: parseInt(playerId), score } : max,

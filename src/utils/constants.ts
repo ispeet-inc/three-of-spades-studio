@@ -41,6 +41,7 @@ export const SERIES_TOTAL_GAMES = 4;
 // Bidding constants
 export const BID_TIMER_DURATION = 30;
 export const MAX_BID = 250;
+export const WHITE_WASH_BONUS = 50;
 export const MIN_INCREMENT_BELOW_200 = 5;
 export const MIN_INCREMENT_ABOVE_200 = 10;
 

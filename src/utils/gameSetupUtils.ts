@@ -55,6 +55,7 @@ export const initSeriesProgress = (
   return {
     currentGame: 0,
     totalGames: totalGames,
+    gameResults: [],
     gameScores: {},
     seriesScores: Object.fromEntries(
       Array.from({ length: numPlayers }, (_, i) => [i, 0])
