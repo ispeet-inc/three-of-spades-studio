@@ -33,8 +33,8 @@ const TAB_CONFIG = [
 
 const GAME_SETUP_ITEMS = [
   { icon: "👥", label: "Players", value: "4 players" },
-  { icon: "🃏", label: "Deck", value: "40 cards" },
   { icon: "🤝", label: "Teams", value: "2 teams" },
+  { icon: "🃏", label: "Deck", value: "40 cards" },
   { icon: "🎯", label: "Dealing", value: "10 cards each" },
 ];
 
@@ -47,16 +47,16 @@ const KEY_RULES = [
   {
     icon: "👑",
     title: "Trump Power",
-    desc: "Trump cards beat any non-trump card",
+    desc: "Trump suite beats other suites",
   },
   {
     icon: "♠️",
-    title: "3 of Spades",
+    title: "3 of Spade",
     desc: "Worth 30 points - protect it!",
   },
   {
     icon: "🤝",
-    title: "Team Play",
+    title: "Teammate",
     desc: "Coordinate with your hidden partner",
   },
 ];
@@ -379,9 +379,8 @@ const HowToPlayModal: React.FC<HowToPlayModalProps> = ({ isOpen, onClose }) => {
                 <div className="space-y-4">
                   <SectionHeading>Game Overview</SectionHeading>
                   <SectionDescription>
-                    Three of Spades is a strategic 4-player card game where
-                    players form teams and compete to win tricks while bidding
-                    for contracts.
+                    Three of Spades is a strategic 4-player card game, where
+                    players form teams and compete to win tricks.
                   </SectionDescription>
                 </div>
 
