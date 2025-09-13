@@ -1,5 +1,5 @@
 import { Suite, TableCard, TableState } from "@/types/game";
-import { generateDeck } from "./cardUtils";
+import { generateDeck, shuffle } from "./cardUtils";
 import { determineTrickWinner } from "./gameUtils";
 
 export const initialTableState = (
@@ -12,7 +12,7 @@ export const initialTableState = (
     tableCards: [],
     turn: startingTurn,
     trickWinner: null,
-    discardedCards: fresh_deck ? generateDeck() : [],
+    discardedCards: fresh_deck ? shuffle(generateDeck()) : [],
     missingSuiteMemory: Object.fromEntries(
       Array.from({ length: numPlayers }, (_, i) => [i, []])
     ),
