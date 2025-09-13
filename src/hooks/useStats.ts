@@ -1,11 +1,17 @@
 import {
+  clearStats,
   loadStats,
   resetStats,
   saveStats,
   updateGameStats,
   updateSeriesStats,
 } from "@/lib/statsEngine";
-import { GameLogEntry, PlayerStats, SeriesLogEntry } from "@/types/stats";
+import {
+  DEFAULT_STATS,
+  GameLogEntry,
+  PlayerStats,
+  SeriesLogEntry,
+} from "@/types/stats";
 import { useCallback, useEffect, useState } from "react";
 
 export const useStats = () => {
@@ -13,7 +19,8 @@ export const useStats = () => {
 
   // Load stats from localStorage on mount
   useEffect(() => {
-    setStats(loadStats());
+    const loadedStats = loadStats();
+    setStats(loadedStats);
   }, []);
 
   // Update stats when a game is completed
@@ -48,11 +55,18 @@ export const useStats = () => {
     setStats(freshStats);
   }, []);
 
+  // Clear all stats from localStorage
+  const clearAllStats = useCallback(() => {
+    clearStats();
+    setStats(DEFAULT_STATS);
+  }, []);
+
   return {
     stats,
     recordGameResult,
     recordSeriesResult,
     resetAllStats,
     refreshStats,
+    clearAllStats,
   };
 };

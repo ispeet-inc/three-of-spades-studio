@@ -33,7 +33,7 @@ export const StatsModal: React.FC<StatsModalProps> = ({
   const [isAnimating, setIsAnimating] = useState(false);
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && stats) {
       setIsAnimating(true);
       setDisplayStats(generateStatsDisplay(stats, mode));
     }
@@ -179,7 +179,7 @@ export const StatsModal: React.FC<StatsModalProps> = ({
                     </div>
                     {stat.percentage !== undefined && (
                       <div className="text-xs text-foreground/60 font-medium">
-                        {stat.percentage.toFixed(1)}%
+                        {stat.percentage.toFixed(0)}%
                       </div>
                     )}
                   </div>

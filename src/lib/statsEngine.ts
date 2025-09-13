@@ -1,4 +1,6 @@
 import {
+  DEFAULT_GAME_STATS,
+  DEFAULT_SERIES_STATS,
   DEFAULT_STATS,
   GameLogEntry,
   PlayerStats,
@@ -18,6 +20,34 @@ const safeRound = (value: number): number => {
 };
 
 /**
+ * Repair corrupted stats data by merging with defaults
+ */
+const repairStats = (corruptedStats: unknown): PlayerStats => {
+  const repaired = { ...DEFAULT_STATS };
+
+  if (corruptedStats && typeof corruptedStats === "object") {
+    const corrupted = corruptedStats as Record<string, unknown>;
+
+    // Repair game stats
+    if (corrupted.game && typeof corrupted.game === "object") {
+      repaired.game = { ...DEFAULT_GAME_STATS, ...corrupted.game };
+    }
+
+    // Repair series stats
+    if (corrupted.series && typeof corrupted.series === "object") {
+      repaired.series = { ...DEFAULT_SERIES_STATS, ...corrupted.series };
+    }
+
+    // Preserve lastUpdated if it exists
+    if (corrupted.lastUpdated && typeof corrupted.lastUpdated === "string") {
+      repaired.lastUpdated = corrupted.lastUpdated;
+    }
+  }
+
+  return repaired;
+};
+
+/**
  * Load stats from localStorage
  */
 export const loadStats = (): PlayerStats => {
@@ -26,6 +56,43 @@ export const loadStats = (): PlayerStats => {
     if (!stored) return DEFAULT_STATS;
 
     const parsed = JSON.parse(stored) as PlayerStats;
+
+    // Validate that the parsed data has the expected structure
+    if (
+      !parsed ||
+      typeof parsed !== "object" ||
+      !parsed.game ||
+      !parsed.series ||
+      typeof parsed.game !== "object" ||
+      typeof parsed.series !== "object"
+    ) {
+      console.warn("Invalid stats structure in localStorage, repairing data");
+      const repaired = repairStats(parsed);
+      saveStats(repaired); // Save the repaired data
+      return repaired;
+    }
+
+    // Additional validation: check if the objects have the required properties
+    const hasRequiredGameProps = Object.keys(DEFAULT_GAME_STATS).every(
+      key =>
+        key in parsed.game &&
+        typeof (parsed.game as any)[key] ===
+          typeof (DEFAULT_GAME_STATS as any)[key]
+    );
+    const hasRequiredSeriesProps = Object.keys(DEFAULT_SERIES_STATS).every(
+      key =>
+        key in parsed.series &&
+        typeof (parsed.series as any)[key] ===
+          typeof (DEFAULT_SERIES_STATS as any)[key]
+    );
+
+    if (!hasRequiredGameProps || !hasRequiredSeriesProps) {
+      console.warn("Stats data missing required properties, repairing data");
+      const repaired = repairStats(parsed);
+      saveStats(repaired); // Save the repaired data
+      return repaired;
+    }
+
     return parsed;
   } catch (error) {
     console.warn("Failed to load stats from localStorage:", error);
@@ -121,14 +188,30 @@ export const resetStats = (): PlayerStats => {
 };
 
 /**
+ * Clear all stats from localStorage (useful for debugging)
+ */
+export const clearStats = (): void => {
+  localStorage.removeItem(STATS_STORAGE_KEY);
+};
+
+/**
  * Generate display data for stats
  */
 export const generateStatsDisplay = (
   stats: PlayerStats,
   mode: GameMode
 ): StatsDisplay[] => {
-  const gameStats = stats.game;
-  const seriesStats = stats.series;
+  // Handle completely invalid or missing stats
+  if (!stats || typeof stats !== "object") {
+    console.warn(
+      "Invalid stats object provided to generateStatsDisplay, using defaults"
+    );
+    return generateStatsDisplay(DEFAULT_STATS, mode);
+  }
+
+  // Add null checks and fallbacks to prevent undefined errors
+  const gameStats = stats?.game || DEFAULT_GAME_STATS;
+  const seriesStats = stats?.series || DEFAULT_SERIES_STATS;
 
   if (mode === GameMode.Series) {
     return [
