@@ -9,7 +9,13 @@ import {
 } from "lucide-react";
 import React, { useState } from "react";
 import { Button } from "./ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "./ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 
 interface HowToPlayModalProps {
@@ -344,6 +350,9 @@ const HowToPlayModal: React.FC<HowToPlayModalProps> = ({ isOpen, onClose }) => {
             </DialogTitle>
             <Target className="h-8 w-8 text-gold" />
           </div>
+          <DialogDescription className="sr-only">
+            Learn the rules, strategy, and tips for playing Three of Spades
+          </DialogDescription>
         </DialogHeader>
 
         <div className="p-8">

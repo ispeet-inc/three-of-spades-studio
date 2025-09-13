@@ -5,8 +5,17 @@ import {
   SeriesLogEntry,
   StatsDisplay,
 } from "@/types/stats";
+import { GameMode } from "../types/game";
 
 const STATS_STORAGE_KEY = "three-of-spades-stats";
+
+/**
+ * Safely round a number, returning 0 if the result is NaN
+ */
+const safeRound = (value: number): number => {
+  const rounded = Math.round(value);
+  return isNaN(rounded) ? 0 : rounded;
+};
 
 /**
  * Load stats from localStorage
@@ -34,6 +43,9 @@ export const saveStats = (stats: PlayerStats): void => {
       lastUpdated: new Date().toISOString(),
     };
     localStorage.setItem(STATS_STORAGE_KEY, JSON.stringify(updatedStats));
+
+    // Dispatch custom event to notify components of stats update
+    window.dispatchEvent(new CustomEvent("statsUpdated"));
   } catch (error) {
     console.warn("Failed to save stats to localStorage:", error);
   }
@@ -90,7 +102,7 @@ export const updateSeriesStats = (
     seriesStats.bestSeriesStreak,
     seriesStats.currentSeriesStreak
   );
-  seriesStats.averageSeriesScore = Math.round(
+  seriesStats.averageSeriesScore = safeRound(
     (seriesStats.averageSeriesScore * (seriesStats.totalSeries - 1) +
       seriesEntry.score) /
       seriesStats.totalSeries
@@ -113,42 +125,48 @@ export const resetStats = (): PlayerStats => {
  */
 export const generateStatsDisplay = (
   stats: PlayerStats,
-  mode: "series" | "single"
+  mode: GameMode
 ): StatsDisplay[] => {
   const gameStats = stats.game;
   const seriesStats = stats.series;
 
-  if (mode === "series") {
+  if (mode === GameMode.Series) {
     return [
       {
-        label: "Highest Series Score",
-        value: seriesStats.highestSeriesScore,
+        label: "Total Series",
+        value: seriesStats.totalSeries,
         icon: "🏆",
-        description: "Best total score across all 4 games",
+        description: "Total series",
       },
       {
-        label: "Series Win Rate",
-        value: `${Math.round((seriesStats.seriesWon / Math.max(seriesStats.totalSeries, 1)) * 100)}%`,
+        label: "Highest Score",
+        value: seriesStats.highestSeriesScore,
+        icon: "🏆",
+        description: "Best score",
+      },
+      {
+        label: "Win Rate",
+        value: `${safeRound((seriesStats.seriesWon / Math.max(seriesStats.totalSeries, 1)) * 100)}%`,
         percentage:
           (seriesStats.seriesWon / Math.max(seriesStats.totalSeries, 1)) * 100,
         icon: "🎯",
-        description: "Percentage of series won",
+        description: "Percentage of wins",
       },
       {
-        label: "Current Series Streak",
+        label: "Current Streak",
         value: seriesStats.currentSeriesStreak,
         icon: "🔥",
-        description: "Series won in a row",
+        description: "Series wins in a row",
       },
       {
-        label: "Best Series Streak",
+        label: "Best Streak",
         value: seriesStats.bestSeriesStreak,
         icon: "⭐",
         description: "Longest series winning streak",
       },
       {
-        label: "Average Series Score",
-        value: Math.round(seriesStats.averageSeriesScore),
+        label: "Average Score",
+        value: seriesStats.averageSeriesScore,
         icon: "📊",
         description: "Average score per series",
       },
@@ -156,32 +174,38 @@ export const generateStatsDisplay = (
   } else {
     return [
       {
+        label: "Total Games",
+        value: gameStats.totalGames,
+        icon: "🏆",
+        description: "Total games",
+      },
+      {
         label: "Highest Score",
         value: gameStats.highestScore,
         icon: "🏆",
-        description: "Best single game score",
+        description: "Best score",
       },
       {
-        label: "Game Win Rate",
-        value: `${Math.round((gameStats.gamesWon / Math.max(gameStats.totalGames, 1)) * 100)}%`,
+        label: "Win Rate",
+        value: `${safeRound((gameStats.gamesWon / Math.max(gameStats.totalGames, 1)) * 100)}%`,
         percentage:
           (gameStats.gamesWon / Math.max(gameStats.totalGames, 1)) * 100,
         icon: "🎮",
-        description: "Percentage of games won",
+        description: "Percentage of wins",
       },
       {
-        label: "Bid Win Rate",
-        value: `${Math.round((gameStats.bidsWon / Math.max(gameStats.bidsPlaced, 1)) * 100)}%`,
+        label: "Bid & Win Rate",
+        value: `${safeRound((gameStats.bidsWon / Math.max(gameStats.bidsPlaced, 1)) * 100)}%`,
         percentage:
           (gameStats.bidsWon / Math.max(gameStats.bidsPlaced, 1)) * 100,
         icon: "💎",
         description: "Percentage of bids won",
       },
       {
-        label: "Whitewash Count",
+        label: "Whitewashes",
         value: gameStats.whitewash,
         icon: "❄️",
-        description: "Number of times scored 0",
+        description: "Number of times won all tricks",
       },
       {
         label: "Current Streak",
@@ -204,7 +228,7 @@ export const generateStatsDisplay = (
  */
 export const getQuickStats = (
   stats: PlayerStats,
-  mode: "series" | "single"
+  mode: GameMode
 ): StatsDisplay[] => {
   const allStats = generateStatsDisplay(stats, mode);
   // Return top 3 most important stats
