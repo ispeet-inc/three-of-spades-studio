@@ -24,12 +24,14 @@ interface StatsModalProps {
   isOpen: boolean;
   onClose: () => void;
   stats: PlayerStats;
+  onReset: () => void;
 }
 
 export const StatsModal: React.FC<StatsModalProps> = ({
   isOpen,
   onClose,
   stats,
+  onReset,
 }) => {
   const [mode, setMode] = useState<GameMode>(GameMode.Series);
   const [displayStats, setDisplayStats] = useState<StatsDisplay[]>([]);
@@ -216,7 +218,7 @@ export const StatsModal: React.FC<StatsModalProps> = ({
             <Button
               onClick={() => {
                 if (confirm("Reset all statistics? This cannot be undone.")) {
-                  handleClose();
+                  onReset();
                 }
               }}
               variant="ghost"

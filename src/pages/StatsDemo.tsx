@@ -298,6 +298,7 @@ const StatsDemo = () => {
       <StatsModal
         isOpen={showStats}
         onClose={() => setShowStats(false)}
+        onReset={resetAllStats}
         stats={stats}
       />
 
