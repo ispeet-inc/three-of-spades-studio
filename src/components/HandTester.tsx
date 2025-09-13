@@ -407,19 +407,19 @@ export function HandTester() {
             currentGame: 4,
             totalGames: 4,
             gameScores: {
-              1: { 0: 220, 1: 0, 2: 200, 3: 0 },
-              2: { 0: 0, 1: 170, 2: 0, 3: 150 },
-              3: { 0: 0, 1: 0, 2: 200, 3: 0 },
-              4: { 0: 200, 1: 0, 2: 0, 3: 0 },
+              1: { 0: 220, 1: 0, 2: 200, 3: 0 }, // Game 1: You (Winner) + Bob (Teammate)
+              2: { 0: 0, 1: 210, 2: 0, 3: 190 }, // Game 2: Alice (Winner) + Charlie (Teammate)
+              3: { 0: 200, 1: 0, 2: 200, 3: 0 }, // Game 3: Bob (Winner) + You (Teammate)
+              4: { 0: 0, 1: 270, 2: 0, 3: 250 }, // Game 4: Charlie (Winner) + Alice (Teammate) - Last Game!
             },
             seriesScores: {
-              0: 420, // Player 1 - Series Winner
-              1: 170, // Player 2
-              2: 400, // Player 3
-              3: 150, // Player 4
+              0: 420, // Player 1 - Series Winner (won Game 1 + Game 3)
+              1: 480, // Player 2 (won Game 2 + Game 4)
+              2: 400, // Player 3 (won Game 1 + Game 3)
+              3: 440, // Player 4 - Tied Winner (won Game 2 + Game 4 - last game!)
             },
             startingPlayerIndex: 2,
-            seriesWinner: 0,
+            seriesWinner: 1, // You won the series
           }}
           playerNames={{
             0: "You",
@@ -461,19 +461,19 @@ export function HandTester() {
             currentGame: 4,
             totalGames: 4,
             gameScores: {
-              1: { 0: 200, 1: 0, 2: 0, 3: 0 },
-              2: { 0: 0, 1: 200, 2: 0, 3: 0 },
-              3: { 0: 0, 1: 0, 2: 200, 3: 0 },
-              4: { 0: 0, 1: 0, 2: 0, 3: 200 },
+              1: { 0: 200, 1: 0, 2: 180, 3: 0 }, // Game 1: You (Winner) + Bob (Teammate)
+              2: { 0: 0, 1: 200, 2: 0, 3: 180 }, // Game 2: Alice (Winner) + Charlie (Teammate)
+              3: { 0: 180, 1: 0, 2: 200, 3: 0 }, // Game 3: Bob (Winner) + You (Teammate)
+              4: { 0: 0, 1: 220, 2: 0, 3: 240 }, // Game 4: Charlie (Winner) + Alice (Teammate) - Last Game!
             },
             seriesScores: {
-              0: 180, // Player 1 - Tied Winner
-              1: 200, // Player 2 - Tied Winner
-              2: 200, // Player 3 - Not tied
-              3: 100, // Player 4 - Not tied
+              0: 380, // Player 1 - Tied Winner (won Game 1 + Game 3)
+              1: 420, // Player 2 - Tied Winner (won Game 2 + Game 4)
+              2: 380, // Player 3 - Tied Winner (won Game 1 + Game 3)
+              3: 420, // Player 4 - Tied Winner (won Game 2 + Game 4 - last game!)
             },
             startingPlayerIndex: 0,
-            seriesWinner: null, // No single winner due to tie
+            seriesWinner: null, // All players tied!
           }}
           playerNames={{
             0: "You",

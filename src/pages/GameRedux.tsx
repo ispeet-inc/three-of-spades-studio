@@ -12,7 +12,6 @@ import {
   botShouldBid,
   botShouldPlayCard,
   botShouldSelectTrump,
-  completeSeries,
   gameStageTransition,
   passBid,
   placeBid,
@@ -359,25 +358,16 @@ const GameRedux = ({ viewerIndex = FIRST_PLAYER_ID }: GameReduxProps) => {
           viewerId={viewerIndex}
           countdown={30}
           onClose={() => {
-            // Handle transition to next game or series end
-            if (
-              gameState.seriesProgress.currentGame <
-              gameState.seriesProgress.totalGames
-            ) {
-              // Start next game - you'll need to implement this action
-              console.log("Starting next game...");
-              const nextStartingPlayer = rotateStartingPlayer(
-                gameState.seriesProgress.startingPlayerIndex,
-                NUM_PLAYERS
-              );
-              // Set dealing animation for next game in series
-              setIsDealing(true);
-              dispatch(startGame({ startingPlayer: nextStartingPlayer }));
-            } else {
-              // Series complete - you'll need to implement this action
-              console.log("Series complete!");
-              dispatch(completeSeries());
-            }
+            // Since series completion is now handled automatically in the saga,
+            // we only need to start the next game here
+            console.log("Starting next game...");
+            const nextStartingPlayer = rotateStartingPlayer(
+              gameState.seriesProgress.startingPlayerIndex,
+              NUM_PLAYERS
+            );
+            // Set dealing animation for next game in series
+            setIsDealing(true);
+            dispatch(startGame({ startingPlayer: nextStartingPlayer }));
           }}
         />
       )}

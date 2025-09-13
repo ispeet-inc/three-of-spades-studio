@@ -10,7 +10,7 @@ import { Home, Play, Trophy } from "lucide-react";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { SeriesProgress } from "../../types/game";
 import { ModalHeader } from "../ui/ModalHeader";
-import { ProgressBar } from "../ui/ProgressBar";
+import { DualProgressBar } from "../ui/ProgressBar";
 import { ProgressBarContainer } from "../ui/ProgressBarContainer";
 
 interface SeriesSummaryModalProps {
@@ -35,12 +35,24 @@ export const SeriesSummaryModal: React.FC<SeriesSummaryModalProps> = ({
   const [winnerVisible, setWinnerVisible] = useState(false);
   const [buttonsVisible, setButtonsVisible] = useState(false);
 
-  const { seriesScores, totalGames } = seriesProgress;
+  const { seriesScores, totalGames, gameScores } = seriesProgress;
 
   // Memoized calculations
   const maxTotalScore = useMemo(
     () => Math.max(...Object.values(seriesScores)),
     [seriesScores]
+  );
+
+  // Calculate last game scores and changes
+  const lastGameScores = useMemo(() => {
+    if (totalGames === 0) return {};
+    const lastGame = totalGames; // Games are numbered 1, 2, 3, 4...
+    return gameScores[lastGame] || {};
+  }, [gameScores, totalGames]);
+
+  const maxLastGameScore = useMemo(
+    () => Math.max(...Object.values(lastGameScores), 0),
+    [lastGameScores]
   );
 
   const winners = useMemo(() => {
@@ -81,6 +93,27 @@ export const SeriesSummaryModal: React.FC<SeriesSummaryModalProps> = ({
       return (seriesScore / maxTotalScore) * 100;
     },
     [maxTotalScore]
+  );
+
+  const calculateBarWidths = useCallback(
+    (seriesScore: number, lastGameScore: number) => {
+      const seriesBarWidth =
+        ((seriesScore - lastGameScore) / maxTotalScore) * 100;
+      const lastGameBarWidth = (lastGameScore / maxTotalScore) * 100;
+      return { seriesBarWidth, lastGameBarWidth };
+    },
+    [maxTotalScore]
+  );
+
+  const getPlayerRole = useCallback(
+    (playerId: number): string => {
+      const score = lastGameScores[playerId] || 0;
+      if (score > 0) {
+        return score === maxLastGameScore ? "Winner" : "Teammate";
+      }
+      return "";
+    },
+    [lastGameScores, maxLastGameScore]
   );
 
   // Trigger animations when modal opens
@@ -176,7 +209,11 @@ export const SeriesSummaryModal: React.FC<SeriesSummaryModalProps> = ({
                   const isWinner = winners.some(
                     winner => winner.playerId === playerIndex
                   );
-                  const barWidth = calculateBarWidth(seriesScore);
+                  const lastGameScore = lastGameScores[playerIndex] || 0;
+                  const isLastGameWinner = lastGameScore > 0;
+                  const role = getPlayerRole(playerIndex);
+                  const { seriesBarWidth, lastGameBarWidth } =
+                    calculateBarWidths(seriesScore, lastGameScore);
 
                   return (
                     <div
@@ -216,7 +253,14 @@ export const SeriesSummaryModal: React.FC<SeriesSummaryModalProps> = ({
                             >
                               {getPlayerName(playerIndex)}
                             </span>
-                            {isWinner && (
+                            {isLastGameWinner && (
+                              <div className="flex items-center gap-1 bg-gradient-to-r from-gold/25 to-gold/15 px-2 py-0.5 rounded-full border border-gold/40 shadow-sm">
+                                <span className="text-gold text-xs font-bold tracking-wide">
+                                  +{lastGameScore} ({role})
+                                </span>
+                              </div>
+                            )}
+                            {isWinner && !isLastGameWinner && (
                               <Trophy className="w-3 h-3 text-gold animate-pulse" />
                             )}
                           </div>
@@ -234,16 +278,21 @@ export const SeriesSummaryModal: React.FC<SeriesSummaryModalProps> = ({
                       </div>
 
                       {/* Progress Bar Container */}
-                      <ProgressBarContainer>
-                        <ProgressBar
-                          width={barWidth}
+                      <ProgressBarContainer
+                        height="h-4"
+                        className="from-casino-black/30 to-casino-black/15 border-casino-black/25"
+                      >
+                        <DualProgressBar
+                          seriesWidth={seriesBarWidth}
+                          gameWidth={lastGameBarWidth}
                           isVisible={barsVisible}
                           delay={index * 150 + 300}
-                          className={
+                          seriesClassName={
                             isWinner
-                              ? "bg-gradient-to-r from-gold via-gold/95 to-gold/90"
-                              : "bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700"
+                              ? "bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700"
+                              : "bg-gradient-to-r from-blue-400/90 via-blue-500/80 to-blue-600/70"
                           }
+                          gameClassName="bg-gradient-to-r from-gold via-gold/95 to-gold/90"
                         />
                       </ProgressBarContainer>
                     </div>

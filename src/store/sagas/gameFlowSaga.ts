@@ -251,7 +251,20 @@ export default function* gameFlowSaga() {
 
   // Watch for game completion
   yield takeEvery(completeGame.type, function* (): Generator<any, void, any> {
-    yield put(gameStageTransition(GameStages.GAME_SUMMARY));
+    // Check if this is the last game in the series
+    const seriesProgress = yield select(
+      (state: any) => state.game.seriesProgress
+    );
+    const isLastGame = seriesProgress.currentGame >= seriesProgress.totalGames;
+
+    if (isLastGame) {
+      // If it's the last game, complete the series and go to series summary
+      yield put(completeSeries());
+      yield put(gameStageTransition(GameStages.SERIES_SUMMARY));
+    } else {
+      // If not the last game, show game summary
+      yield put(gameStageTransition(GameStages.GAME_SUMMARY));
+    }
   });
 
   // Watch for game start
