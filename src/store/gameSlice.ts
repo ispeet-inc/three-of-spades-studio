@@ -98,8 +98,8 @@ const gameSlice = createSlice({
       if (state.gameMode === GameMode.Series) {
         state.seriesProgress.startingPlayerIndex =
           action.payload.startingPlayer;
-        state.seriesProgress.currentGame += 1;
       }
+      state.seriesProgress.currentGame += 1;
 
       const resetState = resetGameStateForNewGame(
         state,

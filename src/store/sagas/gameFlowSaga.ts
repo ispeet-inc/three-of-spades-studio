@@ -34,6 +34,7 @@ import {
   selectGameConfig,
   selectGameProgress,
   selectIsSeries,
+  selectSeriesProgress,
   selectStage,
 } from "../selectors";
 
@@ -85,16 +86,11 @@ function* handleStageSideEffects(
 
       const gameProgress = yield select(selectGameProgress);
       const gameConfig = yield select(selectGameConfig);
-      const isSeries = yield select(selectIsSeries);
 
       // Check if game should continue or end
       if (gameConfig && gameProgress.trick >= gameConfig.totalTricks) {
         console.log("Game Flow Saga: All tricks done, Game completed");
-        if (isSeries) {
-          yield put(completeGame());
-        } else {
-          yield put(setStage(GameStages.GAME_OVER));
-        }
+        yield put(completeGame());
       } else {
         console.log("Game Flow Saga: Game not over, starting next trick");
         yield put(setStage(GameStages.PLAYING));
@@ -251,19 +247,25 @@ export default function* gameFlowSaga() {
 
   // Watch for game completion
   yield takeEvery(completeGame.type, function* (): Generator<any, void, any> {
-    // Check if this is the last game in the series
-    const seriesProgress = yield select(
-      (state: any) => state.game.seriesProgress
-    );
-    const isLastGame = seriesProgress.currentGame >= seriesProgress.totalGames;
+    const seriesProgress = yield select(selectSeriesProgress);
+    const isSeries = yield select(selectIsSeries);
 
-    if (isLastGame) {
-      // If it's the last game, complete the series and go to series summary
-      yield put(completeSeries());
-      yield put(gameStageTransition(GameStages.SERIES_SUMMARY));
+    if (isSeries) {
+      // For series games, check if this is the last game
+      const isLastGame =
+        seriesProgress.currentGame >= seriesProgress.totalGames;
+
+      if (isLastGame) {
+        // If it's the last game, complete the series and go to series summary
+        yield put(completeSeries());
+        yield put(gameStageTransition(GameStages.SERIES_SUMMARY));
+      } else {
+        // If not the last game, show game summary
+        yield put(gameStageTransition(GameStages.GAME_SUMMARY));
+      }
     } else {
-      // If not the last game, show game summary
-      yield put(gameStageTransition(GameStages.GAME_SUMMARY));
+      // For single games, go directly to GAME_OVER after computing scores
+      yield put(gameStageTransition(GameStages.GAME_OVER));
     }
   });
 
