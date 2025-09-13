@@ -75,22 +75,13 @@ export const BiddingControls = ({
       <div className="bg-gradient-to-br from-casino-black/80 to-casino-black/60 backdrop-blur-sm border border-gold/40 rounded-2xl p-4 shadow-elevated">
         {/* Single line of bidding buttons - Matching mockup design */}
         <div className="flex gap-2 items-center">
-          {/* Show +5 button only when current bid < 200 */}
-          {minIncrement === 5 && (
-            <Button
-              onClick={() => onBid(currentBid + minIncrement)}
-              disabled={!canBid || currentBid + minIncrement > maxBid}
-              className="bg-gradient-gold text-casino-black font-bold px-3 py-2 text-sm hover:shadow-glow transition-all duration-300 h-10 min-w-[60px]"
-            >
-              +{minIncrement}
-            </Button>
-          )}
+          {/* Show appropriate increment button based on current bid */}
           <Button
-            onClick={() => onBid(currentBid + 10)}
-            disabled={!canBid || currentBid + 10 > maxBid}
+            onClick={() => onBid(currentBid + minIncrement)}
+            disabled={!canBid || currentBid + minIncrement > maxBid}
             className="bg-gradient-gold text-casino-black font-bold px-3 py-2 text-sm hover:shadow-glow transition-all duration-300 h-10 min-w-[60px]"
           >
-            +10
+            +{minIncrement}
           </Button>
           <Button
             onClick={() => setShowCustomBid(true)}

@@ -28,29 +28,42 @@ export const BidResultModal: React.FC<BidResultModalProps> = ({
   onClose,
   isObserver = false,
 }) => {
-  const [contentVisible, setContentVisible] = useState(false);
-  const [buttonVisible, setButtonVisible] = useState(false);
+  const [isAnimated, setIsAnimated] = useState(false);
 
   // Trigger animations when modal opens
   useEffect(() => {
     if (isOpen) {
-      const timer1 = setTimeout(() => setContentVisible(true), 300);
-      const timer2 = setTimeout(() => setButtonVisible(true), 600);
-      return () => {
-        clearTimeout(timer1);
-        clearTimeout(timer2);
-      };
+      const timer = setTimeout(() => setIsAnimated(true), 300);
+      return () => clearTimeout(timer);
     } else {
-      setContentVisible(false);
-      setButtonVisible(false);
+      setIsAnimated(false);
     }
   }, [isOpen]);
 
-  if (!gameConfig) {
-    return null;
-  }
+  if (!isOpen || !gameConfig) return null;
+
   const { bidAmount, bidWinner, trumpSuite, teammateCard } = gameConfig;
-  if (!isOpen) return null;
+
+  // Helper function for animation classes
+  const getAnimationClasses = (delay = 0) =>
+    cn(
+      "transition-all duration-700 ease-out",
+      isAnimated ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+    );
+
+  // Helper component for configuration cards
+  const ConfigCard = ({
+    title,
+    children,
+  }: {
+    title: string;
+    children: React.ReactNode;
+  }) => (
+    <div className="text-center p-4 bg-gradient-to-r from-casino-black/10 via-casino-black/5 to-transparent rounded-lg border border-casino-black/20 shadow-md">
+      <div className="font-medium text-foreground text-sm mb-4">{title}</div>
+      {children}
+    </div>
+  );
 
   return (
     <Dialog open={isOpen} onOpenChange={() => {}}>
@@ -67,12 +80,9 @@ export const BidResultModal: React.FC<BidResultModalProps> = ({
           {/* Winner Announcement */}
           <div
             className={cn(
-              "p-4 bg-gradient-to-r from-gold/15 via-gold/10 to-gold/5 rounded-lg border border-gold/40 shadow-md transition-all duration-700 ease-out",
-              contentVisible
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-4"
+              "p-4 bg-gradient-to-r from-gold/15 via-gold/10 to-gold/5 rounded-lg border border-gold/40 shadow-md",
+              getAnimationClasses()
             )}
-            style={{ animationDelay: "0ms" }}
           >
             <div className="text-center space-y-3">
               <div className="flex items-center justify-center gap-2 mb-3">
@@ -89,73 +99,47 @@ export const BidResultModal: React.FC<BidResultModalProps> = ({
           </div>
 
           {/* Game Configuration */}
-          <div
-            className={cn(
-              "grid grid-cols-2 gap-3 transition-all duration-700 ease-out",
-              contentVisible
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-4"
-            )}
-            style={{ animationDelay: "150ms" }}
-          >
-            {/* Trump Suite Card */}
-            <div className="text-center p-4 bg-gradient-to-r from-casino-black/10 via-casino-black/5 to-transparent rounded-lg border border-casino-black/20 shadow-md">
-              <div className="font-medium text-foreground text-sm mb-4">
-                Trump Suite
-              </div>
+          <div className={cn("grid grid-cols-2 gap-3", getAnimationClasses())}>
+            <ConfigCard title="Trump Suite">
               <Badge
                 variant="outline"
                 className={`bg-white text-${getSuiteColor(trumpSuite)} text-sm font-bold border px-3 py-1`}
               >
                 {getSuiteIcon(trumpSuite)}
               </Badge>
-            </div>
+            </ConfigCard>
 
-            {/* Teammate Card */}
-            <div className="text-center p-4 bg-gradient-to-r from-casino-black/10 via-casino-black/5 to-transparent rounded-lg border border-casino-black/20 shadow-md">
-              <div className="font-medium text-foreground text-sm mb-4">
-                Teammate Card
-              </div>
+            <ConfigCard title="Teammate Card">
               <Badge className="bg-white text-casino-black font-bold text-sm px-3 py-1">
                 {teammateCard.id} {getSuiteIcon(teammateCard.suite)}
               </Badge>
-            </div>
+            </ConfigCard>
           </div>
 
           {/* Action Section */}
-          <div
-            className={cn(
-              "transition-all duration-700 ease-out",
-              buttonVisible
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-4"
-            )}
-            style={{ animationDelay: "300ms" }}
-          >
-            <div className="text-center">
-              {!isObserver ? (
-                <Button
-                  onClick={onClose}
-                  className="w-full h-12 text-base font-semibold bg-gold text-casino-black hover:bg-gold-light transition-colors duration-200 rounded-lg shadow-md hover:shadow-lg hover:shadow-gold/20"
-                >
-                  <div className="flex items-center justify-center gap-2">
-                    <Gamepad2 className="w-4 h-4" />
-                    Let's Begin!
-                  </div>
-                </Button>
-              ) : (
-                <div className="text-center py-3">
-                  <div className="flex items-center justify-center gap-2 text-gold/70">
-                    <div className="p-1.5 bg-gold/15 rounded-full border border-gold/25">
-                      <Trophy className="w-4 h-4 text-gold/80" />
-                    </div>
-                    <span className="font-medium text-xs text-gold/80">
-                      Observer mode - waiting for player action...
-                    </span>
-                  </div>
+          <div className={cn("text-center", getAnimationClasses())}>
+            {!isObserver ? (
+              <Button
+                onClick={onClose}
+                className="w-full h-12 text-base font-semibold bg-gold text-casino-black hover:bg-gold-light transition-colors duration-200 rounded-lg shadow-md hover:shadow-lg hover:shadow-gold/20"
+              >
+                <div className="flex items-center justify-center gap-2">
+                  <Gamepad2 className="w-4 h-4" />
+                  Let's Begin!
                 </div>
-              )}
-            </div>
+              </Button>
+            ) : (
+              <div className="py-3">
+                <div className="flex items-center justify-center gap-2 text-gold/70">
+                  <div className="p-1.5 bg-gold/15 rounded-full border border-gold/25">
+                    <Trophy className="w-4 h-4 text-gold/80" />
+                  </div>
+                  <span className="font-medium text-xs text-gold/80">
+                    Observer mode - waiting for player action...
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </DialogContent>
