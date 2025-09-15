@@ -26,7 +26,7 @@ interface HowToPlayModalProps {
 // Data constants
 const TAB_CONFIG = [
   { value: "quick-start", label: "Quick Start", icon: Zap },
-  { value: "rules", label: "Game Rules", icon: BookOpen },
+  { value: "rules", label: "Game Phases", icon: BookOpen },
   { value: "strategy", label: "Strategy", icon: Lightbulb },
   { value: "reference", label: "Reference", icon: Trophy },
 ];
@@ -61,38 +61,65 @@ const KEY_RULES = [
   },
 ];
 
+const GAME_FLOW_STEPS = [
+  { icon: "🃏", label: "Dealing" },
+  { icon: "💰", label: "Bidding" },
+  { icon: "👑", label: "Trump Selection" },
+  { icon: "🎮", label: "Playing" },
+  { icon: "🏆", label: "Scoring" },
+];
+
 const GAME_PHASES = [
   {
     phase: "1. Bidding Phase",
     icon: "💰",
     items: [
-      "Starting bid is 165 points",
-      "Players take turns bidding higher or passing",
+      "A randomly chosen player starts bidding at 165 points",
+      "On your turn, bid higher or pass (clockwise order)",
       "Bidding continues until only one player remains",
-      "The winner becomes the 'bidder' and must score at least their bid amount",
+      "Winner becomes the bidder and must meet their bid with teammate",
     ],
   },
   {
     phase: "2. Trump Selection",
     icon: "👑",
     items: [
-      "The bidder chooses a Trump Suit (any suit that will be highest in the round)",
-      "The bidder selects a Teammate Card (a card they don't have in their hand)",
-      "Team Formation: The player who has the teammate card becomes the bidder's partner",
-      "Hidden Teams: Teams are not revealed until the teammate card is played",
+      "Bidder chooses a trump suit",
+      "Bidder selects a teammate card (not in their hand)",
+      "Whoever holds that card becomes the bidder’s partner",
+      "Teams stay hidden until the teammate card is played",
     ],
   },
   {
     phase: "3. Playing Phase",
     icon: "🎮",
     items: [
-      "Starting: The bidder leads the first trick",
-      "Following Suit: Players must follow the led suit if possible",
-      "Trump: If you can't follow suit, you may play any card (including trump)",
-      "Winning: Highest trump wins, or highest card of the led suit if no trump is played",
-      "Trick Collection: The winner collects the trick and leads the next one",
+      "Bidder leads the first trick",
+      "First card sets the running suit for the trick",
+      "If you can, you must follow the running suit",
+      "If you can’t, you may play trump to cut or discard",
+      "Play proceeds clockwise until all four cards are played",
+      "Highest trump wins; otherwise highest of the running suit",
+      "Winner collects the trick points and leads next",
     ],
   },
+  {
+    phase: "4. Scoring Phase",
+    icon: "🏆",
+    items: [
+      "After 10 tricks, total the bidding team’s points",
+      "If bidder’s team ≥ bid, they win; else defenders win",
+      "Each player on the winning team gains bid-amount points",
+      "Bidder bonus: +20 points when the bidder wins",
+      "Whitewash: win all 10 tricks for an extra +50 points",
+    ],
+  },
+];
+
+const KEY_POINTS = [
+  "Trump beats other suits",
+  "Teammate is revealed only when their card is played",
+  "Bid winner must reach at least their bid with their teammate",
 ];
 
 const STRATEGY_SECTIONS = [
@@ -392,6 +419,34 @@ const HowToPlayModal: React.FC<HowToPlayModalProps> = ({ isOpen, onClose }) => {
 
                 <div className="space-y-4">
                   <h3 className="text-xl font-semibold text-casino-black">
+                    Game Flow
+                  </h3>
+                  <div className="flex flex-col md:flex-row items-center justify-center gap-3 md:gap-4 max-w-3xl mx-auto">
+                    {GAME_FLOW_STEPS.map((step, index) => (
+                      <React.Fragment key={step.label}>
+                        <div className="flex items-center">
+                          <div className="rounded-full bg-white border border-gray-200 flex items-center gap-2 px-3 py-2 shadow-sm">
+                            <div className="text-lg">{step.icon}</div>
+                            <span className="text-sm font-medium text-casino-black whitespace-nowrap">
+                              {step.label}
+                            </span>
+                          </div>
+                        </div>
+                        {index < GAME_FLOW_STEPS.length - 1 && (
+                          <>
+                            <div className="hidden md:block text-gray-400">
+                              →
+                            </div>
+                            <div className="md:hidden text-gray-400">↓</div>
+                          </>
+                        )}
+                      </React.Fragment>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="text-xl font-semibold text-casino-black">
                     Key Rules
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
@@ -404,12 +459,21 @@ const HowToPlayModal: React.FC<HowToPlayModalProps> = ({ isOpen, onClose }) => {
             </TabsContent>
 
             <TabsContent value="rules" className="space-y-8">
-              <div className="space-y-6">
-                <SectionHeading>Game Phases</SectionHeading>
-                <div className="space-y-4 max-w-3xl mx-auto">
-                  {GAME_PHASES.map((phase, index) => (
-                    <PhaseCard key={index} {...phase} />
-                  ))}
+              <div className="space-y-8">
+                <div className="space-y-4">
+                  <SectionHeading>Key Points</SectionHeading>
+                  <div className="max-w-3xl mx-auto">
+                    <BulletList items={KEY_POINTS} />
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  <SectionHeading>Game Phases</SectionHeading>
+                  <div className="space-y-4 max-w-3xl mx-auto">
+                    {GAME_PHASES.map((phase, index) => (
+                      <PhaseCard key={index} {...phase} />
+                    ))}
+                  </div>
                 </div>
               </div>
             </TabsContent>
