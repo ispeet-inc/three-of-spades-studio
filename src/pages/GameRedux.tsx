@@ -4,6 +4,7 @@ import { GameOverModal } from "@/components/game/GameOverModal";
 import { GameSummaryModal } from "@/components/game/GameSummaryModal";
 import { SeriesSummaryModal } from "@/components/game/SeriesSummaryModal";
 import { TrumpSelectionModal } from "@/components/game/TrumpSelectionModal";
+import WhitewashAnimation from "@/components/game/WhitewashAnimation";
 import StartScreen from "@/components/StartScreen";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAppSelector } from "@/hooks/useAppSelector";
@@ -52,6 +53,9 @@ const GameRedux = ({ viewerIndex = FIRST_PLAYER_ID }: GameReduxProps) => {
   const playerState = useAppSelector(selectPlayerState); // Updated to use focused selector
   const gameConfig = useAppSelector(selectGameConfig);
   const gameProgress = useAppSelector(selectGameProgress);
+  const showWhitewashAnimation = useAppSelector(
+    (state: RootState) => state.game.uiState?.showWhitewashAnimation ?? false
+  );
   const { trigger } = useFeedback();
 
   // Add dealing animation state
@@ -327,6 +331,9 @@ const GameRedux = ({ viewerIndex = FIRST_PLAYER_ID }: GameReduxProps) => {
         onBid={handleBid}
         onPass={handlePass}
       />
+
+      {/* Whitewash Animation - shows when whitewash occurs */}
+      <WhitewashAnimation isVisible={showWhitewashAnimation} />
 
       {/* Game Modals - visible to all but interactive only for players */}
 

@@ -128,4 +128,8 @@ export interface GameState {
   // NEW: Series management
   seriesProgress: SeriesProgress;
   gameMode: GameMode;
+  // NEW: UI state for animations
+  uiState: {
+    showWhitewashAnimation: boolean;
+  };
 }
