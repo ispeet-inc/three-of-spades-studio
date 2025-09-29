@@ -6,7 +6,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import { Home, Play, Trophy } from "lucide-react";
+import { Gamepad2, Home, Trophy } from "lucide-react";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { SeriesProgress } from "../../types/game";
 import { ModalHeader } from "../ui/ModalHeader";
@@ -321,10 +321,10 @@ export const SeriesSummaryModal: React.FC<SeriesSummaryModalProps> = ({
                   onClick={onNewSeries}
                   className="flex-1 h-12 font-bold font-casino bg-gradient-to-r from-gold via-gold/95 to-gold/90 text-casino-black shadow-glow hover:shadow-glow/80 border-2 border-gold-dark transition-all duration-300 hover:scale-105 group relative overflow-hidden"
                 >
-                  <div className="flex items-center justify-center gap-2 relative z-10">
-                    <Play className="w-4 h-4 group-hover:rotate-12 transition-transform duration-300" />
-                    Play Again
-                  </div>
+        <div className="flex items-center justify-center gap-2 relative z-10">
+          <Gamepad2 className="w-4 h-4 group-hover:animate-pulse" />
+          Play Again
+        </div>
                   {/* Ripple effect background */}
                   <div className="absolute inset-0 bg-gradient-to-r from-gold-light/20 to-gold/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 </Button>
