@@ -11,15 +11,18 @@ import {
   takeLeading,
 } from "redux-saga/effects";
 import { TIMINGS } from "../../utils/constants";
+import { isWhiteWash } from "../../utils/gameUtils";
 import {
   clearGameError,
   completeGame,
   completeSeries,
   gameInitialize,
   gameStageTransition,
+  hideWhitewashAnimation,
   setBidAndTrump,
   setGameError,
   setStage,
+  showWhitewashAnimation,
   startBiddingRound,
   startGame,
   startNewTrick,
@@ -247,6 +250,25 @@ export default function* gameFlowSaga() {
 
   // Watch for game completion
   yield takeEvery(completeGame.type, function* (): Generator<any, void, any> {
+    // NEW: Check for whitewash before proceeding to summary
+    const gameProgress = yield select(selectGameProgress);
+    const isWhitewash = gameProgress.scores.team1 > 150;
+    // To test the whitewash animaton - use this
+    //const isWhitewash = isWhiteWash(gameProgress.scores); // MAX_BID = 250
+    
+    if (isWhitewash) {
+      console.log("Game Flow Saga: Whitewash detected! Showing celebration animation");
+      
+      // Trigger whitewash animation in UI
+      yield put(showWhitewashAnimation());
+      
+      // Wait for 5 seconds for animation to complete
+      yield delay(5000);
+      
+      // Hide whitewash animation
+      yield put(hideWhitewashAnimation());
+    }
+
     const seriesProgress = yield select(selectSeriesProgress);
     const isSeries = yield select(selectIsSeries);
 

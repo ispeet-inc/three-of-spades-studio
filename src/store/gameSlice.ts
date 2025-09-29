@@ -67,6 +67,9 @@ const initialState: GameState = {
   seriesProgress: initSeriesProgress(NUM_PLAYERS, SERIES_TOTAL_GAMES),
   gameMode: GameMode.Single,
   error: null,
+  uiState: {
+    showWhitewashAnimation: false,
+  },
 };
 
 const gameSlice = createSlice({
@@ -378,6 +381,15 @@ const gameSlice = createSlice({
       // Clear any errors
       state.error = null;
     },
+
+    // NEW: Whitewash animation actions
+    showWhitewashAnimation: (state) => {
+      state.uiState.showWhitewashAnimation = true;
+    },
+
+    hideWhitewashAnimation: (state) => {
+      state.uiState.showWhitewashAnimation = false;
+    },
   },
 });
 
@@ -406,6 +418,9 @@ export const {
   setGameMode,
   completeGame,
   completeSeries,
+  // NEW: Whitewash animation actions
+  showWhitewashAnimation,
+  hideWhitewashAnimation,
 } = gameSlice.actions;
 
 export default gameSlice.reducer;

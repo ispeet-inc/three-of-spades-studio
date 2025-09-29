@@ -50,6 +50,7 @@ export const PLAYER_NAME_POOL = [
   "Natasha",
   "Prateek",
   "Abhi",
+  "Skanda",
   "Vladmir Putin",
   "Dumbledore",
   "Amy Santiago",
