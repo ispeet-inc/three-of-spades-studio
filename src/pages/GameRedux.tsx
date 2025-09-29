@@ -31,6 +31,7 @@ import {
   selectGameProgress,
   selectPlayerDisplayData,
   selectPlayerState,
+  selectShowWhiteWashAnimation,
   selectTeams,
 } from "@/store/selectors";
 import { Card, GameMode, Suite } from "@/types/game";
@@ -53,9 +54,7 @@ const GameRedux = ({ viewerIndex = FIRST_PLAYER_ID }: GameReduxProps) => {
   const playerState = useAppSelector(selectPlayerState); // Updated to use focused selector
   const gameConfig = useAppSelector(selectGameConfig);
   const gameProgress = useAppSelector(selectGameProgress);
-  const showWhitewashAnimation = useAppSelector(
-    (state: RootState) => state.game.uiState?.showWhitewashAnimation ?? false
-  );
+  const showWhitewashAnimation = useAppSelector(selectShowWhiteWashAnimation);
   const { trigger } = useFeedback();
 
   // Add dealing animation state

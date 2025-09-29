@@ -394,3 +394,11 @@ export const selectSeriesLogEntry = createSelector(
     };
   }
 );
+
+// ============================================================================
+// UI STATE SELECTORS
+// ============================================================================
+
+export const selectShowWhiteWashAnimation = (state: RootState): boolean => {
+  return state.game.uiState?.showWhitewashAnimation ?? false;
+};
