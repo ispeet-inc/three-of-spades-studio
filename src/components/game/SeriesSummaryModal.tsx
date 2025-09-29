@@ -301,31 +301,46 @@ export const SeriesSummaryModal: React.FC<SeriesSummaryModalProps> = ({
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div
-            className={cn(
-              "flex gap-3 justify-center transition-all duration-1000 ease-out",
-              buttonsVisible
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-4"
-            )}
-          >
-            <Button
-              onClick={onNewSeries}
-              className="group bg-gradient-to-r from-gold via-gold/95 to-gold/90 text-casino-black font-bold px-6 py-2 rounded-lg border border-gold/50 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 ease-out"
-            >
-              <Play className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform duration-300" />
-              New Series
-            </Button>
+          {/* Action Section */}
+          <div className="bg-gradient-to-r from-casino-black/10 to-transparent rounded-lg border border-gold/15 p-3 shadow-md">
+            <div className="text-center space-y-3">
+              <h3 className="text-xs font-semibold text-gold/70 tracking-wide uppercase">
+                Ready for Another Series?
+              </h3>
 
-            <Button
-              onClick={onMainMenu}
-              variant="outline"
-              className="group bg-gradient-to-r from-casino-black/20 via-casino-black/15 to-transparent text-foreground font-semibold px-6 py-2 rounded-lg border border-casino-black/40 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300 ease-out backdrop-blur-sm"
-            >
-              <Home className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform duration-300" />
-              Main Menu
-            </Button>
+              {/* Action Buttons */}
+              <div
+                className={cn(
+                  "flex gap-3 justify-center transition-all duration-1000 ease-out",
+                  buttonsVisible
+                    ? "opacity-100 translate-y-0"
+                    : "opacity-0 translate-y-4"
+                )}
+              >
+                <Button
+                  onClick={onNewSeries}
+                  className="flex-1 h-12 font-bold font-casino bg-gradient-to-r from-gold via-gold/95 to-gold/90 text-casino-black shadow-glow hover:shadow-glow/80 border-2 border-gold-dark transition-all duration-300 hover:scale-105 group relative overflow-hidden"
+                >
+                  <div className="flex items-center justify-center gap-2 relative z-10">
+                    <Play className="w-4 h-4 group-hover:rotate-12 transition-transform duration-300" />
+                    Play Again
+                  </div>
+                  {/* Ripple effect background */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-gold-light/20 to-gold/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                </Button>
+
+                <Button
+                  onClick={onMainMenu}
+                  variant="outline"
+                  className="flex-1 h-12 font-semibold bg-gradient-to-r from-casino-black/20 via-casino-black/15 to-transparent text-foreground border border-casino-black/40 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300 ease-out backdrop-blur-sm group"
+                >
+                  <div className="flex items-center justify-center gap-2">
+                    <Home className="w-4 h-4 group-hover:scale-110 transition-transform duration-300" />
+                    Main Menu
+                  </div>
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       </DialogContent>
