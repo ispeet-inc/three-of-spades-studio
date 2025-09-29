@@ -397,6 +397,7 @@ const GameRedux = ({ viewerIndex = FIRST_PLAYER_ID }: GameReduxProps) => {
           bidAmount={gameState.gameConfig?.bidAmount ?? 0}
           playerNames={playerState.playerNames}
           onNewGame={handleNewGame}
+          onMainMenu={handleMainMenu}
           isObserver={isObserver}
         />
       )}

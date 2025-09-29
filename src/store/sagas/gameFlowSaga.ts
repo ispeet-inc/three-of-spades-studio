@@ -254,9 +254,9 @@ export default function* gameFlowSaga() {
     const gameProgress = yield select(selectGameProgress);
     // const isWhitewash = gameProgress.scores.team1 > 150;
     // To test the whitewash animaton - use this
-    const isWhitewash = isWhiteWash(gameProgress.scores); // MAX_BID = 250
+    const hasWhitewashOccurred = isWhiteWash(gameProgress.scores); // MAX_BID = 250
     
-    if (isWhitewash) {
+    if (hasWhitewashOccurred) {
       console.log("Game Flow Saga: Whitewash detected! Showing celebration animation");
       
       // Trigger whitewash animation in UI
