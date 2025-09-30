@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { FIRST_PLAYER_ID } from "@/utils/constants";
-import { Crown, Gamepad2, Trophy } from "lucide-react";
+import { Crown, Gamepad2, Home, Trophy } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { TeamScores } from "../../types/game";
 import { ModalHeader } from "../ui/ModalHeader";
@@ -19,6 +19,7 @@ interface GameOverModalProps {
   bidAmount: number;
   playerNames: Record<number, string>;
   onNewGame: () => void;
+  onMainMenu: () => void;
   isObserver?: boolean;
 }
 
@@ -29,6 +30,7 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
   bidAmount,
   playerNames,
   onNewGame,
+  onMainMenu,
   isObserver = false,
 }) => {
   const [scoresVisible, setScoresVisible] = useState(false);
@@ -166,10 +168,10 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
                     Ready for Another Round?
                   </h3>
 
-                  {/* Play Again Button */}
+                  {/* Action Buttons */}
                   <div
                     className={cn(
-                      "transition-all duration-700 ease-out",
+                      "flex gap-3 justify-center transition-all duration-700 ease-out",
                       buttonVisible
                         ? "opacity-100 translate-y-0"
                         : "opacity-0 translate-y-4"
@@ -180,7 +182,7 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
                   >
                     <Button
                       onClick={onNewGame}
-                      className="w-full h-12 font-bold font-casino bg-gradient-to-r from-gold via-gold/95 to-gold/90 text-casino-black shadow-glow hover:shadow-glow/80 border-2 border-gold-dark transition-all duration-300 hover:scale-105 group relative overflow-hidden"
+                      className="flex-1 h-12 font-bold font-casino bg-gradient-to-r from-gold via-gold/95 to-gold/90 text-casino-black shadow-glow hover:shadow-glow/80 border-2 border-gold-dark transition-all duration-300 hover:scale-105 group relative overflow-hidden"
                     >
                       <div className="flex items-center justify-center gap-2 relative z-10">
                         <Gamepad2 className="w-4 h-4 group-hover:animate-pulse" />
@@ -188,6 +190,17 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
                       </div>
                       {/* Ripple effect background */}
                       <div className="absolute inset-0 bg-gradient-to-r from-gold-light/20 to-gold/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    </Button>
+
+                    <Button
+                      onClick={onMainMenu}
+                      variant="outline"
+                      className="flex-1 h-12 font-semibold bg-gradient-to-r from-casino-black/20 via-casino-black/15 to-transparent text-foreground border border-casino-black/40 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300 ease-out backdrop-blur-sm group"
+                    >
+                      <div className="flex items-center justify-center gap-2">
+                        <Home className="w-4 h-4 group-hover:scale-110 transition-transform duration-300" />
+                        Main Menu
+                      </div>
                     </Button>
                   </div>
                 </>
