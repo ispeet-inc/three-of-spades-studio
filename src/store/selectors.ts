@@ -402,3 +402,7 @@ export const selectSeriesLogEntry = createSelector(
 export const selectShowWhiteWashAnimation = (state: RootState): boolean => {
   return state.game.uiState?.showWhitewashAnimation ?? false;
 };
+
+export const selectIsDealing = (state: RootState): boolean => {
+  return state.game.uiState?.isDealing ?? false;
+};

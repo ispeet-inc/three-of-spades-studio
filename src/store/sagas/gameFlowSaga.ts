@@ -24,8 +24,10 @@ import {
   setStage,
   showWhitewashAnimation,
   startBiddingRound,
+  startDealingAnimation,
   startGame,
   startNewTrick,
+  stopDealingAnimation,
 } from "../gameSlice";
 import {
   GameStages,
@@ -152,6 +154,9 @@ function* handleGameInitialization(): Generator<any, void, any> {
   try {
     console.log("Game Flow Saga: Starting game initialization");
 
+    // Start the dealing animation
+    yield put(startDealingAnimation());
+
     // Use race to allow cancellation of the dealing animation
     const result = yield race({
       dealingAnimation: delay(2000),
@@ -161,8 +166,12 @@ function* handleGameInitialization(): Generator<any, void, any> {
     // Check if we were cancelled
     if (result.cancelled) {
       console.log("Game Flow Saga: Initialization cancelled externally");
+      yield put(stopDealingAnimation());
       return;
     }
+
+    // Stop the dealing animation
+    yield put(stopDealingAnimation());
 
     // Now transition to BIDDING stage (which will trigger the bidding logic via handleStageSideEffects)
     yield put(gameStageTransition(GameStages.BIDDING));
@@ -170,6 +179,8 @@ function* handleGameInitialization(): Generator<any, void, any> {
     console.log("Game Flow Saga: Game initialization completed successfully");
   } catch (error) {
     console.error("Game initialization error:", error);
+    // Stop dealing animation on error
+    yield put(stopDealingAnimation());
     // Enhanced fallback: try to recover gracefully
     try {
       console.log("Game Flow Saga: Attempting fallback initialization");
@@ -255,16 +266,18 @@ export default function* gameFlowSaga() {
     // const isWhitewash = gameProgress.scores.team1 > 150;
     // To test the whitewash animaton - use this
     const hasWhitewashOccurred = isWhiteWash(gameProgress.scores); // MAX_BID = 250
-    
+
     if (hasWhitewashOccurred) {
-      console.log("Game Flow Saga: Whitewash detected! Showing celebration animation");
-      
+      console.log(
+        "Game Flow Saga: Whitewash detected! Showing celebration animation"
+      );
+
       // Trigger whitewash animation in UI
       yield put(showWhitewashAnimation());
-      
+
       // Wait for 5 seconds for animation to complete
       yield delay(5000);
-      
+
       // Hide whitewash animation
       yield put(hideWhitewashAnimation());
     }
@@ -293,6 +306,8 @@ export default function* gameFlowSaga() {
 
   // Watch for game start
   yield takeEvery(startGame.type, function* (): Generator<any, void, any> {
+    // Start dealing animation for new games (including series games)
+    yield put(startDealingAnimation());
     yield put(gameStageTransition(GameStages.DISTRIBUTE_CARDS));
   });
 

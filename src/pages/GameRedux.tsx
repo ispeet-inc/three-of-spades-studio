@@ -29,6 +29,7 @@ import { GameStages } from "@/store/gameStages";
 import {
   selectGameConfig,
   selectGameProgress,
+  selectIsDealing,
   selectPlayerDisplayData,
   selectPlayerState,
   selectShowWhiteWashAnimation,
@@ -37,7 +38,7 @@ import {
 import { Card, GameMode, Suite } from "@/types/game";
 import { FIRST_PLAYER_ID, NUM_PLAYERS } from "@/utils/constants";
 import { useFeedback } from "@/utils/feedbackSystem";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { rotateStartingPlayer } from "../utils/gameUtils";
 
@@ -55,10 +56,8 @@ const GameRedux = ({ viewerIndex = FIRST_PLAYER_ID }: GameReduxProps) => {
   const gameConfig = useAppSelector(selectGameConfig);
   const gameProgress = useAppSelector(selectGameProgress);
   const showWhitewashAnimation = useAppSelector(selectShowWhiteWashAnimation);
+  const isDealing = useAppSelector(selectIsDealing);
   const { trigger } = useFeedback();
-
-  // Add dealing animation state
-  const [isDealing, setIsDealing] = useState(false);
 
   // NEW: Observer mode detection
   const isObserver = viewerIndex !== FIRST_PLAYER_ID;
@@ -145,7 +144,6 @@ const GameRedux = ({ viewerIndex = FIRST_PLAYER_ID }: GameReduxProps) => {
     // Set the player name in the game state
     dispatch(setPlayerName({ playerIndex: FIRST_PLAYER_ID, name: playerName }));
 
-    setIsDealing(true);
     dispatch(playerSetup());
     const startingPlayer = Math.floor(Math.random() * NUM_PLAYERS);
     dispatch(startGame({ startingPlayer }));
@@ -252,17 +250,6 @@ const GameRedux = ({ viewerIndex = FIRST_PLAYER_ID }: GameReduxProps) => {
     gameState.biddingState.bidWinner,
     dispatch,
   ]);
-
-  // Handle dealing animation completion when game initialization saga completes
-  useEffect(() => {
-    if (gameState.gameProgress.stage === GameStages.BIDDING && isDealing) {
-      // Stop dealing animation after game initialization saga completes
-      const timer = setTimeout(() => {
-        setIsDealing(false);
-      }, 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [gameState.gameProgress.stage, isDealing]);
 
   if (gameState.gameProgress.stage === GameStages.INIT) {
     // NEW: Observer mode can't start games, but can view existing ones
@@ -371,8 +358,6 @@ const GameRedux = ({ viewerIndex = FIRST_PLAYER_ID }: GameReduxProps) => {
               gameState.seriesProgress.startingPlayerIndex,
               NUM_PLAYERS
             );
-            // Set dealing animation for next game in series
-            setIsDealing(true);
             dispatch(startGame({ startingPlayer: nextStartingPlayer }));
           }}
         />
