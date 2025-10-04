@@ -25,8 +25,9 @@ import {
 } from "@/utils/accessibility";
 import { FIRST_PLAYER_ID } from "@/utils/constants";
 import { getPlayerPositions } from "@/utils/positionUtils";
-import { BarChart3 } from "lucide-react";
+import { BarChart3, Settings } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Button } from "../ui/button";
 import { CollapsibleScoreboard } from "../ui/collapsible-scoreboard";
 import { BiddingControls } from "./BiddingControls";
 import { CenterTable } from "./CenterTable";
@@ -140,25 +141,25 @@ export const GameBoard = ({
 
       {/* Game Header */}
       <header className="absolute top-6 left-6 right-6 flex justify-between items-center z-20">
-          {/* Game Info */}
-          <GameInfo
-            gameConfig={gameConfig}
-            isSeries={isSeries}
-            seriesProgress={seriesProgress}
-            playerNames={playerState.playerNames}
-          />
+        {/* Game Info */}
+        <GameInfo
+          gameConfig={gameConfig}
+          isSeries={isSeries}
+          seriesProgress={seriesProgress}
+          playerNames={playerState.playerNames}
+        />
 
-          {/* Settings */}
-          {/* <Button
-            variant="secondary"
-            size="sm"
-            onClick={onSettingsClick}
-            className="bg-casino-black/40 hover:bg-casino-black/60 text-gold border border-gold/30 backdrop-blur-sm shadow-elevated"
-            aria-label="Open game settings"
-          >
-            <Settings className="w-4 h-4" aria-hidden="true" />
-          </Button> */}
-        </header>
+        {/* Settings */}
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={onSettingsClick}
+          className="bg-casino-black/40 hover:bg-casino-black/60 text-gold border border-gold/30 backdrop-blur-sm shadow-elevated"
+          aria-label="Open game settings"
+        >
+          <Settings className="w-4 h-4" aria-hidden="true" />
+        </Button>
+      </header>
 
       {/* Minimal observer mode indicator */}
       {isObserver && (
