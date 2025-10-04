@@ -3,6 +3,7 @@ import { GameBoard } from "@/components/game/GameBoard";
 import { GameOverModal } from "@/components/game/GameOverModal";
 import { GameSummaryModal } from "@/components/game/GameSummaryModal";
 import { SeriesSummaryModal } from "@/components/game/SeriesSummaryModal";
+import { SettingsModal } from "@/components/game/SettingsModal";
 import { TrumpSelectionModal } from "@/components/game/TrumpSelectionModal";
 import WhitewashAnimation from "@/components/game/WhitewashAnimation";
 import StartScreen from "@/components/StartScreen";
@@ -58,6 +59,9 @@ const GameRedux = ({ viewerIndex = FIRST_PLAYER_ID }: GameReduxProps) => {
   const showWhitewashAnimation = useAppSelector(selectShowWhiteWashAnimation);
   const isDealing = useAppSelector(selectIsDealing);
   const { trigger } = useFeedback();
+
+  // Settings modal state
+  const [showSettings, setShowSettings] = useState(false);
 
   // NEW: Observer mode detection
   const isObserver = viewerIndex !== FIRST_PLAYER_ID;
@@ -309,7 +313,7 @@ const GameRedux = ({ viewerIndex = FIRST_PLAYER_ID }: GameReduxProps) => {
         gameConfig={gameConfig}
         gameProgress={gameProgress}
         onCardPlay={handleCardPlay}
-        onSettingsClick={() => console.log("Settings")}
+        onSettingsClick={() => setShowSettings(true)}
         isDealing={isDealing}
         isObserver={isObserver}
         viewerIndex={viewerIndex}
@@ -386,6 +390,13 @@ const GameRedux = ({ viewerIndex = FIRST_PLAYER_ID }: GameReduxProps) => {
           isObserver={isObserver}
         />
       )}
+
+      {/* Settings Modal */}
+      <SettingsModal
+        open={showSettings}
+        onClose={() => setShowSettings(false)}
+        isObserver={isObserver}
+      />
     </div>
   );
 };

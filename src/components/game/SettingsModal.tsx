@@ -1,201 +1,110 @@
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import {
-  Eye,
-  EyeOff,
-  Gamepad2,
-  Settings,
-  Volume2,
-  VolumeX,
-} from "lucide-react";
+import { Lightbulb, Settings } from "lucide-react";
 import { useEffect, useState } from "react";
 
 interface SettingsModalProps {
   open: boolean;
   onClose: () => void;
-  botCardsHidden: boolean;
-  onToggleBotCards: () => void;
   isObserver?: boolean;
 }
 
 export const SettingsModal = ({
   open,
   onClose,
-  botCardsHidden,
-  onToggleBotCards,
   isObserver = false,
 }: SettingsModalProps) => {
-  const [soundEnabled, setSoundEnabled] = useState(true);
-  const [animationsEnabled, setAnimationsEnabled] = useState(true);
-  const [autoPlay, setAutoPlay] = useState(false);
+  const [helperMode, setHelperMode] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  // Load settings from localStorage on mount
+  // Load helper mode setting from localStorage on mount
   useEffect(() => {
-    const savedSoundEnabled = localStorage.getItem("game-sound-enabled");
-    const savedAnimationsEnabled = localStorage.getItem(
-      "game-animations-enabled"
-    );
-    const savedAutoPlay = localStorage.getItem("game-auto-play");
+    const savedHelperMode = localStorage.getItem("game-helper-mode");
 
-    if (savedSoundEnabled !== null)
-      setSoundEnabled(JSON.parse(savedSoundEnabled));
-    if (savedAnimationsEnabled !== null)
-      setAnimationsEnabled(JSON.parse(savedAnimationsEnabled));
-    if (savedAutoPlay !== null) setAutoPlay(JSON.parse(savedAutoPlay));
+    if (savedHelperMode !== null) {
+      const helperModeValue = JSON.parse(savedHelperMode);
+      setHelperMode(helperModeValue);
+    }
+
+    setIsInitialized(true);
   }, []);
 
-  // Save settings to localStorage when they change
+  // Save helper mode setting to localStorage when it changes
   useEffect(() => {
-    localStorage.setItem("game-sound-enabled", JSON.stringify(soundEnabled));
-  }, [soundEnabled]);
+    // Only save after initialization to prevent overwriting with default values
+    if (!isInitialized) return;
 
-  useEffect(() => {
-    localStorage.setItem(
-      "game-animations-enabled",
-      JSON.stringify(animationsEnabled)
-    );
-  }, [animationsEnabled]);
+    localStorage.setItem("game-helper-mode", JSON.stringify(helperMode));
 
-  useEffect(() => {
-    localStorage.setItem("game-auto-play", JSON.stringify(autoPlay));
-  }, [autoPlay]);
+    // Dispatch custom event to notify other components
+    window.dispatchEvent(new CustomEvent("helperModeChanged"));
+  }, [helperMode, isInitialized]);
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-md bg-gradient-to-br from-felt-green-light to-felt-green-dark border-2 border-gold/40 shadow-elevated backdrop-blur-sm">
-        <DialogHeader className="text-center mb-6">
-          <DialogTitle className="text-2xl font-casino text-gold mb-2 flex items-center justify-center gap-2">
-            <Settings className="w-6 h-6" />
-            Game Settings
-          </DialogTitle>
-          <div className="w-16 h-1 bg-gradient-gold mx-auto rounded-full"></div>
-        </DialogHeader>
-
-        <div className="space-y-6">
-          {/* Display Settings */}
-          <div className="bg-casino-black/20 rounded-xl p-4 border border-gold/30">
-            <h3 className="text-lg font-semibold text-gold mb-4 uppercase tracking-wide">
-              Display Options
-            </h3>
-
-            <div className="space-y-4">
-              {/* Bot Cards Visibility */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  {botCardsHidden ? (
-                    <EyeOff className="w-5 h-5 text-gold" />
-                  ) : (
-                    <Eye className="w-5 h-5 text-gold" />
-                  )}
-                  <Label htmlFor="bot-cards" className="text-gold font-medium">
-                    Hide Bot Cards
-                  </Label>
-                </div>
-                <Switch
-                  id="bot-cards"
-                  checked={botCardsHidden}
-                  onCheckedChange={onToggleBotCards}
-                  disabled={isObserver}
-                />
-              </div>
-
-              {/* Animations */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Gamepad2 className="w-5 h-5 text-gold" />
-                  <Label htmlFor="animations" className="text-gold font-medium">
-                    Enable Animations
-                  </Label>
-                </div>
-                <Switch
-                  id="animations"
-                  checked={animationsEnabled}
-                  onCheckedChange={setAnimationsEnabled}
-                  disabled={isObserver}
-                />
-              </div>
+      <DialogContent className="max-w-sm bg-gradient-to-br from-casino-black/95 via-casino-black/90 to-casino-black/95 border border-gold/30 shadow-2xl backdrop-blur-xl rounded-2xl p-0 overflow-hidden">
+        {/* Premium Header with Glow Effect */}
+        <div className="relative bg-gradient-to-r from-gold/20 via-gold/30 to-gold/20 p-6 border-b border-gold/20">
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gold/5 to-transparent"></div>
+          <div className="relative flex items-center justify-center gap-3">
+            <div className="p-2 bg-gold/20 rounded-full border border-gold/40">
+              <Settings className="w-5 h-5 text-gold" />
             </div>
+            <DialogTitle className="text-xl font-bold text-gold tracking-wide">
+              Game Settings
+            </DialogTitle>
           </div>
+        </div>
 
-          {/* Audio Settings */}
-          <div className="bg-casino-black/20 rounded-xl p-4 border border-gold/30">
-            <h3 className="text-lg font-semibold text-gold mb-4 uppercase tracking-wide">
-              Audio Options
-            </h3>
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                {soundEnabled ? (
-                  <Volume2 className="w-5 h-5 text-gold" />
-                ) : (
-                  <VolumeX className="w-5 h-5 text-gold" />
-                )}
-                <Label htmlFor="sound" className="text-gold font-medium">
-                  Sound Effects
-                </Label>
+        {/* Main Content */}
+        <div className="p-8">
+          {/* Helper Mode Section */}
+          <div className="relative">
+            <div className="flex items-center justify-between p-4 bg-gradient-to-r from-gold/5 to-transparent rounded-xl border border-gold/20 hover:border-gold/40 transition-all duration-300 group">
+              <div className="flex items-center gap-4">
+                <div className="p-2 bg-gold/20 rounded-lg border border-gold/30 group-hover:bg-gold/30 transition-colors duration-300">
+                  <Lightbulb className="w-5 h-5 text-gold" />
+                </div>
+                <div>
+                  <Label
+                    htmlFor="helper-mode"
+                    className="text-gold font-semibold text-base cursor-pointer"
+                  >
+                    Helper Mode
+                  </Label>
+                  <p className="text-xs text-gold/60 mt-1">
+                    Get contextual hints during gameplay
+                  </p>
+                </div>
               </div>
               <Switch
-                id="sound"
-                checked={soundEnabled}
-                onCheckedChange={setSoundEnabled}
+                id="helper-mode"
+                checked={helperMode}
+                onCheckedChange={setHelperMode}
                 disabled={isObserver}
+                className="data-[state=checked]:bg-gold data-[state=checked]:border-gold"
               />
             </div>
           </div>
 
-          {/* Gameplay Settings */}
-          <div className="bg-casino-black/20 rounded-xl p-4 border border-gold/30">
-            <h3 className="text-lg font-semibold text-gold mb-4 uppercase tracking-wide">
-              Gameplay Options
-            </h3>
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Gamepad2 className="w-5 h-5 text-gold" />
-                <Label htmlFor="auto-play" className="text-gold font-medium">
-                  Auto-play when possible
-                </Label>
-              </div>
-              <Switch
-                id="auto-play"
-                checked={autoPlay}
-                onCheckedChange={setAutoPlay}
-                disabled={isObserver}
-              />
-            </div>
-          </div>
-
-          {/* Settings Info */}
-          <div className="bg-gold/10 rounded-xl p-4 border border-gold/20">
-            <p className="text-xs text-gold/70 text-center font-medium">
-              Settings are automatically saved and will persist across game
-              sessions.
+          {/* Auto-save Notice */}
+          <div className="mt-6 p-3 bg-gold/5 rounded-lg border border-gold/10">
+            <p className="text-xs text-gold/50 text-center">
+              Settings are automatically saved
             </p>
           </div>
+        </div>
 
-          {/* Close Button */}
-          <div className="text-center pt-2">
-            {!isObserver && (
-              <Button
-                onClick={onClose}
-                className="w-full h-12 text-lg font-bold font-casino bg-gradient-gold text-casino-black shadow-glow hover:shadow-glow/80 border-2 border-gold-dark transition-all duration-300"
-              >
-                Apply Settings
-              </Button>
-            )}
-            {isObserver && (
-              <div className="w-full text-center text-sm text-muted-foreground py-4">
-                Observer mode - settings cannot be modified
-              </div>
-            )}
-          </div>
+        {/* Premium Footer */}
+        <div className="border-t border-gold/20 bg-gradient-to-r from-transparent via-gold/5 to-transparent p-4">
+          <Button
+            onClick={onClose}
+            className="w-full bg-gradient-to-r from-gold to-gold-dark hover:from-gold-dark hover:to-gold text-casino-black font-bold py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]"
+          >
+            Done
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
