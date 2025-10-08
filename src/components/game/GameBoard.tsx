@@ -86,9 +86,6 @@ export const GameBoard = ({
   const isSeries = useAppSelector(selectIsSeries);
   const isTeammateRevealed = useAppSelector(selectIsTeammateRevealed);
 
-  // Check if bid result modal is open (hides UI elements)
-  const isBidResultModalOpen = gameProgress.stage === GameStages.TRUMP_SELECTION_COMPLETE;
-
   // Score animation effect
   useEffect(() => {
     if (lastScores.team1 !== gameProgress.scores.team1) {
@@ -141,9 +138,8 @@ export const GameBoard = ({
       {/* Table Border */}
       <div className="absolute inset-8 border-4 border-gold/30 rounded-3xl shadow-glow/10" />
 
-      {/* Game Header - Hidden when bid result modal is open */}
-      {!isBidResultModalOpen && (
-        <header className="absolute top-6 left-6 right-6 flex justify-between items-center z-20">
+      {/* Game Header */}
+      <header className="absolute top-6 left-6 right-6 flex justify-between items-center z-20">
           {/* Game Info */}
           <GameInfo
             gameConfig={gameConfig}
@@ -163,10 +159,9 @@ export const GameBoard = ({
             <Settings className="w-4 h-4" aria-hidden="true" />
           </Button> */}
         </header>
-      )}
 
-      {/* Minimal observer mode indicator - Hidden when bid result modal is open */}
-      {!isBidResultModalOpen && isObserver && (
+      {/* Minimal observer mode indicator */}
+      {isObserver && (
         <div className="absolute top-32 right-6 bg-blue-500/40 backdrop-blur-sm border border-blue-400/40 rounded-md px-4 py-2 z-20">
           <div className="text-sm text-blue-300 font-medium">
             👁️{" "}
@@ -182,8 +177,8 @@ export const GameBoard = ({
         className="absolute top-6 right-6 flex gap-6 z-20"
         aria-label="Game controls and scores"
       >
-        {/* Series Scoreboard Toggle - Hidden when bid result modal is open */}
-        {!isBidResultModalOpen && isSeries && seriesProgress && seriesProgress.totalGames > 1 && (
+        {/* Series Scoreboard Toggle */}
+        {isSeries && seriesProgress && seriesProgress.totalGames > 1 && (
           <button
             onClick={() => setShowScoreboard(!showScoreboard)}
             className={cn(
@@ -204,18 +199,16 @@ export const GameBoard = ({
           </button>
         )}
 
-        {/* Team Scores - Hidden when bid result modal is open */}
-        {!isBidResultModalOpen && (
-          <TeamScoresDisplay
-            scores={gameProgress.scores}
-            animateScore={animateScore}
-            isTeammateRevealed={isTeammateRevealed}
-          />
-        )}
+        {/* Team Scores */}
+        <TeamScoresDisplay
+          scores={gameProgress.scores}
+          animateScore={animateScore}
+          isTeammateRevealed={isTeammateRevealed}
+        />
       </section>
 
-      {/* Series Scoreboard - Floating overlay - Hidden when bid result modal is open */}
-      {!isBidResultModalOpen && showScoreboard && isSeries && seriesProgress && (
+      {/* Series Scoreboard - Floating overlay */}
+      {showScoreboard && isSeries && seriesProgress && (
         <div className="absolute top-24 right-6 z-30">
           <CollapsibleScoreboard
             seriesProgress={seriesProgress}
@@ -243,8 +236,8 @@ export const GameBoard = ({
           gameStage={gameProgress.stage}
         />
 
-        {/* Player Areas - Hidden when bid result modal is open */}
-        {!isBidResultModalOpen && getPlayerPositions(viewerIndex).map(
+        {/* Player Areas */}
+        {getPlayerPositions(viewerIndex).map(
           ({ playerIndex, position, playerAreaClassName }) => (
             <div key={position} className={playerAreaClassName}>
               <PlayerArea
@@ -263,9 +256,8 @@ export const GameBoard = ({
         )}
       </section>
 
-      {/* NEW: Bidding Controls - positioned in bottom-right during bidding - Hidden when bid result modal is open */}
-      {!isBidResultModalOpen &&
-        gameProgress.stage === GameStages.BIDDING &&
+      {/* NEW: Bidding Controls - positioned in bottom-right during bidding */}
+      {gameProgress.stage === GameStages.BIDDING &&
         onBid &&
         onPass &&
         currentBid !== null && (

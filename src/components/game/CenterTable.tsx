@@ -102,7 +102,7 @@ const BiddingDisplay = ({
               <div className="text-xl text-gold/80 mb-2">
                 Final Bid: {currentBid}
               </div>
-              <div className="text-sm text-gold/60 animate-pulse">
+              <div className="text-sm text-gold/60">
                 Get ready to play!
               </div>
             </div>
