@@ -97,12 +97,12 @@ const BiddingDisplay = ({
                 Bidding Complete!
               </div>
               <div className="text-3xl font-bold text-gold mb-2">
-                {getPlayerName(bidWinner, playerNames)} won!
+                {getPlayerName(bidWinner, playerNames)} sets trump!
               </div>
               <div className="text-xl text-gold/80 mb-2">
                 Final Bid: {currentBid}
               </div>
-              <div className="text-sm text-gold/60 animate-pulse">
+              <div className="text-sm text-gold/60">
                 Get ready to play!
               </div>
             </div>
@@ -143,35 +143,39 @@ const BiddingDisplay = ({
           )}
         </div>
 
-        {/* Bidding Progress Ring */}
-        <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-gold/40 border-r-gold/20 border-b-gold/10 border-l-gold/30 animate-spin-slow" />
+        {/* Bidding Progress Ring - Hidden when bidding is complete */}
+        {!isBiddingComplete && (
+          <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-gold/40 border-r-gold/20 border-b-gold/10 border-l-gold/30 animate-spin-slow" />
+        )}
       </div>
 
-      {/* Bid History Timeline - Around the circle using proper positioning logic */}
-      <div className="absolute inset-0 rounded-full">
-        {players.map(({ playerIndex, hasPassed, bid, positionInfo }) => (
-          <div
-            key={playerIndex}
-            className={positionInfo.biddingDisplayClassName}
-          >
+      {/* Bid History Timeline - Around the circle using proper positioning logic - Hidden when bidding is complete */}
+      {!isBiddingComplete && (
+        <div className="absolute inset-0 rounded-full">
+          {players.map(({ playerIndex, hasPassed, bid, positionInfo }) => (
             <div
-              className={`backdrop-blur-sm border-2 rounded-lg px-3 py-2 text-center transition-all duration-300 ${
-                hasPassed
-                  ? "border-red-400/60 bg-red-500/20"
-                  : "border-gold/40 bg-felt-green-light/15"
-              }`}
+              key={playerIndex}
+              className={positionInfo.biddingDisplayClassName}
             >
               <div
-                className={`text-sm font-bold ${
-                  hasPassed ? "text-red-400" : "text-gold"
+                className={`backdrop-blur-sm border-2 rounded-lg px-3 py-2 text-center transition-all duration-300 ${
+                  hasPassed
+                    ? "border-red-400/60 bg-red-500/20"
+                    : "border-gold/40 bg-felt-green-light/15"
                 }`}
               >
-                {hasPassed ? "Pass" : bid ? "Bid: " + bid : "-"}
+                <div
+                  className={`text-sm font-bold ${
+                    hasPassed ? "text-red-400" : "text-gold"
+                  }`}
+                >
+                  {hasPassed ? "Pass" : bid ? "Bid: " + bid : "-"}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
