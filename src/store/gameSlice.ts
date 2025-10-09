@@ -69,6 +69,7 @@ const initialState: GameState = {
   error: null,
   uiState: {
     showWhitewashAnimation: false,
+    isDealing: false,
   },
 };
 
@@ -383,12 +384,21 @@ const gameSlice = createSlice({
     },
 
     // NEW: Whitewash animation actions
-    showWhitewashAnimation: (state) => {
+    showWhitewashAnimation: state => {
       state.uiState.showWhitewashAnimation = true;
     },
 
-    hideWhitewashAnimation: (state) => {
+    hideWhitewashAnimation: state => {
       state.uiState.showWhitewashAnimation = false;
+    },
+
+    // NEW: Dealing animation actions
+    startDealingAnimation: state => {
+      state.uiState.isDealing = true;
+    },
+
+    stopDealingAnimation: state => {
+      state.uiState.isDealing = false;
     },
   },
 });
@@ -421,6 +431,9 @@ export const {
   // NEW: Whitewash animation actions
   showWhitewashAnimation,
   hideWhitewashAnimation,
+  // NEW: Dealing animation actions
+  startDealingAnimation,
+  stopDealingAnimation,
 } = gameSlice.actions;
 
 export default gameSlice.reducer;

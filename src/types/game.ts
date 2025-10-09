@@ -131,5 +131,6 @@ export interface GameState {
   // NEW: UI state for animations
   uiState: {
     showWhitewashAnimation: boolean;
+    isDealing: boolean;
   };
 }
