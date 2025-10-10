@@ -39,7 +39,7 @@ import {
 import { Card, GameMode, Suite } from "@/types/game";
 import { FIRST_PLAYER_ID, NUM_PLAYERS } from "@/utils/constants";
 import { useFeedback } from "@/utils/feedbackSystem";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { rotateStartingPlayer } from "../utils/gameUtils";
 
