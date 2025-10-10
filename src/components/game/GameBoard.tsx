@@ -1,4 +1,5 @@
 import { useAppSelector } from "@/hooks/useAppSelector";
+import { useHintSystem } from "@/hooks/useHintSystem";
 import { cn } from "@/lib/utils";
 import { GameStages } from "@/store/gameStages";
 import {
@@ -32,6 +33,7 @@ import { CollapsibleScoreboard } from "../ui/collapsible-scoreboard";
 import { BiddingControls } from "./BiddingControls";
 import { CenterTable } from "./CenterTable";
 import { GameInfo } from "./GameInfo";
+import { HintTooltip } from "./HintTooltip";
 import { PlayerArea } from "./PlayerArea";
 import { TeamScoresDisplay } from "./TeamScoresDisplay";
 
@@ -86,6 +88,9 @@ export const GameBoard = ({
   const seriesProgress = useAppSelector(selectSeriesProgress);
   const isSeries = useAppSelector(selectIsSeries);
   const isTeammateRevealed = useAppSelector(selectIsTeammateRevealed);
+
+  // NEW: Hint system integration
+  const { shouldShowHint, markHintShown, getHintContent } = useHintSystem();
 
   // Score animation effect
   useEffect(() => {
@@ -270,6 +275,25 @@ export const GameBoard = ({
             isObserver={isObserver}
           />
         )}
+
+      {/* NEW: Bidding Hint */}
+      {(() => {
+        const shouldShow =
+          gameProgress.stage === GameStages.BIDDING &&
+          canPlayerBid &&
+          shouldShowHint("bidding-intro");
+
+        return shouldShow;
+      })() && (
+        <div className="absolute top-20 right-6 z-50">
+          <HintTooltip
+            content={getHintContent("bidding-intro")}
+            position="left"
+            visible={true}
+            onDismiss={() => markHintShown("bidding-intro")}
+          />
+        </div>
+      )}
     </main>
   );
 };
