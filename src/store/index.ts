@@ -2,6 +2,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import createSagaMiddleware from "redux-saga";
 import gameReducer from "./gameSlice";
 import rootSaga from "./rootSaga";
+import { websocketMiddleware } from "./websocketMiddleware";
 
 const sagaMiddleware = createSagaMiddleware();
 
@@ -16,7 +17,9 @@ export const store = configureStore({
         // All state and actions are now fully serializable
         // No need to ignore any paths
       },
-    }).concat(sagaMiddleware),
+    })
+      .concat(sagaMiddleware)
+      .concat(websocketMiddleware),
 });
 
 sagaMiddleware.run(rootSaga);

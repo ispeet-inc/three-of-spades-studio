@@ -6,6 +6,7 @@ import { Provider } from "react-redux";
 import { BrowserRouter, Route, Routes, useParams } from "react-router-dom";
 import GameRedux from "./pages/GameRedux";
 import HandTesterPage from "./pages/HandTesterPage";
+import MultiplayerPage from "./pages/MultiplayerPage";
 import NotFound from "./pages/NotFound";
 import Palettes from "./pages/Palettes";
 import StatsDemo from "./pages/StatsDemo";
@@ -34,6 +35,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<GameRedux viewerIndex={3} />} />
             <Route path="/:viewerIndex" element={<GameReduxWrapper />} />
+            <Route path="/multiplayer" element={<MultiplayerPage />} />
             <Route path="/tester" element={<HandTesterPage />} />
             <Route path="/palettes" element={<Palettes />} />
             <Route path="/stats-demo" element={<StatsDemo />} />

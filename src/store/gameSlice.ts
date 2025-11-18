@@ -383,6 +383,13 @@ const gameSlice = createSlice({
       state.error = null;
     },
 
+    // Server state update (from multiplayer)
+    setGameState: (state, action: PayloadAction<GameState>) => {
+      const serverState = action.payload;
+      // Replace entire state with server state
+      Object.assign(state, serverState);
+    },
+
     // NEW: Whitewash animation actions
     showWhitewashAnimation: state => {
       state.uiState.showWhitewashAnimation = true;
@@ -434,6 +441,8 @@ export const {
   // NEW: Dealing animation actions
   startDealingAnimation,
   stopDealingAnimation,
+  // NEW: Server state sync
+  setGameState,
 } = gameSlice.actions;
 
 export default gameSlice.reducer;
