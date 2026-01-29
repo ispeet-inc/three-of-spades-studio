@@ -2,15 +2,14 @@
  * Room Configuration Panel - Host-only settings panel
  */
 
-import { Settings } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useMultiplayer } from "@/hooks/useMultiplayer";
-import type { RoomConfig } from "@/types/multiplayer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { useMultiplayer } from "@/hooks/useMultiplayer";
+import type { RoomConfig } from "@/types/multiplayer";
+import { Settings } from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface RoomConfigurationPanelProps {
   roomId: string;
@@ -122,32 +121,6 @@ export default function RoomConfigurationPanel({
           />
           <p className="text-xs text-white/50">
             Default: 90 seconds
-          </p>
-        </div>
-
-        {/* Bot Count */}
-        <div className="space-y-2">
-          <Label htmlFor="botCount" className="text-white/80">
-            Number of Bots
-          </Label>
-          <Select
-            value={localConfig.botCount.toString()}
-            onValueChange={(value) =>
-              handleConfigChange("botCount", parseInt(value))
-            }
-          >
-            <SelectTrigger className="bg-white/10 border-white/20 text-white">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="bg-felt-green-dark border-white/20">
-              <SelectItem value="0">0 Bots</SelectItem>
-              <SelectItem value="1">1 Bot</SelectItem>
-              <SelectItem value="2">2 Bots</SelectItem>
-              <SelectItem value="3">3 Bots</SelectItem>
-            </SelectContent>
-          </Select>
-          <p className="text-xs text-white/50">
-            Bots will be added to fill remaining slots
           </p>
         </div>
 
