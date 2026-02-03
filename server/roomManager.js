@@ -4,21 +4,25 @@
 
 import { v4 as uuidv4 } from "uuid";
 
-const ROOM_ID_LENGTH = 6;
-const ALPHANUMERIC_CHARS =
-  "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+// List of 20 simple 3-letter words for room codes
+const ROOM_WORDS = [
+  "ant", "axe", "bad", "bat", "bee",
+  "box", "cat", "dog", "egg", "fox",
+  "hat", "ice", "jam", "key", "log",
+  "map", "net", "owl", "pig", "rat"
+];
 
 /**
- * Generate a unique 6-character alphanumeric room ID
+ * Generate a unique room ID using format: word### (e.g., "ant123", "dog456")
  */
 export function generateRoomId() {
-  let roomId = "";
-  for (let i = 0; i < ROOM_ID_LENGTH; i++) {
-    roomId += ALPHANUMERIC_CHARS.charAt(
-      Math.floor(Math.random() * ALPHANUMERIC_CHARS.length)
-    );
-  }
-  return roomId;
+  // Pick a random word from the list
+  const word = ROOM_WORDS[Math.floor(Math.random() * ROOM_WORDS.length)];
+  
+  // Generate a random 3-digit number (100-999)
+  const number = Math.floor(Math.random() * 900) + 100;
+  
+  return `${word}${number}`;
 }
 
 /**
@@ -211,12 +215,15 @@ export class RoomManager {
   setPlayerReady(roomId, socketId, isReady) {
     const room = this.rooms.get(roomId);
     if (!room) {
-      return { room: null, allReady: false };
+      console.error(`Room ${roomId} not found`);
+      return { room: null, allReady: false, success: false };
     }
 
     const player = room.players.get(socketId);
     if (!player) {
-      return { room, allReady: false };
+      console.error(`Player with socketId ${socketId} not found in room ${roomId}`);
+      console.error(`Room has players:`, Array.from(room.players.keys()));
+      return { room: null, allReady: false, success: false };
     }
 
     player.isReady = isReady;
@@ -235,27 +242,35 @@ export class RoomManager {
       allPlayersReady &&
       allBotsReady;
 
-    return { room, allReady };
+    return { room, allReady, success: true };
   }
 
   /**
    * Add a bot to the room
    */
-  addBot(roomId, socketId) {
+  addBot(roomId, socketId, botName) {
     const room = this.rooms.get(roomId);
     if (!room) {
-      return { room: null, bot: null };
+      console.error(`Room ${roomId} not found`);
+      return { room: null, bot: null, success: false };
     }
 
     const player = room.players.get(socketId);
-    if (!player || !player.isHost) {
-      return { room, bot: null }; // Only host can add bots
+    if (!player) {
+      console.error(`Player with socketId ${socketId} not found in room ${roomId}`);
+      return { room: null, bot: null, success: false };
+    }
+
+    if (!player.isHost) {
+      console.error(`Player ${socketId} is not host. Current host: ${room.host}`);
+      return { room: null, bot: null, success: false }; // Only host can add bots
     }
 
     // Check if room is full
     const totalPlayers = room.players.size + room.bots.size;
     if (totalPlayers >= room.config.maxPlayers) {
-      return { room, bot: null };
+      console.error(`Room ${roomId} is full (${totalPlayers}/${room.config.maxPlayers})`);
+      return { room: null, bot: null, success: false };
     }
 
     // Find next available position
@@ -269,13 +284,33 @@ export class RoomManager {
     }
 
     if (position >= room.config.maxPlayers) {
-      return { room, bot: null }; // Room is full
+      console.error(`No available position in room ${roomId}`);
+      return { room: null, bot: null, success: false }; // Room is full
+    }
+
+    // Determine bot name - use provided name if available, otherwise fallback
+    let finalBotName = botName;
+    if (!finalBotName || finalBotName.trim() === "") {
+      finalBotName = `Bot ${room.bots.size + 1}`;
+    }
+
+    // Ensure bot name is unique (check against existing players and bots)
+    const usedNames = new Set();
+    room.players.forEach((p) => usedNames.add(p.name));
+    room.bots.forEach((b) => usedNames.add(b.name));
+
+    // If name conflicts, append a number
+    let uniqueName = finalBotName;
+    let counter = 1;
+    while (usedNames.has(uniqueName)) {
+      uniqueName = `${finalBotName} ${counter}`;
+      counter++;
     }
 
     const botId = uuidv4();
     const bot = {
       id: botId,
-      name: `Bot ${room.bots.size + 1}`,
+      name: uniqueName,
       difficulty: "greedy",
       isReady: true,
       position,
@@ -284,7 +319,7 @@ export class RoomManager {
     room.bots.set(botId, bot);
     room.lastActivity = new Date();
 
-    return { room, bot };
+    return { room, bot, success: true };
   }
 
   /**

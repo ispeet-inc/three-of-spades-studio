@@ -43,9 +43,21 @@ export default function ReadySystem({
       return;
     }
 
-    // Even if currentPlayer is not found in the list yet, we can still set ready
-    // The server will handle it and update the player list
-    setPlayerReady(roomId, !isReady);
+    if (!roomId) {
+      toast.error("Not in a room");
+      return;
+    }
+
+    const newReadyState = !isReady;
+    
+    try {
+      // Even if currentPlayer is not found in the list yet, we can still set ready
+      // The server will handle it and update the player list
+      setPlayerReady(roomId, newReadyState);
+    } catch (error) {
+      console.error("Error calling setPlayerReady:", error);
+      toast.error("Failed to set ready status");
+    }
   };
 
   const handleStartGame = () => {
@@ -62,10 +74,15 @@ export default function ReadySystem({
     // Start game on server
     startMultiplayerGame(roomId);
 
-    // Call callback if provided (for navigation, etc.)
-    if (onStartGame) {
-      onStartGame();
-    }
+    // Delay navigation slightly to allow game:started event to be received and processed
+    // The event is sent immediately by the server, so we give it a moment to be received
+    // by the useGameSync hook before navigating away
+    setTimeout(() => {
+      // Call callback if provided (for navigation, etc.)
+      if (onStartGame) {
+        onStartGame();
+      }
+    }, 100); // Small delay to allow event to be received
   };
 
   return (

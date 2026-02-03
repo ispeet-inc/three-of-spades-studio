@@ -2,12 +2,13 @@
  * Player List - Displays all players and bots in the room
  */
 
-import { Bot, Crown, Plus, Trash2, User } from "lucide-react";
-import type { BotPlayer, Player } from "@/types/multiplayer";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useMultiplayer } from "@/hooks/useMultiplayer";
+import type { BotPlayer, Player } from "@/types/multiplayer";
+import { PLAYER_NAME_POOL } from "@/utils/constants";
+import { Bot, Crown, Plus, Trash2, User } from "lucide-react";
 import { toast } from "sonner";
 
 interface PlayerListProps {
@@ -32,7 +33,41 @@ export default function PlayerList({
       toast.error("Room is full");
       return;
     }
-    addBot(roomId);
+    
+    if (!roomId) {
+      toast.error("Not in a room");
+      return;
+    }
+    
+    if (!isHost) {
+      toast.error("Only the host can add bots");
+      return;
+    }
+    
+    try {
+      // Generate a bot name from the pool that doesn't conflict with existing players/bots
+      const usedNames = new Set([
+        ...players.map(p => p.name),
+        ...bots.map(b => b.name)
+      ]);
+      
+      const availableNames = PLAYER_NAME_POOL.filter(name => !usedNames.has(name));
+      
+      let botName: string;
+      if (availableNames.length > 0) {
+        // Pick a random name from available names
+        const randomIndex = Math.floor(Math.random() * availableNames.length);
+        botName = availableNames[randomIndex];
+      } else {
+        // Fallback to generic name if pool is exhausted
+        botName = `Bot ${bots.length + 1}`;
+      }
+      
+      addBot(roomId, botName);
+    } catch (error) {
+      console.error("Error calling addBot:", error);
+      toast.error("Failed to add bot");
+    }
   };
 
   const handleRemoveBot = (botId: string) => {

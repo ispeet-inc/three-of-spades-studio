@@ -8,11 +8,14 @@ import WhitewashAnimation from "@/components/game/WhitewashAnimation";
 import StartScreen from "@/components/StartScreen";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAppSelector } from "@/hooks/useAppSelector";
+import { useGameSync } from "@/hooks/useGameSync";
+import { useMultiplayer } from "@/hooks/useMultiplayer";
 import { RootState } from "@/store";
 import {
   botShouldBid,
   botShouldPlayCard,
   botShouldSelectTrump,
+  gameInitialize,
   gameStageTransition,
   passBid,
   placeBid,
@@ -40,6 +43,7 @@ import { FIRST_PLAYER_ID, NUM_PLAYERS } from "@/utils/constants";
 import { useFeedback } from "@/utils/feedbackSystem";
 import { useCallback, useEffect } from "react";
 import { useDispatch } from "react-redux";
+import { useLocation } from "react-router-dom";
 import { rotateStartingPlayer } from "../utils/gameUtils";
 
 interface GameReduxProps {
@@ -58,6 +62,28 @@ const GameRedux = ({ viewerIndex = FIRST_PLAYER_ID }: GameReduxProps) => {
   const showWhitewashAnimation = useAppSelector(selectShowWhiteWashAnimation);
   const isDealing = useAppSelector(selectIsDealing);
   const { trigger } = useFeedback();
+
+  // Multiplayer support
+  const { roomState } = useMultiplayer();
+  const location = useLocation();
+  // Get roomId from URL search params, navigation state, or fall back to roomState
+  const urlParams = new URLSearchParams(location.search);
+  const roomIdFromUrl = urlParams.get('roomId');
+  const roomId = roomIdFromUrl || (location.state as { roomId?: string } | null)?.roomId || roomState.roomId;
+  useGameSync(roomId);
+  
+  // If we're in multiplayer and game is in INIT stage but has been initialized (has cards),
+  // trigger the game initialization saga to transition to the next stage
+  useEffect(() => {
+    if (roomId && gameState.gameProgress.stage === GameStages.INIT) {
+      const hasCards = playerState.players[FIRST_PLAYER_ID]?.hand?.length > 0;
+      if (hasCards) {
+        // Game has been initialized (cards dealt) but stage hasn't transitioned yet
+        // Trigger the game initialization saga to transition to DISTRIBUTE_CARDS -> BIDDING
+        dispatch(gameInitialize());
+      }
+    }
+  }, [roomId, gameState.gameProgress.stage, playerState.players, dispatch]);
 
   // NEW: Observer mode detection
   const isObserver = viewerIndex !== FIRST_PLAYER_ID;
@@ -126,7 +152,7 @@ const GameRedux = ({ viewerIndex = FIRST_PLAYER_ID }: GameReduxProps) => {
   const handleCardPlay = (card: Card) => {
     if (isObserver) return; // BLOCKED in observer mode
     const playerHand = playerState.players[FIRST_PLAYER_ID].hand;
-    const cardIndex = playerHand.findIndex(c => c.hash === card.hash);
+    const cardIndex = playerHand.findIndex((c: Card) => c.hash === card.hash);
     if (cardIndex !== -1) {
       dispatch(playCard({ playerIndex: FIRST_PLAYER_ID, cardIndex }));
     }

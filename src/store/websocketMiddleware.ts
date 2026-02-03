@@ -3,10 +3,9 @@
  * Intercepts game actions and sends them to the multiplayer server
  */
 
-import { Middleware } from "@reduxjs/toolkit";
-import type { RootState } from "./index";
-import type { AppDispatch } from "./index";
 import type { MultiplayerClient } from "@/utils/multiplayer";
+import { Middleware } from "@reduxjs/toolkit";
+import type { AppDispatch, RootState } from "./index";
 
 // Actions that should be sent to server (game actions)
 const GAME_ACTION_PREFIX = "game/";
@@ -19,6 +18,13 @@ const LOCAL_ACTIONS = [
   "game/gameInitialize",
   "game/gameStageTransition",
   "game/restoreGameState", // Server state restoration
+  "game/playerSetup", // Local initialization - each client sets up independently
+  "game/startGame", // Local initialization - triggered by game:started event
+  "game/setGameMode", // Local initialization - set by each client when game starts
+  "game/setPlayerName", // Local initialization - set by each client when game starts
+  "game/setStage", // Local stage transitions - handled by saga, not synced to server
+  // Bot actions - bots run locally on each client, but their game actions (placeBid, passBid, playCard) should be synced
+  // The bot trigger actions (botShould*) are local, but the actual game actions they produce should go to server
 ];
 
 // Actions that come FROM server (should not be sent back)
@@ -30,6 +36,7 @@ const SERVER_ACTIONS = [
 let multiplayerClient: MultiplayerClient | null = null;
 let currentRoomId: string | null = null;
 let isMultiplayerMode = false;
+let localSocketId: string | null = null;
 
 /**
  * Initialize the WebSocket middleware with a multiplayer client
@@ -41,6 +48,7 @@ export function initWebSocketMiddleware(
   multiplayerClient = client;
   currentRoomId = roomId;
   isMultiplayerMode = true;
+  localSocketId = client.getSocketId?.() || null;
 }
 
 /**
@@ -74,7 +82,7 @@ export const websocketMiddleware: Middleware<
   AppDispatch
 > = store => next => action => {
   // If not in multiplayer mode, pass through normally
-  if (!isMultiplayerMode || !wsClient) {
+  if (!isMultiplayerMode || !multiplayerClient) {
     return next(action);
   }
 
@@ -92,6 +100,12 @@ export const websocketMiddleware: Middleware<
 
   // Only send game actions to server
   if (actionType.startsWith(GAME_ACTION_PREFIX) && currentRoomId) {
+    // Check if this is a bot action (actions with playerIndex that's not FIRST_PLAYER_ID)
+    // Bot actions should be applied locally immediately AND sent to server
+    const payload = action.payload as any;
+    const isBotAction = payload?.playerIndex !== undefined && 
+                        payload.playerIndex !== 3; // FIRST_PLAYER_ID is 3
+    
     // Send action to server
     if (multiplayerClient?.isConnected()) {
       try {
@@ -99,10 +113,18 @@ export const websocketMiddleware: Middleware<
           type: action.type,
           payload: action.payload,
         });
-        // In multiplayer mode, don't apply action locally
-        // Server will broadcast it back and we'll apply it then
-        // This prevents double-application
-        return next({ type: "@@websocket/sent", originalAction: action });
+        
+        // For bot actions, apply locally immediately so the UI updates right away
+        // The server will broadcast it back, but we'll skip re-applying it
+        if (isBotAction) {
+          // Apply locally immediately for bot actions, then return the sent action
+          const result = next(action);
+          next({ type: "@@websocket/sent", originalAction: action });
+          return result;
+        } else {
+          // For human player actions, wait for server broadcast to prevent double-application
+          return next({ type: "@@websocket/sent", originalAction: action });
+        }
       } catch (error) {
         console.error("Error sending action to server:", error);
         // If send fails, apply locally as fallback

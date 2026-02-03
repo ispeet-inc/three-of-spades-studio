@@ -5,12 +5,23 @@
 import { RoomLobby } from "@/components/multiplayer";
 import { useGameSync } from "@/hooks/useGameSync";
 import { useMultiplayer } from "@/hooks/useMultiplayer";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { useEffect } from "react";
 
 export default function MultiplayerPage() {
   const navigate = useNavigate();
+  const { roomId: urlRoomId } = useParams<{ roomId?: string }>();
   const { roomState } = useMultiplayer();
-  useGameSync(roomState.roomId);
+  // Use roomId from URL if available, otherwise use roomState
+  const roomId = urlRoomId || roomState.roomId;
+  useGameSync(roomId);
+  
+  // Navigate to URL with roomId when room is created
+  useEffect(() => {
+    if (roomState.roomId && !urlRoomId) {
+      navigate(`/multiplayer/${roomState.roomId}`, { replace: true });
+    }
+  }, [roomState.roomId, urlRoomId, navigate]);
 
   const handleBack = () => {
     navigate("/");
@@ -18,8 +29,13 @@ export default function MultiplayerPage() {
 
   const handleStartGame = () => {
     // Navigate to game page with multiplayer mode
-    // The game will be initialized when game:started event is received
-    navigate("/multiplayer-game");
+    // Include roomId in URL for better state persistence
+    // Also pass roomId through navigation state as fallback
+    if (roomId) {
+      navigate(`/multiplayer-game?roomId=${roomId}`, { state: { roomId: roomId } });
+    } else {
+      navigate("/multiplayer-game", { state: { roomId: roomId } });
+    }
   };
 
   return <RoomLobby onBack={handleBack} onStartGame={handleStartGame} />;

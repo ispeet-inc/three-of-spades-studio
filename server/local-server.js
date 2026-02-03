@@ -42,6 +42,8 @@ function serializeRoom(room) {
 
 // Socket.io connection handling
 io.on("connection", socket => {
+  const userAgent = socket.handshake.headers['user-agent'] || 'unknown';
+  const origin = socket.handshake.headers['origin'] || 'unknown';
   console.log(`Client connected: ${socket.id}`);
 
   // Create room
@@ -167,12 +169,28 @@ io.on("connection", socket => {
   socket.on("player:setReady", data => {
     try {
       const { roomId, isReady } = data;
-      const result = roomManager.setPlayerReady(roomId, socket.id, isReady);
+      console.log(
+        `Player ${socket.id} setting ready status: ${isReady} in room ${roomId}`
+      );
 
-      if (!result.room) {
-        socket.emit("error", { message: "Failed to set ready status" });
+      if (!roomId) {
+        console.error("No roomId provided");
+        socket.emit("error", { message: "Room ID required" });
         return;
       }
+
+      const result = roomManager.setPlayerReady(roomId, socket.id, isReady);
+
+      if (!result.success || !result.room) {
+        console.error(
+          `Failed to set ready: Room ${roomId} not found or player not in room`
+        );
+        socket.emit("error", {
+          message: "Failed to set ready status - player not found in room",
+        });
+        return;
+      }
+
 
       // Broadcast ready status to all players in room
       io.to(roomId).emit("player:ready", {
@@ -189,13 +207,28 @@ io.on("connection", socket => {
   // Add bot
   socket.on("room:addBot", data => {
     try {
-      const { roomId } = data;
-      const result = roomManager.addBot(roomId, socket.id);
+      const { roomId, botName } = data;
 
-      if (!result.room || !result.bot) {
-        socket.emit("error", { message: "Failed to add bot" });
+      if (!roomId) {
+        console.error("No roomId provided");
+        socket.emit("error", { message: "Room ID required" });
         return;
       }
+
+      const result = roomManager.addBot(roomId, socket.id, botName);
+
+      if (!result.success || !result.room || !result.bot) {
+        const errorMsg =
+          result.success === false
+            ? "Failed to add bot - check if you're host and room is not full"
+            : "Failed to add bot";
+        console.error(
+          `Failed to add bot: Room ${roomId} not found, not host, or room full`
+        );
+        socket.emit("error", { message: errorMsg });
+        return;
+      }
+
 
       // Broadcast bot addition to all players in room
       io.to(roomId).emit("bot:added", {

@@ -11,6 +11,7 @@ import NotFound from "./pages/NotFound";
 import Palettes from "./pages/Palettes";
 import StatsDemo from "./pages/StatsDemo";
 import { store } from "./store";
+import { FIRST_PLAYER_ID } from "./utils/constants";
 
 const queryClient = new QueryClient();
 
@@ -19,7 +20,8 @@ const GameReduxWrapper = () => {
   const { viewerIndex } = useParams();
   let index = Number(viewerIndex);
   if (isNaN(index) || index < 0 || index > 3) {
-    alert("Invalid player index in URL. Defaulting to player 3.");
+    // Only log to console, don't show alert (less intrusive)
+    console.warn(`Invalid player index in URL: "${viewerIndex}". Defaulting to player 3.`);
     index = 3;
   }
   return <GameRedux viewerIndex={index} />;
@@ -33,12 +35,15 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<GameRedux viewerIndex={3} />} />
-            <Route path="/:viewerIndex" element={<GameReduxWrapper />} />
+            <Route path="/" element={<GameRedux viewerIndex={FIRST_PLAYER_ID} />} />
             <Route path="/multiplayer" element={<MultiplayerPage />} />
+            <Route path="/multiplayer/:roomId" element={<MultiplayerPage />} />
+            <Route path="/multiplayer-game" element={<GameRedux viewerIndex={FIRST_PLAYER_ID} />} />
             <Route path="/tester" element={<HandTesterPage />} />
             <Route path="/palettes" element={<Palettes />} />
             <Route path="/stats-demo" element={<StatsDemo />} />
+            {/* Numeric viewerIndex route - must be after specific routes */}
+            <Route path="/:viewerIndex" element={<GameReduxWrapper />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -16,7 +16,8 @@
     "preview": "vite preview",
     "type-check": "npx tsc --project tsconfig.app.json --noEmit",
     "server": "node server/local-server.js",
-    "server:dev": "node --watch server/local-server.js"
+    "server:dev": "node --watch server/local-server.js",
+    "test:phase4": "node test-phase4.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",

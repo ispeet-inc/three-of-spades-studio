@@ -79,9 +79,11 @@ export default function RoomLobby({ onBack, onStartGame }: RoomLobbyProps) {
       return;
     }
 
-    const code = roomCodeInput.trim().toUpperCase();
-    if (code.length !== 6) {
-      toast.error("Room code must be 6 characters");
+    const code = roomCodeInput.trim().toLowerCase();
+    // Validate format: word### (e.g., "ant123")
+    const roomCodePattern = /^[a-z]{3}\d{3}$/;
+    if (!roomCodePattern.test(code)) {
+      toast.error("Room code must be in format: word### (e.g., ant123)");
       return;
     }
 
@@ -289,28 +291,33 @@ export default function RoomLobby({ onBack, onStartGame }: RoomLobbyProps) {
                   Join Room
                 </CardTitle>
                 <CardDescription className="text-white/60">
-                  Enter a 6-character room code
+                  Enter room code (e.g., ant123)
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
                 <Input
                   type="text"
-                  placeholder="ABC123"
+                  placeholder="ant123"
                   value={roomCodeInput}
-                  onChange={(e) =>
-                    setRoomCodeInput(e.target.value.toUpperCase().slice(0, 6))
-                  }
+                  onChange={(e) => {
+                    // Allow lowercase letters and numbers only
+                    const value = e.target.value.toLowerCase().replace(/[^a-z0-9]/g, '');
+                    // Limit to format: 3 letters + 3 numbers
+                    if (value.length <= 6) {
+                      setRoomCodeInput(value);
+                    }
+                  }}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       handleJoinRoom();
                     }
                   }}
-                  className="text-center text-lg font-mono uppercase bg-white/10 border-white/20 text-white placeholder:text-white/40"
+                  className="text-center text-lg font-mono bg-white/10 border-white/20 text-white placeholder:text-white/40"
                   maxLength={6}
                 />
                 <Button
                   onClick={handleJoinRoom}
-                  disabled={!isConnected || roomCodeInput.length !== 6}
+                  disabled={!isConnected || !/^[a-z]{3}\d{3}$/.test(roomCodeInput.trim())}
                   className="w-full bg-gradient-to-r from-gold via-gold-light to-gold text-casino-black font-bold hover:shadow-glow"
                 >
                   Join Room

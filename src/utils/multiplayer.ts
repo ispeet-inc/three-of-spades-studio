@@ -2,14 +2,10 @@
  * Client-side multiplayer utilities for WebSocket communication
  */
 
-import { io, Socket } from "socket.io-client";
 import type {
-  BotPlayer,
-  ClientMessage,
-  Player,
-  RoomConfig,
-  ServerMessage,
+  RoomConfig
 } from "@/types/multiplayer";
+import { io, Socket } from "socket.io-client";
 
 const DEFAULT_SERVER_URL = "http://localhost:8080";
 
@@ -20,6 +16,7 @@ export class MultiplayerClient {
   private socket: Socket | null = null;
   private serverUrl: string;
   private listeners: Map<string, Set<(data: unknown) => void>> = new Map();
+  private eventForwardingSetup: boolean = false;
 
   constructor(serverUrl: string = DEFAULT_SERVER_URL) {
     this.serverUrl = serverUrl;
@@ -29,12 +26,38 @@ export class MultiplayerClient {
    * Connect to the multiplayer server
    */
   connect(): Promise<void> {
+    // If already connected, resolve immediately
+    if (this.socket?.connected) {
+      return Promise.resolve();
+    }
+
+    // Create a new connection promise
     return new Promise((resolve, reject) => {
-      if (this.socket?.connected) {
-        resolve();
+      // If socket exists but is disconnected, let Socket.io's auto-reconnect handle it
+      // Don't manually call connect() as it might interfere with reconnection logic
+      if (this.socket && !this.socket.connected) {
+        // Socket.io will auto-reconnect if reconnection is enabled
+        // Just wait for it to connect
+        const connectHandler = () => {
+          console.log("Reconnected to multiplayer server");
+          if (!this.eventForwardingSetup) {
+            this.setupEventForwarding();
+          }
+          this.notifyListeners("connect", undefined);
+          resolve();
+        };
+        const connectErrorHandler = (error: Error) => {
+          console.error("Reconnection error:", error);
+          this.notifyListeners("connect_error", error);
+          reject(error);
+        };
+        // Use once to avoid duplicate handlers
+        this.socket.once("connect", connectHandler);
+        this.socket.once("connect_error", connectErrorHandler);
         return;
       }
 
+      // Create new socket only if one doesn't exist
       this.socket = io(this.serverUrl, {
         transports: ["websocket", "polling"],
         reconnection: true,
@@ -42,10 +65,15 @@ export class MultiplayerClient {
         reconnectionAttempts: 5,
       });
 
+      // Reset event forwarding flag for new socket
+      this.eventForwardingSetup = false;
+
       // Handle connection events
       const connectHandler = () => {
         console.log("Connected to multiplayer server");
-        this.setupEventForwarding();
+        if (!this.eventForwardingSetup) {
+          this.setupEventForwarding();
+        }
         this.notifyListeners("connect", undefined);
         resolve();
       };
@@ -81,6 +109,7 @@ export class MultiplayerClient {
       this.socket = null;
     }
     this.listeners.clear();
+    this.eventForwardingSetup = false;
   }
 
   /**
@@ -101,7 +130,7 @@ export class MultiplayerClient {
    * Set up event forwarding from socket to listeners
    */
   private setupEventForwarding(): void {
-    if (!this.socket) return;
+    if (!this.socket || this.eventForwardingSetup) return;
 
     // Forward all events to registered listeners
     const events = [
@@ -128,6 +157,8 @@ export class MultiplayerClient {
         this.notifyListeners(event, data);
       });
     });
+
+    this.eventForwardingSetup = true;
   }
 
   /**
@@ -241,12 +272,12 @@ export class MultiplayerClient {
   /**
    * Add a bot to the room (host only)
    */
-  addBot(roomId: string): void {
+  addBot(roomId: string, botName?: string): void {
     if (!this.socket) {
       throw new Error("Not connected to server");
     }
 
-    this.socket.emit("room:addBot", { roomId });
+    this.socket.emit("room:addBot", { roomId, botName });
   }
 
   /**
@@ -306,12 +337,60 @@ export class MultiplayerClient {
   }
 }
 
+// Singleton instance to ensure all components share the same connection
+// Use window to survive hot module reloads in development
+const getGlobalSingleton = (): {
+  client: MultiplayerClient | null;
+  promise: Promise<void> | null;
+} => {
+  if (typeof window !== 'undefined') {
+    if (!(window as any).__multiplayerClientInstance) {
+      (window as any).__multiplayerClientInstance = {
+        client: null,
+        promise: null,
+      };
+    }
+    return (window as any).__multiplayerClientInstance;
+  }
+  // Fallback for Node.js environments
+  if (typeof globalThis !== 'undefined') {
+    if (!(globalThis as any).__multiplayerClientInstance) {
+      (globalThis as any).__multiplayerClientInstance = {
+        client: null,
+        promise: null,
+      };
+    }
+    return (globalThis as any).__multiplayerClientInstance;
+  }
+  // Last resort: module-level (will reset on hot reload)
+  return { client: null, promise: null };
+};
+
 /**
- * Create a multiplayer client instance
+ * Create or get the singleton multiplayer client instance
  */
 export function createMultiplayerClient(
   serverUrl?: string
 ): MultiplayerClient {
-  return new MultiplayerClient(serverUrl);
+  const singleton = getGlobalSingleton();
+  
+  if (!singleton.client) {
+    singleton.client = new MultiplayerClient(serverUrl);
+    // Auto-connect when singleton is created (only once, globally)
+    singleton.promise = singleton.client.connect().catch((err) => {
+      console.error("Failed to auto-connect multiplayer client:", err);
+      singleton.promise = null; // Reset on error so we can retry
+      throw err;
+    });
+  }
+  // If already connecting, return the existing promise's client
+  // This ensures all callers wait for the same connection
+  return singleton.client;
 }
 
+/**
+ * Get the global connection promise (for waiting on initial connection)
+ */
+export function getConnectionPromise(): Promise<void> | null {
+  return getGlobalSingleton().promise;
+}

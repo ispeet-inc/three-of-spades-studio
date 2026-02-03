@@ -2,16 +2,16 @@
  * React hook for managing multiplayer connection
  */
 
-import { useEffect, useRef, useState } from "react";
-import {
-  createMultiplayerClient,
-  MultiplayerClient,
-} from "@/utils/multiplayer";
 import type {
   BotPlayer,
   Player,
   RoomConfig,
 } from "@/types/multiplayer";
+import {
+  createMultiplayerClient,
+  MultiplayerClient,
+} from "@/utils/multiplayer";
+import { useEffect, useRef, useState } from "react";
 
 export interface RoomState {
   roomId: string | null;
@@ -39,10 +39,13 @@ export function useMultiplayer(serverUrl?: string) {
   const [reconnectionToken, setReconnectionToken] = useState<string | null>(null);
   const [disconnectedRoomId, setDisconnectedRoomId] = useState<string | null>(null);
 
-  // Initialize client
+  // Initialize client (singleton - shared across all components)
   useEffect(() => {
     const client = createMultiplayerClient(serverUrl);
     clientRef.current = client;
+    
+    // Don't call connect() here - it's auto-connected when singleton is created
+    // The singleton handles the connection globally, so we just wait for it
 
     // Set up event listeners
     const unsubscribeFunctions: (() => void)[] = [];
@@ -237,6 +240,7 @@ export function useMultiplayer(serverUrl?: string) {
 
     const unsubError = client.on("error", (data: unknown) => {
       const event = data as { message: string };
+      console.error("Multiplayer error:", event.message);
       setError(event.message);
     });
 
@@ -256,20 +260,19 @@ export function useMultiplayer(serverUrl?: string) {
       unsubError
     );
 
-    // Connect to server
-    client
-      .connect()
-      .catch((err) => {
-        console.error("Failed to connect to multiplayer server:", err);
-        setError("Failed to connect to server");
-      });
+    // Update connection status if already connected
+    if (client.isConnected()) {
+      setIsConnected(true);
+    }
 
     // Cleanup on unmount
+    // Note: We don't disconnect the client here since it's a singleton
+    // shared across components. Only disconnect when all components unmount.
     return () => {
       unsubscribeFunctions.forEach((unsub) => unsub());
-      client.disconnect();
+      // Don't disconnect - let the singleton handle cleanup
     };
-  }, [serverUrl]);
+  }, [serverUrl]); // Add serverUrl as dependency
 
   const createRoom = (
     playerId: string,
@@ -304,8 +307,8 @@ export function useMultiplayer(serverUrl?: string) {
     clientRef.current?.setPlayerReady(roomId, isReady);
   };
 
-  const addBot = (roomId: string) => {
-    clientRef.current?.addBot(roomId);
+  const addBot = (roomId: string, botName?: string) => {
+    clientRef.current?.addBot(roomId, botName);
   };
 
   const removeBot = (roomId: string, botId: string) => {
