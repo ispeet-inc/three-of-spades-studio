@@ -97,41 +97,40 @@ const GAME_PHASES = [
 
 const STRATEGY_SECTIONS = [
   {
-    title: "During Bidding",
+    title: "Bidding Wisdom",
     icon: "💰",
     tips: [
-      "Consider your hand strength before bidding",
-      "High-value cards (Aces, 10s, 5s, 3♠️) increase your chances",
-      "Trump cards can be powerful for winning tricks",
+      "The 175 Rule: Only bid high if you have 5+ cards of one suit or the 3 of Spades.",
+      "Don't bluff: The bots calculate hand strength accurately and will call your bluff.",
+      "Passing is Strategic: If your hand is weak, pass and let others take the risk.",
     ],
   },
   {
-    title: "During Trump Selection",
-    icon: "👑",
+    title: "Partner Hunting",
+    icon: "🤝",
     tips: [
-      "Choose a trump suit you have many cards in",
-      "Select a teammate card that's likely in a strong player's hand",
-      "Consider the distribution of high-value cards",
+      "Watch the 'Feed': If a player drops an Ace/10 on your winning trick, they are likely your partner.",
+      "The Reveal: The game shifts from 1v3 to 2v2 once the teammate card is played.",
+      "Support your ally: Once revealed, sacrifice your high cards to help your partner win.",
     ],
   },
   {
-    title: "During Play",
-    icon: "🎮",
+    title: "The 3 of Spades Trap",
+    icon: "♠️",
     tips: [
-      "Lead with Trump: Trump cards can win tricks even against higher cards of other suits",
-      "Save High Cards: Don't waste Aces and 10s early unless necessary",
-      "Watch for the Teammate Card: When it's played, teams are revealed",
-      "Count Cards: Track which cards have been played to make better decisions",
+      "The Game Changer: Worth 30 points, it can swing the entire game.",
+      "Bleed Trumps: Lead trumps early to make it safe to play the 3 of Spades later.",
+      "Calculated Risk: Never play it early unless you are certain of the win.",
     ],
   },
 ];
 
 const BEGINNER_TIPS = [
-  "Start by learning to follow suit correctly",
-  "Pay attention to which cards have been played",
-  "Don't be afraid to pass during bidding if your hand is weak",
-  "Remember that the 3 of Spades is extremely valuable",
-  "Watch for patterns in how your opponents play",
+  "Points matter more than tricks: A single trick with the 3 of Spades is worth 30 points.",
+  "Learn the 'Reveal': Your partner is secret until the teammate card is played.",
+  "Watch the bots: They prioritize points over tricks and will support their teammate.",
+  "Save high cards: Don't waste Aces and 10s early unless necessary to win a big trick.",
+  "Draw out trumps: If you are the bidder, lead your trump suit early to clear the way.",
 ];
 
 const CARD_CATEGORIES = [
@@ -140,30 +139,30 @@ const CARD_CATEGORIES = [
     cards: [
       {
         name: "Aces (A)",
-        value: "Highest rank (14), worth 10 points",
+        value: "Highest rank (14), worth 10 points. Use to capture high-point tricks.",
         icon: "🃏",
       },
       {
         name: "Face Cards (J, Q, K)",
-        value: "Worth 10 points each",
+        value: "Worth 10 points each. The foundation of your team's score.",
         icon: "👑",
       },
-      { name: "10s", value: "Worth 10 points", icon: "🔟" },
+      { name: "10s", value: "Worth 10 points. Highly sought after by opponents.", icon: "🔟" },
     ],
   },
   {
     category: "Special Cards",
     cards: [
-      { name: "5s", value: "Worth 5 points", icon: "5️⃣" },
+      { name: "5s", value: "Worth 5 points. Small but critical bonuses.", icon: "5️⃣" },
       {
         name: "3 of Spades",
-        value: "Special card worth 30 points",
+        value: "Special card worth 30 points. The most hunted card in the game.",
         icon: "♠️",
         highlight: true,
       },
       {
         name: "Other cards",
-        value: "Worth 0 points",
+        value: "Worth 0 points. Use to draw out trumps or follow suit.",
         icon: "🃏",
       },
     ],
@@ -173,17 +172,17 @@ const CARD_CATEGORIES = [
     cards: [
       {
         name: "Trump Suit",
-        value: "Chosen by bidder, highest in round",
+        value: "Chosen by bidder, highest in round. Beats any non-trump card.",
         icon: "⭐",
       },
       {
         name: "Teammate Card",
-        value: "Determines hidden partner",
+        value: "Determines hidden partner. Teams are revealed when played.",
         icon: "🤝",
       },
       {
         name: "Trick Taking",
-        value: "Follow suit or play trump",
+        value: "Follow suit or play trump. Points are collected from won tricks.",
         icon: "🎯",
       },
     ],
@@ -353,112 +352,111 @@ const HowToPlayModal: React.FC<HowToPlayModalProps> = ({ isOpen, onClose }) => {
           <DialogDescription className="sr-only">
             Learn the rules, strategy, and tips for playing Three of Spades
           </DialogDescription>
-        </DialogHeader>
 
-        <div className="p-8">
           <Tabs
+            defaultValue="quick-start"
             value={activeTab}
             onValueChange={setActiveTab}
             className="w-full"
           >
-            <TabsList className="grid w-full grid-cols-4 bg-gray-50 border border-gray-200 rounded-xl p-1 mb-8">
-              {TAB_CONFIG.map(({ value, label, icon: Icon }) => (
+            <TabsList className="grid w-full grid-cols-4 h-14 bg-gray-100/50 p-1 rounded-2xl">
+              {TAB_CONFIG.map(tab => (
                 <TabsTrigger
-                  key={value}
-                  value={value}
-                  className="data-[state=active]:bg-white data-[state=active]:text-gold data-[state=active]:shadow-sm text-gray-600 font-medium rounded-lg transition-all duration-200 flex items-center gap-2 px-4 py-2"
+                  key={tab.value}
+                  value={tab.value}
+                  className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-gold data-[state=active]:shadow-sm transition-all duration-200"
                 >
-                  <Icon className="h-4 w-4" />
-                  {label}
+                  <div className="flex items-center gap-2">
+                    <tab.icon className="h-4 w-4" />
+                    <span className="font-semibold">{tab.label}</span>
+                  </div>
                 </TabsTrigger>
               ))}
             </TabsList>
+          </Tabs>
+        </DialogHeader>
 
-            <TabsContent value="quick-start" className="space-y-8">
-              <div className="text-center space-y-6">
-                <div className="space-y-4">
-                  <SectionHeading>Game Overview</SectionHeading>
-                  <SectionDescription>
-                    Three of Spades is a strategic 4-player card game where
-                    players form teams and compete to win tricks while bidding
-                    for contracts.
-                  </SectionDescription>
-                </div>
+        <div className="p-8">
+          <Tabs value={activeTab} className="w-full">
+            <TabsContent value="quick-start" className="mt-0 space-y-8">
+              <div className="text-center space-y-4">
+                <SectionHeading>Master the Game of Shadows</SectionHeading>
+                <SectionDescription>
+                  Three of Spades is a strategic 4-player trick-taking game where{" "}
+                  <span className="font-bold text-gold">points matter more than tricks</span>. 
+                  Bid for control, declare a secret partner, and capture the elusive 3 of Spades.
+                </SectionDescription>
+              </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto">
-                  {GAME_SETUP_ITEMS.map((item, index) => (
-                    <InfoCard key={index} {...item} />
-                  ))}
-                </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {GAME_SETUP_ITEMS.map((item, index) => (
+                  <InfoCard key={index} {...item} />
+                ))}
+              </div>
 
-                <div className="space-y-4">
-                  <h3 className="text-xl font-semibold text-casino-black">
-                    Key Rules
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
-                    {KEY_RULES.map((rule, index) => (
-                      <RuleCard key={index} {...rule} />
-                    ))}
-                  </div>
-                </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {KEY_RULES.map((rule, index) => (
+                  <RuleCard key={index} {...rule} />
+                ))}
               </div>
             </TabsContent>
 
-            <TabsContent value="rules" className="space-y-8">
-              <div className="space-y-6">
+            <TabsContent value="rules" className="mt-0 space-y-8">
+              <div className="text-center">
                 <SectionHeading>Game Phases</SectionHeading>
-                <div className="space-y-4 max-w-3xl mx-auto">
-                  {GAME_PHASES.map((phase, index) => (
-                    <PhaseCard key={index} {...phase} />
-                  ))}
-                </div>
+              </div>
+
+              <div className="space-y-4">
+                {GAME_PHASES.map((phase, index) => (
+                  <PhaseCard key={index} {...phase} />
+                ))}
               </div>
             </TabsContent>
 
-            <TabsContent value="strategy" className="space-y-8">
-              <div className="space-y-6">
+            <TabsContent value="strategy" className="mt-0 space-y-8">
+              <div className="text-center">
                 <SectionHeading>Strategy Tips</SectionHeading>
+              </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-                  {STRATEGY_SECTIONS.map((section, index) => (
-                    <StrategyCard key={index} {...section} />
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {STRATEGY_SECTIONS.map((section, index) => (
+                  <StrategyCard key={index} {...section} />
+                ))}
+              </div>
+
+              <div className="space-y-4">
+                <h4 className="font-bold text-casino-black text-xl text-center">
+                  Tips for Beginners
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {BEGINNER_TIPS.map((tip, index) => (
+                    <TipCard key={index} tip={tip} />
                   ))}
-                </div>
-
-                <div className="space-y-4">
-                  <h3 className="text-xl font-semibold text-casino-black text-center">
-                    Tips for Beginners
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-3xl mx-auto">
-                    {BEGINNER_TIPS.map((tip, index) => (
-                      <TipCard key={index} tip={tip} />
-                    ))}
-                  </div>
                 </div>
               </div>
             </TabsContent>
 
-            <TabsContent value="reference" className="space-y-8">
-              <div className="space-y-6">
+            <TabsContent value="reference" className="mt-0 space-y-8">
+              <div className="text-center">
                 <SectionHeading>Card Values & Ranking</SectionHeading>
+              </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-                  {CARD_CATEGORIES.map((category, index) => (
-                    <CategoryCard key={index} {...category} />
-                  ))}
-                </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {CARD_CATEGORIES.map((category, index) => (
+                  <CategoryCard key={index} {...category} />
+                ))}
               </div>
             </TabsContent>
           </Tabs>
+        </div>
 
-          <div className="text-center pt-8">
-            <Button
-              onClick={onClose}
-              className="w-full h-14 text-lg font-semibold bg-gold text-casino-black hover:bg-gold-light transition-colors duration-200 rounded-xl"
-            >
-              Got it! Let's Play!
-            </Button>
-          </div>
+        <div className="p-8 pt-0">
+          <Button
+            onClick={onClose}
+            className="w-full h-14 bg-gold hover:bg-gold/90 text-white text-lg font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200"
+          >
+            Got it! Let's Play!
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
