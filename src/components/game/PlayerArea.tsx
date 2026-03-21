@@ -17,6 +17,7 @@ interface PlayerAreaProps {
   onCardPlay?: (card: Card) => void;
   isDealing?: boolean;
   botCardsHidden?: boolean;
+  compact?: boolean;
 }
 
 export const PlayerArea = ({ 
@@ -25,7 +26,8 @@ export const PlayerArea = ({
   position, 
   onCardPlay,
   isDealing = false,
-  botCardsHidden = false
+  botCardsHidden = false,
+  compact = false
 }: PlayerAreaProps) => {
   const isHuman = position === 'bottom';
   const isVertical = position === 'left' || position === 'right';
@@ -110,22 +112,46 @@ export const PlayerArea = ({
     return true;
   };
 
+  // Card overlap amount based on compact mode and position
+  const getCardOverlap = () => {
+    if (compact) {
+      if (isHuman) return "-ml-5"; // Tighter fan for human on mobile
+      return isVertical ? "-mt-4" : "-ml-4";
+    }
+    if (isHuman) return "-ml-4";
+    return isVertical ? "-mt-3" : "-ml-3";
+  };
+
+  // Bot card size on mobile
+  const botCardSize = compact ? "w-6 h-9" : "w-8 h-12";
+  const botCardOverlap = compact 
+    ? (isVertical ? "-mt-4" : "-ml-4") 
+    : (isVertical ? "-mt-3" : "-ml-3");
+
   return (
-    <div className={cn("flex gap-4", getPositionClasses())}>
+    <div className={cn(
+      "flex",
+      compact ? "gap-1.5" : "gap-4",
+      getPositionClasses()
+    )}>
       {/* Player Info */}
       <div className={cn(
-        "relative p-4 rounded-xl border-2 transition-all duration-500",
+        "relative rounded-xl border-2 transition-all duration-500",
         "bg-casino-green/20 backdrop-blur-sm",
         turnIndicatorClass,
-        isVertical ? "min-w-[120px]" : "min-h-[120px]",
+        compact ? "p-1.5" : "p-4",
+        compact 
+          ? (isVertical ? "min-w-[60px]" : "min-h-[auto]")
+          : (isVertical ? "min-w-[120px]" : "min-h-[120px]"),
         getPlayerInfoOrder()
       )}>
         <div className="text-center">
           <div className={cn(
-            "text-sm font-bold mb-1",
+            "font-bold mb-0.5",
+            compact ? "text-[10px]" : "text-sm",
             player.isCurrentPlayer ? "text-gold" : "text-casino-white"
           )}>
-            {player.name} {player.isBidder && <span
+            {compact ? player.name.split(' ')[0] : player.name} {player.isBidder && <span
               role="img"
               aria-label="Bid Winner"
             >
@@ -133,12 +159,13 @@ export const PlayerArea = ({
             </span>}
           </div>
           <div className={cn(
-            "text-xs px-2 py-1 rounded-full",
+            "px-1.5 py-0.5 rounded-full",
+            compact ? "text-[9px]" : "text-xs",
             player.team === 1 ? "bg-gold/20 text-gold" : "bg-blue-500/20 text-blue-300"
           )}>
-            Team {player.team}
+            T{player.team}
           </div>
-          {player.isTeammate && (
+          {player.isTeammate && !compact && (
             <div className="text-xs text-green-400 mt-1">★ Teammate</div>
           )}
         </div>
@@ -146,7 +173,7 @@ export const PlayerArea = ({
 
       {/* Cards */}
       <div className={cn(
-        "flex gap-1",
+        "flex gap-0",
         getCardContainerClasses(),
         getCardsOrder()
       )}>
@@ -154,21 +181,21 @@ export const PlayerArea = ({
           // Human player cards (all visible and playable)
           <>
             {player.cards.map((card, index) => {
-              const dealDelay = isDealing ? index * 150 : 0; // Staggered dealing animation
+              const dealDelay = isDealing ? index * 150 : 0;
               
               return (
                 <PlayingCard
                   key={`${card.id}-${index}`}
                   card={card}
-                  mini={!isHuman}
+                  mini={false}
+                  size={compact ? 'sm' : 'md'}
                   isPlayable={isHuman && player.isCurrentPlayer}
                   onClick={isHuman && player.isCurrentPlayer && isCardPlayable(player.cards, card, runningSuite) ? () => onCardPlay?.(card) : undefined}
                   dealAnimation={isDealing}
                   dealDelay={dealDelay}
                   playerPosition={position}
                   className={cn(
-                    isHuman && index > 0 && "-ml-4", // Fan out human cards
-                    !isHuman && index > 0 && (isVertical ? "-mt-3" : "-ml-3"), // Overlap bot cards
+                    index > 0 && getCardOverlap(),
                     "transition-all duration-300"
                   )}
                 />
@@ -177,8 +204,11 @@ export const PlayerArea = ({
           </>
         ) : botCardsHidden ? (
           // Bot player cards (completely hidden)
-          <div className="text-xs text-casino-white/60 p-2 rounded bg-casino-black/20">
-            Cards Hidden
+          <div className={cn(
+            "text-casino-white/60 rounded bg-casino-black/20",
+            compact ? "text-[9px] p-1" : "text-xs p-2"
+          )}>
+            Hidden
           </div>
         ) : (
           // Bot player cards (back cards visible)
@@ -191,8 +221,8 @@ export const PlayerArea = ({
                   key={`bot-card-${index}`}
                   className={cn(
                     "relative bg-gradient-to-br from-accent to-accent-dark rounded-lg shadow-card",
-                    "w-8 h-12", // mini size for bots
-                    index > 0 && (isVertical ? "-mt-3" : "-ml-3"),
+                    botCardSize,
+                    index > 0 && botCardOverlap,
                     "transition-all duration-300",
                     isDealing && "animate-[deal-to-" + position + "_0.8s_ease-out_forwards]"
                   )}
@@ -200,7 +230,7 @@ export const PlayerArea = ({
                     animationDelay: isDealing ? `${dealDelay}ms` : undefined
                   }}
                 >
-                  <div className="absolute inset-1 bg-gradient-to-br from-primary-light to-primary rounded border border-primary-light/20">
+                  <div className="absolute inset-0.5 bg-gradient-to-br from-primary-light to-primary rounded border border-primary-light/20">
                     <div className="w-full h-full bg-gradient-to-br from-accent-subtle to-accent rounded-sm opacity-80" />
                   </div>
                 </div>
