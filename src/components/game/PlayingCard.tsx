@@ -65,11 +65,11 @@ export const PlayingCard = ({
     
     switch (size) {
       case 'sm':
-        return "w-12 h-18";
+        return "w-10 h-[60px] sm:w-12 sm:h-18";
       case 'lg':
-        return "w-20 h-30";
+        return "w-16 h-24 sm:w-20 sm:h-30";
       default: // 'md'
-        return "w-16 h-24";
+        return "w-14 h-[84px] sm:w-16 sm:h-24";
     }
   };
 
@@ -83,21 +83,21 @@ export const PlayingCard = ({
     switch (size) {
       case 'sm':
         return {
-          number: "text-xs",
-          suit: "text-[10px]", 
-          center: "text-lg"
+          number: "text-[10px] sm:text-xs",
+          suit: "text-[8px] sm:text-[10px]", 
+          center: "text-base sm:text-lg"
         };
       case 'lg':
         return {
-          number: "text-base",
-          suit: "text-sm",
-          center: "text-3xl"
+          number: "text-sm sm:text-base",
+          suit: "text-xs sm:text-sm",
+          center: "text-2xl sm:text-3xl"
         };
       default: // 'md'
         return {
-          number: "text-sm",
-          suit: "text-xs",
-          center: "text-2xl"
+          number: "text-xs sm:text-sm",
+          suit: "text-[10px] sm:text-xs",
+          center: "text-xl sm:text-2xl"
         };
     }
   };
@@ -139,7 +139,9 @@ export const PlayingCard = ({
         "relative bg-white rounded-lg border-2 border-casino-black/20 shadow-card transition-all duration-300",
         getCardSize(),
         "cursor-pointer select-none overflow-hidden",
-        isPlayable && "hover:scale-110 hover:shadow-card-hover hover:-translate-y-2 hover:border-gold/50 hover:animate-card-hover-lift",
+        // Touch-friendly: use active state instead of hover on mobile
+        isPlayable && "sm:hover:scale-110 sm:hover:shadow-card-hover sm:hover:-translate-y-2 sm:hover:border-gold/50 sm:hover:animate-card-hover-lift",
+        isPlayable && "active:scale-95 active:brightness-90",
         isSelected && "scale-105 shadow-card-selected border-gold -translate-y-1",
         !isPlayable && !onClick && "cursor-default",
         dealAnimation && getDealAnimation(),
@@ -163,7 +165,7 @@ export const PlayingCard = ({
       }}
     >
       {/* Card face */}
-      <div className="absolute inset-1 bg-white rounded-md flex flex-col justify-between p-1">
+      <div className="absolute inset-0.5 sm:inset-1 bg-white rounded-md flex flex-col justify-between p-0.5 sm:p-1">
         {/* Top left number and suit */}
         <div className={cn(
           "flex flex-col items-start leading-none",

@@ -33,14 +33,14 @@ export const BidResultModal: React.FC<BidResultModalProps> = ({
     <Dialog open={isOpen} onOpenChange={() => {}}>
       <DialogContent className="sm:max-w-md bg-gradient-to-br from-felt-green-light to-felt-green-dark border-2 border-gold/40 shadow-elevated backdrop-blur-sm">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold text-primary text-center">
+          <DialogTitle className="text-lg sm:text-xl font-bold text-primary text-center">
             Bidding Complete!
           </DialogTitle>
         </DialogHeader>
         
-        <div className="space-y-4 py-4">
+        <div className="space-y-3 sm:space-y-4 py-2 sm:py-4">
           <div className="text-center">
-            <div className="text-lg font-semibold mb-2">
+            <div className="text-base sm:text-lg font-semibold mb-2">
               <span className="text-accent-foreground">
                 {playerNames[bidWinner] || `Player ${bidWinner + 1}`}
               </span>{" "}
@@ -72,10 +72,10 @@ export const BidResultModal: React.FC<BidResultModalProps> = ({
           </div>
         </div>
         
-        <div className="flex justify-center pt-2">
+        <div className="flex justify-center pt-1 sm:pt-2">
           <Button 
             onClick={onClose}
-            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
+            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold min-h-[44px]"
           >
             Let's begin!
           </Button>

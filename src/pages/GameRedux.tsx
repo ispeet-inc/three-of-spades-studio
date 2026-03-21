@@ -262,12 +262,12 @@ const GameRedux = () => {
 
   if (gameState.stage === GameStages.INIT) {
     return (
-      <div className="min-h-screen bg-gradient-felt flex items-center justify-center">
+      <div className="h-[100dvh] bg-gradient-felt flex items-center justify-center p-4">
         <div className="text-center">
-          <h1 className="text-4xl font-bold text-gold mb-8">Three of Spades</h1>
+          <h1 className="text-3xl sm:text-4xl font-bold text-gold mb-6 sm:mb-8">Three of Spades</h1>
           <Button 
             onClick={handleStartGame}
-            className="bg-gradient-gold text-casino-black font-bold text-lg px-8 py-4"
+            className="bg-gradient-gold text-casino-black font-bold text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 min-h-[48px] active:scale-[0.98]"
           >
             Start New Game
           </Button>

@@ -10,6 +10,7 @@ import { announceToScreenReader, gameStateAnnouncements } from "@/utils/accessib
 import { CenterTable } from "./CenterTable";
 import { useAppSelector } from "@/hooks/useAppSelector";
 import { selectCollectionWinner, selectIsCollectingCards, selectShowCardsPhase } from "@/store/selectors";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface GameBoardProps {
   gameState: {
@@ -44,6 +45,7 @@ interface GameBoardProps {
 export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = false, botCardsHidden = false }: GameBoardProps) => {
   const [lastScores, setLastScores] = useState(gameState.teamScores);
   const [animateScore, setAnimateScore] = useState({ team1: false, team2: false });
+  const isMobile = useIsMobile();
   
   // Use derived selectors for animation states
   const isCollectingCards = useAppSelector(selectIsCollectingCards);
@@ -85,17 +87,9 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = 
     }
   }, [players]);
 
-  // Helper function to get card played by specific player
-  const getPlayedCardForPlayer = (playerIndex: number): Card | null => {
-    // Search for a card in currentTrick that was played by this player
-    // Note: This assumes Card interface has a player property, or we need to track this differently
-    // For now, using the order they appear in currentTrick array based on play sequence
-    return gameState.currentTrick[playerIndex] || null;
-  };
-
   return (
     <main 
-      className="min-h-screen bg-gradient-felt relative overflow-hidden"
+      className="h-[100dvh] w-screen bg-gradient-felt relative overflow-hidden touch-none-select safe-area-inset"
       role="main"
       aria-label="Three of Spades game board"
     >
@@ -103,14 +97,23 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = 
       <div className="absolute inset-0 bg-gradient-to-br from-felt-green-dark via-felt-green to-felt-green-light opacity-90" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.1)_100%)]" />
       
-      {/* Table Border */}
-      <div className="absolute inset-8 border-4 border-gold/30 rounded-3xl shadow-glow/10" />
+      {/* Table Border - smaller on mobile */}
+      <div className={cn(
+        "absolute border-4 border-gold/30 rounded-3xl shadow-glow/10",
+        "inset-2 sm:inset-8"
+      )} />
 
-      {/* Game Header */}
-      <header className="absolute top-6 left-6 right-6 flex justify-between items-center z-20">
+      {/* Game Header - compact on mobile */}
+      <header className={cn(
+        "absolute left-2 right-2 flex justify-between items-start z-20",
+        "top-2 sm:top-6 sm:left-6 sm:right-6"
+      )}>
         {/* Game Info */}
-        <div className="bg-casino-black/40 backdrop-blur-sm border border-gold/30 rounded-lg shadow-elevated p-4">
-          <GameInfo gameState={gameState} />
+        <div className={cn(
+          "bg-casino-black/40 backdrop-blur-sm border border-gold/30 rounded-lg shadow-elevated",
+          "p-2 sm:p-4"
+        )}>
+          <GameInfo gameState={gameState} compact={isMobile} />
         </div>
 
         {/* Settings */}
@@ -118,53 +121,74 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = 
           variant="secondary"
           size="sm"
           onClick={onSettingsClick}
-          className="bg-casino-black/40 hover:bg-casino-black/60 text-gold border border-gold/30 backdrop-blur-sm shadow-elevated"
+          className={cn(
+            "bg-casino-black/40 hover:bg-casino-black/60 text-gold border border-gold/30 backdrop-blur-sm shadow-elevated",
+            "min-w-[44px] min-h-[44px] p-2"
+          )}
           aria-label="Open game settings"
         >
           <Settings className="w-4 h-4" aria-hidden="true" />
         </Button>
       </header>
 
-      {/* Team Scores */}
+      {/* Team Scores - repositioned for mobile */}
       <section 
-        className="absolute top-6 right-6 flex gap-6 z-20"
+        className={cn(
+          "absolute flex gap-2 z-20",
+          // Mobile: centered below header
+          "top-2 right-2 sm:top-6 sm:right-6 sm:gap-6"
+        )}
         aria-label="Team scores"
       >
         <div 
-          className="bg-gradient-gold text-casino-black px-6 py-3 rounded-xl shadow-elevated border border-gold-dark"
+          className={cn(
+            "bg-gradient-gold text-casino-black rounded-xl shadow-elevated border border-gold-dark",
+            "px-3 py-1.5 sm:px-6 sm:py-3"
+          )}
           role="status"
           aria-live="polite"
         >
           <div className="text-center">
             <div 
-              className={cn("text-2xl font-bold", animateScore.team1 && "animate-score-update")}
+              className={cn(
+                "font-bold",
+                "text-lg sm:text-2xl",
+                animateScore.team1 && "animate-score-update"
+              )}
               aria-label={`Team 1 score: ${gameState.teamScores.team1} points`}
             >
               {gameState.teamScores.team1}
             </div>
-            <div className="text-sm">Team 1</div>
+            <div className="text-xs sm:text-sm">Team 1</div>
           </div>
         </div>
         <div 
-          className="bg-blue-500 text-white px-6 py-3 rounded-xl shadow-elevated border border-blue-600"
+          className={cn(
+            "bg-blue-500 text-white rounded-xl shadow-elevated border border-blue-600",
+            "px-3 py-1.5 sm:px-6 sm:py-3"
+          )}
           role="status"
           aria-live="polite"
         >
           <div className="text-center">
             <div 
-              className={cn("text-2xl font-bold", animateScore.team2 && "animate-score-update")}
+              className={cn(
+                "font-bold",
+                "text-lg sm:text-2xl",
+                animateScore.team2 && "animate-score-update"
+              )}
               aria-label={`Team 2 score: ${gameState.teamScores.team2} points`}
             >
               {gameState.teamScores.team2}
             </div>
-            <div className="text-sm text-muted-foreground">Team 2</div>
+            <div className="text-xs sm:text-sm text-muted-foreground">Team 2</div>
           </div>
         </div>
       </section>
 
       {/* Main Game Area */}
       <section 
-        className="relative h-screen flex items-center justify-center"
+        className="relative h-full flex items-center justify-center"
         aria-label="Game playing area"
       >
         
@@ -177,12 +201,16 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = 
           collectionWinner={collectionWinner}
           roundWinner={gameState.roundWinner}
           playerNames={gameState.playerNames}
+          compact={isMobile}
         />
 
         {/* Player Areas */}
         
         {/* Left Player */}
-        <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
+        <div className={cn(
+          "absolute top-1/2 transform -translate-y-1/2",
+          "left-1 sm:left-4"
+        )}>
           <PlayerArea 
             player={players[1]} 
             runningSuite={gameState.runningSuite}
@@ -190,11 +218,15 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = 
             onCardPlay={onCardPlay}
             isDealing={isDealing}
             botCardsHidden={botCardsHidden}
+            compact={isMobile}
           />
         </div>
 
         {/* Top Player */}
-        <div className="absolute top-4 left-1/2 transform -translate-x-1/2">
+        <div className={cn(
+          "absolute left-1/2 transform -translate-x-1/2",
+          "top-14 sm:top-4"
+        )}>
           <PlayerArea 
             player={players[2]} 
             runningSuite={gameState.runningSuite}
@@ -202,11 +234,15 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = 
             onCardPlay={onCardPlay}
             isDealing={isDealing}
             botCardsHidden={botCardsHidden}
+            compact={isMobile}
           />
         </div>
 
         {/* Right Player */}
-        <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+        <div className={cn(
+          "absolute top-1/2 transform -translate-y-1/2",
+          "right-1 sm:right-4"
+        )}>
           <PlayerArea 
             player={players[3]} 
             runningSuite={gameState.runningSuite}
@@ -214,11 +250,15 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = 
             onCardPlay={onCardPlay}
             isDealing={isDealing}
             botCardsHidden={botCardsHidden}
+            compact={isMobile}
           />
         </div>
 
         {/* Bottom Player (Human) */}
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
+        <div className={cn(
+          "absolute left-1/2 transform -translate-x-1/2",
+          "bottom-2 sm:bottom-4"
+        )}>
           <PlayerArea 
             player={players[0]} 
             runningSuite={gameState.runningSuite}
@@ -226,6 +266,7 @@ export const GameBoard = ({ gameState, onCardPlay, onSettingsClick, isDealing = 
             onCardPlay={onCardPlay}
             isDealing={isDealing}
             botCardsHidden={botCardsHidden}
+            compact={isMobile}
           />
         </div>
       </section>

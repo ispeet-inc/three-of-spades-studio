@@ -24,9 +24,33 @@ interface GameState {
 
 interface GameInfoProps {
   gameState: GameState;
+  compact?: boolean;
 }
 
-export const GameInfo = ({ gameState }: GameInfoProps) => {
+export const GameInfo = ({ gameState, compact = false }: GameInfoProps) => {
+  if (compact) {
+    // Mobile compact layout - horizontal inline
+    return (
+      <div className="flex items-center gap-2 text-xs">
+        <span className="font-bold text-foreground text-sm">3oS</span>
+        {gameState.trumpSuit !== null && (
+          <Badge variant="outline" className="bg-white text-xs px-1 py-0">
+            <span className={cn("text-sm", `text-casino-${getSuiteColor(gameState.trumpSuit)}`)}>
+              {getSuiteIcon(gameState.trumpSuit)}
+            </span>
+          </Badge>
+        )}
+        {gameState.teammateCard && (
+          <PlayingCard card={gameState.teammateCard} mini />
+        )}
+        <Badge className="bg-gold text-casino-black font-bold text-xs px-1.5 py-0">
+          {gameState.currentBid}
+        </Badge>
+        <span className="text-muted-foreground">R{gameState.round}</span>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-secondary/90 backdrop-blur border border-border/50 rounded-lg p-4 shadow-elevated">
       <h2 className="text-lg font-bold text-foreground mb-3">Three of Spades</h2>

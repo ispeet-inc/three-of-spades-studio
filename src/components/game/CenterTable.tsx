@@ -2,6 +2,7 @@ import { PlayingCard } from "./PlayingCard";
 import { TableCard } from "@/types/game";
 import { useEffect, useState } from "react";
 import { TIMINGS } from "@/utils/constants";
+import { cn } from "@/lib/utils";
 
 interface CenterTableProps {
   currentTrick: TableCard[];
@@ -11,6 +12,7 @@ interface CenterTableProps {
   collectionWinner?: number | null;
   roundWinner?: number | null;
   playerNames?: Record<number, string>;
+  compact?: boolean;
 }
 
 export const CenterTable = ({
@@ -20,7 +22,8 @@ export const CenterTable = ({
   showCardsPhase = false, 
   collectionWinner = null,
   roundWinner = null,
-  playerNames = {}
+  playerNames = {},
+  compact = false
 }: CenterTableProps) => {
   
   const [showPoints, setShowPoints] = useState(false);
@@ -37,12 +40,20 @@ export const CenterTable = ({
   
   // Calculate points from current trick
   const trickPoints = currentTrick.reduce((sum, card) => sum + card.points, 0);
+
+  const circleSize = compact ? "w-44 h-44 sm:w-80 sm:h-80" : "w-80 h-80";
   
   return (<div className="relative">
     {/* Winner Announcement */}
     {(winner || (showCardsPhase && roundWinner !== null)) && 
-      <div className="absolute -top-16 left-1/2 transform -translate-x-1/2 text-center w-72">
-        <div className="text-s text-gold/70 font-medium">
+      <div className={cn(
+        "absolute left-1/2 transform -translate-x-1/2 text-center",
+        compact ? "-top-10 w-48" : "-top-16 w-72"
+      )}>
+        <div className={cn(
+          "text-gold/70 font-medium",
+          compact ? "text-xs" : "text-s"
+        )}>
           {winner || (playerNames[roundWinner!] + " won the round!")}
         </div>
       </div>
@@ -51,7 +62,10 @@ export const CenterTable = ({
     {/* Points Indicator during collection */}
     {showPoints && collectionWinner !== null && trickPoints > 0 && (
       <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 text-center">
-        <div className="text-xl font-bold text-gold animate-fade-in">
+        <div className={cn(
+          "font-bold text-gold animate-fade-in",
+          compact ? "text-sm" : "text-xl"
+        )}>
           +{trickPoints} points
         </div>
       </div>
@@ -59,7 +73,10 @@ export const CenterTable = ({
 
     {/* Playing Area Circle */}
     <div 
-      className="w-80 h-80 rounded-full bg-gradient-to-br from-felt-green-light/30 to-felt-green-dark/60 border-4 border-gold/40 flex items-center justify-center shadow-elevated backdrop-blur-sm"
+      className={cn(
+        "rounded-full bg-gradient-to-br from-felt-green-light/30 to-felt-green-dark/60 border-4 border-gold/40 flex items-center justify-center shadow-elevated backdrop-blur-sm",
+        circleSize
+      )}
       role="region"
       aria-label={`Current trick: ${currentTrick.length} of 4 cards played`}
       aria-live="polite"
@@ -73,7 +90,25 @@ export const CenterTable = ({
               const playerIndex = playedCard.player;
               const isWinningCard = roundWinner === playerIndex;
 
-              const positions = {
+              // Positions adapt based on compact mode
+              const positions = compact ? {
+                0: { // Bottom player
+                  container: "absolute bottom-1 left-1/2 transform -translate-x-1/2",
+                  cardClass: ""
+                },
+                1: { // Left player  
+                  container: "absolute left-1 top-1/2 transform -translate-y-1/2",
+                  cardClass: ""
+                },
+                2: { // Top player
+                  container: "absolute top-1 left-1/2 transform -translate-x-1/2", 
+                  cardClass: ""
+                },
+                3: { // Right player
+                  container: "absolute right-1 top-1/2 transform -translate-y-1/2",
+                  cardClass: ""
+                }
+              } : {
                 0: { // Bottom player
                   container: "absolute bottom-4 left-1/2 transform -translate-x-1/2",
                   cardClass: ""
@@ -93,7 +128,12 @@ export const CenterTable = ({
               };
 
               // Target positions for collection animation (winner's area)
-              const collectionTargets = {
+              const collectionTargets = compact ? {
+                0: "translate-y-[160px] translate-x-0", // Bottom
+                1: "translate-x-[-160px] translate-y-0", // Left
+                2: "translate-y-[-160px] translate-x-0", // Top
+                3: "translate-x-[160px] translate-y-0", // Right
+              } : {
                 0: "translate-y-[280px] translate-x-0", // Bottom
                 1: "translate-x-[-280px] translate-y-0", // Left
                 2: "translate-y-[-280px] translate-x-0", // Top
@@ -128,6 +168,7 @@ export const CenterTable = ({
                 >
                   <PlayingCard 
                     card={playedCard} 
+                    size={compact ? 'sm' : 'md'}
                     className={cardClassName}
                   />
                 </div>

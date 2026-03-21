@@ -7,6 +7,7 @@ import { PlayingCard } from "./PlayingCard";
 import { TeammateCard } from "@/types/game";
 import { HandPreview } from "./BiddingModal";
 import { SUITES } from "@/utils/suiteUtils";
+import { cn } from "@/lib/utils";
 
 export const TrumpSelectionModal = () => {
   const dispatch = useAppDispatch();
@@ -44,39 +45,39 @@ export const TrumpSelectionModal = () => {
 
   return (
     <Dialog open={true}>
-      <DialogContent className="max-w-xl w-full bg-felt-green-dark border-0 text-foreground p-0">
-        <div className="p-6">
+      <DialogContent className="sm:max-w-xl w-full bg-felt-green-dark border-0 text-foreground p-0">
+        <div className="p-3 sm:p-6">
           {/* Player Hand Display */}
-          <HandPreview hand={players[0].hand} />
+          <HandPreview hand={players[0].hand} compact />
 
-          <h2 className="text-xl font-bold mb-6 text-gold text-center">
+          <h2 className="text-lg sm:text-xl font-bold mb-4 sm:mb-6 text-gold text-center">
             Choose Trump & Teammate Card
           </h2>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
             {/* Trump Suite Selection */}
             <div>
-              <label className="block font-semibold mb-2 text-foreground">
+              <label className="block font-semibold mb-2 text-foreground text-sm sm:text-base">
                 Trump Suite
               </label>
-              <div className="flex gap-3">
+              <div className="flex gap-2 sm:gap-3 flex-wrap">
                 {SUITES.map((s) => (
                   <button
                     type="button"
                     key={s.value}
-                    className={`
-                      bg-felt-green text-foreground
-                      rounded-lg px-4 py-3 text-lg font-semibold flex items-center gap-2
-                      cursor-pointer transition-all duration-200 shadow-sm
-                      ${trumpSuite === String(s.value) 
+                    className={cn(
+                      "bg-felt-green text-foreground rounded-lg font-semibold flex items-center gap-1 sm:gap-2",
+                      "cursor-pointer transition-all duration-200 shadow-sm",
+                      "px-3 py-2 text-base sm:px-4 sm:py-3 sm:text-lg",
+                      "min-h-[44px]",
+                      trumpSuite === String(s.value) 
                         ? 'border-2 border-gold text-gold shadow-glow' 
-                        : 'hover:border-foreground/30'
-                      }
-                    `}
+                        : 'border border-transparent hover:border-foreground/30'
+                    )}
                     onClick={() => setTrumpSuite(String(s.value))}
                   >
-                    <span className="text-xl">{s.icon}</span>
-                    <span className="text-sm">{s.label}</span>
+                    <span className="text-lg sm:text-xl">{s.icon}</span>
+                    <span className="text-xs sm:text-sm">{s.label}</span>
                   </button>
                 ))}
               </div>
@@ -84,25 +85,25 @@ export const TrumpSelectionModal = () => {
 
             {/* Teammate Card Selection */}
             <div>
-              <label className="block font-semibold mb-2 text-foreground">
+              <label className="block font-semibold mb-2 text-foreground text-sm sm:text-base">
                 Choose Teammate Card
               </label>
               
               {/* Suite Tabs */}
-              <div className="flex gap-2 mb-3 justify-center">
+              <div className="flex gap-1.5 sm:gap-2 mb-3 justify-center flex-wrap">
                 {SUITES.map((s) => (
                   <button
                     type="button"
                     key={s.value}
-                    className={`
-                      bg-felt-green text-foreground
-                      rounded-lg px-4 py-2 text-sm font-semibold cursor-pointer 
-                      transition-all duration-200
-                      ${teammateSuiteTab === s.value 
+                    className={cn(
+                      "bg-felt-green text-foreground rounded-lg font-semibold cursor-pointer",
+                      "transition-all duration-200",
+                      "px-2.5 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm",
+                      "min-h-[36px] sm:min-h-[40px]",
+                      teammateSuiteTab === s.value 
                         ? 'border-2 border-gold text-gold' 
-                        : 'hover:border-foreground/30'
-                      }
-                    `}
+                        : 'border border-transparent hover:border-foreground/30'
+                    )}
                     onClick={() => setTeammateSuiteTab(s.value)}
                   >
                     {s.icon} {s.label}
@@ -111,7 +112,7 @@ export const TrumpSelectionModal = () => {
               </div>
 
               {/* Teammate Cards Grid */}
-              <div className="flex flex-wrap gap-2 justify-center">
+              <div className="flex flex-wrap gap-1.5 sm:gap-2 justify-center">
                 {teammateOptions.map((card) => {
                   const isSelected =
                     teammateCard &&
@@ -121,10 +122,14 @@ export const TrumpSelectionModal = () => {
                     <button
                       type="button"
                       key={`${card.suite}-${card.number}`}
-                      className={`
-                        bg-transparent border-2 border-transparent rounded-lg p-1
-                        cursor-pointer transition-all duration-200 flex items-center justify-center
-                        w-20 h-30 hover:border-foreground/30`}
+                      className={cn(
+                        "bg-transparent rounded-lg p-0.5 sm:p-1",
+                        "cursor-pointer transition-all duration-200 flex items-center justify-center",
+                        "min-h-[44px]",
+                        isSelected 
+                          ? "border-2 border-gold shadow-glow" 
+                          : "border-2 border-transparent hover:border-foreground/30"
+                      )}
                       onClick={() =>
                         setTeammateCard({
                           suite: card.suite,
@@ -132,9 +137,7 @@ export const TrumpSelectionModal = () => {
                         })
                       }
                     >
-                      <PlayingCard card={card} className={`hover:border-foreground/30 ${isSelected 
-                          && 'border-2 border-gold shadow-glow' 
-                        }`} />
+                      <PlayingCard card={card} size="sm" />
                     </button>
                   );
                 })}
@@ -142,7 +145,7 @@ export const TrumpSelectionModal = () => {
             </div>
 
             {error && (
-              <div className="bg-destructive/20 border border-destructive rounded-lg p-3 text-center text-destructive-foreground">
+              <div className="bg-destructive/20 border border-destructive rounded-lg p-2 sm:p-3 text-center text-destructive-foreground text-sm">
                 {error}
               </div>
             )}
@@ -150,12 +153,13 @@ export const TrumpSelectionModal = () => {
             <button
               type="submit"
               disabled={trumpSuite === "" || !teammateCard || !!error}
-              className="
-                w-full py-3 rounded-lg bg-gold text-primary-foreground font-bold text-lg
-                transition-all duration-200 mt-4
-                disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed
-                hover:bg-gold-light
-              "
+              className={cn(
+                "w-full py-3 rounded-lg bg-gold text-primary-foreground font-bold",
+                "text-base sm:text-lg min-h-[48px]",
+                "transition-all duration-200 mt-2 sm:mt-4",
+                "disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed",
+                "hover:bg-gold-light active:scale-[0.98]"
+              )}
             >
               Submit
             </button>
