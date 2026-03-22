@@ -14,6 +14,8 @@ interface PlayerAreaProps {
   isObserver?: boolean;
   viewerIndex?: number;
   isTeammateRevealed: boolean;
+  /** Mobile-responsive: use compact layout */
+  compact?: boolean;
 }
 
 export const PlayerArea = ({
@@ -26,6 +28,7 @@ export const PlayerArea = ({
   isObserver = false,
   viewerIndex = 3,
   isTeammateRevealed = false,
+  compact = false,
 }: PlayerAreaProps) => {
   // SIMPLIFIED: Derive values inline where needed
   const isHuman = position === "bottom" && !isObserver;
@@ -91,14 +94,45 @@ export const PlayerArea = ({
     return true;
   };
 
+  // Card overlap amounts based on compact mode
+  const getCardOverlap = () => {
+    if (compact) {
+      return {
+        humanFan: "-ml-3",
+        botHorizontal: "-ml-2",
+        botVertical: "-mt-2",
+        backHorizontal: "-ml-2",
+        backVertical: "-mt-2",
+        backSize: "w-5 h-8",
+      };
+    }
+    return {
+      humanFan: "-ml-4",
+      botHorizontal: "-ml-3",
+      botVertical: "-mt-3",
+      backHorizontal: "-ml-3",
+      backVertical: "-mt-3",
+      backSize: "w-8 h-12",
+    };
+  };
+
+  const overlap = getCardOverlap();
+
   return (
-    <div className={cn("flex gap-4", getPositionStyles().container)}>
+    <div className={cn(
+      "flex",
+      compact ? "gap-1" : "gap-4",
+      getPositionStyles().container
+    )}>
       {/* Player Info */}
       <PlayerInfo
         player={player}
         isTeammateRevealed={isTeammateRevealed}
+        compact={compact}
         className={cn(
-          isVertical ? "min-w-[120px]" : "min-h-[120px]",
+          compact
+            ? (isVertical ? "min-w-[70px]" : "")
+            : (isVertical ? "min-w-[120px]" : "min-h-[120px]"),
           getPositionStyles().playerInfoOrder
         )}
       />
@@ -106,7 +140,7 @@ export const PlayerArea = ({
       {/* SIMPLIFIED: Cards with unified logic */}
       <div
         className={cn(
-          "flex gap-1",
+          "flex gap-0",
           getPositionStyles().cardContainer,
           getPositionStyles().cardsOrder
         )}
@@ -124,6 +158,7 @@ export const PlayerArea = ({
                 key={`card-${index}`}
                 card={card}
                 mini={position !== "bottom"}
+                compact={compact}
                 isPlayable={isInteractive && player.isCurrentPlayer}
                 onClick={
                   isInteractive &&
@@ -136,8 +171,8 @@ export const PlayerArea = ({
                 dealDelay={dealDelay}
                 playerPosition={position}
                 className={cn(
-                  isHuman && index > 0 && "-ml-4", // Fan out human cards
-                  !isHuman && index > 0 && (isVertical ? "-mt-3" : "-ml-3"), // Overlap bot cards
+                  isHuman && index > 0 && overlap.humanFan,
+                  !isHuman && index > 0 && (isVertical ? overlap.botVertical : overlap.botHorizontal),
                   "transition-all duration-300"
                 )}
               />
@@ -149,8 +184,8 @@ export const PlayerArea = ({
                 key={`card-back-${index}`}
                 className={cn(
                   "relative bg-gradient-to-br from-accent to-accent-dark rounded-lg shadow-card",
-                  "w-8 h-12", // mini size for bots
-                  index > 0 && (isVertical ? "-mt-3" : "-ml-3"),
+                  overlap.backSize,
+                  index > 0 && (isVertical ? overlap.backVertical : overlap.backHorizontal),
                   "transition-all duration-300",
                   isDealing &&
                     "animate-[deal-to-" + position + "_0.8s_ease-out_forwards]"
@@ -159,7 +194,7 @@ export const PlayerArea = ({
                   animationDelay: isDealing ? `${dealDelay}ms` : undefined,
                 }}
               >
-                <div className="absolute inset-1 bg-gradient-to-br from-primary-light to-primary rounded border border-primary-light/20">
+                <div className="absolute inset-0.5 bg-gradient-to-br from-primary-light to-primary rounded border border-primary-light/20">
                   <div className="w-full h-full bg-gradient-to-br from-accent-subtle to-accent rounded-sm opacity-80" />
                 </div>
               </div>

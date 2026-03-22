@@ -9,6 +9,8 @@ interface GameInfoProps {
   isSeries: boolean;
   seriesProgress: SeriesProgress | null;
   playerNames: Record<number, string>;
+  /** Mobile-responsive: use compact layout */
+  compact?: boolean;
 }
 
 interface InfoItem {
@@ -22,6 +24,7 @@ export const GameInfo = ({
   isSeries,
   seriesProgress,
   playerNames,
+  compact = false,
 }: GameInfoProps) => {
   // Helper functions for cleaner conditional rendering
   const shouldShowSeriesProgress = () =>
@@ -55,13 +58,13 @@ export const GameInfo = ({
       // Trump Suit
       if (gameConfig.trumpSuite !== null) {
         items.push({
-          label: "Trump:",
+          label: compact ? "T:" : "Trump:",
           show: true,
           renderContent: () => (
-            <Badge variant="outline" className="bg-white text-casino-black">
+            <Badge variant="outline" className={cn("bg-white text-casino-black", compact && "text-[9px] px-1 py-0")}>
               <span
                 className={cn(
-                  "text-base",
+                  compact ? "text-xs" : "text-base",
                   `text-casino-${getSuiteColor(gameConfig.trumpSuite)}`
                 )}
               >
@@ -75,10 +78,10 @@ export const GameInfo = ({
       // Teammate
       if (gameConfig.teammateCard) {
         items.push({
-          label: "Teammate:",
+          label: compact ? "Ally:" : "Teammate:",
           show: true,
           renderContent: () => (
-            <Badge className="bg-white text-casino-black">
+            <Badge className={cn("bg-white text-casino-black", compact && "text-[9px] px-1 py-0")}>
               {gameConfig.teammateCard.id}{" "}
               {getSuiteIcon(gameConfig.teammateCard.suite)}
             </Badge>
@@ -89,10 +92,10 @@ export const GameInfo = ({
       // Bid Amount
       if (gameConfig.bidAmount) {
         items.push({
-          label: "Bid:",
+          label: compact ? "B:" : "Bid:",
           show: true,
           renderContent: () => (
-            <Badge className="bg-gold text-casino-black font-bold">
+            <Badge className={cn("bg-gold text-casino-black font-bold", compact && "text-[9px] px-1 py-0")}>
               {gameConfig.bidAmount}
             </Badge>
           ),
@@ -106,10 +109,10 @@ export const GameInfo = ({
         playerNames[seriesProgress!.startingPlayerIndex!];
 
       items.push({
-        label: "Starting Player:",
+        label: compact ? "Start:" : "Starting Player:",
         show: true,
         renderContent: () => (
-          <Badge className="bg-gold text-casino-black font-bold">
+          <Badge className={cn("bg-gold text-casino-black font-bold", compact && "text-[9px] px-1 py-0")}>
             {startingPlayerName}
           </Badge>
         ),
@@ -126,7 +129,7 @@ export const GameInfo = ({
     // Special case for series progress (no label)
     if (!item.label) {
       return (
-        <div key={index} className="pb-2 border-b border-border/30">
+        <div key={index} className={cn("border-b border-border/30", compact ? "pb-1" : "pb-2")}>
           {item.renderContent()}
         </div>
       );
@@ -134,11 +137,11 @@ export const GameInfo = ({
 
     // Standard info item with label
     return (
-      <div key={index} className="flex items-center justify-between py-1">
-        <span className="text-sm text-muted-foreground font-medium">
+      <div key={index} className="flex items-center justify-between py-0.5">
+        <span className={cn("text-muted-foreground font-medium", compact ? "text-[9px]" : "text-sm")}>
           {item.label}
         </span>
-        <div className="flex items-center ml-4">{item.renderContent()}</div>
+        <div className={cn("flex items-center", compact ? "ml-1" : "ml-4")}>{item.renderContent()}</div>
       </div>
     );
   };
@@ -146,12 +149,17 @@ export const GameInfo = ({
   const infoItems = getInfoItems();
 
   return (
-    <div className="bg-secondary border-2 border-border/80 rounded-lg p-3 shadow-lg w-56">
-      <h2 className="text-base font-semibold text-foreground mb-2">
-        Three of Spades
-      </h2>
+    <div className={cn(
+      "bg-secondary border-2 border-border/80 rounded-lg shadow-lg",
+      compact ? "p-1.5 w-auto min-w-[100px] max-w-[140px]" : "p-3 w-56"
+    )}>
+      {!compact && (
+        <h2 className="text-base font-semibold text-foreground mb-2">
+          Three of Spades
+        </h2>
+      )}
 
-      <div className="space-y-2">{infoItems.map(renderInfoItem)}</div>
+      <div className={cn("space-y-1", compact && "space-y-0.5")}>{infoItems.map(renderInfoItem)}</div>
     </div>
   );
 };

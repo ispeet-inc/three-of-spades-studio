@@ -22,6 +22,10 @@ interface CenterTableProps {
   playerNames?: Record<number, string>;
   viewerIndex?: number; // NEW: For dynamic positioning
   gameStage?: string; // NEW: For conditional rendering
+  /** Mobile-responsive: use compact sizing */
+  compact?: boolean;
+  /** Is portrait orientation */
+  isPortrait?: boolean;
 }
 
 // Internal BiddingDisplay component - Matching BiddingIntegrationMockup.tsx design
@@ -34,6 +38,8 @@ const BiddingDisplay = ({
   playerNames,
   viewerIndex,
   bidWinner,
+  compact = false,
+  isPortrait = false,
 }: {
   currentBid: number | null;
   currentBidder: number;
@@ -43,6 +49,8 @@ const BiddingDisplay = ({
   playerNames: Record<number, string>;
   viewerIndex: number;
   bidWinner: number | null;
+  compact?: boolean;
+  isPortrait?: boolean;
 }) => {
   // Get player names for display
   const getPlayerName = (playerIndex: number, names: Record<number, string>) =>
@@ -74,9 +82,9 @@ const BiddingDisplay = ({
         playerIndex,
         hasPassed: hasPlayerPassed(playerIndex, passedPlayers),
         bid: getPlayerBid(playerIndex, bidHistory),
-        positionInfo: getPlayerPosition(playerIndex, viewerIndex),
+        positionInfo: getPlayerPosition(playerIndex, viewerIndex, compact, isPortrait),
       })),
-    [viewerIndex, bidHistory, passedPlayers]
+    [viewerIndex, bidHistory, passedPlayers, compact, isPortrait]
   );
 
   const highestBidPlayerIndex = getPlayerIndexWithHighestBid(bidHistory);
@@ -84,44 +92,48 @@ const BiddingDisplay = ({
   // Check if bidding is complete
   const isBiddingComplete = bidWinner !== null;
 
+  // Responsive circle size
+  const circleSize = compact ? "w-44 h-44" : "w-96 h-96";
+  const timerSize = compact ? "w-10 h-10" : "w-16 h-16";
+
   return (
     <div className="relative">
       {/* Center Table Circle with Integrated Bidding Info */}
-      <div className="w-96 h-96 rounded-full bg-gradient-to-br from-felt-green-light/30 to-felt-green-dark/60 border-4 border-gold/40 flex items-center justify-center shadow-elevated backdrop-blur-sm relative">
+      <div className={`${circleSize} rounded-full bg-gradient-to-br from-felt-green-light/30 to-felt-green-dark/60 border-4 border-gold/40 flex items-center justify-center shadow-elevated backdrop-blur-sm relative`}>
         {/* Current Bid Display - Integrated into the circle */}
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           {isBiddingComplete ? (
             // Show bidding complete message
-            <div className="text-center mb-4">
-              <div className="text-sm font-medium text-gold/70 uppercase tracking-wider mb-2">
+            <div className="text-center mb-1">
+              <div className={`font-medium text-gold/70 uppercase tracking-wider ${compact ? "text-[8px] mb-0.5" : "text-sm mb-2"}`}>
                 Bidding Complete!
               </div>
-              <div className="text-3xl font-bold text-gold mb-2">
+              <div className={`font-bold text-gold ${compact ? "text-sm mb-0.5" : "text-3xl mb-2"}`}>
                 {getPlayerName(bidWinner, playerNames)} sets trump!
               </div>
-              <div className="text-xl text-gold/80 mb-2">
+              <div className={`text-gold/80 ${compact ? "text-xs mb-0.5" : "text-xl mb-2"}`}>
                 Final Bid: {currentBid}
               </div>
-              <div className="text-sm text-gold/60">
+              <div className={`text-gold/60 ${compact ? "text-[8px]" : "text-sm"}`}>
                 Get ready to play!
               </div>
             </div>
           ) : (
             // Original bidding display
-            <div className="text-center mb-4">
-              <div className="text-sm font-medium text-gold/70 uppercase tracking-wider mb-2">
+            <div className="text-center mb-1">
+              <div className={`font-medium text-gold/70 uppercase tracking-wider ${compact ? "text-[8px] mb-0.5" : "text-sm mb-2"}`}>
                 Current Bid
               </div>
-              <div className="text-5xl font-bold text-gold mb-2">
+              <div className={`font-bold text-gold ${compact ? "text-2xl mb-0.5" : "text-5xl mb-2"}`}>
                 {currentBid}
               </div>
               {highestBidPlayerIndex !== null && (
-                <div className="text-lg text-gold/80">
+                <div className={`text-gold/80 ${compact ? "text-[9px]" : "text-lg"}`}>
                   with {getPlayerName(highestBidPlayerIndex, playerNames)}
                 </div>
               )}
               {highestBidPlayerIndex === null && (
-                <div className="text-lg text-gold/80">No bids yet</div>
+                <div className={`text-gold/80 ${compact ? "text-[9px]" : "text-lg"}`}>No bids yet</div>
               )}
             </div>
           )}
@@ -129,8 +141,8 @@ const BiddingDisplay = ({
           {/* Timer Display - Only show when bidding is active */}
           {!isBiddingComplete && (
             <div className="relative">
-              <div className="w-16 h-16 rounded-full border-4 border-gold/30 flex items-center justify-center bg-casino-black/60 backdrop-blur-sm">
-                <div className="text-gold font-bold text-lg">{bidTimer}s</div>
+              <div className={`${timerSize} rounded-full border-4 border-gold/30 flex items-center justify-center bg-casino-black/60 backdrop-blur-sm`}>
+                <div className={`text-gold font-bold ${compact ? "text-xs" : "text-lg"}`}>{bidTimer}s</div>
                 {/* Animated progress ring */}
                 <div
                   className="absolute inset-0 rounded-full border-4 border-transparent border-t-gold animate-spin-slow"
@@ -158,14 +170,14 @@ const BiddingDisplay = ({
               className={positionInfo.biddingDisplayClassName}
             >
               <div
-                className={`backdrop-blur-sm border-2 rounded-lg px-3 py-2 text-center transition-all duration-300 ${
+                className={`backdrop-blur-sm border-2 rounded-lg ${compact ? "px-1.5 py-1" : "px-3 py-2"} text-center transition-all duration-300 ${
                   hasPassed
                     ? "border-red-400/60 bg-red-500/20"
                     : "border-gold/40 bg-felt-green-light/15"
                 }`}
               >
                 <div
-                  className={`text-sm font-bold ${
+                  className={`font-bold ${compact ? "text-[9px]" : "text-sm"} ${
                     hasPassed ? "text-red-400" : "text-gold"
                   }`}
                 >
@@ -187,6 +199,8 @@ export const CenterTable = ({
   playerNames = {},
   viewerIndex = 3, // NEW: Default to FIRST_PLAYER_ID
   gameStage,
+  compact = false,
+  isPortrait = false,
 }: CenterTableProps) => {
   const [showPoints, setShowPoints] = useState(false);
 
@@ -204,6 +218,9 @@ export const CenterTable = ({
   // Check if we're in bidding stage
   const isBidding = gameStage === GameStages.BIDDING;
 
+  // Responsive circle size
+  const circleSize = compact ? "w-36 h-36" : "w-80 h-80";
+
   // Memoize the card list rendering to prevent jitter
   const renderedCards = useMemo(() => {
     if (currentTrick.length === 0) return null;
@@ -213,7 +230,7 @@ export const CenterTable = ({
       const playerIndex = playedCard.player;
       const isWinningCard = trickWinner === playerIndex;
 
-      const positionInfo = getPlayerPosition(playerIndex, viewerIndex);
+      const positionInfo = getPlayerPosition(playerIndex, viewerIndex, compact, isPortrait);
       const animationDelay = `${playerIndex * TIMINGS.dealingStaggerMs}ms`;
       const collectionDelay = `${playerIndex * 50}ms`;
 
@@ -224,7 +241,9 @@ export const CenterTable = ({
         // Collection animation
         const targetTransform = getPlayerPosition(
           collectionWinner as number,
-          viewerIndex
+          viewerIndex,
+          compact,
+          isPortrait
         ).collectionTarget;
         cardClassName += ` transform ${targetTransform} scale-75 opacity-0 transition-all duration-1200`;
       } else if (showCardsPhase && isWinningCard) {
@@ -244,7 +263,7 @@ export const CenterTable = ({
               : animationDelay,
           }}
         >
-          <PlayingCard card={playedCard} className={cardClassName} />
+          <PlayingCard card={playedCard} compact={compact} className={cardClassName} />
         </div>
       );
     });
@@ -255,6 +274,8 @@ export const CenterTable = ({
     isCollectingCards,
     collectionWinner,
     showCardsPhase,
+    compact,
+    isPortrait,
   ]);
 
   useEffect(() => {
@@ -282,6 +303,8 @@ export const CenterTable = ({
         playerNames={playerNames}
         viewerIndex={viewerIndex}
         bidWinner={biddingState.bidWinner}
+        compact={compact}
+        isPortrait={isPortrait}
       />
     );
   }
@@ -293,8 +316,8 @@ export const CenterTable = ({
     <div className="relative">
       {/* Winner Announcement */}
       {(winner || (showCardsPhase && trickWinner !== null)) && (
-        <div className="absolute -top-16 left-1/2 transform -translate-x-1/2 text-center w-72">
-          <div className="text-s text-gold/70 font-medium">
+        <div className={`absolute left-1/2 transform -translate-x-1/2 text-center ${compact ? "-top-8 w-48" : "-top-16 w-72"}`}>
+          <div className={`text-gold/70 font-medium ${compact ? "text-[10px]" : "text-s"}`}>
             {winner || playerNames[trickWinner as number] + " won the trick!"}
           </div>
         </div>
@@ -302,8 +325,8 @@ export const CenterTable = ({
 
       {/* Points Indicator during collection */}
       {showPoints && collectionWinner !== null && trickPoints > 0 && (
-        <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 text-center">
-          <div className="text-xl font-bold text-gold animate-fade-in">
+        <div className={`absolute left-1/2 transform -translate-x-1/2 text-center ${compact ? "-top-5" : "-top-8"}`}>
+          <div className={`font-bold text-gold animate-fade-in ${compact ? "text-sm" : "text-xl"}`}>
             +{trickPoints} points
           </div>
         </div>
@@ -311,7 +334,7 @@ export const CenterTable = ({
 
       {/* Playing Area Circle */}
       <div
-        className="w-80 h-80 rounded-full bg-gradient-to-br from-felt-green-light/30 to-felt-green-dark/60 border-4 border-gold/40 flex items-center justify-center shadow-elevated backdrop-blur-sm"
+        className={`${circleSize} rounded-full bg-gradient-to-br from-felt-green-light/30 to-felt-green-dark/60 border-4 border-gold/40 flex items-center justify-center shadow-elevated backdrop-blur-sm`}
         role="region"
         aria-label={`Current trick: ${currentTrick.length} of 4 cards played`}
         aria-live="polite"
