@@ -7,6 +7,8 @@ interface TeamScoresDisplayProps {
   isTeammateRevealed: boolean;
   /** Mobile-responsive: use compact layout */
   compact?: boolean;
+  /** Landscape phone mode - ultra compact */
+  isLandscape?: boolean;
 }
 
 export const TeamScoresDisplay = ({
@@ -14,9 +16,53 @@ export const TeamScoresDisplay = ({
   animateScore,
   isTeammateRevealed,
   compact = false,
+  isLandscape = false,
 }: TeamScoresDisplayProps) => {
   if (!isTeammateRevealed) {
     return null;
+  }
+
+  if (isLandscape) {
+    return (
+      <>
+        <div
+          className="bg-gradient-gold text-casino-black px-1.5 py-0.5 rounded-md shadow-elevated border border-gold-dark"
+          role="status"
+          aria-live="polite"
+        >
+          <div className="flex items-center gap-1">
+            <div className="text-[7px]">T1</div>
+            <div
+              className={cn(
+                "text-xs font-bold",
+                animateScore.team1 && "animate-score-update"
+              )}
+              aria-label={`Team 1 score: ${scores.team1} points`}
+            >
+              {scores.team1}
+            </div>
+          </div>
+        </div>
+        <div
+          className="bg-blue-500 text-white px-1.5 py-0.5 rounded-md shadow-elevated border border-blue-600"
+          role="status"
+          aria-live="polite"
+        >
+          <div className="flex items-center gap-1">
+            <div className="text-[7px]">T2</div>
+            <div
+              className={cn(
+                "text-xs font-bold",
+                animateScore.team2 && "animate-score-update"
+              )}
+              aria-label={`Team 2 score: ${scores.team2} points`}
+            >
+              {scores.team2}
+            </div>
+          </div>
+        </div>
+      </>
+    );
   }
 
   if (compact) {

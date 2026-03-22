@@ -20,6 +20,8 @@ interface PlayingCardProps {
   playerPosition?: "bottom" | "left" | "top" | "right";
   /** Mobile-responsive: use compact sizing */
   compact?: boolean;
+  /** Landscape phone mode - extra small */
+  isLandscape?: boolean;
 }
 
 export const PlayingCard = ({
@@ -34,6 +36,7 @@ export const PlayingCard = ({
   dealDelay = 0,
   playerPosition = "bottom",
   compact = false,
+  isLandscape = false,
 }: PlayingCardProps) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const { trigger } = useFeedback();
@@ -67,6 +70,16 @@ export const PlayingCard = ({
   };
 
   const getCardSize = () => {
+    // Landscape phone: everything is smaller
+    if (isLandscape) {
+      if (mini) return "w-4 h-6";
+      switch (size) {
+        case "sm": return "w-6 h-9";
+        case "lg": return "w-11 h-16";
+        default: return "w-9 h-14"; // md - human hand cards
+      }
+    }
+
     if (mini && compact) return "w-5 h-8";
     if (mini) return "w-8 h-12";
 
@@ -92,6 +105,31 @@ export const PlayingCard = ({
   };
 
   const getTextSize = () => {
+    if (isLandscape) {
+      if (mini) return {
+        number: "text-[5px]",
+        suit: "text-[4px]",
+        center: "text-[6px]",
+      };
+      switch (size) {
+        case "sm": return {
+          number: "text-[7px]",
+          suit: "text-[6px]",
+          center: "text-xs",
+        };
+        case "lg": return {
+          number: "text-xs",
+          suit: "text-[10px]",
+          center: "text-lg",
+        };
+        default: return { // md
+          number: "text-[9px]",
+          suit: "text-[7px]",
+          center: "text-sm",
+        };
+      }
+    }
+
     if (mini && compact)
       return {
         number: "text-[7px]",
@@ -226,7 +264,7 @@ export const PlayingCard = ({
       {/* Card face */}
       <div className={cn(
         "absolute inset-0.5 bg-white rounded-md flex flex-col justify-between",
-        compact ? "p-0.5" : "p-1"
+        isLandscape ? "p-px" : compact ? "p-0.5" : "p-1"
       )}>
         {/* Top left number and suit */}
         <div

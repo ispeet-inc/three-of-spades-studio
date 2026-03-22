@@ -113,6 +113,7 @@ const WelcomeSection: React.FC<{
   onEditChange: (value: string) => void;
   onKeyDown: (e: React.KeyboardEvent) => void;
   compact?: boolean;
+  isLandscape?: boolean;
 }> = ({
   playerName,
   isEditing,
@@ -124,13 +125,14 @@ const WelcomeSection: React.FC<{
   onEditChange,
   onKeyDown,
   compact = false,
+  isLandscape = false,
 }) => (
-  <div className={compact ? "mb-3" : "mb-8"}>
+  <div className={isLandscape ? "mb-1" : compact ? "mb-3" : "mb-8"}>
     <div className={cn(
       "inline-flex items-center gap-2 bg-black/20 backdrop-blur-sm rounded-full border border-gold/30",
-      compact ? "px-3 py-1.5" : "px-6 py-3"
+      isLandscape ? "px-2 py-1" : compact ? "px-3 py-1.5" : "px-6 py-3"
     )}>
-      <span className={cn("text-white/90 font-light", compact ? "text-sm" : "text-lg")}>Welcome</span>
+      <span className={cn("text-white/90 font-light", isLandscape ? "text-xs" : compact ? "text-sm" : "text-lg")}>Welcome</span>
       {isEditing ? (
         <input
           ref={inputRef}
@@ -141,7 +143,7 @@ const WelcomeSection: React.FC<{
           onBlur={onSave}
           className={cn(
             "text-gold font-semibold bg-transparent border-none outline-none px-0 py-0 border-b-2 border-gold/60 cursor-text transition-all duration-300 min-w-[80px]",
-            compact ? "text-sm" : "text-lg"
+            isLandscape ? "text-xs" : compact ? "text-sm" : "text-lg"
           )}
           placeholder="Enter your name"
         />
@@ -150,7 +152,7 @@ const WelcomeSection: React.FC<{
           onClick={onStartEditing}
           className={cn(
             "text-gold font-semibold cursor-pointer transition-all duration-300 hover:text-gold-light hover:scale-105",
-            compact ? "text-sm" : "text-lg",
+            isLandscape ? "text-xs" : compact ? "text-sm" : "text-lg",
             playerName === "Stranger" ? "opacity-60" : "opacity-100"
           )}
         >
@@ -171,22 +173,23 @@ const GameModeButton: React.FC<{
   isSelected: boolean;
   onClick: () => void;
   compact?: boolean;
-}> = ({ mode, title, subtitle, isSelected, onClick, compact = false }) => (
+  isLandscape?: boolean;
+}> = ({ mode, title, subtitle, isSelected, onClick, compact = false, isLandscape = false }) => (
   <button
     onClick={onClick}
     className={cn(
       "group relative rounded-2xl border-2 transition-all duration-300 hover:scale-105 active:scale-95 touch-target",
-      compact ? "p-3" : "p-6",
+      isLandscape ? "p-2 rounded-xl" : compact ? "p-3" : "p-6",
       isSelected
         ? "border-gold bg-gold/10 shadow-glow"
         : "border-white/20 bg-white/5 hover:border-white/40 hover:bg-white/10"
     )}
   >
-    <div className="text-center space-y-1">
+    <div className={cn("text-center", isLandscape ? "space-y-0" : "space-y-1")}>
       <div
         className={cn(
           "font-bold transition-colors duration-300",
-          compact ? "text-base" : "text-xl",
+          isLandscape ? "text-sm" : compact ? "text-base" : "text-xl",
           isSelected ? "text-gold" : "text-white"
         )}
       >
@@ -195,7 +198,7 @@ const GameModeButton: React.FC<{
       <div
         className={cn(
           "transition-colors duration-300",
-          compact ? "text-xs" : "text-sm",
+          isLandscape ? "text-[10px]" : compact ? "text-xs" : "text-sm",
           isSelected ? "text-gold/80" : "text-white/60"
         )}
       >
@@ -205,13 +208,13 @@ const GameModeButton: React.FC<{
   </button>
 );
 
-const StartGameButton: React.FC<{ onClick: () => void; compact?: boolean }> = ({ onClick, compact = false }) => (
+const StartGameButton: React.FC<{ onClick: () => void; compact?: boolean; isLandscape?: boolean }> = ({ onClick, compact = false, isLandscape = false }) => (
   <div className="relative">
     <Button
       onClick={onClick}
       className={cn(
         "relative overflow-hidden bg-gradient-to-r from-gold via-gold-light to-gold text-casino-black font-bold rounded-2xl shadow-2xl hover:shadow-glow transition-all duration-300 hover:scale-105 active:scale-95 group touch-target",
-        compact ? "text-base px-8 py-4" : "text-xl px-12 py-6"
+        isLandscape ? "text-sm px-6 py-2 rounded-xl" : compact ? "text-base px-8 py-4" : "text-xl px-12 py-6"
       )}
     >
       <span className="relative z-10">Start Game</span>
@@ -256,19 +259,22 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStartGame }) => {
   const selectedGameMode = GAME_MODES.find(mode => mode.mode === selectedMode);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-felt-green-dark via-felt-green to-felt-green-light relative overflow-hidden">
+    <div className={cn(
+      "min-h-screen bg-gradient-to-br from-felt-green-dark via-felt-green to-felt-green-light relative overflow-hidden",
+      isPhoneLandscape && "h-screen"
+    )}>
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.15)_1px,transparent_0)] bg-[length:20px_20px]"></div>
       </div>
 
       <div className={cn(
-        "relative z-10 flex items-center justify-center min-h-screen",
-        compact ? "px-3" : "px-6"
+        "relative z-10 flex items-center justify-center",
+        isPhoneLandscape ? "h-screen px-4 py-2" : "min-h-screen px-3 md:px-6"
       )}>
         <div className={cn(
           "text-center mx-auto",
-          compact ? "max-w-sm" : "max-w-2xl"
+          isPhoneLandscape ? "max-w-lg" : compact ? "max-w-sm" : "max-w-2xl"
         )}>
           <WelcomeSection
             playerName={playerName}
@@ -281,36 +287,38 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStartGame }) => {
             onEditChange={setEditValue}
             onKeyDown={handleKeyDown}
             compact={compact}
+            isLandscape={isPhoneLandscape}
           />
 
           {/* Game Title */}
-          <div className={compact ? "mb-5" : "mb-12"}>
+          <div className={isPhoneLandscape ? "mb-2" : compact ? "mb-5" : "mb-12"}>
             <h1 className={cn(
               "font-black text-gold tracking-tight leading-none",
-              compact
-                ? (isPhoneLandscape ? "text-3xl mb-2" : "text-4xl mb-3")
-                : "text-6xl md:text-7xl mb-4"
+              isPhoneLandscape ? "text-2xl mb-1" : compact ? "text-4xl mb-3" : "text-6xl md:text-7xl mb-4"
             )}>
               Three of Spades
             </h1>
             <div className={cn(
               "h-1 bg-gradient-to-r from-transparent via-gold to-transparent mx-auto rounded-full shadow-glow",
-              compact ? "w-16" : "w-24"
+              isPhoneLandscape ? "w-12 h-0.5" : compact ? "w-16" : "w-24"
             )}></div>
           </div>
 
           {/* Game Mode Selection */}
-          <div className={compact ? "mb-5" : "mb-10"}>
-            <div className={cn(
-              "text-white/80 font-medium tracking-wide uppercase",
-              compact ? "text-xs mb-3" : "text-sm mb-6"
-            )}>
-              Choose Your Game Mode
-            </div>
+          <div className={isPhoneLandscape ? "mb-2" : compact ? "mb-5" : "mb-10"}>
+            {/* Label hidden in landscape to save space */}
+            {!isPhoneLandscape && (
+              <div className={cn(
+                "text-white/80 font-medium tracking-wide uppercase",
+                compact ? "text-xs mb-3" : "text-sm mb-6"
+              )}>
+                Choose Your Game Mode
+              </div>
+            )}
 
             <div className={cn(
-              "grid grid-cols-2 gap-3 mx-auto",
-              compact ? "max-w-xs" : "max-w-lg md:gap-4"
+              "grid grid-cols-2 mx-auto",
+              isPhoneLandscape ? "gap-2 max-w-xs" : compact ? "gap-3 max-w-xs" : "gap-4 max-w-lg"
             )}>
               {GAME_MODES.map(({ mode, title, subtitle }) => (
                 <GameModeButton
@@ -321,6 +329,7 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStartGame }) => {
                   isSelected={selectedMode === mode}
                   onClick={() => setSelectedMode(mode)}
                   compact={compact}
+                  isLandscape={isPhoneLandscape}
                 />
               ))}
             </div>
@@ -340,8 +349,8 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStartGame }) => {
           </div>
 
           {/* Action Buttons */}
-          <div className="space-y-4">
-            <StartGameButton onClick={handleStartGame} compact={compact} />
+          <div className={isPhoneLandscape ? "space-y-1" : "space-y-4"}>
+            <StartGameButton onClick={handleStartGame} compact={compact} isLandscape={isPhoneLandscape} />
           </div>
         </div>
       </div>
@@ -349,18 +358,18 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStartGame }) => {
       {/* Floating Action Buttons */}
       <div className={cn(
         "fixed z-50 flex gap-2",
-        compact ? "top-2 right-2" : "top-6 right-6 gap-3"
+        isPhoneLandscape ? "top-1 right-1" : compact ? "top-2 right-2" : "top-6 right-6 gap-3"
       )}>
         {/* How to Play Button */}
         <Button
           onClick={() => setShowHowToPlay(true)}
           className={cn(
             "group relative bg-gradient-gold text-casino-black font-bold rounded-xl shadow-elevated hover:shadow-glow transition-all duration-300 hover:scale-105 active:scale-95 touch-target",
-            compact ? "px-2 py-1.5 text-xs" : "px-4 py-3"
+            isPhoneLandscape ? "px-1.5 py-1 text-xs rounded-lg" : compact ? "px-2 py-1.5 text-xs" : "px-4 py-3"
           )}
           size="sm"
         >
-          <span className={cn("group-hover:rotate-12 transition-transform duration-300", compact ? "text-sm" : "text-lg mr-2")}>
+          <span className={cn("group-hover:rotate-12 transition-transform duration-300", isPhoneLandscape ? "text-xs" : compact ? "text-sm" : "text-lg mr-2")}>
             📖
           </span>
           {!compact && <span className="hidden sm:inline">How to Play</span>}
@@ -374,11 +383,11 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStartGame }) => {
           onClick={() => setShowStats(true)}
           className={cn(
             "group relative bg-gradient-gold text-casino-black font-bold rounded-xl shadow-elevated hover:shadow-glow transition-all duration-300 hover:scale-105 active:scale-95 touch-target",
-            compact ? "px-2 py-1.5 text-xs" : "px-4 py-3"
+            isPhoneLandscape ? "px-1.5 py-1 text-xs rounded-lg" : compact ? "px-2 py-1.5 text-xs" : "px-4 py-3"
           )}
           size="sm"
         >
-          <BarChart3 className={cn("group-hover:rotate-12 transition-transform duration-300", compact ? "w-4 h-4" : "w-5 h-5 mr-2")} />
+          <BarChart3 className={cn("group-hover:rotate-12 transition-transform duration-300", isPhoneLandscape ? "w-3.5 h-3.5" : compact ? "w-4 h-4" : "w-5 h-5 mr-2")} />
           {!compact && <span className="hidden sm:inline">Stats</span>}
 
           {/* Glow effect */}

@@ -16,6 +16,8 @@ interface PlayerAreaProps {
   isTeammateRevealed: boolean;
   /** Mobile-responsive: use compact layout */
   compact?: boolean;
+  /** Landscape phone mode - extra tight */
+  isLandscape?: boolean;
 }
 
 export const PlayerArea = ({
@@ -29,6 +31,7 @@ export const PlayerArea = ({
   viewerIndex = 3,
   isTeammateRevealed = false,
   compact = false,
+  isLandscape = false,
 }: PlayerAreaProps) => {
   // SIMPLIFIED: Derive values inline where needed
   const isHuman = position === "bottom" && !isObserver;
@@ -94,8 +97,18 @@ export const PlayerArea = ({
     return true;
   };
 
-  // Card overlap amounts based on compact mode
+  // Card overlap amounts based on compact mode and landscape
   const getCardOverlap = () => {
+    if (isLandscape) {
+      return {
+        humanFan: "-ml-4",      // tighter overlap for landscape hand
+        botHorizontal: "-ml-2.5",
+        botVertical: "-mt-2.5",
+        backHorizontal: "-ml-2.5",
+        backVertical: "-mt-2.5",
+        backSize: "w-4 h-7",   // smaller card backs in landscape
+      };
+    }
     if (compact) {
       return {
         humanFan: "-ml-3",
@@ -121,7 +134,7 @@ export const PlayerArea = ({
   return (
     <div className={cn(
       "flex",
-      compact ? "gap-1" : "gap-4",
+      isLandscape ? "gap-0.5" : compact ? "gap-1" : "gap-4",
       getPositionStyles().container
     )}>
       {/* Player Info */}
@@ -129,10 +142,13 @@ export const PlayerArea = ({
         player={player}
         isTeammateRevealed={isTeammateRevealed}
         compact={compact}
+        isLandscape={isLandscape}
         className={cn(
-          compact
-            ? (isVertical ? "min-w-[70px]" : "")
-            : (isVertical ? "min-w-[120px]" : "min-h-[120px]"),
+          isLandscape
+            ? (isVertical ? "min-w-[56px]" : "")
+            : compact
+              ? (isVertical ? "min-w-[70px]" : "")
+              : (isVertical ? "min-w-[120px]" : "min-h-[120px]"),
           getPositionStyles().playerInfoOrder
         )}
       />
@@ -159,6 +175,7 @@ export const PlayerArea = ({
                 card={card}
                 mini={position !== "bottom"}
                 compact={compact}
+                isLandscape={isLandscape}
                 isPlayable={isInteractive && player.isCurrentPlayer}
                 onClick={
                   isInteractive &&

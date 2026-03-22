@@ -8,6 +8,8 @@ interface PlayerInfoProps {
   className?: string;
   /** Mobile-responsive: use compact layout */
   compact?: boolean;
+  /** Landscape phone mode - ultra compact */
+  isLandscape?: boolean;
 }
 
 export const PlayerInfo: React.FC<PlayerInfoProps> = ({
@@ -15,7 +17,50 @@ export const PlayerInfo: React.FC<PlayerInfoProps> = ({
   isTeammateRevealed,
   className,
   compact = false,
+  isLandscape = false,
 }) => {
+  // Ultra-compact landscape mode: just name + score in one line
+  if (isLandscape) {
+    return (
+      <div
+        className={cn(
+          "relative px-1.5 py-0.5 rounded-lg border backdrop-blur-sm transition-all duration-200",
+          className,
+          player.isCurrentPlayer
+            ? "animate-turn-indicator border-gold/80 bg-gold/10"
+            : "border-gold/20 bg-black/30"
+        )}
+      >
+        <div className="flex items-center gap-0.5">
+          <span
+            className={cn(
+              "text-[8px] font-bold truncate max-w-[48px]",
+              player.isCurrentPlayer ? "text-gold" : "text-white"
+            )}
+          >
+            {player.name}
+          </span>
+          {player.isBidWinner && (
+            <Crown className="w-2 h-2 text-gold flex-shrink-0" />
+          )}
+          {isTeammateRevealed && (
+            <span
+              className={cn(
+                "px-1 rounded text-[6px] font-semibold flex-shrink-0",
+                player.team === 1
+                  ? "bg-gold/80 text-casino-black"
+                  : "bg-blue-500/80 text-white"
+              )}
+            >
+              T{player.team}
+            </span>
+          )}
+          <span className="text-gold font-bold text-[7px] flex-shrink-0">{player.score}</span>
+        </div>
+      </div>
+    );
+  }
+
   if (compact) {
     return (
       <div

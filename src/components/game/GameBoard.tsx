@@ -148,10 +148,10 @@ export const GameBoard = ({
         <div className="absolute inset-8 border-4 border-gold/30 rounded-3xl shadow-glow/10" />
       )}
 
-      {/* Game Header */}
+      {/* Game Header - z-30 to stay above player areas */}
       <header className={cn(
-        "absolute left-0 right-0 flex justify-between items-start z-20",
-        compact ? "top-1 px-2" : "top-6 left-6 right-6"
+        "absolute left-0 right-0 flex justify-between items-start z-30",
+        isPhoneLandscape ? "top-0.5 px-1" : compact ? "top-1 px-2" : "top-6 left-6 right-6"
       )}>
           {/* Game Info */}
           <GameInfo
@@ -160,38 +160,28 @@ export const GameBoard = ({
             seriesProgress={seriesProgress}
             playerNames={playerState.playerNames}
             compact={compact}
+            isLandscape={isPhoneLandscape}
           />
-
-          {/* Settings */}
-          {/* <Button
-            variant="secondary"
-            size="sm"
-            onClick={onSettingsClick}
-            className="bg-casino-black/40 hover:bg-casino-black/60 text-gold border border-gold/30 backdrop-blur-sm shadow-elevated"
-            aria-label="Open game settings"
-          >
-            <Settings className="w-4 h-4" aria-hidden="true" />
-          </Button> */}
         </header>
 
       {/* Minimal observer mode indicator */}
       {isObserver && (
         <div className={cn(
-          "absolute bg-blue-500/40 backdrop-blur-sm border border-blue-400/40 rounded-md z-20",
-          compact ? "top-10 right-2 px-2 py-1" : "top-32 right-6 px-4 py-2"
+          "absolute bg-blue-500/40 backdrop-blur-sm border border-blue-400/40 rounded-md z-30",
+          isPhoneLandscape ? "top-8 right-1 px-1.5 py-0.5" : compact ? "top-10 right-2 px-2 py-1" : "top-32 right-6 px-4 py-2"
         )}>
-          <div className={cn("text-blue-300 font-medium", compact ? "text-[10px]" : "text-sm")}>
+          <div className={cn("text-blue-300 font-medium", isPhoneLandscape ? "text-[8px]" : compact ? "text-[10px]" : "text-sm")}>
             👁️{" "}
             {playersDisplayData[viewerIndex]?.name || `Player ${viewerIndex}`}
           </div>
         </div>
       )}
 
-      {/* Team Scores */}
+      {/* Team Scores - z-30 to stay above player areas */}
       <section
         className={cn(
-          "absolute flex z-20",
-          compact ? "top-1 right-2 gap-1.5" : "top-6 right-6 gap-6"
+          "absolute flex z-30",
+          isPhoneLandscape ? "top-0.5 right-1 gap-1" : compact ? "top-1 right-2 gap-1.5" : "top-6 right-6 gap-6"
         )}
         aria-label="Game controls and scores"
       >
@@ -207,14 +197,14 @@ export const GameBoard = ({
               "transition-all duration-200",
               "hover:scale-105",
               "shadow-elevated",
-              compact ? "p-1" : "p-2",
+              isPhoneLandscape ? "p-0.5" : compact ? "p-1" : "p-2",
               showScoreboard && "bg-gold/10 border-gold/30 text-gold"
             )}
             title={
               showScoreboard ? "Hide scoreboard" : "Show series scoreboard"
             }
           >
-            <BarChart3 className={compact ? "w-3.5 h-3.5" : "w-5 h-5"} />
+            <BarChart3 className={isPhoneLandscape ? "w-3 h-3" : compact ? "w-3.5 h-3.5" : "w-5 h-5"} />
           </button>
         )}
 
@@ -224,14 +214,15 @@ export const GameBoard = ({
           animateScore={animateScore}
           isTeammateRevealed={isTeammateRevealed}
           compact={compact}
+          isLandscape={isPhoneLandscape}
         />
       </section>
 
       {/* Series Scoreboard - Floating overlay */}
       {showScoreboard && isSeries && seriesProgress && (
         <div className={cn(
-          "absolute z-30",
-          compact ? "top-10 right-2" : "top-24 right-6"
+          "absolute z-40",
+          isPhoneLandscape ? "top-7 right-1" : compact ? "top-10 right-2" : "top-24 right-6"
         )}>
           <CollapsibleScoreboard
             seriesProgress={seriesProgress}
@@ -242,7 +233,11 @@ export const GameBoard = ({
 
       {/* Main Game Area */}
       <section
-        className="relative h-screen flex items-center justify-center"
+        className={cn(
+          "relative h-screen flex items-center justify-center",
+          // In landscape, shift center area slightly upward to make room for cards at bottom
+          isPhoneLandscape && "-mt-6"
+        )}
         aria-label="Game playing area"
       >
         {/* Center Table Area */}
@@ -276,6 +271,7 @@ export const GameBoard = ({
                 viewerIndex={viewerIndex}
                 isTeammateRevealed={isTeammateRevealed}
                 compact={compact}
+                isLandscape={isPhoneLandscape}
               />
             </div>
           )

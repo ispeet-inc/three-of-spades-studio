@@ -11,6 +11,8 @@ interface GameInfoProps {
   playerNames: Record<number, string>;
   /** Mobile-responsive: use compact layout */
   compact?: boolean;
+  /** Landscape phone mode - ultra compact inline */
+  isLandscape?: boolean;
 }
 
 interface InfoItem {
@@ -25,6 +27,7 @@ export const GameInfo = ({
   seriesProgress,
   playerNames,
   compact = false,
+  isLandscape = false,
 }: GameInfoProps) => {
   // Helper functions for cleaner conditional rendering
   const shouldShowSeriesProgress = () =>
@@ -57,14 +60,15 @@ export const GameInfo = ({
     if (shouldShowGameConfig() && gameConfig) {
       // Trump Suit
       if (gameConfig.trumpSuite !== null) {
+        const badgeSize = isLandscape ? "text-[8px] px-0.5 py-0" : compact ? "text-[9px] px-1 py-0" : "";
         items.push({
-          label: compact ? "T:" : "Trump:",
+          label: isLandscape ? "T" : compact ? "T:" : "Trump:",
           show: true,
           renderContent: () => (
-            <Badge variant="outline" className={cn("bg-white text-casino-black", compact && "text-[9px] px-1 py-0")}>
+            <Badge variant="outline" className={cn("bg-white text-casino-black", badgeSize)}>
               <span
                 className={cn(
-                  compact ? "text-xs" : "text-base",
+                  isLandscape ? "text-[9px]" : compact ? "text-xs" : "text-base",
                   `text-casino-${getSuiteColor(gameConfig.trumpSuite)}`
                 )}
               >
@@ -77,11 +81,12 @@ export const GameInfo = ({
 
       // Teammate
       if (gameConfig.teammateCard) {
+        const badgeSize = isLandscape ? "text-[8px] px-0.5 py-0" : compact ? "text-[9px] px-1 py-0" : "";
         items.push({
-          label: compact ? "Ally:" : "Teammate:",
+          label: isLandscape ? "A" : compact ? "Ally:" : "Teammate:",
           show: true,
           renderContent: () => (
-            <Badge className={cn("bg-white text-casino-black", compact && "text-[9px] px-1 py-0")}>
+            <Badge className={cn("bg-white text-casino-black", badgeSize)}>
               {gameConfig.teammateCard.id}{" "}
               {getSuiteIcon(gameConfig.teammateCard.suite)}
             </Badge>
@@ -91,11 +96,12 @@ export const GameInfo = ({
 
       // Bid Amount
       if (gameConfig.bidAmount) {
+        const badgeSize = isLandscape ? "text-[8px] px-0.5 py-0" : compact ? "text-[9px] px-1 py-0" : "";
         items.push({
-          label: compact ? "B:" : "Bid:",
+          label: isLandscape ? "B" : compact ? "B:" : "Bid:",
           show: true,
           renderContent: () => (
-            <Badge className={cn("bg-gold text-casino-black font-bold", compact && "text-[9px] px-1 py-0")}>
+            <Badge className={cn("bg-gold text-casino-black font-bold", badgeSize)}>
               {gameConfig.bidAmount}
             </Badge>
           ),
@@ -107,12 +113,13 @@ export const GameInfo = ({
     if (!shouldShowGameConfig() && shouldShowStartingPlayer()) {
       const startingPlayerName =
         playerNames[seriesProgress!.startingPlayerIndex!];
+      const badgeSize = isLandscape ? "text-[8px] px-0.5 py-0" : compact ? "text-[9px] px-1 py-0" : "";
 
       items.push({
-        label: compact ? "Start:" : "Starting Player:",
+        label: isLandscape ? "1st" : compact ? "Start:" : "Starting Player:",
         show: true,
         renderContent: () => (
-          <Badge className={cn("bg-gold text-casino-black font-bold", compact && "text-[9px] px-1 py-0")}>
+          <Badge className={cn("bg-gold text-casino-black font-bold", badgeSize)}>
             {startingPlayerName}
           </Badge>
         ),
@@ -121,6 +128,28 @@ export const GameInfo = ({
 
     return items;
   };
+
+  const infoItems = getInfoItems();
+
+  // Landscape: inline horizontal bar
+  if (isLandscape) {
+    return (
+      <div className="bg-secondary/80 backdrop-blur-sm border border-border/60 rounded-md px-1.5 py-0.5 shadow-lg flex items-center gap-1.5">
+        {infoItems.map((item, index) => {
+          if (!item.show) return null;
+          if (!item.label) {
+            return <div key={index} className="flex items-center">{item.renderContent()}</div>;
+          }
+          return (
+            <div key={index} className="flex items-center gap-0.5">
+              <span className="text-muted-foreground font-medium text-[7px]">{item.label}</span>
+              {item.renderContent()}
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
 
   // Unified render function for info items
   const renderInfoItem = (item: InfoItem, index: number) => {
@@ -145,8 +174,6 @@ export const GameInfo = ({
       </div>
     );
   };
-
-  const infoItems = getInfoItems();
 
   return (
     <div className={cn(
