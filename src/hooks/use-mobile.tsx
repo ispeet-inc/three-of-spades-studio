@@ -3,11 +3,12 @@ import * as React from "react";
 const MOBILE_BREAKPOINT = 768;
 const SMALL_MOBILE_BREAKPOINT = 390;
 const MOBILE_LANDSCAPE_HEIGHT = 500; // landscape phones typically < 500px tall
+const MOBILE_LANDSCAPE_MAX_WIDTH = 932; // largest phone landscape width (iPhone 14 Pro Max)
 
 /**
- * Detects if the device is mobile based on the smaller dimension.
- * This ensures landscape phones (e.g., 844×390) are still detected as mobile,
- * since their height (390px) is below the breakpoint.
+ * Detects if the device is mobile.
+ * - Portrait: width < 768px
+ * - Landscape phone: height < 500px AND width < 932px (excludes desktop monitors)
  */
 export function useIsMobile() {
   const [isMobile, setIsMobile] = React.useState<boolean | undefined>(
@@ -16,8 +17,12 @@ export function useIsMobile() {
 
   React.useEffect(() => {
     const check = () => {
-      const minDim = Math.min(window.innerWidth, window.innerHeight);
-      setIsMobile(minDim < MOBILE_BREAKPOINT);
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      const isPortraitMobile = w < MOBILE_BREAKPOINT;
+      const isLandscapePhone =
+        w > h && h < MOBILE_LANDSCAPE_HEIGHT && w <= MOBILE_LANDSCAPE_MAX_WIDTH;
+      setIsMobile(isPortraitMobile || isLandscapePhone);
     };
     check();
     window.addEventListener("resize", check);
@@ -52,9 +57,12 @@ export function useIsMobileLandscape() {
 
   React.useEffect(() => {
     const check = () => {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
       setIsLandscape(
-        window.innerWidth > window.innerHeight &&
-          window.innerHeight < MOBILE_LANDSCAPE_HEIGHT
+        w > h &&
+          h < MOBILE_LANDSCAPE_HEIGHT &&
+          w <= MOBILE_LANDSCAPE_MAX_WIDTH
       );
     };
     check();
