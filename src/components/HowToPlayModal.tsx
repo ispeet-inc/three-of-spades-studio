@@ -333,8 +333,8 @@ const HowToPlayModal: React.FC<HowToPlayModalProps> = ({ isOpen, onClose }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white/95 backdrop-blur-md border border-gray-200/50 shadow-2xl rounded-3xl p-0">
-        <DialogHeader className="text-center p-8 border-b border-gray-100">
+      <DialogContent className="max-w-4xl max-h-[90vh] sm:max-h-[90vh] overflow-y-auto bg-white/95 backdrop-blur-md border border-gray-200/50 shadow-2xl rounded-3xl p-0">
+        <DialogHeader className="text-center p-4 sm:p-8 border-b border-gray-100">
           <Button
             onClick={onClose}
             className="absolute top-6 right-6 h-10 w-10 p-0 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-full transition-colors duration-200"
@@ -345,7 +345,7 @@ const HowToPlayModal: React.FC<HowToPlayModalProps> = ({ isOpen, onClose }) => {
 
           <div className="flex items-center justify-center gap-3 mb-4">
             <Play className="h-8 w-8 text-gold" />
-            <DialogTitle className="text-3xl font-bold text-casino-black">
+            <DialogTitle className="text-xl sm:text-3xl font-bold text-casino-black">
               How to Play
             </DialogTitle>
             <Target className="h-8 w-8 text-gold" />
@@ -355,21 +355,21 @@ const HowToPlayModal: React.FC<HowToPlayModalProps> = ({ isOpen, onClose }) => {
           </DialogDescription>
         </DialogHeader>
 
-        <div className="p-8">
+        <div className="p-3 sm:p-8">
           <Tabs
             value={activeTab}
             onValueChange={setActiveTab}
             className="w-full"
           >
-            <TabsList className="grid w-full grid-cols-4 bg-gray-50 border border-gray-200 rounded-xl p-1 mb-8">
+            <TabsList className="grid w-full grid-cols-4 bg-gray-50 border border-gray-200 rounded-xl p-1 mb-4 sm:mb-8">
               {TAB_CONFIG.map(({ value, label, icon: Icon }) => (
                 <TabsTrigger
                   key={value}
                   value={value}
-                  className="data-[state=active]:bg-white data-[state=active]:text-gold data-[state=active]:shadow-sm text-gray-600 font-medium rounded-lg transition-all duration-200 flex items-center gap-2 px-4 py-2"
+                  className="data-[state=active]:bg-white data-[state=active]:text-gold data-[state=active]:shadow-sm text-gray-600 font-medium rounded-lg transition-all duration-200 flex items-center gap-1 sm:gap-2 px-1.5 sm:px-4 py-1.5 sm:py-2 text-[10px] sm:text-sm touch-target"
                 >
-                  <Icon className="h-4 w-4" />
-                  {label}
+                  <Icon className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <span className="hidden sm:inline">{label}</span>
                 </TabsTrigger>
               ))}
             </TabsList>
@@ -452,9 +452,9 @@ const HowToPlayModal: React.FC<HowToPlayModalProps> = ({ isOpen, onClose }) => {
           </Tabs>
 
           <div className="text-center pt-8">
-            <Button
+              <Button
               onClick={onClose}
-              className="w-full h-14 text-lg font-semibold bg-gold text-casino-black hover:bg-gold-light transition-colors duration-200 rounded-xl"
+              className="w-full h-10 sm:h-14 text-base sm:text-lg font-semibold bg-gold text-casino-black hover:bg-gold-light active:scale-95 transition-all duration-200 rounded-xl touch-target"
             >
               Got it! Let's Play!
             </Button>

@@ -4,6 +4,8 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
 import { Card, Suite } from "@/types/game";
 import { getTeammateOptions } from "@/utils/gameUtils";
 import { SUITES } from "@/utils/suiteUtils";
@@ -26,6 +28,7 @@ export const TrumpSelectionModal = ({
   const [teammateCard, setTeammateCard] = useState<Card | null>(null);
   const [teammateSuiteTab, setTeammateSuiteTab] = useState<number>(0);
   const [error, setError] = useState<string>("");
+  const isMobile = useIsMobile();
 
   const validate = () => {
     if (trumpSuite === null) {
@@ -55,46 +58,49 @@ export const TrumpSelectionModal = ({
 
   return (
     <Dialog open={isOpen}>
-      <DialogContent className="max-w-xl w-full bg-felt-green-dark border-0 text-foreground p-0">
+      <DialogContent className={cn(
+        "bg-felt-green-dark border-0 text-foreground p-0",
+        isMobile ? "max-w-[calc(100vw-0.5rem)] max-h-[95vh]" : "max-w-xl w-full"
+      )}>
         <DialogTitle className="sr-only">
           Choose Trump & Teammate Card
         </DialogTitle>
         <DialogDescription className="sr-only">
           Select a trump suite and teammate card to start the game
         </DialogDescription>
-        <div className="p-6">
+        <div className={cn("overflow-y-auto", isMobile ? "p-3 max-h-[90vh]" : "p-6")}>
           {/* Player Hand Display */}
-          <HandPreview hand={playerHand} />
+          <HandPreview hand={playerHand} compact={isMobile} />
 
-          <h2 className="text-xl font-bold mb-6 text-gold text-center">
+          <h2 className={cn(
+            "font-bold text-gold text-center",
+            isMobile ? "text-base mb-3" : "text-xl mb-6"
+          )}>
             Choose Trump & Teammate Card
           </h2>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className={cn("space-y-4", !isMobile && "space-y-6")}>
             {/* Trump Suite Selection */}
             <div>
-              <label className="block font-semibold mb-2 text-foreground">
+              <label className={cn("block font-semibold text-foreground", isMobile ? "text-xs mb-1" : "mb-2")}>
                 Trump Suite
               </label>
-              <div className="flex gap-3">
+              <div className={cn("flex", isMobile ? "gap-1.5" : "gap-3")}>
                 {SUITES.map(s => (
                   <button
                     type="button"
                     key={s.value}
-                    className={`
-                      bg-felt-green text-foreground
-                      rounded-lg px-4 py-3 text-lg font-semibold flex items-center gap-2
-                      cursor-pointer transition-all duration-200 shadow-sm
-                      ${
-                        trumpSuite === s.value
-                          ? "border-2 border-gold text-gold shadow-glow"
-                          : "hover:border-foreground/30"
-                      }
-                    `}
+                    className={cn(
+                      "bg-felt-green text-foreground rounded-lg font-semibold flex items-center gap-1 cursor-pointer transition-all duration-200 shadow-sm touch-target",
+                      isMobile ? "px-2 py-2 text-sm" : "px-4 py-3 text-lg gap-2",
+                      trumpSuite === s.value
+                        ? "border-2 border-gold text-gold shadow-glow"
+                        : "hover:border-foreground/30"
+                    )}
                     onClick={() => setTrumpSuite(s.value)}
                   >
-                    <span className="text-xl">{s.icon}</span>
-                    <span className="text-sm">{s.label}</span>
+                    <span className={isMobile ? "text-base" : "text-xl"}>{s.icon}</span>
+                    {!isMobile && <span className="text-sm">{s.label}</span>}
                   </button>
                 ))}
               </div>
@@ -102,36 +108,36 @@ export const TrumpSelectionModal = ({
 
             {/* Teammate Card Selection */}
             <div>
-              <label className="block font-semibold mb-2 text-foreground">
+              <label className={cn("block font-semibold text-foreground", isMobile ? "text-xs mb-1" : "mb-2")}>
                 Choose Teammate Card
               </label>
 
               {/* Suite Tabs */}
-              <div className="flex gap-2 mb-3 justify-center">
+              <div className={cn("flex justify-center", isMobile ? "gap-1 mb-2" : "gap-2 mb-3")}>
                 {SUITES.map(s => (
                   <button
                     type="button"
                     key={s.value}
-                    className={`
-                      bg-felt-green text-foreground
-                      rounded-lg px-4 py-2 text-sm font-semibold cursor-pointer 
-                      transition-all duration-200
-                      ${
-                        teammateSuiteTab === s.value
-                          ? "border-2 border-gold text-gold"
-                          : "hover:border-foreground/30"
-                      }
-                    `}
+                    className={cn(
+                      "bg-felt-green text-foreground rounded-lg font-semibold cursor-pointer transition-all duration-200 touch-target",
+                      isMobile ? "px-2 py-1.5 text-xs" : "px-4 py-2 text-sm",
+                      teammateSuiteTab === s.value
+                        ? "border-2 border-gold text-gold"
+                        : "hover:border-foreground/30"
+                    )}
                     onClick={() => setTeammateSuiteTab(s.value)}
                   >
-                    {s.icon} {s.label}
+                    {s.icon} {!isMobile && s.label}
                   </button>
                 ))}
               </div>
 
               {/* Teammate Cards Display - Elegant Layout */}
-              <div className="bg-casino-black/20 rounded-xl p-4 border border-gold/20">
-                <div className="flex gap-1 justify-center flex-wrap">
+              <div className={cn(
+                "bg-casino-black/20 rounded-xl border border-gold/20",
+                isMobile ? "p-2" : "p-4"
+              )}>
+                <div className="flex gap-0 justify-center flex-wrap">
                   {teammateOptions.map(card => {
                     const isSelected =
                       teammateCard &&
@@ -140,22 +146,23 @@ export const TrumpSelectionModal = ({
                     return (
                       <div
                         key={`${card.suite}-${card.number}`}
-                        className={`
-                          transform transition-all duration-200 cursor-pointer
-                          ${isSelected ? "scale-110 z-10" : "hover:scale-105"}
-                        `}
+                        className={cn(
+                          "transform transition-all duration-200 cursor-pointer",
+                          isSelected ? "scale-110 z-10" : "hover:scale-105"
+                        )}
                         onClick={() => setTeammateCard(card)}
                       >
                         <PlayingCard
                           card={card}
-                          className={`
-                            shadow-card -ml-6
-                            ${
-                              isSelected
-                                ? "border-2 border-gold shadow-glow ring-2 ring-gold/50"
-                                : "hover:border-gold/50"
-                            }
-                          `}
+                          compact={isMobile}
+                          size={isMobile ? "sm" : "md"}
+                          className={cn(
+                            "shadow-card",
+                            isMobile ? "-ml-3" : "-ml-6",
+                            isSelected
+                              ? "border-2 border-gold shadow-glow ring-2 ring-gold/50"
+                              : "hover:border-gold/50"
+                          )}
                         />
                       </div>
                     );
@@ -165,7 +172,10 @@ export const TrumpSelectionModal = ({
             </div>
 
             {error && (
-              <div className="bg-destructive/20 border border-destructive rounded-lg p-3 text-center text-destructive-foreground">
+              <div className={cn(
+                "bg-destructive/20 border border-destructive rounded-lg text-center text-destructive-foreground",
+                isMobile ? "p-2 text-xs" : "p-3"
+              )}>
                 {error}
               </div>
             )}
@@ -173,12 +183,12 @@ export const TrumpSelectionModal = ({
             <button
               type="submit"
               disabled={trumpSuite === null || !teammateCard || !!error}
-              className="
-                w-full py-3 rounded-lg bg-gold text-primary-foreground font-bold text-lg
-                transition-all duration-200 mt-4
-                disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed
-                hover:bg-gold-light
-              "
+              className={cn(
+                "w-full rounded-lg bg-gold text-primary-foreground font-bold transition-all duration-200 touch-target",
+                "disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed",
+                "hover:bg-gold-light active:scale-95",
+                isMobile ? "py-2.5 text-base mt-2" : "py-3 text-lg mt-4"
+              )}
             >
               Submit
             </button>

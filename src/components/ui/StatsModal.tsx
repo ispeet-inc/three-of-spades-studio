@@ -84,7 +84,7 @@ export const StatsModal: React.FC<StatsModalProps> = ({
 
       {/* Floating Modal */}
       <div
-        className={`relative bg-gradient-to-br from-felt-green via-felt-green/95 to-felt-green/90 border border-gold/40 rounded-2xl shadow-2xl max-w-[720px] w-full max-h-[78vh] overflow-hidden transform transition-all duration-500 ease-out ${
+        className={`relative bg-gradient-to-br from-felt-green via-felt-green/95 to-felt-green/90 border border-gold/40 rounded-2xl shadow-2xl max-w-[720px] w-full max-h-[85vh] sm:max-h-[78vh] overflow-hidden transform transition-all duration-500 ease-out ${
           isAnimating
             ? "scale-100 opacity-100 translate-y-0"
             : "scale-95 opacity-0 translate-y-4"
@@ -150,8 +150,8 @@ export const StatsModal: React.FC<StatsModalProps> = ({
         </div>
 
         {/* Compact Stats Grid */}
-        <div className="px-4 pb-4 overflow-y-auto max-h-[52vh]">
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5">
+        <div className="px-3 sm:px-4 pb-4 overflow-y-auto max-h-[55vh] sm:max-h-[52vh]">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-1.5 sm:gap-2.5">
             {displayStats.map((stat, index) => (
               <div
                 key={stat.label}

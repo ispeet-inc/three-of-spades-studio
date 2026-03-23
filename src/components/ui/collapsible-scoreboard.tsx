@@ -69,7 +69,7 @@ export const CollapsibleScoreboard: React.FC<CollapsibleScoreboardProps> = ({
         "shadow-elevated",
         "transition-all duration-300 ease-out",
         "overflow-hidden",
-        "min-w-[280px] max-w-[400px]",
+        "min-w-[180px] sm:min-w-[280px] max-w-[300px] sm:max-w-[400px]",
         className
       )}
     >

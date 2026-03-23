@@ -1,3 +1,4 @@
+import { useMobileLayout } from "@/hooks/use-mobile";
 import { useAppSelector } from "@/hooks/useAppSelector";
 import { cn } from "@/lib/utils";
 import { GameStages } from "@/store/gameStages";
@@ -77,6 +78,10 @@ export const GameBoard = ({
   });
   const [showScoreboard, setShowScoreboard] = useState(false);
 
+  // Mobile layout detection
+  const { isMobile, isPhoneLandscape, isPhonePortrait } = useMobileLayout();
+  const compact = isMobile;
+
   // NEW: Get bidding state from store
   const currentBid = useAppSelector(selectCurrentBid);
   const currentBidder = useAppSelector(selectCurrentBidder);
@@ -127,7 +132,10 @@ export const GameBoard = ({
 
   return (
     <main
-      className="min-h-screen bg-gradient-felt relative overflow-hidden"
+      className={cn(
+        "min-h-screen bg-gradient-felt relative overflow-hidden game-no-select",
+        compact && "safe-area-inset"
+      )}
       role="main"
       aria-label="Three of Spades game board"
     >
@@ -135,46 +143,46 @@ export const GameBoard = ({
       <div className="absolute inset-0 bg-gradient-to-br from-felt-green-dark via-felt-green to-felt-green-light opacity-90" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.1)_100%)]" />
 
-      {/* Table Border */}
-      <div className="absolute inset-8 border-4 border-gold/30 rounded-3xl shadow-glow/10" />
+      {/* Table Border - hidden on mobile to save space */}
+      {!compact && (
+        <div className="absolute inset-8 border-4 border-gold/30 rounded-3xl shadow-glow/10" />
+      )}
 
-      {/* Game Header */}
-      <header className="absolute top-6 left-6 right-6 flex justify-between items-center z-20">
+      {/* Game Header - z-30 to stay above player areas */}
+      <header className={cn(
+        "absolute left-0 right-0 flex justify-between items-start z-30",
+        isPhoneLandscape ? "top-0.5 px-1" : compact ? "top-1 px-2" : "top-6 left-6 right-6"
+      )}>
           {/* Game Info */}
           <GameInfo
             gameConfig={gameConfig}
             isSeries={isSeries}
             seriesProgress={seriesProgress}
             playerNames={playerState.playerNames}
+            compact={compact}
+            isLandscape={isPhoneLandscape}
           />
-
-          {/* Settings */}
-          {/* <Button
-            variant="secondary"
-            size="sm"
-            onClick={onSettingsClick}
-            className="bg-casino-black/40 hover:bg-casino-black/60 text-gold border border-gold/30 backdrop-blur-sm shadow-elevated"
-            aria-label="Open game settings"
-          >
-            <Settings className="w-4 h-4" aria-hidden="true" />
-          </Button> */}
         </header>
 
       {/* Minimal observer mode indicator */}
       {isObserver && (
-        <div className="absolute top-32 right-6 bg-blue-500/40 backdrop-blur-sm border border-blue-400/40 rounded-md px-4 py-2 z-20">
-          <div className="text-sm text-blue-300 font-medium">
+        <div className={cn(
+          "absolute bg-blue-500/40 backdrop-blur-sm border border-blue-400/40 rounded-md z-30",
+          isPhoneLandscape ? "top-8 right-1 px-1.5 py-0.5" : compact ? "top-10 right-2 px-2 py-1" : "top-32 right-6 px-4 py-2"
+        )}>
+          <div className={cn("text-blue-300 font-medium", isPhoneLandscape ? "text-[8px]" : compact ? "text-[10px]" : "text-sm")}>
             👁️{" "}
             {playersDisplayData[viewerIndex]?.name || `Player ${viewerIndex}`}
           </div>
         </div>
       )}
 
-      {/* Team Scores */}
-      {/* todo: move this into a new component */}
-
+      {/* Team Scores - z-30 to stay above player areas */}
       <section
-        className="absolute top-6 right-6 flex gap-6 z-20"
+        className={cn(
+          "absolute flex z-30",
+          isPhoneLandscape ? "top-0.5 right-1 gap-1" : compact ? "top-1 right-2 gap-1.5" : "top-6 right-6 gap-6"
+        )}
         aria-label="Game controls and scores"
       >
         {/* Series Scoreboard Toggle */}
@@ -182,20 +190,21 @@ export const GameBoard = ({
           <button
             onClick={() => setShowScoreboard(!showScoreboard)}
             className={cn(
-              "p-2 rounded-xl",
+              "rounded-xl",
               "bg-secondary/90 backdrop-blur border border-border/50",
               "text-foreground hover:text-gold",
               "hover:bg-secondary/80 hover:border-gold/30",
               "transition-all duration-200",
               "hover:scale-105",
               "shadow-elevated",
+              isPhoneLandscape ? "p-0.5" : compact ? "p-1" : "p-2",
               showScoreboard && "bg-gold/10 border-gold/30 text-gold"
             )}
             title={
               showScoreboard ? "Hide scoreboard" : "Show series scoreboard"
             }
           >
-            <BarChart3 className="w-5 h-5" />
+            <BarChart3 className={isPhoneLandscape ? "w-3 h-3" : compact ? "w-3.5 h-3.5" : "w-5 h-5"} />
           </button>
         )}
 
@@ -204,12 +213,17 @@ export const GameBoard = ({
           scores={gameProgress.scores}
           animateScore={animateScore}
           isTeammateRevealed={isTeammateRevealed}
+          compact={compact}
+          isLandscape={isPhoneLandscape}
         />
       </section>
 
       {/* Series Scoreboard - Floating overlay */}
       {showScoreboard && isSeries && seriesProgress && (
-        <div className="absolute top-24 right-6 z-30">
+        <div className={cn(
+          "absolute z-40",
+          isPhoneLandscape ? "top-7 right-1" : compact ? "top-10 right-2" : "top-24 right-6"
+        )}>
           <CollapsibleScoreboard
             seriesProgress={seriesProgress}
             playerNames={playerState.playerNames}
@@ -219,7 +233,11 @@ export const GameBoard = ({
 
       {/* Main Game Area */}
       <section
-        className="relative h-screen flex items-center justify-center"
+        className={cn(
+          "relative h-screen flex items-center justify-center",
+          // In landscape, shift center area slightly upward to make room for cards at bottom
+          isPhoneLandscape && "-mt-6"
+        )}
         aria-label="Game playing area"
       >
         {/* Center Table Area */}
@@ -234,10 +252,12 @@ export const GameBoard = ({
           playerNames={playerState.playerNames}
           viewerIndex={viewerIndex}
           gameStage={gameProgress.stage}
+          compact={compact}
+          isPortrait={isPhonePortrait}
         />
 
         {/* Player Areas */}
-        {getPlayerPositions(viewerIndex).map(
+        {getPlayerPositions(viewerIndex, compact, isPhonePortrait).map(
           ({ playerIndex, position, playerAreaClassName }) => (
             <div key={position} className={playerAreaClassName}>
               <PlayerArea
@@ -250,13 +270,15 @@ export const GameBoard = ({
                 isObserver={isObserver}
                 viewerIndex={viewerIndex}
                 isTeammateRevealed={isTeammateRevealed}
+                compact={compact}
+                isLandscape={isPhoneLandscape}
               />
             </div>
           )
         )}
       </section>
 
-      {/* NEW: Bidding Controls - positioned in bottom-right during bidding */}
+      {/* NEW: Bidding Controls - positioned in bottom-center on mobile, bottom-right on desktop */}
       {gameProgress.stage === GameStages.BIDDING &&
         onBid &&
         onPass &&
@@ -267,6 +289,7 @@ export const GameBoard = ({
             onBid={onBid}
             onPass={onPass}
             isObserver={isObserver}
+            compact={compact}
           />
         )}
     </main>
