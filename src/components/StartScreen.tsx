@@ -1,5 +1,6 @@
-import { BarChart3 } from "lucide-react";
+import { BarChart3, Users } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useStats } from "../hooks/useStats";
 import { GameMode } from "../types/game";
 import HowToPlayModal from "./HowToPlayModal";
@@ -200,6 +201,7 @@ const StartGameButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
 );
 
 const StartScreen: React.FC<StartScreenProps> = ({ onStartGame }) => {
+  const navigate = useNavigate();
   const [selectedMode, setSelectedMode] = useState<GameMode>(GameMode.Single);
   const [showHowToPlay, setShowHowToPlay] = useState(false);
   const [showStats, setShowStats] = useState(false);
@@ -293,6 +295,13 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStartGame }) => {
           {/* Action Buttons */}
           <div className="space-y-4">
             <StartGameButton onClick={handleStartGame} />
+            <Button
+              onClick={() => navigate("/multiplayer")}
+              className="w-full bg-white/10 text-white border border-white/20 hover:bg-white/20 transition-all duration-300 font-semibold py-6 rounded-2xl"
+            >
+              <Users className="w-5 h-5 mr-2" />
+              Multiplayer
+            </Button>
           </div>
         </div>
       </div>

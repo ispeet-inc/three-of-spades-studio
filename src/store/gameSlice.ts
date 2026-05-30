@@ -81,13 +81,19 @@ const gameSlice = createSlice({
       state.gameProgress.stage = action.payload;
     },
 
-    playerSetup: state => {
+    playerSetup: (state, action: PayloadAction<{ preserveNames?: boolean } | void> = { type: 'gameSlice/playerSetup', payload: undefined }) => {
+      const preserveNames = action.payload && typeof action.payload === 'object' && 'preserveNames' in action.payload ? action.payload.preserveNames ?? false : false;
+      
       // Randomly assign bot agent types to computer players (1, 2, 3)
       state.playerState.playerAgents = {};
-      const sampledNames = selectRandomNames(
-        PLAYER_NAME_POOL,
-        state.playerState.playerNames
-      );
+      
+      let sampledNames: string[] = [];
+      if (!preserveNames) {
+        sampledNames = selectRandomNames(
+          PLAYER_NAME_POOL,
+          state.playerState.playerNames
+        );
+      }
 
       for (let i = 0; i < NUM_PLAYERS; i++) {
         if (i == FIRST_PLAYER_ID) continue;
@@ -95,9 +101,12 @@ const gameSlice = createSlice({
           agentClasses[Math.floor(Math.random() * agentClasses.length)];
         // Store agent type string instead of instance
         state.playerState.playerAgents[i] = getAgentType(AgentClass);
-        // Use the class name for the bot's display name
-        const name = sampledNames.pop();
-        state.playerState.playerNames[i] = name !== undefined ? name : "";
+        
+        // Only overwrite name if not preserving names
+        if (!preserveNames) {
+          const name = sampledNames.pop();
+          state.playerState.playerNames[i] = name !== undefined ? name : "";
+        }
       }
     },
 
@@ -383,6 +392,13 @@ const gameSlice = createSlice({
       state.error = null;
     },
 
+    // Server state update (from multiplayer)
+    setGameState: (state, action: PayloadAction<GameState>) => {
+      const serverState = action.payload;
+      // Replace entire state with server state
+      Object.assign(state, serverState);
+    },
+
     // NEW: Whitewash animation actions
     showWhitewashAnimation: state => {
       state.uiState.showWhitewashAnimation = true;
@@ -434,6 +450,8 @@ export const {
   // NEW: Dealing animation actions
   startDealingAnimation,
   stopDealingAnimation,
+  // NEW: Server state sync
+  setGameState,
 } = gameSlice.actions;
 
 export default gameSlice.reducer;
