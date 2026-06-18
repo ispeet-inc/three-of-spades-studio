@@ -35,7 +35,7 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
 }) => {
   const [scoresVisible, setScoresVisible] = useState(false);
   const [buttonVisible, setButtonVisible] = useState(false);
-
+  // random comment - to check whether the commit works
   // Determine winner based on bid - updated for new team system (1/2 instead of 0/1)
   const winningTeam = bidAmount !== null && scores.team1 >= bidAmount ? 1 : 2;
   const firstPlayerWon = teams[winningTeam].includes(FIRST_PLAYER_ID);

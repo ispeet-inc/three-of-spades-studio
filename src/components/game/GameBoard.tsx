@@ -1,4 +1,5 @@
 import { useAppSelector } from "@/hooks/useAppSelector";
+import { useHintSystem } from "@/hooks/useHintSystem";
 import { cn } from "@/lib/utils";
 import { GameStages } from "@/store/gameStages";
 import {
@@ -25,12 +26,14 @@ import {
 } from "@/utils/accessibility";
 import { FIRST_PLAYER_ID } from "@/utils/constants";
 import { getPlayerPositions } from "@/utils/positionUtils";
-import { BarChart3 } from "lucide-react";
+import { BarChart3, Settings } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Button } from "../ui/button";
 import { CollapsibleScoreboard } from "../ui/collapsible-scoreboard";
 import { BiddingControls } from "./BiddingControls";
 import { CenterTable } from "./CenterTable";
 import { GameInfo } from "./GameInfo";
+import { HintTooltip } from "./HintTooltip";
 import { PlayerArea } from "./PlayerArea";
 import { TeamScoresDisplay } from "./TeamScoresDisplay";
 
@@ -86,6 +89,9 @@ export const GameBoard = ({
   const isSeries = useAppSelector(selectIsSeries);
   const isTeammateRevealed = useAppSelector(selectIsTeammateRevealed);
 
+  // NEW: Hint system integration
+  const { shouldShowHint, markHintShown, getHintContent } = useHintSystem();
+
   // Score animation effect
   useEffect(() => {
     if (lastScores.team1 !== gameProgress.scores.team1) {
@@ -140,25 +146,25 @@ export const GameBoard = ({
 
       {/* Game Header */}
       <header className="absolute top-6 left-6 right-6 flex justify-between items-center z-20">
-          {/* Game Info */}
-          <GameInfo
-            gameConfig={gameConfig}
-            isSeries={isSeries}
-            seriesProgress={seriesProgress}
-            playerNames={playerState.playerNames}
-          />
+        {/* Game Info */}
+        <GameInfo
+          gameConfig={gameConfig}
+          isSeries={isSeries}
+          seriesProgress={seriesProgress}
+          playerNames={playerState.playerNames}
+        />
 
-          {/* Settings */}
-          {/* <Button
-            variant="secondary"
-            size="sm"
-            onClick={onSettingsClick}
-            className="bg-casino-black/40 hover:bg-casino-black/60 text-gold border border-gold/30 backdrop-blur-sm shadow-elevated"
-            aria-label="Open game settings"
-          >
-            <Settings className="w-4 h-4" aria-hidden="true" />
-          </Button> */}
-        </header>
+        {/* Settings */}
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={onSettingsClick}
+          className="bg-casino-black/40 hover:bg-casino-black/60 text-gold border border-gold/30 backdrop-blur-sm shadow-elevated"
+          aria-label="Open game settings"
+        >
+          <Settings className="w-4 h-4" aria-hidden="true" />
+        </Button>
+      </header>
 
       {/* Minimal observer mode indicator */}
       {isObserver && (
@@ -269,6 +275,25 @@ export const GameBoard = ({
             isObserver={isObserver}
           />
         )}
+
+      {/* NEW: Bidding Hint */}
+      {(() => {
+        const shouldShow =
+          gameProgress.stage === GameStages.BIDDING &&
+          canPlayerBid &&
+          shouldShowHint("bidding-intro");
+
+        return shouldShow;
+      })() && (
+        <div className="absolute top-20 right-6 z-50">
+          <HintTooltip
+            content={getHintContent("bidding-intro")}
+            position="left"
+            visible={true}
+            onDismiss={() => markHintShown("bidding-intro")}
+          />
+        </div>
+      )}
     </main>
   );
 };
