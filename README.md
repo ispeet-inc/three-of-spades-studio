@@ -1,77 +1,60 @@
-# Welcome to your Lovable project
+# Three of Spades
 
-## Project info
+> **Four games. One table. Plenty to remember.**
 
-**URL**: https://lovable.dev/projects/aec01383-1f19-4780-b342-daf674c83305
+Three of Spades is a four-player hidden-partner trick-taking game. Each auction decides the contract, trump suit, and card that will reveal the bidder’s teammate; the social puzzle changes as the hand unfolds and scores carry across a four-game series.
 
-## How can I edit this code?
+This branch presents **The Club Table**: a source-faithful redesign that treats the interface like a premium physical game set rather than a casino screen or generic dashboard. Deep green cloth anchors play, warm ivory carries records and guidance, and restrained brass marks contract, focus, and earned emphasis.
 
-There are several ways of editing your application.
+## Experience
 
-**Use Lovable**
+| Surface | Purpose |
+|---|---|
+| **Start Table** | Name the player, choose a single game or four-game series, resume saved play, and open references. |
+| **Match Table** | Preserve the four-seat spatial model through bidding, contract setup, trick play, and teammate reveal. |
+| **Match Record** | Keep the contract, scores, guidance, series position, and actions available without shrinking the table. |
+| **Result Sheets** | Explain game outcomes, cumulative movement, next starter, and final series ranking. |
+| **Reference Surfaces** | Provide rules, strategy, statistics, guidance settings, and reduced-motion preferences. |
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/aec01383-1f19-4780-b342-daf674c83305) and start prompting.
+The primary composition targets desktop and phone landscape. Portrait remains functional and offers a concise rotation recommendation without blocking play. An observer view is available through `/?observer=true&viewer=0` and follows locally saved game state without exposing player actions.
 
-Changes made via Lovable will be committed automatically to this repo.
+## Design Documentation
 
-**Use your preferred IDE**
+The visual and interaction decisions are maintained as first-class product documentation:
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+| Document | Scope |
+|---|---|
+| [Club Table Design Philosophy](design-docs/club-table-design-philosophy.md) | Brand essence, core principles, layout source of truth, visual language, voice, and motion philosophy. |
+| [Club Table Interface System](design-docs/club-table-interface-system.md) | Information architecture, stage mapping, tokens, responsive geometry, states, guidance, accessibility, and acceptance criteria. |
+| [North Star Vision](design-docs/north-star-vision.md) | Wider product direction and future roadmap. |
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+## Local Development
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+npm install
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+The app is built with **React 19**, **TypeScript**, **Redux Toolkit and Redux Saga**, **Vite**, **Tailwind CSS 4**, and **Radix UI primitives**.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Quality Gates
 
-**Use GitHub Codespaces**
+```sh
+npm run type-check
+npm test
+npm run build
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Run all release checks together with:
 
-## What technologies are used for this project?
+```sh
+npm run check
+```
 
-This project is built with:
+The reducer regression suite includes completed-Series resume hydration so match mode, cumulative standings, and final result state survive restoration while transient deal motion is safely cleared.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Product Principles
 
-## How can I deploy this project?
+The table remains the game, and interface chrome yields to it. Material cues create identity rather than decoration. Ordinary trick play stays quiet while bidding, teammate reveal, game results, and series victory receive progressively stronger emphasis. Guidance always occupies a reserved place and can be reduced or disabled without removing required rule feedback.
 
-Simply open [Lovable](https://lovable.dev/projects/aec01383-1f19-4780-b342-daf674c83305) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
-
-Running ESLint
-
-npx eslint src/ --max-warnings 0
+Every surface should answer three questions without searching: **What is happening? What matters now? What can I do next?**

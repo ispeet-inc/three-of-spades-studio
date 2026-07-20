@@ -1,49 +1,32 @@
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { Toaster } from "@/components/ui/toaster";
+/*
+ * The Club Table: the application shell stays quiet and lets the spatial table,
+ * persistent match book, and tactile reference surfaces carry the identity.
+ */
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Provider } from "react-redux";
-import { BrowserRouter, Route, Routes, useParams } from "react-router-dom";
-import GameRedux from "./pages/GameRedux";
-import HandTesterPage from "./pages/HandTesterPage";
-import NotFound from "./pages/NotFound";
-import Palettes from "./pages/Palettes";
-import StatsDemo from "./pages/StatsDemo";
-import { store } from "./store";
+import NotFound from "@/pages/NotFound";
+import { Route, Switch } from "wouter";
+import ErrorBoundary from "./components/ErrorBoundary";
+import { ThemeProvider } from "./contexts/ThemeContext";
+import Home from "./pages/Home";
 
-const queryClient = new QueryClient();
+function Router() {
+  return (
+    <Switch>
+      <Route path="/" component={Home} />
+      <Route path="/404" component={NotFound} />
+      <Route component={NotFound} />
+    </Switch>
+  );
+}
 
-// Wrapper component to extract URL parameter
-const GameReduxWrapper = () => {
-  const { viewerIndex } = useParams();
-  let index = Number(viewerIndex);
-  if (isNaN(index) || index < 0 || index > 3) {
-    alert("Invalid player index in URL. Defaulting to player 3.");
-    index = 3;
-  }
-  return <GameRedux viewerIndex={index} />;
-};
-
-const App = () => (
-  <Provider store={store}>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<GameRedux viewerIndex={3} />} />
-            <Route path="/:viewerIndex" element={<GameReduxWrapper />} />
-            <Route path="/tester" element={<HandTesterPage />} />
-            <Route path="/palettes" element={<Palettes />} />
-            <Route path="/stats-demo" element={<StatsDemo />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
-  </Provider>
-);
-
-export default App;
+export default function App() {
+  return (
+    <ErrorBoundary>
+      <ThemeProvider defaultTheme="light">
+        <TooltipProvider delayDuration={180}>
+          <Router />
+        </TooltipProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
+  );
+}

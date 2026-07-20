@@ -61,7 +61,7 @@ class AgentManager {
   clearAgentsForPlayers(playerIds: number[]): void {
     const keysToDelete: string[] = [];
 
-    for (const [key] of this.agents) {
+    for (const key of Array.from(this.agents.keys())) {
       const playerId = parseInt(key.split("-")[0]);
       if (playerIds.includes(playerId)) {
         keysToDelete.push(key);

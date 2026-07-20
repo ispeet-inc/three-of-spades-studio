@@ -1,231 +1,113 @@
+/*
+ * The Club Table: physical-card clarity, warm ivory paper, restrained brass focus,
+ * square geometry, and motion that only explains state changes.
+ */
 import { cn } from "@/lib/utils";
-import { Card } from "@/types/game";
-import { cardDescriptions } from "@/utils/accessibility";
-import { useFeedback } from "@/utils/feedbackSystem";
-import { getSuiteColor, getSuiteSymbol } from "@/utils/suiteUtils";
-import { useRef } from "react";
+import type { Card } from "@/types/game";
+import { getSuiteName, getSuiteSymbol } from "@/utils/suiteUtils";
+import type { CSSProperties, KeyboardEvent } from "react";
 
-export type { Card };
+export type PlayingCardSize = "mini" | "table" | "hand" | "picker";
 
 interface PlayingCardProps {
-  card: Card;
-  isPlayable?: boolean;
-  isSelected?: boolean;
-  mini?: boolean;
-  size?: "sm" | "md" | "lg";
-  onClick?: () => void;
+  card?: Card;
+  faceDown?: boolean;
+  size?: PlayingCardSize;
+  playable?: boolean;
+  selected?: boolean;
+  disabled?: boolean;
   className?: string;
-  dealAnimation?: boolean;
-  dealDelay?: number;
-  playerPosition?: "bottom" | "left" | "top" | "right";
+  style?: CSSProperties;
+  onSelect?: (card: Card) => void;
+  tabIndex?: number;
 }
 
-export const PlayingCard = ({
+const rankLabel = (number: number) => {
+  if (number === 1) return "A";
+  if (number === 11) return "J";
+  if (number === 12) return "Q";
+  if (number === 13) return "K";
+  return String(number);
+};
+
+export function PlayingCard({
   card,
-  isPlayable = false,
-  isSelected = false,
-  mini = false,
-  size = "md",
-  onClick,
+  faceDown = false,
+  size = "hand",
+  playable = false,
+  selected = false,
+  disabled = false,
   className,
-  dealAnimation = false,
-  dealDelay = 0,
-  playerPosition = "bottom",
-}: PlayingCardProps) => {
-  const cardRef = useRef<HTMLDivElement>(null);
-  const { trigger } = useFeedback();
+  style,
+  onSelect,
+  tabIndex,
+}: PlayingCardProps) {
+  const interactive = Boolean(card && onSelect && !disabled && !faceDown);
+  const suitName = card ? getSuiteName(card.suite) : "hidden";
+  const label = card
+    ? `${rankLabel(card.number)} of ${suitName}${playable ? ", playable" : ""}`
+    : "Face-down card";
 
-  const cardDescription = cardDescriptions.getFullDescription(
-    card.number,
-    card.suite
-  );
-  const suitIcon = getSuiteSymbol(card.suite);
-  const suitColor = getSuiteColor(card.suite);
-  const displayNumber = card.id;
-
-  // Animation classes based on dealing position
-  const getDealAnimation = () => {
-    if (!dealAnimation) return "";
-
-    const baseDelay = `animate-delay-[${dealDelay}ms]`;
-
-    switch (playerPosition) {
-      case "bottom":
-        return `animate-[deal-to-bottom_0.8s_ease-out_forwards] ${baseDelay}`;
-      case "left":
-        return `animate-[deal-to-left_0.8s_ease-out_forwards] ${baseDelay}`;
-      case "top":
-        return `animate-[deal-to-top_0.8s_ease-out_forwards] ${baseDelay}`;
-      case "right":
-        return `animate-[deal-to-right_0.8s_ease-out_forwards] ${baseDelay}`;
-      default:
-        return "";
+  const handleKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
+    if (!interactive || !card) return;
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      onSelect?.(card);
     }
   };
 
-  const getCardSize = () => {
-    if (mini) return "w-8 h-12";
+  if (faceDown || !card) {
+    return (
+      <div
+        className={cn("playing-card playing-card--back", `playing-card--${size}`, className)}
+        style={style}
+        role="img"
+        aria-label={label}
+      >
+        <img
+          src="/assets/three-of-spades/card-back.svg"
+          alt=""
+          aria-hidden="true"
+          draggable={false}
+        />
+      </div>
+    );
+  }
 
-    switch (size) {
-      case "sm":
-        return "w-12 h-18";
-      case "lg":
-        return "w-20 h-30";
-      default: // 'md'
-        return "w-16 h-24";
-    }
-  };
-
-  const getTextSize = () => {
-    if (mini)
-      return {
-        number: "text-[10px]",
-        suit: "text-[8px]",
-        center: "text-sm",
-      };
-
-    switch (size) {
-      case "sm":
-        return {
-          number: "text-xs",
-          suit: "text-[10px]",
-          center: "text-lg",
-        };
-      case "lg":
-        return {
-          number: "text-base",
-          suit: "text-sm",
-          center: "text-3xl",
-        };
-      default: // 'md'
-        return {
-          number: "text-sm",
-          suit: "text-xs",
-          center: "text-2xl",
-        };
-    }
-  };
-
-  const textSizes = getTextSize();
-
-  const handleClick = () => {
-    try {
-      if (onClick) {
-        // Trigger feedback first
-        trigger("cardPlay", {
-          element: cardRef.current || undefined,
-          intensity: "medium",
-        });
-        // Then execute the original click handler
-        onClick();
-      }
-    } catch (error) {
-      console.error("Card click error:", error);
-      // Fallback: still execute the original click
-      if (onClick) {
-        onClick();
-      }
-    }
-  };
-
-  const handleMouseEnter = () => {
-    try {
-      if (isPlayable) {
-        trigger("cardDeal", {
-          element: cardRef.current || undefined,
-          intensity: "light",
-        });
-      }
-    } catch (error) {
-      // Silently fail for hover feedback
-      console.warn("Card hover feedback error:", error);
-    }
-  };
+  const isRed = card.suite === 1 || card.suite === 3;
 
   return (
-    <div
-      ref={cardRef}
+    <button
+      type="button"
       className={cn(
-        "relative bg-white rounded-lg border-2 border-casino-black/20 shadow-card transition-all duration-300",
-        getCardSize(),
-        "cursor-pointer select-none overflow-hidden",
-        isPlayable &&
-          "hover:scale-110 hover:shadow-card-hover hover:-translate-y-2 hover:border-gold/50 hover:animate-card-hover-lift",
-        isSelected &&
-          "scale-105 shadow-card-selected border-gold -translate-y-1",
-        !isPlayable && !onClick && "cursor-default",
-        dealAnimation && getDealAnimation(),
-        "transform-gpu", // Enable hardware acceleration
-        className
+        "playing-card playing-card--face",
+        `playing-card--${size}`,
+        isRed ? "playing-card--red" : "playing-card--black",
+        playable && "is-playable",
+        selected && "is-selected",
+        disabled && "is-disabled",
+        className,
       )}
-      onClick={handleClick}
-      onMouseEnter={handleMouseEnter}
-      role={isPlayable ? "button" : "img"}
-      tabIndex={isPlayable ? 0 : -1}
-      aria-label={isPlayable ? `Play ${cardDescription}` : cardDescription}
-      aria-pressed={isSelected}
-      onKeyDown={e => {
-        if (isPlayable && (e.key === "Enter" || e.key === " ")) {
-          e.preventDefault();
-          handleClick();
-        }
-      }}
-      style={{
-        animationDelay: dealAnimation ? `${dealDelay}ms` : undefined,
-      }}
+      style={style}
+      aria-label={label}
+      aria-pressed={selected || undefined}
+      aria-disabled={!interactive}
+      disabled={!interactive}
+      tabIndex={interactive ? tabIndex : -1}
+      onClick={() => card && onSelect?.(card)}
+      onKeyDown={handleKeyDown}
     >
-      {/* Card face */}
-      <div className="absolute inset-1 bg-white rounded-md flex flex-col justify-between p-1">
-        {/* Top left number and suit */}
-        <div
-          className={cn(
-            "flex flex-col items-start leading-none",
-            suitColor === "red" ? "text-red-600" : "text-casino-black"
-          )}
-        >
-          <span className={cn("font-bold", textSizes.number)}>
-            {displayNumber}
-          </span>
-          <span className={textSizes.suit}>{suitIcon}</span>
-        </div>
-
-        {/* Center suit icon */}
-        {!mini && (
-          <div className="flex-1 flex items-center justify-center">
-            <span
-              className={cn(
-                textSizes.center,
-                suitColor === "red" ? "text-red-600" : "text-casino-black"
-              )}
-            >
-              {suitIcon}
-            </span>
-          </div>
-        )}
-
-        {/* Bottom right number and suit (rotated) */}
-        <div
-          className={cn(
-            "flex flex-col items-end leading-none rotate-180 self-end",
-            suitColor === "red" ? "text-red-600" : "text-casino-black"
-          )}
-        >
-          <span className={cn("font-bold", textSizes.number)}>
-            {displayNumber}
-          </span>
-          <span className={textSizes.suit}>{suitIcon}</span>
-        </div>
-      </div>
-
-      {/* Glow effect for playable cards */}
-      {isPlayable && (
-        <div className="absolute inset-0 rounded-lg bg-gold/20 opacity-0 hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-      )}
-
-      {/* Selection indicator */}
-      {isSelected && (
-        <div className="absolute inset-0 rounded-lg border-2 border-gold bg-gold/10 pointer-events-none" />
-      )}
-    </div>
+      <span className="playing-card__corner" aria-hidden="true">
+        <strong>{rankLabel(card.number)}</strong>
+        <span>{getSuiteSymbol(card.suite)}</span>
+      </span>
+      <span className="playing-card__pip" aria-hidden="true">
+        {getSuiteSymbol(card.suite)}
+      </span>
+      <span className="playing-card__corner playing-card__corner--reverse" aria-hidden="true">
+        <strong>{rankLabel(card.number)}</strong>
+        <span>{getSuiteSymbol(card.suite)}</span>
+      </span>
+    </button>
   );
-};
+}
