@@ -1,100 +1,55 @@
-import { Button } from "@/components/ui/button";
-import { AlertTriangle, RefreshCw } from "lucide-react";
-import { Component, ErrorInfo, ReactNode } from "react";
+import { cn } from "@/lib/utils";
+import { AlertTriangle, RotateCcw } from "lucide-react";
+import { Component, ReactNode } from "react";
 
 interface Props {
   children: ReactNode;
-  fallback?: ReactNode;
 }
 
 interface State {
   hasError: boolean;
-  error?: Error;
-  errorInfo?: ErrorInfo;
+  error: Error | null;
 }
 
-export class ErrorBoundary extends Component<Props, State> {
-  public state: State = {
-    hasError: false,
-  };
+class ErrorBoundary extends Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
 
-  public static getDerivedStateFromError(error: Error): State {
+  static getDerivedStateFromError(error: Error): State {
     return { hasError: true, error };
   }
 
-  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error("Game Error Boundary caught an error:", error, errorInfo);
-    this.setState({
-      error,
-      errorInfo,
-    });
-  }
-
-  private handleRetry = () => {
-    this.setState({ hasError: false, error: undefined, errorInfo: undefined });
-  };
-
-  private handleReload = () => {
-    window.location.reload();
-  };
-
-  public render() {
+  render() {
     if (this.state.hasError) {
-      if (this.props.fallback) {
-        return this.props.fallback;
-      }
-
       return (
-        <div
-          className="min-h-screen bg-gradient-felt flex items-center justify-center p-4"
-          role="alert"
-          aria-live="assertive"
-        >
-          <div className="bg-casino-black/80 backdrop-blur-sm border border-gold/30 rounded-xl shadow-elevated max-w-md w-full p-6 text-center">
-            <div className="flex justify-center mb-4">
-              <AlertTriangle className="w-12 h-12 text-gold" />
+        <div className="flex items-center justify-center min-h-screen p-8 bg-background">
+          <div className="flex flex-col items-center w-full max-w-2xl p-8">
+            <AlertTriangle
+              size={48}
+              className="text-destructive mb-6 flex-shrink-0"
+            />
+
+            <h2 className="text-xl mb-4">An unexpected error occurred.</h2>
+
+            <div className="p-4 w-full rounded bg-muted overflow-auto mb-6">
+              <pre className="text-sm text-muted-foreground whitespace-break-spaces">
+                {this.state.error?.stack}
+              </pre>
             </div>
 
-            <h1 className="text-xl font-bold text-gold mb-2">
-              Oops! Something went wrong
-            </h1>
-
-            <p className="text-casino-white/80 mb-6">
-              The game encountered an unexpected error. Don't worry, your
-              progress should be saved.
-            </p>
-
-            <div className="space-y-3">
-              <Button
-                onClick={this.handleRetry}
-                className="w-full bg-gradient-gold text-casino-black font-bold"
-                aria-label="Try to recover from error"
-              >
-                <RefreshCw className="w-4 h-4 mr-2" />
-                Try Again
-              </Button>
-
-              <Button
-                onClick={this.handleReload}
-                variant="outline"
-                className="w-full border-gold/30 text-gold hover:bg-gold/10"
-                aria-label="Reload the game completely"
-              >
-                Reload Game
-              </Button>
-            </div>
-
-            {process.env.NODE_ENV === "development" && this.state.error && (
-              <details className="mt-4 text-left">
-                <summary className="text-sm text-casino-white/60 cursor-pointer hover:text-casino-white">
-                  Technical Details (Development)
-                </summary>
-                <pre className="text-xs text-red-400 mt-2 overflow-auto max-h-32 bg-casino-black/50 p-2 rounded">
-                  {this.state.error.toString()}
-                  {this.state.errorInfo?.componentStack}
-                </pre>
-              </details>
-            )}
+            <button
+              onClick={() => window.location.reload()}
+              className={cn(
+                "flex items-center gap-2 px-4 py-2 rounded-lg",
+                "bg-primary text-primary-foreground",
+                "hover:opacity-90 cursor-pointer"
+              )}
+            >
+              <RotateCcw size={16} />
+              Reload Page
+            </button>
           </div>
         </div>
       );
@@ -103,3 +58,5 @@ export class ErrorBoundary extends Component<Props, State> {
     return this.props.children;
   }
 }
+
+export default ErrorBoundary;

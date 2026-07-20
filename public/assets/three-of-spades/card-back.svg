@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 336" role="img" aria-labelledby="title desc">
+  <title id="title">Three of Spades card back</title>
+  <desc id="desc">Deep table-green card back with an ivory double rule, muted brass lattice, and a split-spade maker's mark.</desc>
+  <defs>
+    <linearGradient id="cloth" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#205443"/>
+      <stop offset="0.48" stop-color="#143f31"/>
+      <stop offset="1" stop-color="#0b281f"/>
+    </linearGradient>
+    <pattern id="lattice" width="28" height="28" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <path d="M0 0H28M0 14H28" fill="none" stroke="#b69a62" stroke-opacity=".22" stroke-width="1"/>
+      <circle cx="14" cy="14" r="1.6" fill="#d1b77d" fill-opacity=".35"/>
+    </pattern>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#071b15" flood-opacity=".55"/>
+    </filter>
+  </defs>
+  <rect width="240" height="336" rx="16" fill="url(#cloth)"/>
+  <rect x="9" y="9" width="222" height="318" rx="11" fill="none" stroke="#f4ebdd" stroke-opacity=".88" stroke-width="3"/>
+  <rect x="17" y="17" width="206" height="302" rx="8" fill="url(#lattice)" stroke="#b69a62" stroke-width="2"/>
+  <path d="M33 43H207M33 293H207" stroke="#f4ebdd" stroke-opacity=".6" stroke-width="1"/>
+  <g transform="translate(120 168)" filter="url(#shadow)">
+    <path d="M0-66C-17-42-49-24-49 7c0 20 15 34 34 34 8 0 15-3 20-8-2 17-10 31-24 43h38C5 64-3 50-5 33c5 5 12 8 20 8 19 0 34-14 34-34 0-31-32-49-49-73Z" fill="#f4ebdd"/>
+    <path d="M0-59C-13-39-39-22-39 5c0 15 10 25 24 25 11 0 19-7 20-18 1 11 9 18 20 18 14 0 24-10 24-25 0-27-26-44-39-64Z" transform="translate(-5)" fill="#b69a62"/>
+    <path d="M0-59C-13-39-39-22-39 5c0 15 10 25 24 25 11 0 19-7 20-18 1 11 9 18 20 18 14 0 24-10 24-25 0-27-26-44-39-64Z" transform="translate(5) scale(-1 1)" fill="#143f31"/>
+    <path d="M-22 57H22" stroke="#b69a62" stroke-width="4" stroke-linecap="square"/>
+  </g>
+  <text x="120" y="272" fill="#d1b77d" font-family="Georgia, serif" font-size="12" letter-spacing="4" text-anchor="middle">THREE OF SPADES</text>
+</svg>

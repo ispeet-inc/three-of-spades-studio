@@ -360,26 +360,22 @@ const gameSlice = createSlice({
       state.seriesProgress.seriesWinner = winner.playerId;
     },
 
-    // NEW: State restoration actions for observer mode
+    // Restore every persisted game domain so resumed Series matches retain their mode and cumulative ledger.
     restoreGameState: (state, action: PayloadAction<GameState>) => {
       const savedState = action.payload;
 
-      // Restore game progress
       state.gameProgress = savedState.gameProgress;
-
-      // Restore bidding state
       state.biddingState = savedState.biddingState;
-
-      // Restore table state
       state.tableState = savedState.tableState;
-
-      // Restore player state
       state.playerState = savedState.playerState;
-
-      // Restore game config
       state.gameConfig = savedState.gameConfig;
-
-      // Clear any errors
+      state.seriesProgress = savedState.seriesProgress;
+      state.gameMode = savedState.gameMode;
+      state.uiState = {
+        ...state.uiState,
+        ...savedState.uiState,
+        isDealing: false,
+      };
       state.error = null;
     },
 

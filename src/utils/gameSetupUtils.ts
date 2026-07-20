@@ -102,6 +102,11 @@ export const resetGameStateForNewSeries = (
   numPlayers: number,
   totalGames: number
 ): Partial<GameState> => {
+  const resetPlayers: Record<number, Playerv2> = {};
+  for (let i = 0; i < numPlayers; i++) {
+    resetPlayers[i] = initPlayerObject([]);
+  }
+
   return {
     gameProgress: {
       stage: GameStages.INIT,
@@ -109,5 +114,18 @@ export const resetGameStateForNewSeries = (
       scores: { team1: 0, team2: 0 },
     },
     seriesProgress: initSeriesProgress(numPlayers, totalGames),
+    tableState: initialTableState(numPlayers, 0, true),
+    biddingState: initialBiddingState(numPlayers, 0, false),
+    playerState: {
+      ...state.playerState,
+      players: resetPlayers,
+      startingPlayer: 0,
+    },
+    gameConfig: null,
+    error: null,
+    uiState: {
+      showWhitewashAnimation: false,
+      isDealing: false,
+    },
   };
 };
